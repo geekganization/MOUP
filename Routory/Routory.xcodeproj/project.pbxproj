@@ -8,6 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		5B6E8DF02DF17A4B006B061E /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 5B6E8DEF2DF17A4B006B061E /* .gitignore */; };
+		5B6E8F8D2DF17C8F006B061E /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E8F8C2DF17C8F006B061E /* RxCocoa */; };
+		5B6E8F8F2DF17C8F006B061E /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E8F8E2DF17C8F006B061E /* RxRelay */; };
+		5B6E8F912DF17C8F006B061E /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E8F902DF17C8F006B061E /* RxSwift */; };
+		5B6E8F942DF17CB9006B061E /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E8F932DF17CB9006B061E /* Then */; };
+		5B6E8F972DF17CCA006B061E /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E8F962DF17CCA006B061E /* SnapKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -19,7 +24,7 @@
 		5B6E8D292DF17A36006B061E /* Exceptions for "Routory" folder in "Routory" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				Resources/Info.plist,
 			);
 			target = 5B6E8D162DF17A34006B061E /* Routory */;
 		};
@@ -41,6 +46,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5B6E8F912DF17C8F006B061E /* RxSwift in Frameworks */,
+				5B6E8F8F2DF17C8F006B061E /* RxRelay in Frameworks */,
+				5B6E8F8D2DF17C8F006B061E /* RxCocoa in Frameworks */,
+				5B6E8F942DF17CB9006B061E /* Then in Frameworks */,
+				5B6E8F972DF17CCA006B061E /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -84,6 +94,11 @@
 			);
 			name = Routory;
 			packageProductDependencies = (
+				5B6E8F8C2DF17C8F006B061E /* RxCocoa */,
+				5B6E8F8E2DF17C8F006B061E /* RxRelay */,
+				5B6E8F902DF17C8F006B061E /* RxSwift */,
+				5B6E8F932DF17CB9006B061E /* Then */,
+				5B6E8F962DF17CCA006B061E /* SnapKit */,
 			);
 			productName = Routory;
 			productReference = 5B6E8D172DF17A34006B061E /* Routory.app */;
@@ -105,14 +120,19 @@
 				};
 			};
 			buildConfigurationList = 5B6E8D122DF17A34006B061E /* Build configuration list for PBXProject "Routory" */;
-			developmentRegion = en;
+			developmentRegion = ko;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				en,
 				Base,
+				ko,
 			);
 			mainGroup = 5B6E8D0E2DF17A34006B061E;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				5B6E8F8B2DF17C8E006B061E /* XCRemoteSwiftPackageReference "RxSwift" */,
+				5B6E8F922DF17CB9006B061E /* XCRemoteSwiftPackageReference "Then" */,
+				5B6E8F952DF17CCA006B061E /* XCRemoteSwiftPackageReference "SnapKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5B6E8D182DF17A34006B061E /* Products */;
 			projectDirPath = "";
@@ -153,10 +173,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Routory/Info.plist;
+				INFOPLIST_FILE = Routory/Resources/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UIMainStoryboardFile = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
@@ -185,10 +205,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Routory/Info.plist;
+				INFOPLIST_FILE = Routory/Resources/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UIMainStoryboardFile = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
@@ -214,6 +234,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -277,6 +298,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -350,6 +372,61 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		5B6E8F8B2DF17C8E006B061E /* XCRemoteSwiftPackageReference "RxSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ReactiveX/RxSwift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.9.0;
+			};
+		};
+		5B6E8F922DF17CB9006B061E /* XCRemoteSwiftPackageReference "Then" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/devxoul/Then";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.0.0;
+			};
+		};
+		5B6E8F952DF17CCA006B061E /* XCRemoteSwiftPackageReference "SnapKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.7.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		5B6E8F8C2DF17C8F006B061E /* RxCocoa */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5B6E8F8B2DF17C8E006B061E /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxCocoa;
+		};
+		5B6E8F8E2DF17C8F006B061E /* RxRelay */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5B6E8F8B2DF17C8E006B061E /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxRelay;
+		};
+		5B6E8F902DF17C8F006B061E /* RxSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5B6E8F8B2DF17C8E006B061E /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxSwift;
+		};
+		5B6E8F932DF17CB9006B061E /* Then */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5B6E8F922DF17CB9006B061E /* XCRemoteSwiftPackageReference "Then" */;
+			productName = Then;
+		};
+		5B6E8F962DF17CCA006B061E /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5B6E8F952DF17CCA006B061E /* XCRemoteSwiftPackageReference "SnapKit" */;
+			productName = SnapKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 5B6E8D0F2DF17A34006B061E /* Project object */;
 }

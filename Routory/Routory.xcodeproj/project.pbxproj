@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5B6E8DF02DF17A4B006B061E /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 5B6E8DEF2DF17A4B006B061E /* .gitignore */; };
 		5B6E8F8D2DF17C8F006B061E /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E8F8C2DF17C8F006B061E /* RxCocoa */; };
 		5B6E8F8F2DF17C8F006B061E /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E8F8E2DF17C8F006B061E /* RxRelay */; };
 		5B6E8F912DF17C8F006B061E /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E8F902DF17C8F006B061E /* RxSwift */; };
@@ -17,7 +16,6 @@
 
 /* Begin PBXFileReference section */
 		5B6E8D172DF17A34006B061E /* Routory.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Routory.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		5B6E8DEF2DF17A4B006B061E /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -60,7 +58,6 @@
 		5B6E8D0E2DF17A34006B061E = {
 			isa = PBXGroup;
 			children = (
-				5B6E8DEF2DF17A4B006B061E /* .gitignore */,
 				5B6E8D192DF17A34006B061E /* Routory */,
 				5B6E8D182DF17A34006B061E /* Products */,
 			);
@@ -148,7 +145,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5B6E8DF02DF17A4B006B061E /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

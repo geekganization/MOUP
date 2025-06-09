@@ -1,0 +1,16 @@
+PODS:
+  - JTAppleCalendar (8.0.5)
+
+DEPENDENCIES:
+  - JTAppleCalendar
+
+SPEC REPOS:
+  trunk:
+    - JTAppleCalendar
+
+SPEC CHECKSUMS:
+  JTAppleCalendar: 16c6501b22cb27520372c28b0a2e0b12c8d0cd73
+
+PODFILE CHECKSUM: 33d2c8e06ada97e31ee6557541113c40e900869a
+
+COCOAPODS: 1.16.2

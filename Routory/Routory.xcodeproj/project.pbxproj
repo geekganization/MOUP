@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		078D4DBA8E91D815B9025C38 /* libPods-Routory.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D48057F4EBD6C7F554C8391 /* libPods-Routory.a */; };
 		5B6E8F8D2DF17C8F006B061E /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E8F8C2DF17C8F006B061E /* RxCocoa */; };
 		5B6E8F8F2DF17C8F006B061E /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E8F8E2DF17C8F006B061E /* RxRelay */; };
 		5B6E8F912DF17C8F006B061E /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E8F902DF17C8F006B061E /* RxSwift */; };
@@ -15,7 +16,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4D48057F4EBD6C7F554C8391 /* libPods-Routory.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Routory.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B6E8D172DF17A34006B061E /* Routory.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Routory.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6A924698414119037D57527D /* Pods-Routory.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Routory.debug.xcconfig"; path = "Target Support Files/Pods-Routory/Pods-Routory.debug.xcconfig"; sourceTree = "<group>"; };
+		D9140A70FE20A2F4CBC5D583 /* Pods-Routory.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Routory.release.xcconfig"; path = "Target Support Files/Pods-Routory/Pods-Routory.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -49,17 +53,30 @@
 				5B6E8F8D2DF17C8F006B061E /* RxCocoa in Frameworks */,
 				5B6E8F942DF17CB9006B061E /* Then in Frameworks */,
 				5B6E8F972DF17CCA006B061E /* SnapKit in Frameworks */,
+				078D4DBA8E91D815B9025C38 /* libPods-Routory.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4AB53E4AD263220644EFE23E /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				6A924698414119037D57527D /* Pods-Routory.debug.xcconfig */,
+				D9140A70FE20A2F4CBC5D583 /* Pods-Routory.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		5B6E8D0E2DF17A34006B061E = {
 			isa = PBXGroup;
 			children = (
 				5B6E8D192DF17A34006B061E /* Routory */,
 				5B6E8D182DF17A34006B061E /* Products */,
+				4AB53E4AD263220644EFE23E /* Pods */,
+				6A2D9354EB0919F51A1A31D6 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -71,6 +88,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		6A2D9354EB0919F51A1A31D6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4D48057F4EBD6C7F554C8391 /* libPods-Routory.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -78,6 +103,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 5B6E8D2A2DF17A36006B061E /* Build configuration list for PBXNativeTarget "Routory" */;
 			buildPhases = (
+				A437A7A4530B075B499D47DF /* [CP] Check Pods Manifest.lock */,
 				5B6E8D132DF17A34006B061E /* Sources */,
 				5B6E8D142DF17A34006B061E /* Frameworks */,
 				5B6E8D152DF17A34006B061E /* Resources */,
@@ -150,6 +176,31 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		A437A7A4530B075B499D47DF /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Routory-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		5B6E8D132DF17A34006B061E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -163,6 +214,7 @@
 /* Begin XCBuildConfiguration section */
 		5B6E8D2B2DF17A36006B061E /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6A924698414119037D57527D /* Pods-Routory.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -196,6 +248,7 @@
 		};
 		5B6E8D2C2DF17A36006B061E /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D9140A70FE20A2F4CBC5D583 /* Pods-Routory.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;

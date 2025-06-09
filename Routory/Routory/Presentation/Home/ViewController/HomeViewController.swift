@@ -7,14 +7,18 @@
 
 import UIKit
 
-class HomeViewController: UIViewController {
+import RxSwift
+import SnapKit
+import Then
 
+final class HomeViewController: UIViewController {
+    
+    // MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         self.view.backgroundColor = .systemBackground
         print("HomeViewController")
     }
-
-
 }
-

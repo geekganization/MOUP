@@ -11,6 +11,8 @@ import Then
 
 final class WorkShiftRegistrationViewController: UIViewController {
     
+    private let simpleRowView = SimpleRowView(title: "근무지 선택")
+    
     private let scrollView = UIScrollView().then {
         $0.keyboardDismissMode = .interactive
     }
@@ -43,7 +45,6 @@ final class WorkShiftRegistrationViewController: UIViewController {
         view.addSubview(scrollView)
         scrollView.addSubview(contentStack)
         
-        let simpleRowView = SimpleRowView(title: "근무지 선택", isRequired: true)
         simpleRowView.delegate = self
         
         contentStack.addArrangedSubview(simpleRowView)
@@ -73,6 +74,10 @@ final class WorkShiftRegistrationViewController: UIViewController {
 
 extension WorkShiftRegistrationViewController: SimpleRowViewDelegate {
     func simpleRowViewDidTapChevron(_ view: SimpleRowView) {
-        print("simpleRowViewDidTapChevron")
+        let vc = WorkplaceSelectionViewController()
+        vc.onSelect = { [weak self] (workplace: Workplace) in
+            self?.simpleRowView.updateTitle(workplace.workplacesName)
+        }
+        navigationController?.pushViewController(vc, animated: true)
     }
 }

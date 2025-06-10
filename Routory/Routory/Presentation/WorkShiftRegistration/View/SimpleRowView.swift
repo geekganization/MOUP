@@ -22,13 +22,6 @@ final class SimpleRowView: UIView {
         $0.textColor = .label
     }
 
-    private let requiredMark = UILabel().then {
-        $0.text = "*"
-        $0.textColor = .systemRed
-        $0.font = .systemFont(ofSize: 16, weight: .semibold)
-        $0.setContentHuggingPriority(.required, for: .horizontal)
-    }
-
     private let chevronImageView = UIImageView().then {
         $0.image = UIImage(systemName: "chevron.right")
         $0.tintColor = .systemGray2
@@ -40,10 +33,9 @@ final class SimpleRowView: UIView {
         $0.backgroundColor = UIColor.systemGray4
     }
 
-    init(title: String, isRequired: Bool = false) {
+    init(title: String) {
         super.init(frame: .zero)
         titleLabel.text = title
-        requiredMark.isHidden = !isRequired
         setupLayout()
         setupGesture()
     }
@@ -53,17 +45,11 @@ final class SimpleRowView: UIView {
     }
 
     private func setupLayout() {
-        let textStack = UIStackView(arrangedSubviews: [titleLabel, requiredMark]).then {
-            $0.axis = .horizontal
-            $0.spacing = 4
-            $0.alignment = .center
-        }
-
-        addSubview(textStack)
+        addSubview(titleLabel)
         addSubview(chevronImageView)
         addSubview(separatorView)
 
-        textStack.snp.makeConstraints {
+        titleLabel.snp.makeConstraints {
             $0.leading.equalToSuperview()
             $0.centerY.equalToSuperview()
         }
@@ -93,5 +79,9 @@ final class SimpleRowView: UIView {
 
     @objc private func chevronTapped() {
         delegate?.simpleRowViewDidTapChevron(self)
+    }
+    
+    func updateTitle(_ title: String) {
+        titleLabel.text = title
     }
 }

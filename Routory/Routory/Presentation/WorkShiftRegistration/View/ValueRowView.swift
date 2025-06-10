@@ -1,5 +1,5 @@
 //
-//  FieldRowView.swift
+//  ValueRowView.swift
 //  Routory
 //
 //  Created by tlswo on 6/10/25.
@@ -9,13 +9,13 @@ import UIKit
 import SnapKit
 import Then
 
-protocol FieldRowViewDelegate: AnyObject {
-    func fieldRowViewDidTapChevron(_ row: FieldRowView)
+protocol ValueRowViewDelegate: AnyObject {
+    func valueRowViewDidTapChevron(_ row: ValueRowView)
 }
 
-final class FieldRowView: UIView {
+final class ValueRowView: UIView {
 
-    weak var delegate: FieldRowViewDelegate?
+    weak var delegate: ValueRowViewDelegate?
 
     private let titleLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 16)
@@ -31,6 +31,12 @@ final class FieldRowView: UIView {
     private let valueLabel = UILabel().then {
         $0.textColor = .systemGray
         $0.font = .systemFont(ofSize: 16)
+    }
+
+    private let arrow = UIImageView().then {
+        $0.image = UIImage(systemName: "chevron.right")
+        $0.tintColor = .systemGray3
+        $0.contentMode = .scaleAspectFit
         $0.isUserInteractionEnabled = true
     }
 
@@ -51,6 +57,7 @@ final class FieldRowView: UIView {
         addSubview(titleLabel)
         addSubview(dotView)
         addSubview(valueLabel)
+        addSubview(arrow)
 
         titleLabel.snp.makeConstraints {
             $0.leading.equalToSuperview().offset(16)
@@ -63,8 +70,14 @@ final class FieldRowView: UIView {
             $0.size.equalTo(8)
         }
 
-        valueLabel.snp.makeConstraints {
+        arrow.snp.makeConstraints {
             $0.trailing.equalToSuperview().offset(-16)
+            $0.centerY.equalToSuperview()
+            $0.size.equalTo(CGSize(width: 8, height: 14))
+        }
+
+        valueLabel.snp.makeConstraints {
+            $0.trailing.equalTo(arrow.snp.leading).offset(-8)
             $0.centerY.equalToSuperview()
         }
 
@@ -84,12 +97,12 @@ final class FieldRowView: UIView {
     }
 
     private func setupGesture() {
-        let tap = UITapGestureRecognizer(target: self, action: #selector(handleValueTap))
-        valueLabel.addGestureRecognizer(tap)
+        let tap = UITapGestureRecognizer(target: self, action: #selector(handleChevronTap))
+        arrow.addGestureRecognizer(tap)
     }
 
-    @objc private func handleValueTap() {
-        delegate?.fieldRowViewDidTapChevron(self)
+    @objc private func handleChevronTap() {
+        delegate?.valueRowViewDidTapChevron(self)
     }
 
     func updateTitle(_ name: String) {
@@ -98,5 +111,10 @@ final class FieldRowView: UIView {
 
     func updateValue(_ name: String) {
         valueLabel.text = name
+    }
+    
+    func updateDotColor(_ color: UIColor) {
+        dotView.backgroundColor = color
+        dotView.isHidden = false
     }
 }

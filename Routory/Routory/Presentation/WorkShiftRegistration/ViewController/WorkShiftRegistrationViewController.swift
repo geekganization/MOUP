@@ -13,7 +13,9 @@ final class WorkShiftRegistrationViewController: UIViewController {
     
     private let simpleRowView = SimpleRowView(title: "근무지 선택")
     private let routineView = RoutineView()
-    
+    private let workDateView = WorkDateView()
+    private let labelView = LabelView()
+
     private let scrollView = UIScrollView().then {
         $0.keyboardDismissMode = .interactive
     }
@@ -48,12 +50,14 @@ final class WorkShiftRegistrationViewController: UIViewController {
         
         simpleRowView.delegate = self
         routineView.delegate = self
+        workDateView.parentViewController = self
+        labelView.delegate = self
         
         contentStack.addArrangedSubview(simpleRowView)
-        contentStack.addArrangedSubview(WorkDateView())
-        contentStack.addArrangedSubview(WorkTimeView())
+        contentStack.addArrangedSubview(workDateView)
+        contentStack.addArrangedSubview(WorkTimeView(presentingViewController: self))
         contentStack.addArrangedSubview(routineView)
-        contentStack.addArrangedSubview(LabelView())
+        contentStack.addArrangedSubview(labelView)
         contentStack.addArrangedSubview(MemoBoxView())
         contentStack.addArrangedSubview(registerButton)
     }
@@ -89,6 +93,16 @@ extension WorkShiftRegistrationViewController: RoutineViewDelegate {
         let vc = RoutineSelectionViewController()
         vc.onSelect = { [weak self] routine in
             self?.routineView.updateSelectedRoutine(routine.routineName)
+        }
+        navigationController?.pushViewController(vc, animated: true)
+    }
+}
+
+extension WorkShiftRegistrationViewController: LabelViewDelegate {
+    func labelViewDidTapSelectColor(_ sender: LabelView) {
+        let vc = ColorSelectionViewController()
+        vc.onSelect = { [weak self] labelColor in
+            self?.labelView.updateLabelName(labelColor.name, color: labelColor.color)
         }
         navigationController?.pushViewController(vc, animated: true)
     }

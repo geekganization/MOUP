@@ -13,11 +13,11 @@ protocol RoutineViewDelegate: AnyObject {
     func routineViewDidTapAdd()
 }
 
-final class RoutineView: UIView, FieldRowViewDelegate {
+final class RoutineView: UIView, ValueRowViewDelegate {
 
     weak var delegate: RoutineViewDelegate?
 
-    private let addRow = FieldRowView(title: "루틴 추가", value: nil)
+    private let addRow = ValueRowView(title: "루틴 추가", value: nil)
 
     init() {
         super.init(frame: .zero)
@@ -46,8 +46,7 @@ final class RoutineView: UIView, FieldRowViewDelegate {
         stack.snp.makeConstraints { $0.edges.equalToSuperview() }
     }
 
-    // MARK: - FieldRowViewDelegate
-    func fieldRowViewDidTapChevron(_ row: FieldRowView) {
+    func valueRowViewDidTapChevron(_ row: ValueRowView) {
         delegate?.routineViewDidTapAdd()
     }
     

@@ -9,9 +9,15 @@ import UIKit
 import SnapKit
 import Then
 
-final class LabelView: UIView, FieldRowViewDelegate {
+protocol LabelViewDelegate: AnyObject {
+    func labelViewDidTapSelectColor(_ sender: LabelView)
+}
 
-    private let redLabelRow = FieldRowView(title: "빨간색", value: nil, showDot: true)
+final class LabelView: UIView, ValueRowViewDelegate {
+
+    weak var delegate: LabelViewDelegate?
+
+    private let redLabelRow = ValueRowView(title: "빨간색", value: nil, showDot: true)
 
     init() {
         super.init(frame: .zero)
@@ -40,7 +46,12 @@ final class LabelView: UIView, FieldRowViewDelegate {
         stack.snp.makeConstraints { $0.edges.equalToSuperview() }
     }
 
-    func fieldRowViewDidTapChevron(_ row: FieldRowView) {
-        print("라벨 클릭")
+    func valueRowViewDidTapChevron(_ row: ValueRowView) {
+        delegate?.labelViewDidTapSelectColor(self)
+    }
+
+    func updateLabelName(_ name: String, color: UIColor) {
+        redLabelRow.updateTitle(name)
+        redLabelRow.updateDotColor(color)
     }
 }

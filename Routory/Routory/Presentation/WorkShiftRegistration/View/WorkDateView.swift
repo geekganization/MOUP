@@ -9,10 +9,12 @@ import UIKit
 import SnapKit
 import Then
 
-final class WorkDateView: UIView, FieldRowViewDelegate {
+final class WorkDateView: UIView, FieldRowViewDelegate, ValueRowViewDelegate {
+
+    weak var parentViewController: UIViewController?
 
     private let dateRow = FieldRowView(title: "날짜", value: "2025.07.07")
-    private let repeatRow = FieldRowView(title: "반복", value: nil)
+    private let repeatRow = ValueRowView(title: "반복", value: nil)
 
     init() {
         super.init(frame: .zero)
@@ -43,10 +45,32 @@ final class WorkDateView: UIView, FieldRowViewDelegate {
     }
 
     func fieldRowViewDidTapChevron(_ row: FieldRowView) {
-        if row === dateRow {
-            print("날짜 클릭")
-        } else if row === repeatRow {
-            print("반복 클릭")
+        showDatePicker()
+    }
+    
+    func valueRowViewDidTapChevron(_ row: ValueRowView) {
+        print("반복 클릭")
+    }
+
+    private func showDatePicker() {
+        let alert = UIAlertController(title: "날짜 선택", message: "\n\n\n\n\n\n", preferredStyle: .actionSheet)
+
+        let datePicker = UIDatePicker().then {
+            $0.datePickerMode = .date
+            $0.preferredDatePickerStyle = .wheels
+            $0.frame = CGRect(x: 0, y: 30, width: alert.view.bounds.width - 20, height: 160)
         }
+
+        alert.view.addSubview(datePicker)
+
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        alert.addAction(UIAlertAction(title: "확인", style: .default, handler: { [weak self] _ in
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy.MM.dd"
+            let dateString = formatter.string(from: datePicker.date)
+            self?.dateRow.updateValue(dateString)
+        }))
+
+        parentViewController?.present(alert, animated: true)
     }
 }

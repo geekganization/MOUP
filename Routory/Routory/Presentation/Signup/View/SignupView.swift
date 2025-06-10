@@ -79,6 +79,8 @@ final class SignupView: UIView {
         }
     }
     
+    var onRoleConfirmed: ((String) -> Void)?
+    
     private func setupActions() {
         ownerCardButton.addTarget(self, action: #selector(ownerTapped), for: .touchUpInside)
         workerCardButton.addTarget(self, action: #selector(workerTapped), for: .touchUpInside)
@@ -116,7 +118,36 @@ final class SignupView: UIView {
     
     @objc private func startButtonTapped() {
         print("시작하기 버튼 클릭")
-        // TODO: 역할 전달 및 다음 단계로 이동
+        
+        // 선택된 역할 가져오기
+        let role: String?
+        if ownerCardButton.isSelected {
+            role = "사장님"
+        } else if workerCardButton.isSelected {
+            role = "알바생"
+        } else {
+            role = nil
+        }
+        
+        guard let selectedRole = role else { return }
+        showCustomDialog(role: selectedRole)
+    }
+    
+    // MARK: - Custom Dialog 연결
+    private func showCustomDialog(role: String) {
+        let dialog = CustomDialogView()
+        dialog.titleLabel.text = "\(role)신가요?"
+        dialog.onNo = { [weak dialog] in
+            dialog?.removeFromSuperview()
+        }
+        dialog.onYes = { [weak self, weak dialog] in
+            dialog?.removeFromSuperview()
+            // 역할 확정 콜백 실행 (뷰컨에 전달)
+            self?.onRoleConfirmed?(role)
+        }
+        // 이 뷰에 오버레이로 붙임
+        self.addSubview(dialog)
+        dialog.snp.makeConstraints { $0.edges.equalToSuperview() }
     }
 }
 

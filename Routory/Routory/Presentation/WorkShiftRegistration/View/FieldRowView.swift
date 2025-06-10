@@ -9,41 +9,51 @@ import UIKit
 import SnapKit
 import Then
 
+protocol FieldRowViewDelegate: AnyObject {
+    func fieldRowViewDidTapChevron(_ row: FieldRowView)
+}
+
 final class FieldRowView: UIView {
 
-    init(title: String, value: String?, showDot: Bool = false, showSeparator: Bool = true) {
+    weak var delegate: FieldRowViewDelegate?
+
+    private let titleLabel = UILabel().then {
+        $0.font = .systemFont(ofSize: 16)
+        $0.textColor = .black
+    }
+
+    private let dotView = UIView().then {
+        $0.backgroundColor = .systemRed
+        $0.layer.cornerRadius = 4
+        $0.isHidden = true
+    }
+
+    private let valueLabel = UILabel().then {
+        $0.textColor = .systemGray
+        $0.font = .systemFont(ofSize: 16)
+    }
+
+    private let arrow = UIImageView().then {
+        $0.image = UIImage(systemName: "chevron.right")
+        $0.tintColor = .systemGray3
+        $0.contentMode = .scaleAspectFit
+        $0.isUserInteractionEnabled = true
+    }
+
+    init(title: String, value: String?, showDot: Bool = false) {
         super.init(frame: .zero)
-        setup(title: title, value: value, showDot: showDot, showSeparator: showSeparator)
+        titleLabel.text = title
+        valueLabel.text = value
+        dotView.isHidden = !showDot
+        setupLayout()
+        setupGesture()
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func setup(title: String, value: String?, showDot: Bool, showSeparator: Bool) {
-        let titleLabel = UILabel().then {
-            $0.text = title
-            $0.font = .systemFont(ofSize: 16)
-            $0.textColor = .black
-        }
-
-        let dotView = UIView().then {
-            $0.backgroundColor = .systemRed
-            $0.layer.cornerRadius = 4
-            $0.isHidden = !showDot
-        }
-
-        let valueLabel = UILabel().then {
-            $0.text = value
-            $0.textColor = .systemGray
-            $0.font = .systemFont(ofSize: 16)
-        }
-
-        let arrow = UIImageView(image: UIImage(systemName: "chevron.right")).then {
-            $0.tintColor = .systemGray3
-            $0.contentMode = .scaleAspectFit
-        }
-
+    private func setupLayout() {
         addSubview(titleLabel)
         addSubview(dotView)
         addSubview(valueLabel)
@@ -75,16 +85,23 @@ final class FieldRowView: UIView {
             $0.height.equalTo(44)
         }
 
-        if showSeparator {
-            let separator = UIView().then {
-                $0.backgroundColor = UIColor.systemGray5
-            }
-            addSubview(separator)
-            separator.snp.makeConstraints {
-                $0.leading.trailing.equalToSuperview().inset(16)
-                $0.bottom.equalToSuperview()
-                $0.height.equalTo(1)
-            }
+        let separator = UIView().then {
+            $0.backgroundColor = UIColor.systemGray5
         }
+        addSubview(separator)
+        separator.snp.makeConstraints {
+            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.bottom.equalToSuperview()
+            $0.height.equalTo(1)
+        }
+    }
+
+    private func setupGesture() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(handleChevronTap))
+        arrow.addGestureRecognizer(tap)
+    }
+
+    @objc private func handleChevronTap() {
+        delegate?.fieldRowViewDidTapChevron(self)
     }
 }

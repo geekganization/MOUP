@@ -88,7 +88,8 @@ final class RoutineSelectionViewController: UIViewController {
     }
 
     @objc private func didTapAdd() {
-        print("루틴 추가 버튼 탭")
+        let newRoutineVC = NewRoutineViewController()
+        navigationController?.pushViewController(newRoutineVC, animated: true)
     }
 }
 

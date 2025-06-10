@@ -13,11 +13,15 @@ final class MyPageView: UIView {
     
     // MARK: - UI Components
     
-    private let profileImageView = UIImageView().then {
+    private let profileImageFrame = UIImageView().then {
         $0.contentMode = .scaleAspectFill
         $0.clipsToBounds = true
         $0.layer.cornerRadius = 40
-        $0.backgroundColor = .gray
+        $0.backgroundColor = .primary50
+    }
+    
+    private let profileImageView = UIImageView().then {
+        $0.contentMode = .scaleAspectFill
     }
     
     private let nameLabel = UILabel().then {
@@ -67,6 +71,12 @@ final class MyPageView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    func update(user: DummyUser) {
+        nameLabel.text = user.name
+        roleLabel.text = user.role
+        profileImageView.image = user.role == "알바생" ? UIImage(named: "Alba") : UIImage(named: "Owner")
+    }
 }
 
 extension MyPageView {
@@ -79,12 +89,13 @@ extension MyPageView {
 
     // MARK: - setHierarchy
     func setHierarchy() {
+        profileImageFrame.addSubview(profileImageView)
         nameRoleStackView.addArrangedSubviews(
             nameLabel,
             roleLabel
         )
         addSubviews(
-            profileImageView,
+            profileImageFrame,
             nameRoleStackView,
             myPageTableView,
             logoutButton
@@ -93,19 +104,26 @@ extension MyPageView {
 
     // MARK: - setConstraints
     func setConstraints() {
-        profileImageView.snp.makeConstraints {
+        profileImageFrame.snp.makeConstraints {
             $0.width.height.equalTo(80)
             $0.top.equalTo(safeAreaLayoutGuide).offset(32)
             $0.leading.equalToSuperview().offset(16)
         }
         
+        profileImageView.snp.makeConstraints {
+            $0.width.equalTo(57)
+            $0.height.equalTo(70)
+            $0.centerX.equalToSuperview()
+            $0.bottom.equalTo(profileImageFrame.snp.bottom).offset(2)
+        }
+        
         nameRoleStackView.snp.makeConstraints {
-            $0.centerY.equalTo(profileImageView.snp.centerY)
-            $0.leading.equalTo(profileImageView.snp.trailing).offset(32)
+            $0.centerY.equalTo(profileImageFrame.snp.centerY)
+            $0.leading.equalTo(profileImageFrame.snp.trailing).offset(32)
         }
         
         myPageTableView.snp.makeConstraints {
-            $0.top.equalTo(profileImageView.snp.bottom).offset(32)
+            $0.top.equalTo(profileImageFrame.snp.bottom).offset(32)
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(48 * 4)
         }

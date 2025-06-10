@@ -10,6 +10,11 @@ import RxSwift
 import SnapKit
 import Then
 
+struct DummyUser {
+    let name: String
+    let role: String
+}
+
 final class MyPageViewController: UIViewController {
     
     // MARK: - Properties
@@ -32,7 +37,14 @@ final class MyPageViewController: UIViewController {
         self.view.backgroundColor = .systemBackground
         self.navigationController?.navigationBar.isHidden = true
         
+        setUser()
         setTableView()
+    }
+    
+    private func setUser() {
+        let dummyUser = DummyUser(name: "김알바", role: "알바생")
+        
+        myPageView.update(user: dummyUser)
     }
     
     private func setTableView() {

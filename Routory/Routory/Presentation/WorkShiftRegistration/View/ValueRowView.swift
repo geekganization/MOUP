@@ -117,4 +117,20 @@ final class ValueRowView: UIView {
         dotView.backgroundColor = color
         dotView.isHidden = false
     }
+    
+    func getData() -> String {
+        return valueLabel.text ?? ""
+    }
+    
+    func getTitleData() -> String {
+        return titleLabel.text ?? ""
+    }
+    
+    func getColorLabelData() -> String {
+        return titleLabel.text ?? ""
+    }
+    
+    func getColorData() -> UIColor {
+        return dotView.backgroundColor ?? .white
+    }
 }

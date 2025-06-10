@@ -54,4 +54,16 @@ final class LabelView: UIView, ValueRowViewDelegate {
         redLabelRow.updateTitle(name)
         redLabelRow.updateDotColor(color)
     }
+    
+    func getData() -> String {
+        return redLabelRow.getData()
+    }
+    
+    func getColorLabelData() -> String {
+        return redLabelRow.getColorLabelData()
+    }
+    
+    func getColorData() -> UIColor {
+        return redLabelRow.getColorData()
+    }
 }

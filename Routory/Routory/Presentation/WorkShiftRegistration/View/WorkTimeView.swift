@@ -14,7 +14,7 @@ final class WorkTimeView: UIView, FieldRowViewDelegate {
     private let startRow = FieldRowView(title: "출근", value: "09:00")
     private let endRow = FieldRowView(title: "퇴근", value: "18:00")
     private let restRow = FieldRowView(title: "휴게", value: "1시간")
-    
+        
     private weak var presentingVC: UIViewController?
 
      init(presentingViewController: UIViewController) {
@@ -100,4 +100,17 @@ final class WorkTimeView: UIView, FieldRowViewDelegate {
 
         presentingVC?.present(vc, animated: true)
     }
+    
+    func getstartRowData() -> String {
+        return startRow.getData()
+    }
+    
+    func getendRowData() -> String {
+        return endRow.getData()
+    }
+    
+    func getrestRowData() -> String {
+        return restRow.getData()
+    }
+
 }

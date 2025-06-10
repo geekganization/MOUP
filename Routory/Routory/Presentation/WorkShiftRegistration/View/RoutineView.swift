@@ -53,4 +53,8 @@ final class RoutineView: UIView, ValueRowViewDelegate {
     func updateSelectedRoutine(_ name: String) {
         addRow.updateTitle(name)
     }
+    
+    func getTitleData() -> String {
+        return addRow.getTitleData()
+    }
 }

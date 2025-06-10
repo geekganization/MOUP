@@ -15,7 +15,9 @@ final class WorkShiftRegistrationViewController: UIViewController {
     private let routineView = RoutineView()
     private let workDateView = WorkDateView()
     private let labelView = LabelView()
-
+    private lazy var workTimeView = WorkTimeView(presentingViewController: self)
+    private let memoBoxView = MemoBoxView()
+    
     private let scrollView = UIScrollView().then {
         $0.keyboardDismissMode = .interactive
     }
@@ -32,7 +34,7 @@ final class WorkShiftRegistrationViewController: UIViewController {
         $0.backgroundColor = UIColor.systemGray5
         $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         $0.layer.cornerRadius = 8
-        $0.isEnabled = false
+        $0.isEnabled = true
     }
     
     override func viewDidLoad() {
@@ -53,12 +55,14 @@ final class WorkShiftRegistrationViewController: UIViewController {
         workDateView.parentViewController = self
         labelView.delegate = self
         
+        registerButton.addTarget(self, action: #selector(didTapRegister), for: .touchUpInside)
+        
         contentStack.addArrangedSubview(simpleRowView)
         contentStack.addArrangedSubview(workDateView)
-        contentStack.addArrangedSubview(WorkTimeView(presentingViewController: self))
+        contentStack.addArrangedSubview(workTimeView)
         contentStack.addArrangedSubview(routineView)
         contentStack.addArrangedSubview(labelView)
-        contentStack.addArrangedSubview(MemoBoxView())
+        contentStack.addArrangedSubview(memoBoxView)
         contentStack.addArrangedSubview(registerButton)
     }
     
@@ -75,6 +79,19 @@ final class WorkShiftRegistrationViewController: UIViewController {
         registerButton.snp.makeConstraints {
             $0.height.equalTo(48)
         }
+    }
+    
+    @objc func didTapRegister() {
+        print(simpleRowView.getData())
+        print(routineView.getTitleData())
+        print(workDateView.getdateRowData())
+        print(workDateView.getrepeatRowData())
+        print(labelView.getColorData())
+        print(labelView.getColorLabelData())
+        print(workTimeView.getstartRowData())
+        print(workTimeView.getrestRowData())
+        print(workTimeView.getendRowData())
+        print(memoBoxView.getData())
     }
 }
 

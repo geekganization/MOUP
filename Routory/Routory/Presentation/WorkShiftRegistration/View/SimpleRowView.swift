@@ -84,4 +84,8 @@ final class SimpleRowView: UIView {
     func updateTitle(_ title: String) {
         titleLabel.text = title
     }
+    
+    func getData() -> String {
+        return titleLabel.text ?? ""
+    }
 }

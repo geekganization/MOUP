@@ -99,4 +99,8 @@ final class FieldRowView: UIView {
     func updateValue(_ name: String) {
         valueLabel.text = name
     }
+    
+    func getData() -> String {
+        return valueLabel.text ?? ""
+    }
 }

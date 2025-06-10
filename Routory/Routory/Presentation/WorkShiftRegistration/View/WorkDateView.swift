@@ -14,7 +14,7 @@ final class WorkDateView: UIView, FieldRowViewDelegate, ValueRowViewDelegate {
     weak var parentViewController: UIViewController?
 
     private let dateRow = FieldRowView(title: "날짜", value: "2025.07.07")
-    private let repeatRow = ValueRowView(title: "반복", value: nil)
+    private let repeatRow = ValueRowView(title: "반복", value: "없음")
 
     init() {
         super.init(frame: .zero)
@@ -72,5 +72,13 @@ final class WorkDateView: UIView, FieldRowViewDelegate, ValueRowViewDelegate {
         }))
 
         parentViewController?.present(alert, animated: true)
+    }
+    
+    func getdateRowData() -> String {
+        return dateRow.getData()
+    }
+    
+    func getrepeatRowData() -> String {
+        return repeatRow.getData()
     }
 }

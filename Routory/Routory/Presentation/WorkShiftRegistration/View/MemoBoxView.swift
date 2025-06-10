@@ -33,7 +33,7 @@ final class MemoBoxView: UIStackView {
 
         textView.do {
             $0.font = .systemFont(ofSize: 14)
-            $0.text = "추가적인 내용을 입력해주세요"
+            $0.text = "내용을 입력하세요."
             $0.textColor = .lightGray
             $0.layer.cornerRadius = 8
             $0.layer.borderWidth = 1
@@ -55,5 +55,9 @@ final class MemoBoxView: UIStackView {
         addArrangedSubview(title)
         addArrangedSubview(textView)
         addArrangedSubview(counterLabel)
+    }
+    
+    func getData() -> String {
+        return textView.text ?? ""
     }
 }

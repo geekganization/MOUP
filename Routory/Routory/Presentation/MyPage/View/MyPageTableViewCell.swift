@@ -50,6 +50,7 @@ extension MyPageTableViewCell {
     // MARK: - configure
     private func configure() {
         setHierarchy()
+        setStyles()
         setConstraints()
     }
     
@@ -60,6 +61,11 @@ extension MyPageTableViewCell {
             rightArrow,
             seperatorView
         )
+    }
+    
+    // MARK: - setStyles
+    private func setStyles() {
+        selectionStyle = .none
     }
     
     // MARK: - setConstraints

@@ -15,11 +15,27 @@ struct DummyUser {
     let role: String
 }
 
+enum MyPageMenu: CaseIterable {
+    case account
+    case notification
+    case contact
+    case info
+    
+    var title: String {
+        switch self {
+        case .account: return "계정"
+        case .notification: return "알림 설정"
+        case .contact: return "문의하기"
+        case .info: return "정보"
+        }
+    }
+}
+
 final class MyPageViewController: UIViewController {
     
     // MARK: - Properties
     
-    private let menuItems = ["계정", "알림 설정", "문의하기", "정보"]
+    private let menuItems = MyPageMenu.allCases
     
     // MARK: - UI Components
     
@@ -71,12 +87,28 @@ extension MyPageViewController: UITableViewDelegate, UITableViewDataSource {
             return UITableViewCell()
         }
         
-        cell.titleLabel.text = menuItems[indexPath.row]
+        cell.titleLabel.text = menuItems[indexPath.row].title
         
         return cell
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 48
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let selectedMenu = menuItems[indexPath.row]
+        
+        switch selectedMenu {
+        case .account:
+            print("계정 메뉴 클릭")
+        case .notification:
+            print("알림 설정 메뉴 클릭")
+        case .contact:
+            print("문의하기 메뉴 클릭")
+        case .info:
+            let infoVC = InfoViewController()
+            navigationController?.pushViewController(infoVC, animated: true)
+        }
     }
 }

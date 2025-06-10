@@ -104,4 +104,8 @@ final class FieldRowView: UIView {
     @objc private func handleChevronTap() {
         delegate?.fieldRowViewDidTapChevron(self)
     }
+    
+    func updateTitle(_ name: String) {
+        titleLabel.text = name
+    }
 }

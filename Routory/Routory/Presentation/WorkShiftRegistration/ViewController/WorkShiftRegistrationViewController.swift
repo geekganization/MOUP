@@ -12,6 +12,7 @@ import Then
 final class WorkShiftRegistrationViewController: UIViewController {
     
     private let simpleRowView = SimpleRowView(title: "근무지 선택")
+    private let routineView = RoutineView()
     
     private let scrollView = UIScrollView().then {
         $0.keyboardDismissMode = .interactive
@@ -46,11 +47,12 @@ final class WorkShiftRegistrationViewController: UIViewController {
         scrollView.addSubview(contentStack)
         
         simpleRowView.delegate = self
+        routineView.delegate = self
         
         contentStack.addArrangedSubview(simpleRowView)
         contentStack.addArrangedSubview(WorkDateView())
         contentStack.addArrangedSubview(WorkTimeView())
-        contentStack.addArrangedSubview(RoutineView())
+        contentStack.addArrangedSubview(routineView)
         contentStack.addArrangedSubview(LabelView())
         contentStack.addArrangedSubview(MemoBoxView())
         contentStack.addArrangedSubview(registerButton)
@@ -75,8 +77,18 @@ final class WorkShiftRegistrationViewController: UIViewController {
 extension WorkShiftRegistrationViewController: SimpleRowViewDelegate {
     func simpleRowViewDidTapChevron(_ view: SimpleRowView) {
         let vc = WorkplaceSelectionViewController()
-        vc.onSelect = { [weak self] (workplace: Workplace) in
+        vc.onSelect = { [weak self] workplace in
             self?.simpleRowView.updateTitle(workplace.workplacesName)
+        }
+        navigationController?.pushViewController(vc, animated: true)
+    }
+}
+
+extension WorkShiftRegistrationViewController: RoutineViewDelegate {
+    func routineViewDidTapAdd() {
+        let vc = RoutineSelectionViewController()
+        vc.onSelect = { [weak self] routine in
+            self?.routineView.updateSelectedRoutine(routine.routineName)
         }
         navigationController?.pushViewController(vc, animated: true)
     }

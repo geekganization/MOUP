@@ -9,7 +9,13 @@ import UIKit
 import SnapKit
 import Then
 
+protocol RoutineViewDelegate: AnyObject {
+    func routineViewDidTapAdd()
+}
+
 final class RoutineView: UIView, FieldRowViewDelegate {
+
+    weak var delegate: RoutineViewDelegate?
 
     private let addRow = FieldRowView(title: "루틴 추가", value: nil)
 
@@ -40,7 +46,12 @@ final class RoutineView: UIView, FieldRowViewDelegate {
         stack.snp.makeConstraints { $0.edges.equalToSuperview() }
     }
 
+    // MARK: - FieldRowViewDelegate
     func fieldRowViewDidTapChevron(_ row: FieldRowView) {
-        print("루틴 추가 클릭")
+        delegate?.routineViewDidTapAdd()
+    }
+    
+    func updateSelectedRoutine(_ name: String) {
+        addRow.updateTitle(name)
     }
 }

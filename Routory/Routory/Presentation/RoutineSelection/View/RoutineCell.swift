@@ -1,0 +1,101 @@
+//
+//  RoutineCell.swift
+//  Routory
+//
+//  Created by tlswo on 6/10/25.
+//
+
+import UIKit
+import SnapKit
+import Then
+
+final class RoutineCell: UITableViewCell {
+
+    // MARK: - Callbacks
+    var onTapCheckbox: (() -> Void)?
+    var onTapChevron: (() -> Void)?
+
+    private let checkbox = UIImageView().then {
+        $0.tintColor = .systemOrange
+        $0.contentMode = .scaleAspectFit
+        $0.isUserInteractionEnabled = true
+    }
+
+    private let nameLabel = UILabel().then {
+        $0.font = .systemFont(ofSize: 16)
+        $0.textColor = .label
+    }
+
+    private let timeLabel = UILabel().then {
+        $0.font = .systemFont(ofSize: 16)
+        $0.textColor = .label
+    }
+
+    private let arrow = UIImageView(image: UIImage(systemName: "chevron.right")).then {
+        $0.tintColor = .systemGray3
+        $0.contentMode = .scaleAspectFit
+        $0.isUserInteractionEnabled = true
+    }
+
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setup()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError()
+    }
+
+    private func setup() {
+        selectionStyle = .none
+
+        contentView.addSubview(checkbox)
+        contentView.addSubview(nameLabel)
+        contentView.addSubview(timeLabel)
+        contentView.addSubview(arrow)
+
+        checkbox.snp.makeConstraints {
+            $0.leading.equalToSuperview().offset(16)
+            $0.centerY.equalToSuperview()
+            $0.width.height.equalTo(20)
+        }
+
+        nameLabel.snp.makeConstraints {
+            $0.leading.equalTo(checkbox.snp.trailing).offset(8)
+            $0.centerY.equalToSuperview()
+        }
+
+        arrow.snp.makeConstraints {
+            $0.trailing.equalToSuperview().offset(-16)
+            $0.centerY.equalToSuperview()
+            $0.width.equalTo(8)
+            $0.height.equalTo(14)
+        }
+
+        timeLabel.snp.makeConstraints {
+            $0.trailing.equalTo(arrow.snp.leading).offset(-8)
+            $0.centerY.equalToSuperview()
+        }
+
+        // Tap Gesture 추가
+        let checkTap = UITapGestureRecognizer(target: self, action: #selector(didTapCheckbox))
+        checkbox.addGestureRecognizer(checkTap)
+
+        let chevronTap = UITapGestureRecognizer(target: self, action: #selector(didTapChevron))
+        arrow.addGestureRecognizer(chevronTap)
+    }
+
+    func configure(with item: RoutineItem) {
+        nameLabel.text = item.routine.routineName
+        timeLabel.text = item.routine.alarmTime
+        checkbox.image = UIImage(systemName: item.isSelected ? "checkmark.square.fill" : "square")
+    }
+
+    @objc private func didTapCheckbox() {
+        onTapCheckbox?()
+    }
+
+    @objc private func didTapChevron() {
+        onTapChevron?()
+    }
+}

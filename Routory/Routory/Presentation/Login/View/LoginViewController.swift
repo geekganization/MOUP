@@ -31,7 +31,7 @@ final class LoginViewController: UIViewController {
     // MARK: - LifeCycle
 
     override func loadView() {
-        view = loginView
+        self.view = loginView
     }
 
     override func viewDidLoad() {

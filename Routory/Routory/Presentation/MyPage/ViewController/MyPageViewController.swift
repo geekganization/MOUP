@@ -48,13 +48,13 @@ final class MyPageViewController: UIViewController {
     }
     
     private func setTableView() {
-        myPageView.myPageTableView.delegate = self
-        myPageView.myPageTableView.dataSource = self
-        myPageView.myPageTableView.register(
+        myPageView.menuList.tableView.delegate = self
+        myPageView.menuList.tableView.dataSource = self
+        myPageView.menuList.tableView.register(
             MyPageTableViewCell.self,
             forCellReuseIdentifier: MyPageTableViewCell.id
         )
-        myPageView.myPageTableView.separatorStyle = .none
+        myPageView.menuList.tableView.separatorStyle = .none
     }
 }
 

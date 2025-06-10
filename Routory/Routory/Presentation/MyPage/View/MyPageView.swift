@@ -43,12 +43,7 @@ final class MyPageView: UIView {
         $0.alignment = .leading
     }
     
-    let myPageTableView = UITableView(frame: .zero, style: .plain).then {
-        $0.layer.cornerRadius = 12
-        $0.layer.borderWidth = 1
-        $0.layer.borderColor = UIColor.gray400.cgColor
-        $0.clipsToBounds = true
-    }
+    let menuList = MyPageMenuListView()
     
     let logoutButton = UIButton().then() {
         $0.titleLabel?.font = .buttonSemibold(16)
@@ -97,7 +92,7 @@ extension MyPageView {
         addSubviews(
             profileImageFrame,
             nameRoleStackView,
-            myPageTableView,
+            menuList,
             logoutButton
         )
     }
@@ -122,14 +117,14 @@ extension MyPageView {
             $0.leading.equalTo(profileImageFrame.snp.trailing).offset(32)
         }
         
-        myPageTableView.snp.makeConstraints {
+        menuList.snp.makeConstraints {
             $0.top.equalTo(profileImageFrame.snp.bottom).offset(32)
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(48 * 4)
         }
         
         logoutButton.snp.makeConstraints {
-            $0.top.equalTo(myPageTableView.snp.bottom).offset(20)
+            $0.top.equalTo(menuList.snp.bottom).offset(20)
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(44)
         }

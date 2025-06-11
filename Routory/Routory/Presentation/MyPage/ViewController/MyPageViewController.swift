@@ -166,7 +166,8 @@ extension MyPageViewController: UITableViewDelegate, UITableViewDataSource {
         
         switch selectedMenu {
         case .account:
-            print("계정 메뉴 클릭")
+            let accountVC = AccountViewController()
+            navigationController?.pushViewController(accountVC, animated: true)
         case .notification:
             print("알림 설정 메뉴 클릭")
         case .contact:

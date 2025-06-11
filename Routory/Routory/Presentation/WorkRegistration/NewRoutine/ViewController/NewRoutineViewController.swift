@@ -7,8 +7,14 @@ import UIKit
 import SnapKit
 import Then
 
+enum RoutineFormMode {
+    case create
+    case edit(existingTitle: String, existingTasks: [String])
+}
+
 final class NewRoutineViewController: UIViewController {
 
+    private var mode: RoutineFormMode
     private var tasks: [String] = []
 
     private let scrollView = UIScrollView()
@@ -44,11 +50,36 @@ final class NewRoutineViewController: UIViewController {
         $0.rowHeight = 44
         $0.register(TaskCell.self, forCellReuseIdentifier: "TaskCell")
     }
+    
+    init(mode: RoutineFormMode) {
+        self.mode = mode
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError()
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         layout()
+        applyMode()
+    }
+    
+    private func applyMode() {
+        switch mode {
+        case .create:
+            title = "새 루틴"
+        case .edit(let existingTitle, let existingTasks):
+            title = "루틴 편집"
+            titleTextField.text = existingTitle
+            tasks = existingTasks
+            tableView.reloadData()
+            tableView.snp.updateConstraints {
+                $0.height.equalTo(44 * tasks.count)
+            }
+        }
     }
 
     private func setupUI() {

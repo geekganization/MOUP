@@ -88,7 +88,7 @@ final class RoutineSelectionViewController: UIViewController {
     }
 
     @objc private func didTapAdd() {
-        let newRoutineVC = NewRoutineViewController()
+        let newRoutineVC = NewRoutineViewController(mode: .create)
         navigationController?.pushViewController(newRoutineVC, animated: true)
     }
 }
@@ -123,8 +123,12 @@ extension RoutineSelectionViewController: UITableViewDataSource, UITableViewDele
         }
 
         cell.onTapChevron = { [weak self] in
-            guard self != nil else { return }
-            print("루틴 상세 보기: \(item.routine.routineName)")
+            guard let self else { return }
+            let routine = item.routine
+            let editVC = NewRoutineViewController(
+                mode: .edit(existingTitle: routine.routineName, existingTasks: routine.tasks)
+            )
+            navigationController?.pushViewController(editVC, animated: true)
         }
 
         return cell

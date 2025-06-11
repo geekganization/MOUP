@@ -56,10 +56,19 @@ final class LoginViewController: UIViewController {
                 case .goToMain:
                     print("로그인 성공 - 메인 화면 이동")
                     // TODO: Coordinator를 통해 메인으로 이동
-
-                case .goToSignup:
+                    
+                case .goToSignup(let googleUid, let googleNickname):
                     print("신규 사용자 - 회원가입 화면 이동")
-                    // TODO: Coordinator를 통해 회원가입 화면 이동
+                    let userService = UserService()
+                    let userRepository = UserRepository(userService: userService)
+                    let registerUserUseCase = RegisterUserUseCase(userRepository: userRepository)
+                    let signupViewModel = SignupViewModel(
+                        registerUserUseCase: registerUserUseCase,
+                        userId: googleUid,
+                        userName: googleNickname
+                    )
+                    let signupVC = SignupViewController(signupViewModel: signupViewModel)
+                    self?.navigationController?.pushViewController(signupVC, animated: true)
                 }
             })
             .disposed(by: disposeBag)

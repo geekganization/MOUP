@@ -12,7 +12,7 @@ import UIKit
 
 enum Navigation {
     case goToMain
-    case goToSignup
+    case goToSignup(googleUid: String, googleNickname: String)
 }
 
 final class LoginViewModel {
@@ -46,19 +46,19 @@ final class LoginViewModel {
     func transform(input: Input) -> Output {
         let navigation = input.googleLoginTapped
             .flatMapLatest { [weak self] _ -> Observable<Navigation> in
-                guard let self = self else { return .just(.goToSignup) }
-
+                guard let self = self else { return .just(.goToMain) }
+                
                 return self.googleAuthService.signInWithGoogle(presentingViewController: input.presentingVC)
-                    .flatMapLatest { uid in
+                    .flatMapLatest { (uid, nickname) in // <-- (1)
                         self.userService.checkUserExists(uid: uid)
                             .map { exists in
-                                return exists ? .goToMain : .goToSignup
+                                exists ? .goToMain : .goToSignup(googleUid: uid, googleNickname: nickname)
                             }
                     }
-                    .catchAndReturn(.goToSignup)
+                    .catchAndReturn(.goToMain)
             }
             .share()
-
+        
         return Output(navigation: navigation)
     }
 }

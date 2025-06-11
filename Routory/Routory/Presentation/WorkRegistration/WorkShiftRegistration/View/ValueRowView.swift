@@ -9,17 +9,11 @@ import UIKit
 import SnapKit
 import Then
 
-// MARK: - Protocol
-
 protocol ValueRowViewDelegate: AnyObject {
     func valueRowViewDidTapChevron(_ row: ValueRowView)
 }
 
-// MARK: - ValueRowView
-
 final class ValueRowView: UIView {
-
-    // MARK: - Properties
 
     weak var delegate: ValueRowViewDelegate?
 
@@ -33,7 +27,7 @@ final class ValueRowView: UIView {
     private let dotView = UIView().then {
         $0.backgroundColor = .systemRed
         $0.layer.cornerRadius = 4
-        $0.isHidden = true
+        $0.snp.makeConstraints { $0.size.equalTo(8) }
     }
 
     private let valueLabel = UILabel().then {
@@ -46,6 +40,20 @@ final class ValueRowView: UIView {
         $0.tintColor = .systemGray3
         $0.contentMode = .scaleAspectFit
         $0.isUserInteractionEnabled = true
+        $0.snp.makeConstraints { $0.size.equalTo(CGSize(width: 8, height: 14)) }
+    }
+
+    private lazy var leftStack = UIStackView(arrangedSubviews: [dotView, titleLabel]).then {
+        $0.axis = .horizontal
+        $0.spacing = 4
+        $0.alignment = .center
+    }
+
+    private lazy var mainStack = UIStackView(arrangedSubviews: [leftStack, valueLabel, arrow]).then {
+        $0.axis = .horizontal
+        $0.alignment = .center
+        $0.distribution = .fill
+        $0.spacing = 8
     }
 
     // MARK: - Initializer
@@ -66,31 +74,10 @@ final class ValueRowView: UIView {
     // MARK: - Layout
 
     private func setupLayout() {
-        addSubview(dotView)
-        addSubview(titleLabel)
-        addSubview(valueLabel)
-        addSubview(arrow)
-
-        dotView.snp.makeConstraints {
-            $0.leading.equalToSuperview().offset(16)
-            $0.centerY.equalToSuperview()
-            $0.size.equalTo(8)
-        }
-
-        titleLabel.snp.makeConstraints {
-            $0.leading.equalTo(dotView.snp.trailing).offset(4)
-            $0.centerY.equalToSuperview()
-        }
-
-        arrow.snp.makeConstraints {
-            $0.trailing.equalToSuperview().offset(-16)
-            $0.centerY.equalToSuperview()
-            $0.size.equalTo(CGSize(width: 8, height: 14))
-        }
-
-        valueLabel.snp.makeConstraints {
-            $0.trailing.equalTo(arrow.snp.leading).offset(-8)
-            $0.centerY.equalToSuperview()
+        addSubview(mainStack)
+        mainStack.snp.makeConstraints {
+            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.top.bottom.equalToSuperview()
         }
 
         snp.makeConstraints {
@@ -98,7 +85,7 @@ final class ValueRowView: UIView {
         }
 
         let separator = UIView().then {
-            $0.backgroundColor = UIColor.systemGray5
+            $0.backgroundColor = .systemGray5
         }
         addSubview(separator)
         separator.snp.makeConstraints {
@@ -107,7 +94,7 @@ final class ValueRowView: UIView {
             $0.height.equalTo(1)
         }
     }
-    
+
     // MARK: - Gesture
 
     private func setupGesture() {
@@ -132,6 +119,10 @@ final class ValueRowView: UIView {
     func updateDotColor(_ color: UIColor) {
         dotView.backgroundColor = color
         dotView.isHidden = false
+    }
+
+    func updateDotHidden(_ hidden: Bool) {
+        dotView.isHidden = hidden
     }
 
     func getData() -> String {

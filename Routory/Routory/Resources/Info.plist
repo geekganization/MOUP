@@ -43,7 +43,7 @@
 			</array>
 		</dict>
 	</dict>
-    <key>GIDClientID</key>
-    <string>531972606547-27hlnq59ttoqd2td8g8iocjc94gt1erq.apps.googleusercontent.com</string>
+	<key>GIDClientID</key>
+	<string>GOOGLE_CLIENT_ID</string>
 </dict>
 </plist>

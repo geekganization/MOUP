@@ -9,9 +9,14 @@ import UIKit
 import SnapKit
 import Then
 
+protocol WorkDateViewDelegate: AnyObject {
+    func didTapDateRow(completion: @escaping (Date) -> Void)
+    func didTapRepeatRow(from view: WorkDateView)
+}
+
 final class WorkDateView: UIView, FieldRowViewDelegate, ValueRowViewDelegate {
 
-    weak var parentViewController: UIViewController?
+    weak var delegate: WorkDateViewDelegate?
 
     private let dateRow = FieldRowView(title: "날짜", value: "2025.07.07")
     private let repeatRow = ValueRowView(title: "반복", value: "없음")
@@ -45,33 +50,20 @@ final class WorkDateView: UIView, FieldRowViewDelegate, ValueRowViewDelegate {
     }
 
     func fieldRowViewDidTapChevron(_ row: FieldRowView) {
-        showDatePicker()
+        delegate?.didTapDateRow { [weak self] selectedDate in
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy.MM.dd"
+            let dateString = formatter.string(from: selectedDate)
+            self?.dateRow.updateValue(dateString)
+        }
     }
     
     func valueRowViewDidTapChevron(_ row: ValueRowView) {
-        print("반복 클릭")
+        delegate?.didTapRepeatRow(from: self)
     }
-
-    private func showDatePicker() {
-        let alert = UIAlertController(title: "날짜 선택", message: "\n\n\n\n\n\n", preferredStyle: .actionSheet)
-
-        let datePicker = UIDatePicker().then {
-            $0.datePickerMode = .date
-            $0.preferredDatePickerStyle = .wheels
-            $0.frame = CGRect(x: 0, y: 30, width: alert.view.bounds.width - 20, height: 160)
-        }
-
-        alert.view.addSubview(datePicker)
-
-        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
-        alert.addAction(UIAlertAction(title: "확인", style: .default, handler: { [weak self] _ in
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy.MM.dd"
-            let dateString = formatter.string(from: datePicker.date)
-            self?.dateRow.updateValue(dateString)
-        }))
-
-        parentViewController?.present(alert, animated: true)
+    
+    func updateRepeatValue(_ value: String) {
+        repeatRow.updateValue(value)
     }
     
     func getdateRowData() -> String {

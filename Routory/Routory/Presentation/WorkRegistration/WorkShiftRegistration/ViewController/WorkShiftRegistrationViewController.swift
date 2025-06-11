@@ -52,7 +52,7 @@ final class WorkShiftRegistrationViewController: UIViewController {
         
         simpleRowView.delegate = self
         routineView.delegate = self
-        workDateView.parentViewController = self
+        workDateView.delegate = self
         labelView.delegate = self
         
         registerButton.addTarget(self, action: #selector(didTapRegister), for: .touchUpInside)
@@ -122,5 +122,34 @@ extension WorkShiftRegistrationViewController: LabelViewDelegate {
             self?.labelView.updateLabelName(labelColor.name, color: labelColor.color)
         }
         navigationController?.pushViewController(vc, animated: true)
+    }
+}
+
+extension WorkShiftRegistrationViewController: WorkDateViewDelegate {
+    func didTapRepeatRow(from view: WorkDateView) {
+        let vc = RepeatDaysViewController()
+        vc.onSelectDays = { [weak view] shortLabel in
+            view?.updateRepeatValue(shortLabel)  
+        }
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    func didTapDateRow(completion: @escaping (Date) -> Void) {
+        let alert = UIAlertController(title: "날짜 선택", message: "\n\n\n\n\n\n", preferredStyle: .actionSheet)
+
+        let datePicker = UIDatePicker().then {
+            $0.datePickerMode = .date
+            $0.preferredDatePickerStyle = .wheels
+            $0.frame = CGRect(x: 0, y: 30, width: alert.view.bounds.width - 20, height: 160)
+        }
+
+        alert.view.addSubview(datePicker)
+
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        alert.addAction(UIAlertAction(title: "확인", style: .default, handler: { _ in
+            completion(datePicker.date)
+        }))
+
+        present(alert, animated: true)
     }
 }

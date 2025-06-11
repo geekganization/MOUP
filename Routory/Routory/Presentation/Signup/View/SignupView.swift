@@ -136,7 +136,7 @@ final class SignupView: UIView {
     // MARK: - Custom Dialog 연결
     private func showCustomDialog(role: String) {
         let dialog = CustomDialogView()
-        dialog.titleLabel.text = "\(role)신가요?"
+        dialog.getTitleLabel.text = "\(role)이신가요?"
         dialog.onNo = { [weak dialog] in
             dialog?.removeFromSuperview()
         }

@@ -27,6 +27,8 @@
 		5B6E9F652DF6B686006B061E /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E9F642DF6B686006B061E /* FirebaseAuth */; };
 		5B6E9F672DF6B686006B061E /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E9F662DF6B686006B061E /* FirebaseCore */; };
 		5B6E9F692DF6B686006B061E /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E9F682DF6B686006B061E /* FirebaseFirestore */; };
+		9505F61A2DF9977F008CC731 /* Differentiator in Frameworks */ = {isa = PBXBuildFile; productRef = 9505F6192DF9977F008CC731 /* Differentiator */; };
+		9505F61C2DF9977F008CC731 /* RxDataSources in Frameworks */ = {isa = PBXBuildFile; productRef = 9505F61B2DF9977F008CC731 /* RxDataSources */; };
 		E861509C2DF8029D005CE9A7 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = E861509B2DF8029D005CE9A7 /* GoogleSignIn */; };
 		E861509E2DF8029D005CE9A7 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = E861509D2DF8029D005CE9A7 /* GoogleSignInSwift */; };
 /* End PBXBuildFile section */
@@ -79,11 +81,13 @@
 				078D4DBA8E91D815B9025C38 /* libPods-Routory.a in Frameworks */,
 				5B6E9F692DF6B686006B061E /* FirebaseFirestore in Frameworks */,
 				5B6E9F512DF6A0B9006B061E /* KakaoSDKAuth in Frameworks */,
+				9505F61A2DF9977F008CC731 /* Differentiator in Frameworks */,
 				5B6E9F652DF6B686006B061E /* FirebaseAuth in Frameworks */,
 				5B6E9F602DF6B507006B061E /* RxKakaoSDKCommon in Frameworks */,
 				5B6E9F552DF6A0B9006B061E /* KakaoSDKCertCore in Frameworks */,
 				5B6E9F5E2DF6B507006B061E /* RxKakaoSDKCert in Frameworks */,
 				5B6E9F532DF6A0B9006B061E /* KakaoSDKCert in Frameworks */,
+				9505F61C2DF9977F008CC731 /* RxDataSources in Frameworks */,
 				E861509C2DF8029D005CE9A7 /* GoogleSignIn in Frameworks */,
 				E861509E2DF8029D005CE9A7 /* GoogleSignInSwift in Frameworks */,
 			);
@@ -169,6 +173,8 @@
 				5B6E9F682DF6B686006B061E /* FirebaseFirestore */,
 				E861509B2DF8029D005CE9A7 /* GoogleSignIn */,
 				E861509D2DF8029D005CE9A7 /* GoogleSignInSwift */,
+				9505F6192DF9977F008CC731 /* Differentiator */,
+				9505F61B2DF9977F008CC731 /* RxDataSources */,
 			);
 			productName = Routory;
 			productReference = 5B6E8D172DF17A34006B061E /* Routory.app */;
@@ -207,6 +213,7 @@
 				5B6E9F582DF6B507006B061E /* XCRemoteSwiftPackageReference "kakao-ios-sdk-rx" */,
 				5B6E9F632DF6B686006B061E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				E861509A2DF8029D005CE9A7 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				9505F6182DF9977F008CC731 /* XCRemoteSwiftPackageReference "RxDataSources" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5B6E8D182DF17A34006B061E /* Products */;
@@ -537,6 +544,14 @@
 				minimumVersion = 11.14.0;
 			};
 		};
+		9505F6182DF9977F008CC731 /* XCRemoteSwiftPackageReference "RxDataSources" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RxSwiftCommunity/RxDataSources.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.2;
+			};
+		};
 		E861509A2DF8029D005CE9A7 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
@@ -642,6 +657,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 5B6E9F632DF6B686006B061E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
+		};
+		9505F6192DF9977F008CC731 /* Differentiator */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9505F6182DF9977F008CC731 /* XCRemoteSwiftPackageReference "RxDataSources" */;
+			productName = Differentiator;
+		};
+		9505F61B2DF9977F008CC731 /* RxDataSources */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9505F6182DF9977F008CC731 /* XCRemoteSwiftPackageReference "RxDataSources" */;
+			productName = RxDataSources;
 		};
 		E861509B2DF8029D005CE9A7 /* GoogleSignIn */ = {
 			isa = XCSwiftPackageProductDependency;

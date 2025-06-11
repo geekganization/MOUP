@@ -10,13 +10,17 @@ import SnapKit
 import Then
 
 final class LoginView: UIView {
+    
+    // MARK: - Properties
+    
+    var getKakaoLoginButton: UIButton { kakaoLoginButton }
 
     // MARK: - UI Components
 
     private let kakaoLoginButton = UIButton().then {
         $0.setImage(UIImage(named: "kakao_login_medium_wide"), for: .normal)
     }
-
+    
     // MARK: - Init
 
     override init(frame: CGRect) {

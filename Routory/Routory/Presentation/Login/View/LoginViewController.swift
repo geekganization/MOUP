@@ -50,7 +50,7 @@ private extension LoginViewController {
 
     func setBinding() {
         let input = LoginViewModel.Input(
-            googleLoginTapped: loginView.kakaoLoginButton.rx.tap.asObservable(),
+            googleLoginTapped: loginView.getKakaoLoginButton.rx.tap.asObservable(),
             presentingVC: self
         )
 

@@ -1,0 +1,84 @@
+//
+//  LoginViewController.swift
+//  Routory
+//
+//  Created by 양원식 on 6/10/25.
+//
+
+import UIKit
+import RxSwift
+import RxCocoa
+
+final class LoginViewController: UIViewController {
+
+    // MARK: - Properties
+
+    private let viewModel: LoginViewModel
+    private let loginView = LoginView()
+    private let disposeBag = DisposeBag()
+
+    // MARK: - Init
+
+    init(viewModel: LoginViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable, message: "Use init(viewModel:) instead")
+    required init?(coder: NSCoder) {
+        fatalError()
+    }
+
+    // MARK: - Lifecycle
+
+    override func loadView() {
+        self.view = loginView
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        configure()
+    }
+}
+
+// MARK: - Private Methods
+
+private extension LoginViewController {
+    func configure() {
+        setBinding()
+    }
+
+    func setBinding() {
+        let input = LoginViewModel.Input(
+            googleLoginTapped: loginView.getGoogleLoginButton.rx.tap.asObservable(),
+            presentingVC: self
+        )
+
+        let output = viewModel.transform(input: input)
+
+        output.navigation
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] navigation in
+                switch navigation {
+                case .goToMain:
+                    print("로그인 성공 - 메인 화면 이동")
+                    // TODO: Coordinator로 메인 화면 이동
+
+                case .goToSignup(let googleUid, let googleNickname):
+                    print("신규 사용자 - 회원가입 화면 이동")
+                    // DI
+                    let userService = UserService()
+                    let userRepository = UserRepository(userService: userService)
+                    let registerUserUseCase = RegisterUserUseCase(userRepository: userRepository)
+                    let signupViewModel = SignupViewModel(
+                        registerUserUseCase: registerUserUseCase,
+                        userId: googleUid,
+                        userName: googleNickname
+                    )
+                    let signupVC = SignupViewController(signupViewModel: signupViewModel)
+                    self?.navigationController?.pushViewController(signupVC, animated: true)
+                }
+            })
+            .disposed(by: disposeBag)
+    }
+}

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -13,16 +14,28 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
-        // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
-        // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         let window = UIWindow(windowScene: windowScene)
         
-        window.rootViewController = TabbarViewController()
-        window.makeKeyAndVisible()
+        let rootVC: UIViewController
         
+        if Auth.auth().currentUser != nil {
+            // 로그인된 상태 → 메인(TabBar)으로
+            rootVC = TabbarViewController()
+        } else {
+            // 로그인 안 됨 → 로그인 화면
+            let loginVC = LoginViewController(
+                viewModel: LoginViewModel(
+                    googleAuthService: GoogleAuthService(),
+                    userService: UserService()
+                )
+            )
+            rootVC = UINavigationController(rootViewController: loginVC)
+        }
+        
+        window.rootViewController = rootVC
+        window.makeKeyAndVisible()
         self.window = window
     }
 

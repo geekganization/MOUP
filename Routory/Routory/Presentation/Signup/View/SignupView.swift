@@ -1,0 +1,155 @@
+//
+//  SignupView.swift
+//  Routory
+//
+//  Created by 양원식 on 6/10/25.
+//
+
+import UIKit
+import SnapKit
+import Then
+
+final class SignupView: UIView {
+
+    // MARK: - Properties
+
+    var onRoleConfirmed: ((String) -> Void)?
+
+    // MARK: - UI Components
+
+    private let titleLabel = UILabel().then {
+        $0.text = "어떤 역할로 시작하시겠어요?"
+        $0.font = .headBold(18)
+        $0.textColor = .gray900
+    }
+
+    private let ownerCardButton = CardButton(
+        image: UIImage(named: "Owner"),
+        title: "사장님"
+    )
+    private let workerCardButton = CardButton(
+        image: UIImage(named: "Alba"),
+        title: "알바생"
+    )
+
+    private lazy var buttonHStack = UIStackView(arrangedSubviews: [ownerCardButton, workerCardButton]).then {
+        $0.axis = .horizontal
+        $0.spacing = 19
+        $0.alignment = .top
+        $0.distribution = .fillEqually
+    }
+
+    private let startButton = UIButton().then {
+        $0.setTitle("시작하기", for: .normal)
+        $0.titleLabel?.font = .buttonSemibold(18)
+        $0.setTitleColor(.gray500, for: .normal)
+        $0.layer.cornerRadius = 12
+        $0.backgroundColor = .gray300
+        $0.isEnabled = false
+    }
+
+    // MARK: - Initializer
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        configure()
+    }
+
+    @available(*, unavailable, message: "Use init(frame:) instead")
+    required init?(coder: NSCoder) {
+        fatalError()
+    }
+
+    // MARK: - Actions
+
+    @objc
+    private func ownerTapped() {
+        ownerCardButton.isSelected = true
+        workerCardButton.isSelected = false
+        updateStartButtonState()
+    }
+
+    @objc
+    private func workerTapped() {
+        ownerCardButton.isSelected = false
+        workerCardButton.isSelected = true
+        updateStartButtonState()
+    }
+
+    @objc
+    private func startButtonTapped() {
+        let role: String?
+        if ownerCardButton.isSelected {
+            role = "사장님"
+        } else if workerCardButton.isSelected {
+            role = "알바생"
+        } else {
+            role = nil
+        }
+        guard let selectedRole = role else { return }
+        showCustomDialog(role: selectedRole)
+    }
+}
+
+// MARK: - UI Setup
+
+private extension SignupView {
+    func configure() {
+        backgroundColor = .white
+        setHierarchy()
+        setConstraints()
+        setActions()
+    }
+
+    func setHierarchy() {
+        addSubviews(titleLabel, buttonHStack, startButton)
+    }
+
+    func setConstraints() {
+        titleLabel.snp.makeConstraints {
+            $0.top.equalTo(safeAreaLayoutGuide).offset(153)
+            $0.centerX.equalToSuperview()
+        }
+        buttonHStack.snp.makeConstraints {
+            $0.top.equalTo(titleLabel.snp.bottom).offset(26)
+            $0.centerX.equalToSuperview().inset(16)
+        }
+        startButton.snp.makeConstraints {
+            $0.top.equalTo(buttonHStack.snp.bottom).offset(225)
+            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.height.equalTo(45)
+        }
+    }
+
+    func setActions() {
+        ownerCardButton.addTarget(self, action: #selector(ownerTapped), for: .touchUpInside)
+        workerCardButton.addTarget(self, action: #selector(workerTapped), for: .touchUpInside)
+        startButton.addTarget(self, action: #selector(startButtonTapped), for: .touchUpInside)
+    }
+
+    func updateStartButtonState() {
+        if ownerCardButton.isSelected || workerCardButton.isSelected {
+            startButton.isEnabled = true
+            startButton.backgroundColor = .primary500
+            startButton.setTitleColor(.white, for: .normal)
+        } else {
+            startButton.isEnabled = false
+            startButton.backgroundColor = .gray300
+            startButton.setTitleColor(.gray500, for: .normal)
+        }
+    }
+
+    func showCustomDialog(role: String) {
+        let dialog = CustomDialogView()
+        dialog.getTitleLabel.text = "\(role)이신가요?"
+        dialog.onNo = { [weak dialog] in
+            dialog?.removeFromSuperview()
+        }
+        dialog.onYes = { [weak self, weak dialog] in
+            dialog?.removeFromSuperview()
+            self?.onRoleConfirmed?(role)
+        }
+        self.addSubview(dialog)
+        dialog.snp.makeConstraints { $0.edges.equalToSuperview() }
+    }
+}

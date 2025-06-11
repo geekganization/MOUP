@@ -64,22 +64,40 @@ final class MyPageViewController: UIViewController {
     @objc private func logoutButtonDidTap() {
         do {
             try Auth.auth().signOut()
-            
+
             guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                   let sceneDelegate = scene.delegate as? SceneDelegate,
                   let window = sceneDelegate.window else {
                 return
             }
-            
+
             let loginVC = LoginViewController(
                 viewModel: LoginViewModel(
                     googleAuthService: GoogleAuthService(),
                     userService: UserService()
                 )
             )
-            
-            window.rootViewController = UINavigationController(rootViewController: loginVC)
-            window.makeKeyAndVisible()
+            let navController = UINavigationController(rootViewController: loginVC)
+
+            guard let snapshot = window.snapshotView(afterScreenUpdates: true) else {
+                window.rootViewController = navController
+                return
+            }
+
+            navController.view.frame = window.bounds
+            navController.view.transform = CGAffineTransform(translationX: -window.bounds.width * 0.3, y: 0)
+            window.addSubview(navController.view)
+
+            window.addSubview(snapshot)
+
+            UIView.animate(withDuration: 0.35, delay: 0, options: .curveEaseOut, animations: {
+                snapshot.transform = CGAffineTransform(translationX: window.bounds.width, y: 0)
+                navController.view.transform = .identity
+            }, completion: { _ in
+                snapshot.removeFromSuperview()
+                window.rootViewController = navController
+                window.makeKeyAndVisible()
+            })
         } catch {
             print("로그아웃 실패: \(error)")
         }

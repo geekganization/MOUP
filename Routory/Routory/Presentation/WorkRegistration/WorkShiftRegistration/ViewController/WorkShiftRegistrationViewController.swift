@@ -11,7 +11,7 @@ import Then
 
 final class WorkShiftRegistrationViewController: UIViewController {
     
-    private let simpleRowView = SimpleRowView(title: "근무지 선택")
+    private let simpleRowView = SimpleRowView()
     private let routineView = RoutineView()
     private let workDateView = WorkDateView()
     private let labelView = LabelView()

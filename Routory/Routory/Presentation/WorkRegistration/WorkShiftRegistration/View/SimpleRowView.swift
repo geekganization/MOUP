@@ -19,6 +19,7 @@ final class SimpleRowView: UIView {
 
     private let titleLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 16, weight: .semibold)
+        $0.text = "근무지 선택"
         $0.textColor = .label
     }
 
@@ -33,9 +34,8 @@ final class SimpleRowView: UIView {
         $0.backgroundColor = UIColor.systemGray4
     }
 
-    init(title: String) {
+    init() {
         super.init(frame: .zero)
-        titleLabel.text = title
         setupLayout()
         setupGesture()
     }

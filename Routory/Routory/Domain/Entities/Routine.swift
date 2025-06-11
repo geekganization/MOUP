@@ -28,3 +28,8 @@ struct Routine: Codable {
         self.tasks = tasks
     }
 }
+
+struct RoutineItem {
+    let routine: Routine
+    var isSelected: Bool
+}

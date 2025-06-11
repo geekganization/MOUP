@@ -1,0 +1,84 @@
+//
+//  BreakTimePickerViewController.swift
+//  Routory
+//
+//  Created by tlswo on 6/10/25.
+//
+
+import UIKit
+import SnapKit
+
+final class BreakTimePickerViewController: UIViewController {
+
+    // MARK: - UI Components
+
+    private let pickerView = UIPickerView()
+    private let confirmButton = UIButton(type: .system)
+
+    // MARK: - Callback
+
+    var onSelect: ((Int) -> Void)?
+
+    // MARK: - Lifecycle
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+    }
+
+    // MARK: - UI Setup
+
+    private func setupUI() {
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 16
+        view.clipsToBounds = true
+
+        pickerView.dataSource = self
+        pickerView.delegate = self
+
+        confirmButton.setTitle("확인", for: .normal)
+        confirmButton.titleLabel?.font = .buttonSemibold(16)
+        confirmButton.addTarget(self, action: #selector(confirmTapped), for: .touchUpInside)
+
+        view.addSubview(pickerView)
+        view.addSubview(confirmButton)
+
+        pickerView.snp.makeConstraints {
+            $0.top.leading.trailing.equalToSuperview()
+            $0.height.equalTo(150)
+        }
+
+        confirmButton.snp.makeConstraints {
+            $0.top.equalTo(pickerView.snp.bottom)
+            $0.leading.trailing.bottom.equalToSuperview()
+            $0.height.equalTo(48)
+            $0.bottom.equalToSuperview().offset(-20)
+        }
+    }
+
+    // MARK: - Actions
+
+    @objc private func confirmTapped() {
+        let index = pickerView.selectedRow(inComponent: 0)
+        dismiss(animated: true) {
+            self.onSelect?(index)
+        }
+    }
+}
+
+// MARK: - UIPickerViewDataSource & UIPickerViewDelegate
+
+extension BreakTimePickerViewController: UIPickerViewDataSource, UIPickerViewDelegate {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int { 1 }
+
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        6
+    }
+
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        let minutes = (row + 1) * 30
+        let hour = minutes / 60
+        let min = minutes % 60
+        return hour > 0 ? "\(hour)시간\(min > 0 ? " \(min)분" : "")" : "\(min)분"
+    }
+}

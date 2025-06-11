@@ -8,7 +8,6 @@
 import UIKit
 
 import JTAppleCalendar
-import RxSwift
 import SnapKit
 import Then
 
@@ -35,6 +34,7 @@ final class CalendarViewController: UIViewController {
 private extension CalendarViewController {
     func configure() {
         setStyles()
+        setActions()
     }
     
     func setStyles() {
@@ -50,5 +50,41 @@ private extension CalendarViewController {
         let todayButton = UIBarButtonItem(title: "오늘", primaryAction: todayButtonAction)
         todayButton.setTitleTextAttributes([.font: UIFont.headBold(14), .foregroundColor: UIColor.gray900], for: .normal)
         self.navigationItem.rightBarButtonItem = todayButton
+    }
+    
+    func setActions() {
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(didYearMonthLabelTapped(_:)))
+        calendarView.getCalendarHeaderView.getYearMonthLabel.addGestureRecognizer(tapGestureRecognizer)
+    }
+}
+
+// MARK: - @objc Methods
+
+@objc private extension CalendarViewController {
+    func didYearMonthLabelTapped(_ sender: UITapGestureRecognizer) {
+        guard let yearMonthText = calendarView.getCalendarHeaderView.getYearMonthLabel.text,
+              let currYear = Int(yearMonthText.prefix(4)),
+              let currMonth = Int(yearMonthText.suffix(2)) else { return }
+        
+        let pickerModalVC = YearMonthPickerViewController(currYear: currYear, currMonth: currMonth)
+        pickerModalVC.delegate = self
+        
+        let modalNC = UINavigationController(rootViewController: pickerModalVC)
+        if let sheet = modalNC.sheetPresentationController {
+            sheet.detents = [.medium()]
+            sheet.prefersGrabberVisible = true
+        }
+        
+        self.present(modalNC, animated: true)
+    }
+}
+
+// MARK: - YearMonthPickerVCDelegate
+
+extension CalendarViewController: YearMonthPickerVCDelegate {
+    func didGotoButtonTapped(year: Int, month: Int) {
+        let yearMonthText = "\(year). \(month)"
+        guard let date = calendarView.getDateFormatter.date(from: yearMonthText) else { return }
+        calendarView.getJTACalendar.scrollToDate(date)
     }
 }

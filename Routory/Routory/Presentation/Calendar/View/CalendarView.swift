@@ -8,16 +8,12 @@
 import UIKit
 
 import JTAppleCalendar
-import RxCocoa
-import RxSwift
 import SnapKit
 import Then
 
 final class CalendarView: UIView {
     
     // MARK: - Properties
-    
-    private let disposeBag = DisposeBag()
     
     /// `CalendarHeaderView`에서 `yearMonthLabel`의 연/월 형식을 만들기 위한 `DateFormatter`
     private let dateFormatter = DateFormatter().then {
@@ -35,6 +31,14 @@ final class CalendarView: UIView {
     private let jtaCalendar = JTACMonthView()
     
     // MARK: - Getter
+    
+    var getDateFormatter: DateFormatter {
+        return dateFormatter
+    }
+    
+    var getCalendarHeaderView: CalendarHeaderView {
+        return calendarHeaderView
+    }
     
     var getJTACalendar: JTACMonthView {
         return jtaCalendar
@@ -60,7 +64,6 @@ private extension CalendarView {
         setStyles()
         setConstraints()
         setDelegates()
-        setBindings()
     }
     
     func setHierarchy() {
@@ -70,6 +73,8 @@ private extension CalendarView {
     }
     
     func setStyles() {
+        self.backgroundColor = .primaryBackground
+        
         jtaCalendar.minimumLineSpacing = 0
         jtaCalendar.minimumInteritemSpacing = 0
         jtaCalendar.scrollDirection = .horizontal
@@ -102,15 +107,6 @@ private extension CalendarView {
         jtaCalendar.calendarDataSource = self
         jtaCalendar.calendarDelegate = self
     }
-    
-    func setBindings() {
-        calendarHeaderView.getSelectedRowComponent.asDriver(onErrorJustReturn: [JTACalendarRange.startYear.rawValue, 1])
-            .drive(with: self) { owner, selected in
-                let yearMonthText = "\(selected[0]). \(selected[1])"
-                guard let date = owner.dateFormatter.date(from: yearMonthText) else { return }
-                owner.jtaCalendar.scrollToDate(date)
-            }.disposed(by: disposeBag)
-    }
 }
 
 // MARK: - JTAppleCalendar Methods
@@ -132,7 +128,7 @@ private extension CalendarView {
     ///
     /// - Parameter date: 레이블에 표시할 날짜.
     func setMonthLabel(date: Date) {
-        calendarHeaderView.getYearMonthTextField.text = dateFormatter.string(from: date)
+        calendarHeaderView.getYearMonthLabel.text = dateFormatter.string(from: date)
     }
     
     /// 셀의 색상 및 선택 상태를 종합적으로 구성하는 진입점 메서드입니다.

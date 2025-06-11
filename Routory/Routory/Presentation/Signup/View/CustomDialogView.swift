@@ -23,7 +23,7 @@ final class CustomDialogView: UIView {
         $0.clipsToBounds = true
     }
 
-    let titleLabel = UILabel().then {
+    private let titleLabel = UILabel().then {
         $0.text = "알바생이신가요?"
         $0.font = .headBold(18)
         $0.textColor = .gray900
@@ -32,6 +32,7 @@ final class CustomDialogView: UIView {
     private let descLabel = UILabel().then {
         $0.text = "역할 선택은 한 번만 가능합니다.\n선택 후에는 변경이 불가하니 신중하게 선택해 주세요!"
         $0.font = .bodyMedium(14)
+        $0.setLineSpacing(.bodyMedium)
         $0.textColor = .gray700
         $0.numberOfLines = 2
         $0.textAlignment = .left
@@ -59,6 +60,11 @@ final class CustomDialogView: UIView {
         $0.axis = .horizontal
         $0.spacing = 12
         $0.distribution = .fillEqually
+    }
+    
+    // MARK: - Getter
+    var getTitleLabel: UILabel {
+        return titleLabel
     }
 
     // MARK: - Callback
@@ -113,7 +119,6 @@ final class CustomDialogView: UIView {
     private func setupActions() {
         noButton.addTarget(self, action: #selector(noTapped), for: .touchUpInside)
         yesButton.addTarget(self, action: #selector(yesTapped), for: .touchUpInside)
-        // 배경 탭해서 닫으려면 dimmedView에 UITapGestureRecognizer 추가 가능
     }
 
     // MARK: - Actions

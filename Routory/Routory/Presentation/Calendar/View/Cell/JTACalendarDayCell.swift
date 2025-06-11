@@ -1,5 +1,5 @@
 //
-//  DayCell.swift
+//  JTACalendarDayCell.swift
 //  Routory
 //
 //  Created by 서동환 on 6/10/25.
@@ -11,11 +11,11 @@ import JTAppleCalendar
 import SnapKit
 import Then
 
-final class DayCell: JTACDayCell {
+final class JTACalendarDayCell: JTACDayCell {
     
     // MARK: - Properties
     
-    static let identifier = "DayCell"
+    static let identifier = String(describing: JTACalendarDayCell.self)
     
     // MARK: - UI Components
     
@@ -83,7 +83,7 @@ final class DayCell: JTACDayCell {
     }
 }
 
-private extension DayCell {
+private extension JTACalendarDayCell {
     func configure() {
         setHierarchy()
         setStyles()
@@ -95,7 +95,6 @@ private extension DayCell {
                          selectedView,
                          dateLabel)
     }
-    
     
     func setStyles() {
         self.backgroundColor = .primaryBackground

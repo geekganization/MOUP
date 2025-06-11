@@ -19,7 +19,7 @@ final class ColorCell: UITableViewCell {
     }
 
     private let nameLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 16)
+        $0.font = .fieldsRegular(16)
         $0.textColor = .label
     }
 

@@ -27,12 +27,12 @@ final class RoutineCell: UITableViewCell {
     }
 
     private let nameLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 16)
+        $0.font = .bodyMedium(16)
         $0.textColor = .label
     }
 
     private let timeLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 16)
+        $0.font = .bodyMedium(16)
         $0.textColor = .label
     }
 

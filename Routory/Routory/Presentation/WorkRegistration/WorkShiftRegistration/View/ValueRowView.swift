@@ -26,7 +26,7 @@ final class ValueRowView: UIView {
     // MARK: - UI Components
 
     private let titleLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 16)
+        $0.font = .bodyMedium(16)
         $0.textColor = .black
     }
 
@@ -38,7 +38,7 @@ final class ValueRowView: UIView {
 
     private let valueLabel = UILabel().then {
         $0.textColor = .systemGray
-        $0.font = .systemFont(ofSize: 16)
+        $0.font = .bodyMedium(16)
     }
 
     private let arrow = UIImageView().then {
@@ -66,20 +66,20 @@ final class ValueRowView: UIView {
     // MARK: - Layout
 
     private func setupLayout() {
-        addSubview(titleLabel)
         addSubview(dotView)
+        addSubview(titleLabel)
         addSubview(valueLabel)
         addSubview(arrow)
 
-        titleLabel.snp.makeConstraints {
+        dotView.snp.makeConstraints {
             $0.leading.equalToSuperview().offset(16)
             $0.centerY.equalToSuperview()
+            $0.size.equalTo(8)
         }
 
-        dotView.snp.makeConstraints {
-            $0.leading.equalTo(titleLabel.snp.trailing).offset(4)
+        titleLabel.snp.makeConstraints {
+            $0.leading.equalTo(dotView.snp.trailing).offset(4)
             $0.centerY.equalToSuperview()
-            $0.size.equalTo(8)
         }
 
         arrow.snp.makeConstraints {
@@ -107,7 +107,7 @@ final class ValueRowView: UIView {
             $0.height.equalTo(1)
         }
     }
-
+    
     // MARK: - Gesture
 
     private func setupGesture() {

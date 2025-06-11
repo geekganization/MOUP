@@ -24,7 +24,7 @@ final class DayCell: UITableViewCell {
     }
 
     private let dayLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 16)
+        $0.font = .bodyMedium(16)
         $0.textColor = .black
     }
 

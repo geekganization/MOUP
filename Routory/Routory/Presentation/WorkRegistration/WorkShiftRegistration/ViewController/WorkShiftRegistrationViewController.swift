@@ -36,7 +36,7 @@ final class WorkShiftRegistrationViewController: UIViewController {
         $0.setTitle("등록하기", for: .normal)
         $0.setTitleColor(.primary50, for: .normal)
         $0.backgroundColor = .primary500
-        $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+        $0.titleLabel?.font = .buttonSemibold(18)
         $0.layer.cornerRadius = 8
         $0.isEnabled = true
         $0.addTarget(nil, action: #selector(buttonTouchDown), for: .touchDown)

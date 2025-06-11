@@ -26,7 +26,7 @@ final class SimpleRowView: UIView {
     // MARK: - UI Components
 
     private let titleLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 16, weight: .semibold)
+        $0.font = .headBold(18)
         $0.text = "근무지 선택"
         $0.textColor = .label
     }

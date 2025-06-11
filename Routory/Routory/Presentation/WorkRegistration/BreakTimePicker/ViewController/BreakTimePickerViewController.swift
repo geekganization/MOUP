@@ -37,7 +37,7 @@ final class BreakTimePickerViewController: UIViewController {
         pickerView.delegate = self
 
         confirmButton.setTitle("확인", for: .normal)
-        confirmButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .bold)
+        confirmButton.titleLabel?.font = .buttonSemibold(16)
         confirmButton.addTarget(self, action: #selector(confirmTapped), for: .touchUpInside)
 
         view.addSubview(pickerView)

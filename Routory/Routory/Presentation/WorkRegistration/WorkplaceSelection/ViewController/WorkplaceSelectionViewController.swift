@@ -53,7 +53,7 @@ final class WorkplaceSelectionViewController: UIViewController {
 
     private let titleLabel = UILabel().then {
         $0.text = "등록할 근무지를 선택해 주세요"
-        $0.font = .systemFont(ofSize: 16, weight: .semibold)
+        $0.font = .headBold(18)
         $0.textColor = .label
     }
 
@@ -66,7 +66,7 @@ final class WorkplaceSelectionViewController: UIViewController {
 
     private let applyButton = UIButton(type: .system).then {
         $0.setTitle("적용하기", for: .normal)
-        $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+        $0.titleLabel?.font = .buttonSemibold(18)
         $0.setTitleColor(.white, for: .normal)
         $0.backgroundColor = UIColor.primary500
         $0.layer.cornerRadius = 12

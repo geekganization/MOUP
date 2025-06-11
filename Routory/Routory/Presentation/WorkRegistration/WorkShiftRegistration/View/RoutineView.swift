@@ -43,7 +43,7 @@ final class RoutineView: UIView, ValueRowViewDelegate {
 
         let titleLabel = UILabel().then {
             $0.text = "루틴"
-            $0.font = .systemFont(ofSize: 14, weight: .medium)
+            $0.font = .headBold(18)
         }
 
         let box = makeBoxedStackView(with: [addRow])

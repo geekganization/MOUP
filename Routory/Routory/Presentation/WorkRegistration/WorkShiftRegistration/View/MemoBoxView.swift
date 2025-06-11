@@ -21,7 +21,8 @@ final class MemoBoxView: UIStackView {
     // MARK: - UI Components
 
     let textView = UITextView()
-    let counterLabel = UILabel()
+    private let counterLabel = UILabel()
+    private let textContainerView = UIView()
 
     // MARK: - Initializers
 
@@ -41,11 +42,11 @@ final class MemoBoxView: UIStackView {
     private func setup() {
         let title = UILabel().then {
             $0.text = "메모"
-            $0.font = .systemFont(ofSize: 14, weight: .medium)
+            $0.font = .headBold(18)
         }
 
         textView.do {
-            $0.font = .systemFont(ofSize: 14)
+            $0.font = .fieldsRegular(16)
             $0.text = placeholder
             $0.textColor = .lightGray
             $0.layer.cornerRadius = 8
@@ -53,22 +54,31 @@ final class MemoBoxView: UIStackView {
             $0.layer.borderColor = UIColor.systemGray4.cgColor
             $0.isScrollEnabled = false
             $0.delegate = self
+            $0.textContainerInset = UIEdgeInsets(top: 8, left: 8, bottom: 24, right: 8)
+            $0.isScrollEnabled = true
         }
 
         counterLabel.do {
             $0.text = "0/\(maxLength)"
-            $0.font = .systemFont(ofSize: 12)
+            $0.font = .fieldsRegular(14)
             $0.textColor = .systemGray
-            $0.textAlignment = .right
         }
 
+        textContainerView.addSubview(textView)
+        textContainerView.addSubview(counterLabel)
+
         textView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
             $0.height.equalTo(100)
         }
 
+        counterLabel.snp.makeConstraints {
+            $0.trailing.equalToSuperview().inset(8)
+            $0.bottom.equalToSuperview().inset(4)
+        }
+
         addArrangedSubview(title)
-        addArrangedSubview(textView)
-        addArrangedSubview(counterLabel)
+        addArrangedSubview(textContainerView)
     }
 
     // MARK: - Public API

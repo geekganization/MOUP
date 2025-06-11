@@ -16,7 +16,7 @@ final class WorkplaceCell: UITableViewCell {
     // MARK: - UI Components
 
     private let nameLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 16, weight: .medium)
+        $0.font = .bodyMedium(16)
     }
 
     private let checkIcon = UIImageView(image: UIImage(systemName: "checkmark")).then {

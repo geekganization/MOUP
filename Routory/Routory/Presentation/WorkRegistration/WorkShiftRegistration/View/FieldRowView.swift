@@ -26,7 +26,7 @@ final class FieldRowView: UIView {
     // MARK: - UI Components
 
     private let titleLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 16)
+        $0.font = .bodyMedium(16)
         $0.textColor = .black
     }
 
@@ -38,7 +38,7 @@ final class FieldRowView: UIView {
 
     private let valueLabel = UILabel().then {
         $0.textColor = .systemGray
-        $0.font = .systemFont(ofSize: 16)
+        $0.font = .bodyMedium(16)
         $0.isUserInteractionEnabled = true
     }
 

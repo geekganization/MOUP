@@ -24,7 +24,7 @@ final class RepeatDaysViewController: UIViewController {
 
     private let titleLabel = UILabel().then {
         $0.text = "반복할 요일을 선택해주세요"
-        $0.font = .boldSystemFont(ofSize: 16)
+        $0.font = .headBold(18)
         $0.textColor = .black
     }
 
@@ -38,7 +38,7 @@ final class RepeatDaysViewController: UIViewController {
     private let applyButton = UIButton(type: .system).then {
         $0.setTitle("적용하기", for: .normal)
         $0.setTitleColor(.white, for: .normal)
-        $0.titleLabel?.font = .boldSystemFont(ofSize: 16)
+        $0.titleLabel?.font = .buttonSemibold(18)
         $0.backgroundColor = UIColor(red: 1.0, green: 0.39, blue: 0.28, alpha: 1.0)
         $0.layer.cornerRadius = 12
     }

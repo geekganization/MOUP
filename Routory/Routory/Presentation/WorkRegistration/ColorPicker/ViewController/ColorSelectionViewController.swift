@@ -46,7 +46,7 @@ final class ColorSelectionViewController: UIViewController {
     private let applyButton = UIButton(type: .system).then {
         $0.setTitle("적용하기", for: .normal)
         $0.setTitleColor(.white, for: .normal)
-        $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+        $0.titleLabel?.font = .buttonSemibold(18)
         $0.backgroundColor = .primary500
         $0.layer.cornerRadius = 12
     }

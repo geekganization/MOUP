@@ -33,14 +33,14 @@ final class NewRoutineViewController: UIViewController {
     private let titleTextField = UITextField().then {
         $0.placeholder = "제목을 입력해 주세요"
         $0.borderStyle = .roundedRect
-        $0.font = .systemFont(ofSize: 16)
+        $0.font = .fieldsRegular(16)
     }
 
     private let alarmField = AlarmTimeFieldView()
 
     private let taskLabel = UILabel().then {
         $0.text = "할 일 리스트"
-        $0.font = .systemFont(ofSize: 14, weight: .bold)
+        $0.font = .headBold(14)
     }
 
     private let taskInputField = UITextField().then {

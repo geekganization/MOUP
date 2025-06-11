@@ -17,7 +17,7 @@ final class AlarmTimeFieldView: UIView {
 
     private let label = UILabel().then {
         $0.text = "알림시간"
-        $0.font = .systemFont(ofSize: 16)
+        $0.font = .bodyMedium(16)
         $0.textColor = .label
     }
 

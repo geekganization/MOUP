@@ -9,6 +9,7 @@ import UIKit
 import RxSwift
 import SnapKit
 import Then
+import FirebaseAuth
 
 struct DummyUser {
     let name: String
@@ -50,11 +51,8 @@ final class MyPageViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.view.backgroundColor = .systemBackground
-        self.navigationController?.navigationBar.isHidden = true
-        
+        configure()
         setUser()
-        setTableView()
     }
     
     private func setUser() {
@@ -63,7 +61,47 @@ final class MyPageViewController: UIViewController {
         myPageView.update(user: dummyUser)
     }
     
-    private func setTableView() {
+    @objc private func logoutButtonDidTap() {
+        do {
+            try Auth.auth().signOut()
+            
+            guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                  let sceneDelegate = scene.delegate as? SceneDelegate,
+                  let window = sceneDelegate.window else {
+                return
+            }
+            
+            let loginVC = LoginViewController(
+                viewModel: LoginViewModel(
+                    googleAuthService: GoogleAuthService(),
+                    userService: UserService()
+                )
+            )
+            
+            window.rootViewController = UINavigationController(rootViewController: loginVC)
+            window.makeKeyAndVisible()
+        } catch {
+            print("로그아웃 실패: \(error)")
+        }
+    }
+}
+
+private extension MyPageViewController {
+    // MARK: - configure
+    func configure() {
+        setStyles()
+        setTableView()
+        setActions()
+    }
+    
+    // MARK: - setStyles
+    func setStyles() {
+        self.view.backgroundColor = .systemBackground
+        self.navigationController?.navigationBar.isHidden = true
+    }
+    
+    // MARK: - setTableView
+    func setTableView() {
         myPageView.menuListView.menuTableView.delegate = self
         myPageView.menuListView.menuTableView.dataSource = self
         myPageView.menuListView.menuTableView.register(
@@ -71,6 +109,15 @@ final class MyPageViewController: UIViewController {
             forCellReuseIdentifier: MyPageTableViewCell.id
         )
         myPageView.menuListView.menuTableView.separatorStyle = .none
+    }
+    
+    // MARK: - setActions
+    func setActions() {
+        myPageView.logoutButtonView.addTarget(
+            self,
+            action: #selector(logoutButtonDidTap),
+            for: .touchUpInside
+        )
     }
 }
 

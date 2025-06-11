@@ -16,7 +16,7 @@ final class MyPageNavigationBar: UIView {
     
     // MARK: - UI Components
     
-    let backButton = UIButton().then {
+    private let backButton = UIButton().then {
         $0.setImage(UIImage(named: "BackButton"), for: .normal)
     }
     
@@ -24,6 +24,12 @@ final class MyPageNavigationBar: UIView {
         $0.font = .headBold(20)
         $0.setLineSpacing(.headBold)
         $0.textColor = UIColor.gray900
+    }
+    
+    // MARK: - Getter
+    
+    var backButtonView: UIButton {
+        return backButton
     }
     
     // MARK: - Initializer

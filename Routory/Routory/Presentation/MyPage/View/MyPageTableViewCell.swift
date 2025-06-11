@@ -17,7 +17,7 @@ final class MyPageTableViewCell: UITableViewCell {
     
     // MARK: - UI Components
     
-    let titleLabel = UILabel().then {
+    private let titleLabel = UILabel().then {
         $0.font = .bodyMedium(16)
         $0.setLineSpacing(.bodyMedium)
         $0.textColor = UIColor.gray900
@@ -30,6 +30,13 @@ final class MyPageTableViewCell: UITableViewCell {
     
     private let seperatorView = UIView().then {
         $0.backgroundColor = UIColor.gray400
+    }
+    
+    // MARK: - Getter
+    
+    var title: String? {
+        get { return titleLabel.text }
+        set { titleLabel.text = newValue }
     }
     
     // MARK: - Initializer

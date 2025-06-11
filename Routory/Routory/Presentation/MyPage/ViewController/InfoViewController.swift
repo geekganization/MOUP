@@ -47,13 +47,13 @@ final class InfoViewController: UIViewController {
     }
     
     private func setTableView() {
-        infoView.menuList.tableView.delegate = self
-        infoView.menuList.tableView.dataSource = self
-        infoView.menuList.tableView.register(
+        infoView.menuListView.menuTableView.delegate = self
+        infoView.menuListView.menuTableView.dataSource = self
+        infoView.menuListView.menuTableView.register(
             MyPageTableViewCell.self,
             forCellReuseIdentifier: MyPageTableViewCell.id
         )
-        infoView.menuList.tableView.separatorStyle = .none
+        infoView.menuListView.menuTableView.separatorStyle = .none
     }
 }
 
@@ -70,7 +70,7 @@ private extension InfoViewController {
     
     // MARK: - Actions
     func setActions() {
-        infoView.navigationBar.backButton.addTarget(
+        infoView.navigationBarView.backButtonView.addTarget(
             self,
             action: #selector(backButonDidTap),
             for: .touchUpInside
@@ -95,7 +95,7 @@ extension InfoViewController: UITableViewDelegate, UITableViewDataSource {
             return UITableViewCell()
         }
         
-        cell.titleLabel.text = menuItems[indexPath.row].title
+        cell.title = menuItems[indexPath.row].title
         
         return cell
     }

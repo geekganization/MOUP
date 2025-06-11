@@ -64,13 +64,13 @@ final class MyPageViewController: UIViewController {
     }
     
     private func setTableView() {
-        myPageView.menuList.tableView.delegate = self
-        myPageView.menuList.tableView.dataSource = self
-        myPageView.menuList.tableView.register(
+        myPageView.menuListView.menuTableView.delegate = self
+        myPageView.menuListView.menuTableView.dataSource = self
+        myPageView.menuListView.menuTableView.register(
             MyPageTableViewCell.self,
             forCellReuseIdentifier: MyPageTableViewCell.id
         )
-        myPageView.menuList.tableView.separatorStyle = .none
+        myPageView.menuListView.menuTableView.separatorStyle = .none
     }
 }
 
@@ -87,7 +87,7 @@ extension MyPageViewController: UITableViewDelegate, UITableViewDataSource {
             return UITableViewCell()
         }
         
-        cell.titleLabel.text = menuItems[indexPath.row].title
+        cell.title = menuItems[indexPath.row].title
         
         return cell
     }

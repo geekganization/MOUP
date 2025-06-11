@@ -12,9 +12,9 @@ final class InfoView: UIView {
 
     // MARK: - UI Components
     
-    let navigationBar = MyPageNavigationBar(title: "정보")
+    private let navigationBar = MyPageNavigationBar(title: "정보")
     
-    let menuList = MyPageMenuListView()
+    private let menuList = MyPageMenuListView()
     
     private let appVersionTitleLabel = UILabel().then {
         $0.font = .bodyMedium(16)
@@ -42,6 +42,16 @@ final class InfoView: UIView {
         $0.alignment = .center
         $0.distribution = .equalCentering
 
+    }
+    
+    // MARK: - Getter
+    
+    var navigationBarView: MyPageNavigationBar {
+        return navigationBar
+    }
+    
+    var menuListView: MyPageMenuListView {
+        return menuList
     }
     
     // MARK: - Initializer

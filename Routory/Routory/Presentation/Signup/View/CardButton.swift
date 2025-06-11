@@ -49,7 +49,7 @@ final class CardButton: UIButton {
         layer.cornerRadius = 12
         layer.borderWidth = 1.5
         layer.borderColor = UIColor.gray400.cgColor
-        clipsToBounds = true
+        clipsToBounds = false
         backgroundColor = .white
         updateStyle()
     }

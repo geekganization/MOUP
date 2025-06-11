@@ -27,7 +27,7 @@ final class InfoView: UIView {
         $0.font = .bodyMedium(16)
         $0.setLineSpacing(.bodyMedium)
         $0.textColor = UIColor.gray700
-        $0.text = "1.0.0"
+        $0.text = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
     }
     
     private let appVersionView = UIView().then {

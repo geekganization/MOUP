@@ -13,12 +13,12 @@ final class LoginView: UIView {
     
     // MARK: - Properties
     
-    var getKakaoLoginButton: UIButton { kakaoLoginButton }
+    var getGoogleLoginButton: UIButton { googleLoginButton }
 
     // MARK: - UI Components
 
-    private let kakaoLoginButton = UIButton().then {
-        $0.setImage(UIImage(named: "kakao_login_medium_wide"), for: .normal)
+    private let googleLoginButton = UIButton().then {
+        $0.setImage(UIImage(named: "ios_light_sq_SU"), for: .normal)
     }
     
     // MARK: - Init
@@ -44,11 +44,11 @@ private extension LoginView {
     }
 
     func setHierarchy() {
-        addSubview(kakaoLoginButton)
+        addSubview(googleLoginButton)
     }
 
     func setConstraints() {
-        kakaoLoginButton.snp.makeConstraints {
+        googleLoginButton.snp.makeConstraints {
             $0.center.equalToSuperview()
             $0.leading.trailing.equalToSuperview().inset(16)
         }

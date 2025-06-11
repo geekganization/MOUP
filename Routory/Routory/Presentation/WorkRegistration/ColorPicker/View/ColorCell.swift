@@ -23,7 +23,7 @@ final class ColorCell: UITableViewCell {
 
     private let checkImage = UIImageView().then {
         $0.image = UIImage(systemName: "checkmark")
-        $0.tintColor = .systemOrange
+        $0.tintColor = .primary500
         $0.isHidden = true
     }
 

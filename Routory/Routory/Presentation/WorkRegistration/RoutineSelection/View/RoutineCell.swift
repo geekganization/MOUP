@@ -16,7 +16,7 @@ final class RoutineCell: UITableViewCell {
     var onTapChevron: (() -> Void)?
 
     private let checkbox = UIImageView().then {
-        $0.tintColor = .systemOrange
+        $0.tintColor = .primary500
         $0.contentMode = .scaleAspectFit
         $0.isUserInteractionEnabled = true
     }

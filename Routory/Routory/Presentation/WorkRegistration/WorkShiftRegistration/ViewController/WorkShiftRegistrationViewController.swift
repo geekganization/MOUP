@@ -30,11 +30,13 @@ final class WorkShiftRegistrationViewController: UIViewController {
     
     private let registerButton = UIButton(type: .system).then {
         $0.setTitle("등록하기", for: .normal)
-        $0.setTitleColor(.lightGray, for: .normal)
-        $0.backgroundColor = UIColor.systemGray5
+        $0.setTitleColor(.primary50, for: .normal)
+        $0.backgroundColor = .primary500
         $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         $0.layer.cornerRadius = 8
         $0.isEnabled = true
+        $0.addTarget(nil, action: #selector(buttonTouchDown), for: .touchDown)
+        $0.addTarget(nil, action: #selector(buttonTouchUp), for: [.touchUpInside, .touchUpOutside, .touchCancel])
     }
     
     override func viewDidLoad() {
@@ -93,6 +95,18 @@ final class WorkShiftRegistrationViewController: UIViewController {
         print(workTimeView.getrestRowData())
         print(workTimeView.getendRowData())
         print(memoBoxView.getData())
+    }
+    
+    @objc private func buttonTouchDown(_ sender: UIButton) {
+        UIView.animate(withDuration: 0.1) {
+            sender.alpha = 0.6
+        }
+    }
+
+    @objc private func buttonTouchUp(_ sender: UIButton) {
+        UIView.animate(withDuration: 0.1) {
+            sender.alpha = 1.0
+        }
     }
 }
 

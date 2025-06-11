@@ -9,7 +9,7 @@ import Then
 
 enum RoutineFormMode {
     case create
-    case edit(existingTitle: String, existingTasks: [String])
+    case edit(existingTitle: String, existingTime: String, existingTasks: [String])
 }
 
 final class NewRoutineViewController: UIViewController {
@@ -71,9 +71,10 @@ final class NewRoutineViewController: UIViewController {
         switch mode {
         case .create:
             title = "새 루틴"
-        case .edit(let existingTitle, let existingTasks):
+        case .edit(let existingTitle, let existingTime, let existingTasks):
             title = "루틴 편집"
             titleTextField.text = existingTitle
+            alarmField.update(text: existingTime)
             tasks = existingTasks
             tableView.reloadData()
             tableView.snp.updateConstraints {
@@ -165,7 +166,30 @@ final class NewRoutineViewController: UIViewController {
     }
 
     @objc private func didTapAlarmField() {
-        print("알림 시간 선택 화면으로 이동")
+        let alert = UIAlertController(title: "\n\n\n\n\n\n\n\n\n", message: nil, preferredStyle: .actionSheet)
+
+        let picker = UIDatePicker().then {
+            $0.datePickerMode = .time
+            $0.preferredDatePickerStyle = .wheels
+            $0.locale = Locale(identifier: "ko_KR")
+        }
+
+        alert.view.addSubview(picker)
+        picker.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.top.equalToSuperview().offset(8)
+        }
+
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+
+        alert.addAction(UIAlertAction(title: "확인", style: .default, handler: { [weak self] _ in
+            let formatter = DateFormatter()
+            formatter.dateFormat = "HH:mm"
+            let selectedTime = formatter.string(from: picker.date)
+            self?.alarmField.update(text: selectedTime)
+        }))
+
+        present(alert, animated: true)
     }
 }
 
@@ -182,7 +206,6 @@ extension NewRoutineViewController: UITableViewDataSource, UITableViewDelegate {
         return cell
     }
 
-    // 삭제 지원
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         true
     }
@@ -197,7 +220,6 @@ extension NewRoutineViewController: UITableViewDataSource, UITableViewDelegate {
         }
     }
 
-    // 순서 변경 지원
     func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
         true
     }

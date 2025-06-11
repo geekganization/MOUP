@@ -27,7 +27,7 @@ final class DayCell: UITableViewCell {
         let imageName = isSelected ? "checkmark.square.fill" : "square"
         let image = UIImage(systemName: imageName)
         checkBoxImageView.image = image?.withTintColor(
-            isSelected ? .systemOrange : .systemGray3,
+            isSelected ? .primary500 : .systemGray3,
             renderingMode: .alwaysOriginal
         )
         setupViews()

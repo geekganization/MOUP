@@ -17,11 +17,6 @@ final class AlarmTimeFieldView: UIView {
         $0.textColor = .label
     }
 
-    private let chevron = UIImageView(image: UIImage(systemName: "chevron.right")).then {
-        $0.tintColor = .systemGray2
-        $0.contentMode = .scaleAspectFit
-    }
-
     override init(frame: CGRect) {
         super.init(frame: frame)
         setup()
@@ -39,18 +34,10 @@ final class AlarmTimeFieldView: UIView {
         isUserInteractionEnabled = true
 
         addSubview(label)
-        addSubview(chevron)
 
         label.snp.makeConstraints {
             $0.leading.equalToSuperview().offset(12)
             $0.centerY.equalToSuperview()
-        }
-
-        chevron.snp.makeConstraints {
-            $0.trailing.equalToSuperview().offset(-12)
-            $0.centerY.equalToSuperview()
-            $0.width.equalTo(8)
-            $0.height.equalTo(14)
         }
 
         self.snp.makeConstraints {

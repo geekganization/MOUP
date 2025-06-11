@@ -11,6 +11,9 @@ import Then
 
 final class MemoBoxView: UIStackView {
 
+    private let placeholder = "내용을 입력하세요."
+    private let maxLength = 150
+
     let textView = UITextView()
     let counterLabel = UILabel()
 
@@ -33,16 +36,17 @@ final class MemoBoxView: UIStackView {
 
         textView.do {
             $0.font = .systemFont(ofSize: 14)
-            $0.text = "내용을 입력하세요."
+            $0.text = placeholder
             $0.textColor = .lightGray
             $0.layer.cornerRadius = 8
             $0.layer.borderWidth = 1
             $0.layer.borderColor = UIColor.systemGray4.cgColor
             $0.isScrollEnabled = false
+            $0.delegate = self
         }
 
         counterLabel.do {
-            $0.text = "0/150"
+            $0.text = "0/\(maxLength)"
             $0.font = .systemFont(ofSize: 12)
             $0.textColor = .systemGray
             $0.textAlignment = .right
@@ -56,8 +60,34 @@ final class MemoBoxView: UIStackView {
         addArrangedSubview(textView)
         addArrangedSubview(counterLabel)
     }
-    
+
     func getData() -> String {
-        return textView.text ?? ""
+        return textView.textColor == .lightGray ? "" : textView.text
+    }
+}
+
+extension MemoBoxView: UITextViewDelegate {
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView.textColor == .lightGray {
+            textView.text = nil
+            textView.textColor = .label
+        }
+    }
+
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            textView.text = placeholder
+            textView.textColor = .lightGray
+        }
+    }
+
+    func textViewDidChange(_ textView: UITextView) {
+        let count = textView.text.count
+        counterLabel.text = "\(count)/\(maxLength)"
+
+        if count > maxLength {
+            textView.text = String(textView.text.prefix(maxLength))
+            counterLabel.text = "\(maxLength)/\(maxLength)"
+        }
     }
 }

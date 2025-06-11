@@ -16,7 +16,7 @@ final class WorkplaceCell: UITableViewCell {
     }
 
     private let checkIcon = UIImageView(image: UIImage(systemName: "checkmark")).then {
-        $0.tintColor = .systemOrange
+        $0.tintColor = .primary500
         $0.isHidden = true
         $0.setContentHuggingPriority(.required, for: .horizontal)
     }
@@ -67,8 +67,8 @@ final class WorkplaceCell: UITableViewCell {
 
         checkIcon.isHidden = !selected
 
-        container.layer.borderColor = selected ? UIColor.systemOrange.cgColor : UIColor.systemGray4.cgColor
-        container.backgroundColor = selected ? UIColor.systemOrange.withAlphaComponent(0.1) : .white
-        nameLabel.textColor = selected ? .systemOrange : .label
+        container.layer.borderColor = selected ? UIColor.primary500.cgColor : UIColor.systemGray4.cgColor
+        container.backgroundColor = selected ? UIColor.primary500.withAlphaComponent(0.1) : .white
+        nameLabel.textColor = selected ? .primary500 : .label
     }
 }

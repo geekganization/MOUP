@@ -15,7 +15,7 @@ final class WorkShiftRegistrationViewController: UIViewController {
     private let routineView = RoutineView()
     private let workDateView = WorkDateView()
     private let labelView = LabelView()
-    private lazy var workTimeView = WorkTimeView(presentingViewController: self)
+    private lazy var workTimeView = WorkTimeView()
     private let memoBoxView = MemoBoxView()
     
     private let scrollView = UIScrollView().then {
@@ -54,6 +54,7 @@ final class WorkShiftRegistrationViewController: UIViewController {
         routineView.delegate = self
         workDateView.delegate = self
         labelView.delegate = self
+        workTimeView.delegate = self
         
         registerButton.addTarget(self, action: #selector(didTapRegister), for: .touchUpInside)
         
@@ -151,5 +152,56 @@ extension WorkShiftRegistrationViewController: WorkDateViewDelegate {
         }))
 
         present(alert, animated: true)
+    }
+}
+
+extension WorkShiftRegistrationViewController: WorkTimeViewDelegate {
+
+    func workTimeViewDidRequestTimePicker(for type: WorkTimeView.TimeType, current: String) {
+        let alert = UIAlertController(title: "\n\n\n\n\n\n\n\n\n", message: nil, preferredStyle: .actionSheet)
+        let picker = UIDatePicker()
+        picker.datePickerMode = .time
+        picker.preferredDatePickerStyle = .wheels
+        picker.locale = Locale(identifier: "ko_KR")
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        if let date = formatter.date(from: current) {
+            picker.date = date
+        }
+
+        alert.view.addSubview(picker)
+        picker.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.top.equalToSuperview().offset(8)
+        }
+
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        alert.addAction(UIAlertAction(title: "확인", style: .default, handler: { [weak self] _ in
+            let newValue = formatter.string(from: picker.date)
+            self?.workTimeView.updateValue(for: type, newValue: newValue)
+        }))
+
+        present(alert, animated: true)
+    }
+
+    func workTimeViewDidRequestBreakTimePicker(current: String) {
+        let vc = BreakTimePickerViewController()
+        vc.modalPresentationStyle = .pageSheet
+
+        if let sheet = vc.sheetPresentationController {
+            sheet.detents = [.medium()]
+            sheet.prefersGrabberVisible = true
+        }
+
+        vc.onSelect = { [weak self] index in
+            let minutes = (index + 1) * 30
+            let hour = minutes / 60
+            let minute = minutes % 60
+            let text = hour > 0 ? "\(hour)시간\(minute > 0 ? " \(minute)분" : "")" : "\(minute)분"
+            self?.workTimeView.updateRestValue(text)
+        }
+
+        present(vc, animated: true)
     }
 }

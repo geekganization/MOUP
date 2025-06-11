@@ -9,7 +9,11 @@ import UIKit
 import SnapKit
 import Then
 
+// MARK: - WorkplaceCell
+
 final class WorkplaceCell: UITableViewCell {
+
+    // MARK: - UI Components
 
     private let nameLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 16, weight: .medium)
@@ -23,6 +27,8 @@ final class WorkplaceCell: UITableViewCell {
 
     private let container = UIView()
 
+    // MARK: - Initializers
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
@@ -31,6 +37,8 @@ final class WorkplaceCell: UITableViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    // MARK: - Setup
 
     private func setupUI() {
         backgroundColor = .clear
@@ -61,6 +69,8 @@ final class WorkplaceCell: UITableViewCell {
             $0.width.height.equalTo(20)
         }
     }
+
+    // MARK: - Configuration
 
     func configure(with workplace: Workplace, selected: Bool) {
         nameLabel.text = workplace.workplacesName

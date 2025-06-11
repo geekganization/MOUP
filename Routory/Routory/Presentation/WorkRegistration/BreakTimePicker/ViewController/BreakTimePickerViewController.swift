@@ -10,15 +10,23 @@ import SnapKit
 
 final class BreakTimePickerViewController: UIViewController {
 
+    // MARK: - UI Components
+
     private let pickerView = UIPickerView()
     private let confirmButton = UIButton(type: .system)
 
+    // MARK: - Callback
+
     var onSelect: ((Int) -> Void)?
+
+    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
     }
+
+    // MARK: - UI Setup
 
     private func setupUI() {
         view.backgroundColor = .white
@@ -48,6 +56,8 @@ final class BreakTimePickerViewController: UIViewController {
         }
     }
 
+    // MARK: - Actions
+
     @objc private func confirmTapped() {
         let index = pickerView.selectedRow(inComponent: 0)
         dismiss(animated: true) {
@@ -56,11 +66,13 @@ final class BreakTimePickerViewController: UIViewController {
     }
 }
 
+// MARK: - UIPickerViewDataSource & UIPickerViewDelegate
+
 extension BreakTimePickerViewController: UIPickerViewDataSource, UIPickerViewDelegate {
     func numberOfComponents(in pickerView: UIPickerView) -> Int { 1 }
 
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        6 
+        6
     }
 
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {

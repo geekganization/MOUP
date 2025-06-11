@@ -9,13 +9,19 @@ import UIKit
 import SnapKit
 import Then
 
+// MARK: - AlarmTimeFieldView
+
 final class AlarmTimeFieldView: UIView {
+
+    // MARK: - UI Components
 
     private let label = UILabel().then {
         $0.text = "알림시간"
         $0.font = .systemFont(ofSize: 16)
         $0.textColor = .label
     }
+
+    // MARK: - Initializers
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -25,6 +31,8 @@ final class AlarmTimeFieldView: UIView {
     required init?(coder: NSCoder) {
         fatalError()
     }
+
+    // MARK: - Setup
 
     private func setup() {
         layer.cornerRadius = 8
@@ -44,6 +52,8 @@ final class AlarmTimeFieldView: UIView {
             $0.height.equalTo(44)
         }
     }
+
+    // MARK: - Public Method
 
     func update(text: String) {
         label.text = text

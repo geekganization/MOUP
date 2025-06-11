@@ -1,21 +1,31 @@
+//
 //  NewRoutineViewController.swift
 //  Routory
 //
 //  Created by tlswo on 6/10/25.
+//
 
 import UIKit
 import SnapKit
 import Then
+
+// MARK: - RoutineFormMode
 
 enum RoutineFormMode {
     case create
     case edit(existingTitle: String, existingTime: String, existingTasks: [String])
 }
 
+// MARK: - NewRoutineViewController
+
 final class NewRoutineViewController: UIViewController {
+
+    // MARK: - Properties
 
     private var mode: RoutineFormMode
     private var tasks: [String] = []
+
+    // MARK: - UI Components
 
     private let scrollView = UIScrollView()
     private let contentView = UIView()
@@ -50,7 +60,9 @@ final class NewRoutineViewController: UIViewController {
         $0.rowHeight = 44
         $0.register(TaskCell.self, forCellReuseIdentifier: "TaskCell")
     }
-    
+
+    // MARK: - Initializers
+
     init(mode: RoutineFormMode) {
         self.mode = mode
         super.init(nibName: nil, bundle: nil)
@@ -60,39 +72,33 @@ final class NewRoutineViewController: UIViewController {
         fatalError()
     }
 
+    // MARK: - Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         layout()
         applyMode()
     }
-    
-    private func applyMode() {
-        switch mode {
-        case .create:
-            title = "새 루틴"
-        case .edit(let existingTitle, let existingTime, let existingTasks):
-            title = "루틴 편집"
-            titleTextField.text = existingTitle
-            alarmField.update(text: existingTime)
-            tasks = existingTasks
-            tableView.reloadData()
-            tableView.snp.updateConstraints {
-                $0.height.equalTo(44 * tasks.count)
-            }
-        }
-    }
+
+    // MARK: - Setup
 
     private func setupUI() {
         view.backgroundColor = .white
         title = "새 루틴"
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "저장", style: .done, target: self, action: #selector(didTapSave))
+
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            title: "저장",
+            style: .done,
+            target: self,
+            action: #selector(didTapSave)
+        )
 
         addTaskButton.addTarget(self, action: #selector(didTapAddTask), for: .touchUpInside)
 
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.isEditing = true 
+        tableView.isEditing = true
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(didTapAlarmField))
         alarmField.addGestureRecognizer(tap)
@@ -100,8 +106,12 @@ final class NewRoutineViewController: UIViewController {
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
 
-        [titleTextField, alarmField, taskLabel, taskInputField, addTaskButton, tableView].forEach { contentView.addSubview($0) }
+        [titleTextField, alarmField, taskLabel, taskInputField, addTaskButton, tableView].forEach {
+            contentView.addSubview($0)
+        }
     }
+
+    // MARK: - Layout
 
     private func layout() {
         scrollView.snp.makeConstraints {
@@ -151,6 +161,26 @@ final class NewRoutineViewController: UIViewController {
         }
     }
 
+    // MARK: - Mode Application
+
+    private func applyMode() {
+        switch mode {
+        case .create:
+            title = "새 루틴"
+        case .edit(let existingTitle, let existingTime, let existingTasks):
+            title = "루틴 편집"
+            titleTextField.text = existingTitle
+            alarmField.update(text: existingTime)
+            tasks = existingTasks
+            tableView.reloadData()
+            tableView.snp.updateConstraints {
+                $0.height.equalTo(44 * tasks.count)
+            }
+        }
+    }
+
+    // MARK: - Actions
+
     @objc private func didTapAddTask() {
         guard let text = taskInputField.text, !text.trimmingCharacters(in: .whitespaces).isEmpty else { return }
         tasks.append(text)
@@ -193,7 +223,10 @@ final class NewRoutineViewController: UIViewController {
     }
 }
 
+// MARK: - UITableViewDataSource & UITableViewDelegate
+
 extension NewRoutineViewController: UITableViewDataSource, UITableViewDelegate {
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         tasks.count
     }

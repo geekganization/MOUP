@@ -9,15 +9,23 @@ import UIKit
 import SnapKit
 import Then
 
+// MARK: - Protocol
+
 protocol LabelViewDelegate: AnyObject {
     func labelViewDidTapSelectColor(_ sender: LabelView)
 }
 
+// MARK: - LabelView
+
 final class LabelView: UIView, ValueRowViewDelegate {
+
+    // MARK: - Properties
 
     weak var delegate: LabelViewDelegate?
 
     private let redLabelRow = ValueRowView(title: "빨간색", value: nil, showDot: true)
+
+    // MARK: - Initializers
 
     init() {
         super.init(frame: .zero)
@@ -27,6 +35,8 @@ final class LabelView: UIView, ValueRowViewDelegate {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    // MARK: - Setup
 
     private func setup() {
         redLabelRow.delegate = self
@@ -46,23 +56,27 @@ final class LabelView: UIView, ValueRowViewDelegate {
         stack.snp.makeConstraints { $0.edges.equalToSuperview() }
     }
 
+    // MARK: - ValueRowViewDelegate
+
     func valueRowViewDidTapChevron(_ row: ValueRowView) {
         delegate?.labelViewDidTapSelectColor(self)
     }
+
+    // MARK: - Public API
 
     func updateLabelName(_ name: String, color: UIColor) {
         redLabelRow.updateTitle(name)
         redLabelRow.updateDotColor(color)
     }
-    
+
     func getData() -> String {
         return redLabelRow.getData()
     }
-    
+
     func getColorLabelData() -> String {
         return redLabelRow.getColorLabelData()
     }
-    
+
     func getColorData() -> UIColor {
         return redLabelRow.getColorData()
     }

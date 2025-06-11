@@ -9,12 +9,18 @@ import UIKit
 import SnapKit
 import Then
 
+// MARK: - Model
+
 struct LabelColor {
     let name: String
     let color: UIColor
 }
 
+// MARK: - ViewController
+
 final class ColorSelectionViewController: UIViewController {
+
+    // MARK: - Properties
 
     private let colors: [LabelColor] = [
         LabelColor(name: "빨간색", color: UIColor(red: 1, green: 0.18, blue: 0.33, alpha: 1)),
@@ -27,8 +33,9 @@ final class ColorSelectionViewController: UIViewController {
     ]
 
     private var selectedIndex: Int = 0
-
     var onSelect: ((LabelColor) -> Void)?
+
+    // MARK: - UI Components
 
     private let tableView = UITableView().then {
         $0.register(ColorCell.self, forCellReuseIdentifier: "ColorCell")
@@ -44,11 +51,15 @@ final class ColorSelectionViewController: UIViewController {
         $0.layer.cornerRadius = 12
     }
 
+    // MARK: - Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
         layout()
     }
+
+    // MARK: - Setup
 
     private func setup() {
         view.backgroundColor = .white
@@ -61,6 +72,8 @@ final class ColorSelectionViewController: UIViewController {
 
         applyButton.addTarget(self, action: #selector(didTapApply), for: .touchUpInside)
     }
+
+    // MARK: - Layout
 
     private func layout() {
         tableView.snp.makeConstraints {
@@ -76,12 +89,16 @@ final class ColorSelectionViewController: UIViewController {
         }
     }
 
+    // MARK: - Actions
+
     @objc private func didTapApply() {
         let selectedColor = colors[selectedIndex]
         onSelect?(selectedColor)
         navigationController?.popViewController(animated: true)
     }
 }
+
+// MARK: - UITableViewDataSource & UITableViewDelegate
 
 extension ColorSelectionViewController: UITableViewDataSource, UITableViewDelegate {
 

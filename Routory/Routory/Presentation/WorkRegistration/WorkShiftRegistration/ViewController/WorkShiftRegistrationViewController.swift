@@ -9,25 +9,29 @@ import UIKit
 import SnapKit
 import Then
 
+// MARK: - WorkShiftRegistrationViewController
+
 final class WorkShiftRegistrationViewController: UIViewController {
     
+    // MARK: - UI Components
+
     private let simpleRowView = SimpleRowView()
     private let routineView = RoutineView()
     private let workDateView = WorkDateView()
     private let labelView = LabelView()
     private lazy var workTimeView = WorkTimeView()
     private let memoBoxView = MemoBoxView()
-    
+
     private let scrollView = UIScrollView().then {
         $0.keyboardDismissMode = .interactive
     }
-    
+
     private let contentStack = UIStackView().then {
         $0.axis = .vertical
         $0.spacing = 24
         $0.alignment = .fill
     }
-    
+
     private let registerButton = UIButton(type: .system).then {
         $0.setTitle("등록하기", for: .normal)
         $0.setTitleColor(.primary50, for: .normal)
@@ -38,28 +42,32 @@ final class WorkShiftRegistrationViewController: UIViewController {
         $0.addTarget(nil, action: #selector(buttonTouchDown), for: .touchDown)
         $0.addTarget(nil, action: #selector(buttonTouchUp), for: [.touchUpInside, .touchUpOutside, .touchCancel])
     }
-    
+
+    // MARK: - Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         layout()
     }
-    
+
+    // MARK: - Setup
+
     private func setupUI() {
         title = "근무 등록"
         view.backgroundColor = .white
-        
+
         view.addSubview(scrollView)
         scrollView.addSubview(contentStack)
-        
+
         simpleRowView.delegate = self
         routineView.delegate = self
         workDateView.delegate = self
         labelView.delegate = self
         workTimeView.delegate = self
-        
+
         registerButton.addTarget(self, action: #selector(didTapRegister), for: .touchUpInside)
-        
+
         contentStack.addArrangedSubview(simpleRowView)
         contentStack.addArrangedSubview(workDateView)
         contentStack.addArrangedSubview(workTimeView)
@@ -68,22 +76,24 @@ final class WorkShiftRegistrationViewController: UIViewController {
         contentStack.addArrangedSubview(memoBoxView)
         contentStack.addArrangedSubview(registerButton)
     }
-    
+
     private func layout() {
         scrollView.snp.makeConstraints {
             $0.edges.equalTo(view.safeAreaLayoutGuide)
         }
-        
+
         contentStack.snp.makeConstraints {
             $0.edges.equalTo(scrollView.contentLayoutGuide).inset(16)
             $0.width.equalTo(scrollView.frameLayoutGuide).inset(16)
         }
-        
+
         registerButton.snp.makeConstraints {
             $0.height.equalTo(48)
         }
     }
-    
+
+    // MARK: - Actions
+
     @objc func didTapRegister() {
         print(simpleRowView.getData())
         print(routineView.getTitleData())
@@ -96,7 +106,7 @@ final class WorkShiftRegistrationViewController: UIViewController {
         print(workTimeView.getendRowData())
         print(memoBoxView.getData())
     }
-    
+
     @objc private func buttonTouchDown(_ sender: UIButton) {
         UIView.animate(withDuration: 0.1) {
             sender.alpha = 0.6
@@ -110,6 +120,8 @@ final class WorkShiftRegistrationViewController: UIViewController {
     }
 }
 
+// MARK: - SimpleRowViewDelegate
+
 extension WorkShiftRegistrationViewController: SimpleRowViewDelegate {
     func simpleRowViewDidTapChevron(_ view: SimpleRowView) {
         let vc = WorkplaceSelectionViewController()
@@ -119,6 +131,8 @@ extension WorkShiftRegistrationViewController: SimpleRowViewDelegate {
         navigationController?.pushViewController(vc, animated: true)
     }
 }
+
+// MARK: - RoutineViewDelegate
 
 extension WorkShiftRegistrationViewController: RoutineViewDelegate {
     func routineViewDidTapAdd() {
@@ -130,6 +144,8 @@ extension WorkShiftRegistrationViewController: RoutineViewDelegate {
     }
 }
 
+// MARK: - LabelViewDelegate
+
 extension WorkShiftRegistrationViewController: LabelViewDelegate {
     func labelViewDidTapSelectColor(_ sender: LabelView) {
         let vc = ColorSelectionViewController()
@@ -140,15 +156,17 @@ extension WorkShiftRegistrationViewController: LabelViewDelegate {
     }
 }
 
+// MARK: - WorkDateViewDelegate
+
 extension WorkShiftRegistrationViewController: WorkDateViewDelegate {
     func didTapRepeatRow(from view: WorkDateView) {
         let vc = RepeatDaysViewController()
         vc.onSelectDays = { [weak view] shortLabel in
-            view?.updateRepeatValue(shortLabel)  
+            view?.updateRepeatValue(shortLabel)
         }
         navigationController?.pushViewController(vc, animated: true)
     }
-    
+
     func didTapDateRow(completion: @escaping (Date) -> Void) {
         let alert = UIAlertController(title: "날짜 선택", message: "\n\n\n\n\n\n", preferredStyle: .actionSheet)
 
@@ -168,6 +186,8 @@ extension WorkShiftRegistrationViewController: WorkDateViewDelegate {
         present(alert, animated: true)
     }
 }
+
+// MARK: - WorkTimeViewDelegate
 
 extension WorkShiftRegistrationViewController: WorkTimeViewDelegate {
 

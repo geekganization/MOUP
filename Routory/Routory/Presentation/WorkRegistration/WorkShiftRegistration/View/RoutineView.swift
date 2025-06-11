@@ -9,15 +9,23 @@ import UIKit
 import SnapKit
 import Then
 
+// MARK: - Protocol
+
 protocol RoutineViewDelegate: AnyObject {
     func routineViewDidTapAdd()
 }
 
+// MARK: - RoutineView
+
 final class RoutineView: UIView, ValueRowViewDelegate {
+
+    // MARK: - Properties
 
     weak var delegate: RoutineViewDelegate?
 
     private let addRow = ValueRowView(title: "루틴 추가", value: nil)
+
+    // MARK: - Initializer
 
     init() {
         super.init(frame: .zero)
@@ -28,6 +36,8 @@ final class RoutineView: UIView, ValueRowViewDelegate {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: - Setup
+
     private func setup() {
         addRow.delegate = self
 
@@ -37,6 +47,7 @@ final class RoutineView: UIView, ValueRowViewDelegate {
         }
 
         let box = makeBoxedStackView(with: [addRow])
+
         let stack = UIStackView(arrangedSubviews: [titleLabel, box]).then {
             $0.axis = .vertical
             $0.spacing = 8
@@ -46,14 +57,18 @@ final class RoutineView: UIView, ValueRowViewDelegate {
         stack.snp.makeConstraints { $0.edges.equalToSuperview() }
     }
 
+    // MARK: - ValueRowViewDelegate
+
     func valueRowViewDidTapChevron(_ row: ValueRowView) {
         delegate?.routineViewDidTapAdd()
     }
-    
+
+    // MARK: - Public API
+
     func updateSelectedRoutine(_ name: String) {
         addRow.updateTitle(name)
     }
-    
+
     func getTitleData() -> String {
         return addRow.getTitleData()
     }

@@ -9,13 +9,21 @@ import UIKit
 import SnapKit
 import Then
 
+// MARK: - Protocol
+
 protocol SimpleRowViewDelegate: AnyObject {
     func simpleRowViewDidTapChevron(_ view: SimpleRowView)
 }
 
+// MARK: - SimpleRowView
+
 final class SimpleRowView: UIView {
 
+    // MARK: - Properties
+
     weak var delegate: SimpleRowViewDelegate?
+
+    // MARK: - UI Components
 
     private let titleLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 16, weight: .semibold)
@@ -34,6 +42,8 @@ final class SimpleRowView: UIView {
         $0.backgroundColor = UIColor.systemGray4
     }
 
+    // MARK: - Initializers
+
     init() {
         super.init(frame: .zero)
         setupLayout()
@@ -43,6 +53,8 @@ final class SimpleRowView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    // MARK: - Layout
 
     private func setupLayout() {
         addSubview(titleLabel)
@@ -72,6 +84,8 @@ final class SimpleRowView: UIView {
         }
     }
 
+    // MARK: - Gesture
+
     private func setupGesture() {
         let tap = UITapGestureRecognizer(target: self, action: #selector(chevronTapped))
         chevronImageView.addGestureRecognizer(tap)
@@ -80,11 +94,13 @@ final class SimpleRowView: UIView {
     @objc private func chevronTapped() {
         delegate?.simpleRowViewDidTapChevron(self)
     }
-    
+
+    // MARK: - Public API
+
     func updateTitle(_ title: String) {
         titleLabel.text = title
     }
-    
+
     func getData() -> String {
         return titleLabel.text ?? ""
     }

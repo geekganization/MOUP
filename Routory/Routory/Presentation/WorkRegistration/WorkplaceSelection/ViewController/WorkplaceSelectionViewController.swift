@@ -9,31 +9,13 @@ import UIKit
 import SnapKit
 import Then
 
+// MARK: - WorkplaceSelectionViewController
+
 final class WorkplaceSelectionViewController: UIViewController {
-    
+
+    // MARK: - Properties
+
     var onSelect: ((Workplace) -> Void)?
-
-    private let titleLabel = UILabel().then {
-        $0.text = "등록할 근무지를 선택해 주세요"
-        $0.font = .systemFont(ofSize: 16, weight: .semibold)
-        $0.textColor = .label
-    }
-
-    private let tableView = UITableView().then {
-        $0.separatorStyle = .none
-        $0.showsVerticalScrollIndicator = false
-        $0.register(WorkplaceCell.self, forCellReuseIdentifier: "WorkplaceCell")
-        $0.rowHeight = 64
-    }
-
-    private let applyButton = UIButton(type: .system).then {
-        $0.setTitle("적용하기", for: .normal)
-        $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
-        $0.setTitleColor(.white, for: .normal)
-        $0.backgroundColor = UIColor.primary500
-        $0.layer.cornerRadius = 12
-        $0.isEnabled = true
-    }
 
     private var selectedIndex: Int?
 
@@ -67,11 +49,39 @@ final class WorkplaceSelectionViewController: UIViewController {
         )
     ]
 
+    // MARK: - UI Components
+
+    private let titleLabel = UILabel().then {
+        $0.text = "등록할 근무지를 선택해 주세요"
+        $0.font = .systemFont(ofSize: 16, weight: .semibold)
+        $0.textColor = .label
+    }
+
+    private let tableView = UITableView().then {
+        $0.separatorStyle = .none
+        $0.showsVerticalScrollIndicator = false
+        $0.register(WorkplaceCell.self, forCellReuseIdentifier: "WorkplaceCell")
+        $0.rowHeight = 64
+    }
+
+    private let applyButton = UIButton(type: .system).then {
+        $0.setTitle("적용하기", for: .normal)
+        $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+        $0.setTitleColor(.white, for: .normal)
+        $0.backgroundColor = UIColor.primary500
+        $0.layer.cornerRadius = 12
+        $0.isEnabled = true
+    }
+
+    // MARK: - Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         layout()
     }
+
+    // MARK: - Setup
 
     private func setupUI() {
         view.backgroundColor = .white
@@ -86,6 +96,8 @@ final class WorkplaceSelectionViewController: UIViewController {
 
         applyButton.addTarget(self, action: #selector(didTapRegister), for: .touchUpInside)
     }
+
+    // MARK: - Layout
 
     private func layout() {
         titleLabel.snp.makeConstraints {
@@ -106,6 +118,8 @@ final class WorkplaceSelectionViewController: UIViewController {
         }
     }
 
+    // MARK: - Actions
+
     @objc private func didTapRegister() {
         guard let index = selectedIndex else { return }
         let selected = workplaces[index]
@@ -113,6 +127,8 @@ final class WorkplaceSelectionViewController: UIViewController {
         navigationController?.popViewController(animated: true)
     }
 }
+
+// MARK: - UITableViewDataSource & UITableViewDelegate
 
 extension WorkplaceSelectionViewController: UITableViewDataSource, UITableViewDelegate {
 
@@ -124,6 +140,7 @@ extension WorkplaceSelectionViewController: UITableViewDataSource, UITableViewDe
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "WorkplaceCell", for: indexPath) as? WorkplaceCell else {
             return UITableViewCell()
         }
+
         let item = workplaces[indexPath.row]
         let isSelected = indexPath.row == selectedIndex
         cell.configure(with: item, selected: isSelected)

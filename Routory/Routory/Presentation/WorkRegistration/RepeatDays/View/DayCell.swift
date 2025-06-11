@@ -9,9 +9,15 @@ import UIKit
 import SnapKit
 import Then
 
+// MARK: - DayCell
+
 final class DayCell: UITableViewCell {
 
+    // MARK: - Identifier
+
     static let identifier = "DayCell"
+
+    // MARK: - UI Components
 
     private let checkBoxImageView = UIImageView().then {
         $0.contentMode = .scaleAspectFit
@@ -22,17 +28,23 @@ final class DayCell: UITableViewCell {
         $0.textColor = .black
     }
 
+    // MARK: - Configuration
+
     func configure(with day: String, isSelected: Bool) {
         dayLabel.text = day
+
         let imageName = isSelected ? "checkmark.square.fill" : "square"
         let image = UIImage(systemName: imageName)
         checkBoxImageView.image = image?.withTintColor(
             isSelected ? .primary500 : .systemGray3,
             renderingMode: .alwaysOriginal
         )
+
         setupViews()
         setupConstraints()
     }
+
+    // MARK: - Setup
 
     private func setupViews() {
         contentView.addSubview(checkBoxImageView)
@@ -51,6 +63,8 @@ final class DayCell: UITableViewCell {
             $0.centerY.equalToSuperview()
         }
     }
+
+    // MARK: - Reuse
 
     override func prepareForReuse() {
         super.prepareForReuse()

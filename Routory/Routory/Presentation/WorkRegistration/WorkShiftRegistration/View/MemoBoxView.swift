@@ -9,13 +9,21 @@ import UIKit
 import SnapKit
 import Then
 
+// MARK: - MemoBoxView
+
 final class MemoBoxView: UIStackView {
+
+    // MARK: - Constants
 
     private let placeholder = "내용을 입력하세요."
     private let maxLength = 150
 
+    // MARK: - UI Components
+
     let textView = UITextView()
     let counterLabel = UILabel()
+
+    // MARK: - Initializers
 
     init() {
         super.init(frame: .zero)
@@ -27,6 +35,8 @@ final class MemoBoxView: UIStackView {
     required init(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    // MARK: - Setup
 
     private func setup() {
         let title = UILabel().then {
@@ -61,12 +71,17 @@ final class MemoBoxView: UIStackView {
         addArrangedSubview(counterLabel)
     }
 
+    // MARK: - Public API
+
     func getData() -> String {
         return textView.textColor == .lightGray ? "" : textView.text
     }
 }
 
+// MARK: - UITextViewDelegate
+
 extension MemoBoxView: UITextViewDelegate {
+
     func textViewDidBeginEditing(_ textView: UITextView) {
         if textView.textColor == .lightGray {
             textView.text = nil

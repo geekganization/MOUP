@@ -7,6 +7,8 @@
 
 import UIKit
 
+// MARK: - Utility Functions
+
 func makeBoxedStackView(with views: [UIView]) -> UIStackView {
     return UIStackView(arrangedSubviews: views).then {
         $0.axis = .vertical

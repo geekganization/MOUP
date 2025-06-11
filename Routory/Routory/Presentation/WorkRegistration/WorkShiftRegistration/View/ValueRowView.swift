@@ -9,13 +9,21 @@ import UIKit
 import SnapKit
 import Then
 
+// MARK: - Protocol
+
 protocol ValueRowViewDelegate: AnyObject {
     func valueRowViewDidTapChevron(_ row: ValueRowView)
 }
 
+// MARK: - ValueRowView
+
 final class ValueRowView: UIView {
 
+    // MARK: - Properties
+
     weak var delegate: ValueRowViewDelegate?
+
+    // MARK: - UI Components
 
     private let titleLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 16)
@@ -40,6 +48,8 @@ final class ValueRowView: UIView {
         $0.isUserInteractionEnabled = true
     }
 
+    // MARK: - Initializer
+
     init(title: String, value: String?, showDot: Bool = false) {
         super.init(frame: .zero)
         titleLabel.text = title
@@ -52,6 +62,8 @@ final class ValueRowView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    // MARK: - Layout
 
     private func setupLayout() {
         addSubview(titleLabel)
@@ -96,6 +108,8 @@ final class ValueRowView: UIView {
         }
     }
 
+    // MARK: - Gesture
+
     private func setupGesture() {
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleChevronTap))
         arrow.addGestureRecognizer(tap)
@@ -105,6 +119,8 @@ final class ValueRowView: UIView {
         delegate?.valueRowViewDidTapChevron(self)
     }
 
+    // MARK: - Public API
+
     func updateTitle(_ name: String) {
         titleLabel.text = name
     }
@@ -112,24 +128,24 @@ final class ValueRowView: UIView {
     func updateValue(_ name: String) {
         valueLabel.text = name
     }
-    
+
     func updateDotColor(_ color: UIColor) {
         dotView.backgroundColor = color
         dotView.isHidden = false
     }
-    
+
     func getData() -> String {
         return valueLabel.text ?? ""
     }
-    
+
     func getTitleData() -> String {
         return titleLabel.text ?? ""
     }
-    
+
     func getColorLabelData() -> String {
         return titleLabel.text ?? ""
     }
-    
+
     func getColorData() -> UIColor {
         return dotView.backgroundColor ?? .white
     }

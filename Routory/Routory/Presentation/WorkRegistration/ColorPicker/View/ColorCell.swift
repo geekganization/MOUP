@@ -11,6 +11,8 @@ import Then
 
 final class ColorCell: UITableViewCell {
 
+    // MARK: - UI Components
+
     private let colorDot = UIView().then {
         $0.layer.cornerRadius = 6
         $0.clipsToBounds = true
@@ -27,6 +29,8 @@ final class ColorCell: UITableViewCell {
         $0.isHidden = true
     }
 
+    // MARK: - Initializers
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setup()
@@ -35,6 +39,8 @@ final class ColorCell: UITableViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    // MARK: - Setup
 
     private func setup() {
         selectionStyle = .none
@@ -60,6 +66,8 @@ final class ColorCell: UITableViewCell {
             $0.width.height.equalTo(20)
         }
     }
+
+    // MARK: - Configuration
 
     func configure(name: String, color: UIColor, isSelected: Bool) {
         nameLabel.text = name

@@ -9,22 +9,32 @@ import UIKit
 import SnapKit
 import Then
 
+// MARK: - Protocol
+
 protocol WorkTimeViewDelegate: AnyObject {
     func workTimeViewDidRequestTimePicker(for type: WorkTimeView.TimeType, current: String)
     func workTimeViewDidRequestBreakTimePicker(current: String)
 }
 
+// MARK: - WorkTimeView
+
 final class WorkTimeView: UIView, FieldRowViewDelegate {
+
+    // MARK: - Nested Types
 
     enum TimeType {
         case start, end
     }
 
+    // MARK: - Properties
+
     weak var delegate: WorkTimeViewDelegate?
-    
+
     private let startRow = FieldRowView(title: "출근", value: "09:00")
     private let endRow = FieldRowView(title: "퇴근", value: "18:00")
     private let restRow = FieldRowView(title: "휴게", value: "1시간")
+
+    // MARK: - Initializers
 
     init() {
         super.init(frame: .zero)
@@ -34,6 +44,8 @@ final class WorkTimeView: UIView, FieldRowViewDelegate {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    // MARK: - Setup
 
     private func setup() {
         [startRow, endRow, restRow].forEach { $0.delegate = self }
@@ -53,6 +65,8 @@ final class WorkTimeView: UIView, FieldRowViewDelegate {
         stack.snp.makeConstraints { $0.edges.equalToSuperview() }
     }
 
+    // MARK: - FieldRowViewDelegate
+
     func fieldRowViewDidTapChevron(_ row: FieldRowView) {
         switch row {
         case startRow:
@@ -65,6 +79,8 @@ final class WorkTimeView: UIView, FieldRowViewDelegate {
             break
         }
     }
+
+    // MARK: - Public API
 
     func updateValue(for type: TimeType, newValue: String) {
         switch type {

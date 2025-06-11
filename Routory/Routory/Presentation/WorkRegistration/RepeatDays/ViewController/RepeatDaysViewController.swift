@@ -9,12 +9,18 @@ import UIKit
 import SnapKit
 import Then
 
+// MARK: - RepeatDaysViewController
+
 final class RepeatDaysViewController: UIViewController {
+
+    // MARK: - Properties
 
     private let days = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"]
     private var selectedDays = Set<Int>()
-    
+
     var onSelectDays: ((String) -> Void)?
+
+    // MARK: - UI Components
 
     private let titleLabel = UILabel().then {
         $0.text = "반복할 요일을 선택해주세요"
@@ -37,6 +43,8 @@ final class RepeatDaysViewController: UIViewController {
         $0.layer.cornerRadius = 12
     }
 
+    // MARK: - Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -46,6 +54,8 @@ final class RepeatDaysViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
     }
+
+    // MARK: - Setup
 
     private func setupNavigationBar() {
         title = "반복"
@@ -85,6 +95,8 @@ final class RepeatDaysViewController: UIViewController {
         }
     }
 
+    // MARK: - Actions
+
     @objc private func didTapBack() {
         navigationController?.popViewController(animated: true)
     }
@@ -97,6 +109,8 @@ final class RepeatDaysViewController: UIViewController {
         navigationController?.popViewController(animated: true)
     }
 }
+
+// MARK: - UITableViewDataSource & UITableViewDelegate
 
 extension RepeatDaysViewController: UITableViewDelegate, UITableViewDataSource {
 
@@ -124,4 +138,3 @@ extension RepeatDaysViewController: UITableViewDelegate, UITableViewDataSource {
         tableView.reloadRows(at: [indexPath], with: .automatic)
     }
 }
-

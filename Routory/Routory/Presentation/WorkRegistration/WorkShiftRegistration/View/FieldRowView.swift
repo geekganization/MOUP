@@ -9,13 +9,21 @@ import UIKit
 import SnapKit
 import Then
 
+// MARK: - Protocol
+
 protocol FieldRowViewDelegate: AnyObject {
     func fieldRowViewDidTapChevron(_ row: FieldRowView)
 }
 
+// MARK: - FieldRowView
+
 final class FieldRowView: UIView {
 
+    // MARK: - Properties
+
     weak var delegate: FieldRowViewDelegate?
+
+    // MARK: - UI Components
 
     private let titleLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 16)
@@ -34,6 +42,8 @@ final class FieldRowView: UIView {
         $0.isUserInteractionEnabled = true
     }
 
+    // MARK: - Initializer
+
     init(title: String, value: String?, showDot: Bool = false) {
         super.init(frame: .zero)
         titleLabel.text = title
@@ -46,6 +56,8 @@ final class FieldRowView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    // MARK: - Layout
 
     private func setupLayout() {
         addSubview(titleLabel)
@@ -83,6 +95,8 @@ final class FieldRowView: UIView {
         }
     }
 
+    // MARK: - Gesture
+
     private func setupGesture() {
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleValueTap))
         valueLabel.addGestureRecognizer(tap)
@@ -92,6 +106,8 @@ final class FieldRowView: UIView {
         delegate?.fieldRowViewDidTapChevron(self)
     }
 
+    // MARK: - Public API
+
     func updateTitle(_ name: String) {
         titleLabel.text = name
     }
@@ -99,7 +115,7 @@ final class FieldRowView: UIView {
     func updateValue(_ name: String) {
         valueLabel.text = name
     }
-    
+
     func getData() -> String {
         return valueLabel.text ?? ""
     }

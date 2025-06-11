@@ -9,11 +9,16 @@ import UIKit
 import SnapKit
 import Then
 
+// MARK: - RoutineCell
+
 final class RoutineCell: UITableViewCell {
 
     // MARK: - Callbacks
+
     var onTapCheckbox: (() -> Void)?
     var onTapChevron: (() -> Void)?
+
+    // MARK: - UI Components
 
     private let checkbox = UIImageView().then {
         $0.tintColor = .primary500
@@ -37,6 +42,8 @@ final class RoutineCell: UITableViewCell {
         $0.isUserInteractionEnabled = true
     }
 
+    // MARK: - Initializers
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setup()
@@ -45,6 +52,8 @@ final class RoutineCell: UITableViewCell {
     required init?(coder: NSCoder) {
         fatalError()
     }
+
+    // MARK: - Setup
 
     private func setup() {
         selectionStyle = .none
@@ -77,7 +86,8 @@ final class RoutineCell: UITableViewCell {
             $0.centerY.equalToSuperview()
         }
 
-        // Tap Gesture 추가
+        // MARK: - Gesture Setup
+
         let checkTap = UITapGestureRecognizer(target: self, action: #selector(didTapCheckbox))
         checkbox.addGestureRecognizer(checkTap)
 
@@ -85,11 +95,15 @@ final class RoutineCell: UITableViewCell {
         arrow.addGestureRecognizer(chevronTap)
     }
 
+    // MARK: - Configuration
+
     func configure(with item: RoutineItem) {
         nameLabel.text = item.routine.routineName
         timeLabel.text = item.routine.alarmTime
         checkbox.image = UIImage(systemName: item.isSelected ? "checkmark.square.fill" : "square")
     }
+
+    // MARK: - Actions
 
     @objc private func didTapCheckbox() {
         onTapCheckbox?()

@@ -9,9 +9,21 @@ import UIKit
 import SnapKit
 import Then
 
+// MARK: - RoutineSelectionViewController
+
 final class RoutineSelectionViewController: UIViewController {
-    
+
+    // MARK: - Properties
+
     var onSelect: ((Routine) -> Void)?
+
+    private var routines: [RoutineItem] = [
+        RoutineItem(routine: Routine(id: "1", routineName: "오픈", alarmTime: "09:00", tasks: []), isSelected: true),
+        RoutineItem(routine: Routine(id: "2", routineName: "포기", alarmTime: "15:00", tasks: []), isSelected: false),
+        RoutineItem(routine: Routine(id: "3", routineName: "마감", alarmTime: "18:00", tasks: []), isSelected: false)
+    ]
+
+    // MARK: - UI Components
 
     private let routinesLabel = UILabel().then {
         $0.text = "오늘의 루틴을 선택해 주세요"
@@ -33,11 +45,7 @@ final class RoutineSelectionViewController: UIViewController {
         $0.layer.cornerRadius = 12
     }
 
-    private var routines: [RoutineItem] = [
-        RoutineItem(routine: Routine(id: "1", routineName: "오픈", alarmTime: "09:00", tasks: []), isSelected: true),
-        RoutineItem(routine: Routine(id: "2", routineName: "포기", alarmTime: "15:00", tasks: []), isSelected: false),
-        RoutineItem(routine: Routine(id: "3", routineName: "마감", alarmTime: "18:00", tasks: []), isSelected: false)
-    ]
+    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -45,11 +53,17 @@ final class RoutineSelectionViewController: UIViewController {
         layout()
     }
 
+    // MARK: - Setup
+
     private func setupUI() {
         view.backgroundColor = .white
         title = "루틴 선택"
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(didTapAdd))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .add,
+            target: self,
+            action: #selector(didTapAdd)
+        )
 
         view.addSubview(routinesLabel)
         view.addSubview(tableView)
@@ -60,6 +74,8 @@ final class RoutineSelectionViewController: UIViewController {
 
         applyButton.addTarget(self, action: #selector(didTapApply), for: .touchUpInside)
     }
+
+    // MARK: - Layout
 
     private func layout() {
         routinesLabel.snp.makeConstraints {
@@ -80,6 +96,8 @@ final class RoutineSelectionViewController: UIViewController {
         }
     }
 
+    // MARK: - Actions
+
     @objc private func didTapApply() {
         if let selected = routines.first(where: { $0.isSelected }) {
             onSelect?(selected.routine)
@@ -93,6 +111,8 @@ final class RoutineSelectionViewController: UIViewController {
     }
 }
 
+// MARK: - UITableViewDataSource & UITableViewDelegate
+
 extension RoutineSelectionViewController: UITableViewDataSource, UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -105,7 +125,7 @@ extension RoutineSelectionViewController: UITableViewDataSource, UITableViewDele
         }
         tableView.reloadData()
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "RoutineCell", for: indexPath) as? RoutineCell else {
             return UITableViewCell()
@@ -113,6 +133,8 @@ extension RoutineSelectionViewController: UITableViewDataSource, UITableViewDele
 
         let item = routines[indexPath.row]
         cell.configure(with: item)
+
+        // MARK: - Cell Callbacks
 
         cell.onTapCheckbox = { [weak self] in
             guard let self else { return }
@@ -126,7 +148,11 @@ extension RoutineSelectionViewController: UITableViewDataSource, UITableViewDele
             guard let self else { return }
             let routine = item.routine
             let editVC = NewRoutineViewController(
-                mode: .edit(existingTitle: routine.routineName,existingTime: routine.alarmTime, existingTasks: routine.tasks)
+                mode: .edit(
+                    existingTitle: routine.routineName,
+                    existingTime: routine.alarmTime,
+                    existingTasks: routine.tasks
+                )
             )
             navigationController?.pushViewController(editVC, animated: true)
         }

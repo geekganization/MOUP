@@ -10,61 +10,36 @@ import SnapKit
 import Then
 
 final class CardButton: UIButton {
-    
+
     // MARK: - UI Components
+
     private let iconImageView = UIImageView()
     private let cardTitleLabel = UILabel()
     private let vStack = UIStackView()
-    
+
     // MARK: - Init
+
     init(image: UIImage?, title: String) {
         super.init(frame: .zero)
-        
-        iconImageView.do {
-            $0.image = image
-            $0.contentMode = .scaleAspectFit
-        }
-        cardTitleLabel.do {
-            $0.text = title
-            $0.font = .bodyMedium(16)
-            $0.textColor = .gray900
-            $0.textAlignment = .center
-        }
-        vStack.do {
-            $0.axis = .vertical
-            $0.alignment = .center
-            $0.spacing = 21
-            $0.addArrangedSubviews(iconImageView, cardTitleLabel)
-        }
-        
-        addSubview(vStack)
-        vStack.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-        }
-        
-        vStack.isLayoutMarginsRelativeArrangement = true
-        vStack.layoutMargins = UIEdgeInsets(top: 20, left: 14, bottom: 20, right: 14)
-        vStack.isUserInteractionEnabled = false
-        
-        layer.cornerRadius = 12
-        layer.borderWidth = 1.5
-        layer.borderColor = UIColor.gray400.cgColor
-        clipsToBounds = false
-        backgroundColor = .white
-        updateStyle()
+        iconImageView.image = image
+        cardTitleLabel.text = title
+        configure()
     }
-    
+
+    @available(*, unavailable, message: "Use init(image:title:) instead")
     required init?(coder: NSCoder) { fatalError() }
-    
-    // MARK: - 스타일 업데이트 (선택/비선택)
+
+    // MARK: - Selected Style
+
     override var isSelected: Bool {
         didSet { updateStyle() }
     }
+
     private func updateStyle() {
         if isSelected {
             layer.borderColor = UIColor.primary500.cgColor
             layer.borderWidth = 2
-            layer.shadowColor = UIColor(red: 250/255, green: 109/255, blue: 70/255, alpha: 0.7).cgColor // #FA6D46, 70%
+            layer.shadowColor = UIColor(red: 250/255, green: 109/255, blue: 70/255, alpha: 0.7).cgColor
             layer.shadowOpacity = 1
             layer.shadowOffset = CGSize(width: 0, height: 1)
             layer.shadowRadius = 4
@@ -74,6 +49,47 @@ final class CardButton: UIButton {
             layer.borderColor = UIColor.gray400.cgColor
             layer.shadowOpacity = 0
             cardTitleLabel.textColor = .gray900
+            cardTitleLabel.font = .bodyMedium(16)
         }
+    }
+}
+
+// MARK: - UI Setup
+
+private extension CardButton {
+    func configure() {
+        setHierarchy()
+        setConstraints()
+        setStyles()
+        updateStyle()
+    }
+
+    func setHierarchy() {
+        vStack.axis = .vertical
+        vStack.alignment = .center
+        vStack.spacing = 21
+        vStack.isLayoutMarginsRelativeArrangement = true
+        vStack.layoutMargins = UIEdgeInsets(top: 20, left: 14, bottom: 20, right: 14)
+        vStack.isUserInteractionEnabled = false
+
+        cardTitleLabel.textAlignment = .center
+
+        vStack.addArrangedSubviews(iconImageView, cardTitleLabel)
+        addSubview(vStack)
+    }
+
+    func setConstraints() {
+        vStack.snp.makeConstraints { $0.edges.equalToSuperview() }
+    }
+
+    func setStyles() {
+        layer.cornerRadius = 12
+        layer.borderWidth = 1.5
+        layer.borderColor = UIColor.gray400.cgColor
+        backgroundColor = .white
+        clipsToBounds = false
+        iconImageView.contentMode = .scaleAspectFit
+        cardTitleLabel.textColor = .gray900
+        cardTitleLabel.font = .bodyMedium(16)
     }
 }

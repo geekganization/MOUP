@@ -8,11 +8,12 @@
 import UIKit
 import RxSwift
 
-class SignupViewController: UIViewController {
+final class SignupViewController: UIViewController {
 
-    // MARK: - View / ViewModel
-    private let signUpView = SignupView()
+    // MARK: - Properties
+
     private let signupViewModel: SignupViewModel
+    private let signUpView = SignupView()
     private let disposeBag = DisposeBag()
     
     // Rx Input Subjects
@@ -20,24 +21,37 @@ class SignupViewController: UIViewController {
     private let confirmTappedSubject = PublishSubject<Void>()
 
     // MARK: - Init
+
     init(signupViewModel: SignupViewModel) {
         self.signupViewModel = signupViewModel
         super.init(nibName: nil, bundle: nil)
     }
 
+    @available(*, unavailable, message: "Use init(signupViewModel:) instead")
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        fatalError()
     }
 
-    // MARK: - LifeCycle
+    // MARK: - Lifecycle
 
     override func loadView() {
         self.view = signUpView
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        configure()
+    }
+}
+
+// MARK: - Private Methods
+
+private extension SignupViewController {
+    func configure() {
+        setBinding()
+    }
+
+    func setBinding() {
         // 역할 선택/확정 이벤트 바인딩
         signUpView.onRoleConfirmed = { [weak self] role in
             self?.roleSelectedSubject.onNext(role == "사장님" ? "owner" : "worker")
@@ -63,7 +77,7 @@ class SignupViewController: UIViewController {
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { error in
                 print("회원가입 실패: \(error)")
-                // TODO: 에러 메세지
+                // TODO: 에러 메시지 노출
             })
             .disposed(by: disposeBag)
     }

@@ -11,10 +11,10 @@ import RxCocoa
 
 final class LoginViewController: UIViewController {
 
-    // MARK: - View / ViewModel
+    // MARK: - Properties
 
-    private let loginView = LoginView()
     private let viewModel: LoginViewModel
+    private let loginView = LoginView()
     private let disposeBag = DisposeBag()
 
     // MARK: - Init
@@ -24,11 +24,12 @@ final class LoginViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
 
+    @available(*, unavailable, message: "Use init(viewModel:) instead")
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        fatalError()
     }
 
-    // MARK: - LifeCycle
+    // MARK: - Lifecycle
 
     override func loadView() {
         self.view = loginView
@@ -36,12 +37,18 @@ final class LoginViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        bindViewModel()
+        configure()
+    }
+}
+
+// MARK: - Private Methods
+
+private extension LoginViewController {
+    func configure() {
+        setBinding()
     }
 
-    // MARK: - Binding
-
-    private func bindViewModel() {
+    func setBinding() {
         let input = LoginViewModel.Input(
             googleLoginTapped: loginView.kakaoLoginButton.rx.tap.asObservable(),
             presentingVC: self
@@ -55,10 +62,11 @@ final class LoginViewController: UIViewController {
                 switch navigation {
                 case .goToMain:
                     print("로그인 성공 - 메인 화면 이동")
-                    // TODO: Coordinator를 통해 메인으로 이동
-                    
+                    // TODO: Coordinator로 메인 화면 이동
+
                 case .goToSignup(let googleUid, let googleNickname):
                     print("신규 사용자 - 회원가입 화면 이동")
+                    // DI
                     let userService = UserService()
                     let userRepository = UserRepository(userService: userService)
                     let registerUserUseCase = RegisterUserUseCase(userRepository: userRepository)

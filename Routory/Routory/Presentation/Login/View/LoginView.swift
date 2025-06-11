@@ -10,37 +10,47 @@ import SnapKit
 import Then
 
 final class LoginView: UIView {
-    
+
     // MARK: - UI Components
-    
-    let kakaoLoginButton = UIButton().then {
+
+    private let kakaoLoginButton = UIButton().then {
         $0.setImage(UIImage(named: "kakao_login_medium_wide"), for: .normal)
     }
 
-    // MARK: - Initializer
-    
+    // MARK: - Init
+
     override init(frame: CGRect) {
         super.init(frame: frame)
-        setupViews()
-        setupConstraints()
+        configure()
     }
 
+    @available(*, unavailable, message: "Use init(frame:) instead")
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        fatalError()
+    }
+}
+
+// MARK: - UI Setup
+
+private extension LoginView {
+    func configure() {
+        setHierarchy()
+        setConstraints()
+        setStyles()
     }
 
-    // MARK: - Setup
-    
-    private func setupViews() {
-        backgroundColor = .white
+    func setHierarchy() {
         addSubview(kakaoLoginButton)
     }
 
-    private func setupConstraints() {
+    func setConstraints() {
         kakaoLoginButton.snp.makeConstraints {
             $0.center.equalToSuperview()
             $0.leading.trailing.equalToSuperview().inset(16)
         }
     }
-}
 
+    func setStyles() {
+        backgroundColor = .white
+    }
+}

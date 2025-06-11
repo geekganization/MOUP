@@ -1,0 +1,12 @@
+//
+//  ReleaseConfig.xcconfig
+//  Routory
+//
+//  Created by 양원식 on 6/11/25.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+#include "Secrets.xcconfig"
+#include "Pods/Target Support Files/Pods-Routory/Pods-Routory.release.xcconfig"

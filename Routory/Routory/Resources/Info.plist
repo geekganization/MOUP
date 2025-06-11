@@ -44,6 +44,6 @@
 		</dict>
 	</dict>
 	<key>GIDClientID</key>
-	<string>GOOGLE_CLIENT_ID</string>
+	<string>$(GOOGLE_CLIENT_ID)</string>
 </dict>
 </plist>

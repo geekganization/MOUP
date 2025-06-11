@@ -57,19 +57,19 @@ final class InfoViewController: UIViewController {
     }
 }
 
-extension InfoViewController {
-    private func configure() {
+private extension InfoViewController {
+    func configure() {
         setStyles()
         setActions()
     }
     
     // MARK: - setStyles
-    private func setStyles() {
+    func setStyles() {
         navigationController?.navigationBar.isHidden = true
     }
     
     // MARK: - Actions
-    private func setActions() {
+    func setActions() {
         infoView.navigationBar.backButton.addTarget(
             self,
             action: #selector(backButonDidTap),
@@ -77,7 +77,7 @@ extension InfoViewController {
         )
     }
     
-    @objc private func backButonDidTap() {
+    @objc func backButonDidTap() {
         navigationController?.popViewController(animated: true)
     }
 }

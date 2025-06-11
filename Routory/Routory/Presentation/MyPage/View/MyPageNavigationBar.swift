@@ -39,16 +39,16 @@ final class MyPageNavigationBar: UIView {
     }
 }
 
-extension MyPageNavigationBar {
+private extension MyPageNavigationBar {
     // MARK: - configure
-    private func configure() {
+    func configure() {
         setHierarchy()
         setStyles()
         setConstraints()
     }
     
     // MARK: - setHierarchy
-    private func setHierarchy() {
+    func setHierarchy() {
         addSubviews(
             backButton,
             titleLabel
@@ -56,13 +56,13 @@ extension MyPageNavigationBar {
     }
     
     // MARK: - setStyles
-    private func setStyles() {
+    func setStyles() {
         backgroundColor = .systemBackground
         titleLabel.text = title
     }
     
     // MARK: - setConstraints
-    private func setConstraints() {
+    func setConstraints() {
         backButton.snp.makeConstraints {
             $0.centerY.equalToSuperview()
             $0.leading.equalToSuperview().inset(16)

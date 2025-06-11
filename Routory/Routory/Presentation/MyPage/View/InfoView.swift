@@ -56,17 +56,16 @@ final class InfoView: UIView {
     }
 }
 
-extension InfoView {
-    
+private extension InfoView {    
     // MARK: - configure
-    private func configure() {
+    func configure() {
         setHierarchy()
         setStyles()
         setConstraints()
     }
     
     // MARK: - setHierarchy
-    private func setHierarchy() {
+    func setHierarchy() {
         appVersionView.addSubviews(
             appVersionTitleLabel,
             appVersionLabel
@@ -80,12 +79,12 @@ extension InfoView {
     }
     
     // MARK: - setStyles
-    private func setStyles() {
+    func setStyles() {
         backgroundColor = .systemBackground
     }
     
     // MARK: - setConstraints
-    private func setConstraints() {
+    func setConstraints() {
         navigationBar.snp.makeConstraints {
             $0.top.equalTo(safeAreaLayoutGuide)
             $0.horizontalEdges.equalToSuperview()

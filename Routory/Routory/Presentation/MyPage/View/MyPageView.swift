@@ -74,8 +74,7 @@ final class MyPageView: UIView {
     }
 }
 
-extension MyPageView {
-    
+private extension MyPageView {    
     // MARK: - configure
     func configure() {
         setHierarchy()

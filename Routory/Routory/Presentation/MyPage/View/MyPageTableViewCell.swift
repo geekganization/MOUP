@@ -45,17 +45,16 @@ final class MyPageTableViewCell: UITableViewCell {
     }
 }
 
-extension MyPageTableViewCell {
-    
+private extension MyPageTableViewCell {    
     // MARK: - configure
-    private func configure() {
+    func configure() {
         setHierarchy()
         setStyles()
         setConstraints()
     }
     
     // MARK: - setHierarchy
-    private func setHierarchy() {
+    func setHierarchy() {
         addSubviews(
             titleLabel,
             rightArrow,
@@ -64,12 +63,12 @@ extension MyPageTableViewCell {
     }
     
     // MARK: - setStyles
-    private func setStyles() {
+    func setStyles() {
         selectionStyle = .none
     }
     
     // MARK: - setConstraints
-    private func setConstraints() {
+    func setConstraints() {
         titleLabel.snp.makeConstraints {
             $0.centerY.equalToSuperview()
             $0.leading.equalToSuperview().inset(16)

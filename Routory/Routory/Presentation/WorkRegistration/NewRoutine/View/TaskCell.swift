@@ -17,7 +17,7 @@ final class TaskCell: UITableViewCell {
 
     private let taskLabel = UILabel().then {
         $0.text = "할 일"
-        $0.textColor = .systemGray
+        $0.textColor = .gray400
         $0.font = .bodyMedium(14)
     }
 

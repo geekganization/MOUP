@@ -15,8 +15,8 @@ final class RoutineSelectionViewController: UIViewController {
 
     // MARK: - Properties
 
-    var onSelect: ((Routine) -> Void)?
-
+    var onSelect: (([Routine]) -> Void)?
+    
     private var routines: [RoutineItem] = [
         RoutineItem(routine: Routine(id: "1", routineName: "오픈", alarmTime: "09:00", tasks: []), isSelected: true),
         RoutineItem(routine: Routine(id: "2", routineName: "포기", alarmTime: "15:00", tasks: []), isSelected: false),
@@ -28,7 +28,7 @@ final class RoutineSelectionViewController: UIViewController {
     private let routinesLabel = UILabel().then {
         $0.text = "오늘의 루틴을 선택해 주세요"
         $0.font = .headBold(18)
-        $0.textColor = .label
+        $0.textColor = .gray900
     }
 
     private let tableView = UITableView().then {
@@ -50,14 +50,26 @@ final class RoutineSelectionViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        setupNavigationBar()
         layout()
     }
 
     // MARK: - Setup
+    
+    private func setupNavigationBar() {
+        title = "루틴 선택"
+        let backButton = UIBarButtonItem(
+            image: UIImage(systemName: "chevron.left"),
+            style: .plain,
+            target: self,
+            action: #selector(didTapBack)
+        )
+        backButton.tintColor = .gray700
+        navigationItem.leftBarButtonItem = backButton
+    }
 
     private func setupUI() {
         view.backgroundColor = .white
-        title = "루틴 선택"
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .add,
@@ -97,11 +109,15 @@ final class RoutineSelectionViewController: UIViewController {
     }
 
     // MARK: - Actions
+    
+    @objc private func didTapBack() {
+        navigationController?.popViewController(animated: true)
+    }
 
     @objc private func didTapApply() {
-        if let selected = routines.first(where: { $0.isSelected }) {
-            onSelect?(selected.routine)
-        }
+        let selectedRoutines = routines.filter { $0.isSelected }.map { $0.routine }
+        guard !selectedRoutines.isEmpty else { return }
+        onSelect?(selectedRoutines)
         navigationController?.popViewController(animated: true)
     }
 
@@ -120,10 +136,8 @@ extension RoutineSelectionViewController: UITableViewDataSource, UITableViewDele
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        for i in routines.indices {
-            routines[i].isSelected = (i == indexPath.row)
-        }
-        tableView.reloadData()
+        routines[indexPath.row].isSelected.toggle()
+        tableView.reloadRows(at: [indexPath], with: .automatic)
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -138,10 +152,8 @@ extension RoutineSelectionViewController: UITableViewDataSource, UITableViewDele
 
         cell.onTapCheckbox = { [weak self] in
             guard let self else { return }
-            for i in routines.indices {
-                routines[i].isSelected = (i == indexPath.row)
-            }
-            tableView.reloadData()
+            routines[indexPath.row].isSelected.toggle()
+            tableView.reloadRows(at: [indexPath], with: .automatic)
         }
 
         cell.onTapChevron = { [weak self] in

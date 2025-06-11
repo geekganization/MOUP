@@ -79,13 +79,24 @@ final class NewRoutineViewController: UIViewController {
         setupUI()
         layout()
         applyMode()
+        setupNavigationBar()
     }
 
     // MARK: - Setup
+    
+    private func setupNavigationBar() {
+        let backButton = UIBarButtonItem(
+            image: UIImage(systemName: "chevron.left"),
+            style: .plain,
+            target: self,
+            action: #selector(didTapBack)
+        )
+        backButton.tintColor = .gray700
+        navigationItem.leftBarButtonItem = backButton
+    }
 
     private func setupUI() {
         view.backgroundColor = .white
-        title = "새 루틴"
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             title: "저장",
@@ -180,6 +191,10 @@ final class NewRoutineViewController: UIViewController {
     }
 
     // MARK: - Actions
+    
+    @objc private func didTapBack() {
+        navigationController?.popViewController(animated: true)
+    }
 
     @objc private func didTapAddTask() {
         guard let text = taskInputField.text, !text.trimmingCharacters(in: .whitespaces).isEmpty else { return }

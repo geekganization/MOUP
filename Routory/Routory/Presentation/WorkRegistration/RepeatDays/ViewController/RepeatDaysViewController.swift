@@ -25,7 +25,7 @@ final class RepeatDaysViewController: UIViewController {
     private let titleLabel = UILabel().then {
         $0.text = "반복할 요일을 선택해주세요"
         $0.font = .headBold(18)
-        $0.textColor = .black
+        $0.textColor = .gray900
     }
 
     private let tableView = UITableView().then {
@@ -59,12 +59,14 @@ final class RepeatDaysViewController: UIViewController {
 
     private func setupNavigationBar() {
         title = "반복"
-        navigationItem.leftBarButtonItem = UIBarButtonItem(
+        let backButton = UIBarButtonItem(
             image: UIImage(systemName: "chevron.left"),
             style: .plain,
             target: self,
             action: #selector(didTapBack)
         )
+        backButton.tintColor = .gray700
+        navigationItem.leftBarButtonItem = backButton
     }
 
     private func setupViews() {

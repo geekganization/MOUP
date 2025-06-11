@@ -79,6 +79,6 @@ final class WorkplaceCell: UITableViewCell {
 
         container.layer.borderColor = selected ? UIColor.primary500.cgColor : UIColor.systemGray4.cgColor
         container.backgroundColor = selected ? UIColor.primary500.withAlphaComponent(0.1) : .white
-        nameLabel.textColor = selected ? .primary500 : .label
+        nameLabel.textColor = selected ? .primary500 : .gray900
     }
 }

@@ -16,7 +16,7 @@ final class MemoBoxView: UIStackView {
     // MARK: - Constants
 
     private let placeholder = "내용을 입력하세요."
-    private let maxLength = 150
+    private let maxLength = 50
 
     // MARK: - UI Components
 
@@ -38,30 +38,30 @@ final class MemoBoxView: UIStackView {
     }
 
     // MARK: - Setup
-
+    
     private func setup() {
         let title = UILabel().then {
             $0.text = "메모"
             $0.font = .headBold(18)
         }
-
+        
         textView.do {
             $0.font = .fieldsRegular(16)
             $0.text = placeholder
-            $0.textColor = .lightGray
+            $0.textColor = .gray400
             $0.layer.cornerRadius = 8
             $0.layer.borderWidth = 1
             $0.layer.borderColor = UIColor.systemGray4.cgColor
-            $0.isScrollEnabled = false
             $0.delegate = self
-            $0.textContainerInset = UIEdgeInsets(top: 8, left: 8, bottom: 24, right: 8)
             $0.isScrollEnabled = true
+            $0.textContainerInset = UIEdgeInsets(top: 12, left: 16, bottom: 24, right: 16)
+            $0.textContainer.lineFragmentPadding = 0
         }
 
         counterLabel.do {
             $0.text = "0/\(maxLength)"
             $0.font = .fieldsRegular(14)
-            $0.textColor = .systemGray
+            $0.textColor = .gray600
         }
 
         textContainerView.addSubview(textView)
@@ -73,8 +73,8 @@ final class MemoBoxView: UIStackView {
         }
 
         counterLabel.snp.makeConstraints {
-            $0.trailing.equalToSuperview().inset(8)
-            $0.bottom.equalToSuperview().inset(4)
+            $0.trailing.equalToSuperview().inset(16)
+            $0.bottom.equalToSuperview().inset(12)
         }
 
         addArrangedSubview(title)
@@ -84,7 +84,7 @@ final class MemoBoxView: UIStackView {
     // MARK: - Public API
 
     func getData() -> String {
-        return textView.textColor == .lightGray ? "" : textView.text
+        return textView.textColor == .gray400 ? "" : textView.text
     }
 }
 
@@ -93,16 +93,16 @@ final class MemoBoxView: UIStackView {
 extension MemoBoxView: UITextViewDelegate {
 
     func textViewDidBeginEditing(_ textView: UITextView) {
-        if textView.textColor == .lightGray {
+        if textView.textColor == .gray400 {
             textView.text = nil
-            textView.textColor = .label
+            textView.textColor = .gray900
         }
     }
 
     func textViewDidEndEditing(_ textView: UITextView) {
         if textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             textView.text = placeholder
-            textView.textColor = .lightGray
+            textView.textColor = .gray400
         }
     }
 

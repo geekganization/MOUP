@@ -27,7 +27,7 @@ final class FieldRowView: UIView {
 
     private let titleLabel = UILabel().then {
         $0.font = .bodyMedium(16)
-        $0.textColor = .black
+        $0.textColor = .gray900
     }
 
     private let dotView = UIView().then {
@@ -36,8 +36,13 @@ final class FieldRowView: UIView {
         $0.isHidden = true
     }
 
+    private let valueContainerView = UIView().then {
+        $0.backgroundColor = .primary100
+        $0.layer.cornerRadius = 10
+    }
+
     private let valueLabel = UILabel().then {
-        $0.textColor = .systemGray
+        $0.textColor = .gray700
         $0.font = .bodyMedium(16)
         $0.isUserInteractionEnabled = true
     }
@@ -62,7 +67,8 @@ final class FieldRowView: UIView {
     private func setupLayout() {
         addSubview(titleLabel)
         addSubview(dotView)
-        addSubview(valueLabel)
+        addSubview(valueContainerView)
+        valueContainerView.addSubview(valueLabel)
 
         titleLabel.snp.makeConstraints {
             $0.leading.equalToSuperview().offset(16)
@@ -75,9 +81,15 @@ final class FieldRowView: UIView {
             $0.size.equalTo(8)
         }
 
-        valueLabel.snp.makeConstraints {
+        valueContainerView.snp.makeConstraints {
             $0.trailing.equalToSuperview().offset(-16)
             $0.centerY.equalToSuperview()
+            $0.height.equalTo(24)
+            $0.leading.greaterThanOrEqualTo(dotView.snp.trailing).offset(8)
+        }
+
+        valueLabel.snp.makeConstraints {
+            $0.edges.equalToSuperview().inset(UIEdgeInsets(top: 4, left: 12, bottom: 4, right: 12))
         }
 
         snp.makeConstraints {

@@ -54,7 +54,7 @@ final class WorkplaceSelectionViewController: UIViewController {
     private let titleLabel = UILabel().then {
         $0.text = "등록할 근무지를 선택해 주세요"
         $0.font = .headBold(18)
-        $0.textColor = .label
+        $0.textColor = .gray900
     }
 
     private let tableView = UITableView().then {
@@ -78,14 +78,26 @@ final class WorkplaceSelectionViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        setupNavigationBar()
         layout()
     }
 
     // MARK: - Setup
+    
+    private func setupNavigationBar() {
+        title = "근무지 선택"
+        let backButton = UIBarButtonItem(
+            image: UIImage(systemName: "chevron.left"),
+            style: .plain,
+            target: self,
+            action: #selector(didTapBack)
+        )
+        backButton.tintColor = .gray700
+        navigationItem.leftBarButtonItem = backButton
+    }
 
     private func setupUI() {
         view.backgroundColor = .white
-        title = "근무지 선택"
 
         tableView.delegate = self
         tableView.dataSource = self
@@ -119,6 +131,10 @@ final class WorkplaceSelectionViewController: UIViewController {
     }
 
     // MARK: - Actions
+    
+    @objc private func didTapBack() {
+        navigationController?.popViewController(animated: true)
+    }
 
     @objc private func didTapRegister() {
         guard let index = selectedIndex else { return }

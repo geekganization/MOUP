@@ -48,13 +48,25 @@ final class WorkShiftRegistrationViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        setupNavigationBar()
         layout()
     }
 
     // MARK: - Setup
+    
+    private func setupNavigationBar() {
+        title = "근무 등록"
+        let backButton = UIBarButtonItem(
+            image: UIImage(systemName: "chevron.left"),
+            style: .plain,
+            target: self,
+            action: #selector(didTapBack)
+        )
+        backButton.tintColor = .gray700
+        navigationItem.leftBarButtonItem = backButton
+    }
 
     private func setupUI() {
-        title = "근무 등록"
         view.backgroundColor = .white
 
         view.addSubview(scrollView)
@@ -106,6 +118,10 @@ final class WorkShiftRegistrationViewController: UIViewController {
         print(workTimeView.getendRowData())
         print(memoBoxView.getData())
     }
+    
+    @objc private func didTapBack() {
+        navigationController?.popViewController(animated: true)
+    }
 
     @objc private func buttonTouchDown(_ sender: UIButton) {
         UIView.animate(withDuration: 0.1) {
@@ -137,8 +153,21 @@ extension WorkShiftRegistrationViewController: SimpleRowViewDelegate {
 extension WorkShiftRegistrationViewController: RoutineViewDelegate {
     func routineViewDidTapAdd() {
         let vc = RoutineSelectionViewController()
-        vc.onSelect = { [weak self] routine in
-            self?.routineView.updateSelectedRoutine(routine.routineName)
+        vc.onSelect = { [weak self] routines in
+            guard let self else { return }
+            guard let first = routines.first else { return }
+
+            let displayText: String
+            let displayCount: String
+            if routines.count == 1 {
+                displayText = first.routineName
+            } else {
+                displayText = "\(first.routineName)"
+                displayCount = "+\(routines.count - 1)"
+                self.routineView.updateCounterLabel(displayCount)
+            }
+
+            self.routineView.updateSelectedRoutine(displayText)
         }
         navigationController?.pushViewController(vc, animated: true)
     }

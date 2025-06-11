@@ -28,7 +28,7 @@ final class SimpleRowView: UIView {
     private let titleLabel = UILabel().then {
         $0.font = .headBold(18)
         $0.text = "근무지 선택"
-        $0.textColor = .label
+        $0.textColor = .gray900
     }
 
     private let chevronImageView = UIImageView().then {

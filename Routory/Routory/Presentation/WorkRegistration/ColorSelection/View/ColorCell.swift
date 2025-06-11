@@ -20,7 +20,7 @@ final class ColorCell: UITableViewCell {
 
     private let nameLabel = UILabel().then {
         $0.font = .fieldsRegular(16)
-        $0.textColor = .label
+        $0.textColor = .gray900
     }
 
     private let checkImage = UIImageView().then {

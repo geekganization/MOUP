@@ -28,12 +28,12 @@ final class RoutineCell: UITableViewCell {
 
     private let nameLabel = UILabel().then {
         $0.font = .bodyMedium(16)
-        $0.textColor = .label
+        $0.textColor = .gray900
     }
 
     private let timeLabel = UILabel().then {
         $0.font = .bodyMedium(16)
-        $0.textColor = .label
+        $0.textColor = .gray900
     }
 
     private let arrow = UIImageView(image: UIImage(systemName: "chevron.right")).then {
@@ -100,7 +100,8 @@ final class RoutineCell: UITableViewCell {
     func configure(with item: RoutineItem) {
         nameLabel.text = item.routine.routineName
         timeLabel.text = item.routine.alarmTime
-        checkbox.image = UIImage(systemName: item.isSelected ? "checkmark.square.fill" : "square")
+        let imageName = item.isSelected ? "CheckboxSelected" : "CheckboxUnselected"
+        checkbox.image = UIImage(named: imageName)
     }
 
     // MARK: - Actions

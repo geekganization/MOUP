@@ -21,7 +21,7 @@ final class ValueRowView: UIView {
 
     private let titleLabel = UILabel().then {
         $0.font = .bodyMedium(16)
-        $0.textColor = .black
+        $0.textColor = .gray900
     }
 
     private let dotView = UIView().then {
@@ -31,8 +31,15 @@ final class ValueRowView: UIView {
     }
 
     private let valueLabel = UILabel().then {
-        $0.textColor = .systemGray
+        $0.textColor = .gray700
         $0.font = .bodyMedium(16)
+    }
+    
+    private let plusLabel = UILabel().then {
+        $0.textColor = .gray700
+        $0.font = .bodyMedium(16)
+        $0.text = ""
+        $0.isHidden = true
     }
 
     private let arrow = UIImageView().then {
@@ -45,11 +52,11 @@ final class ValueRowView: UIView {
 
     private lazy var leftStack = UIStackView(arrangedSubviews: [dotView, titleLabel]).then {
         $0.axis = .horizontal
-        $0.spacing = 4
+        $0.spacing = 12
         $0.alignment = .center
     }
 
-    private lazy var mainStack = UIStackView(arrangedSubviews: [leftStack, valueLabel, arrow]).then {
+    private lazy var mainStack = UIStackView(arrangedSubviews: [leftStack, valueLabel, plusLabel, arrow]).then {
         $0.axis = .horizontal
         $0.alignment = .center
         $0.distribution = .fill
@@ -123,6 +130,15 @@ final class ValueRowView: UIView {
 
     func updateDotHidden(_ hidden: Bool) {
         dotView.isHidden = hidden
+    }
+    
+    func updatePlusLabel(value: String?) {
+        if let value = value {
+            plusLabel.text = value
+            plusLabel.isHidden = false
+        } else {
+            plusLabel.isHidden = true
+        }
     }
 
     func getData() -> String {

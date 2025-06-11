@@ -56,14 +56,26 @@ final class ColorSelectionViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
+        setupNavigationBar()
         layout()
     }
 
     // MARK: - Setup
+    
+    private func setupNavigationBar() {
+        title = "색상 선택"
+        let backButton = UIBarButtonItem(
+            image: UIImage(systemName: "chevron.left"),
+            style: .plain,
+            target: self,
+            action: #selector(didTapBack)
+        )
+        backButton.tintColor = .gray700
+        navigationItem.leftBarButtonItem = backButton
+    }
 
     private func setup() {
         view.backgroundColor = .white
-        title = "색상 선택"
         view.addSubview(tableView)
         view.addSubview(applyButton)
 
@@ -90,6 +102,10 @@ final class ColorSelectionViewController: UIViewController {
     }
 
     // MARK: - Actions
+    
+    @objc private func didTapBack() {
+        navigationController?.popViewController(animated: true)
+    }
 
     @objc private func didTapApply() {
         let selectedColor = colors[selectedIndex]

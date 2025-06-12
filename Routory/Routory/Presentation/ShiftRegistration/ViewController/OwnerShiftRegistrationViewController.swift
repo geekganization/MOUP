@@ -66,6 +66,7 @@ final class OwnerShiftRegistrationViewController: UIViewController {
         contentView.labelView.delegate = delegateHandler
         contentView.workDateView.delegate = delegateHandler
         contentView.workTimeView.delegate = delegateHandler
+        contentView.workerSelectionView.delegate = delegateHandler
 
         contentView.registerButton.addTarget(actionHandler, action: #selector(ShiftRegistrationActionHandler.didTapRegister), for: .touchUpInside)
         contentView.registerButton.addTarget(actionHandler, action: #selector(ShiftRegistrationActionHandler.buttonTouchDown(_:)), for: .touchDown)

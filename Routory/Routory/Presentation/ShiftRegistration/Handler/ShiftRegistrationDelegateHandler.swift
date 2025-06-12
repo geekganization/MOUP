@@ -146,3 +146,11 @@ extension ShiftRegistrationDelegateHandler: WorkTimeViewDelegate {
         navigationController?.present(vc, animated: true)
     }
 }
+
+// MARK: - WorkerSelectionViewDelegate
+
+extension ShiftRegistrationDelegateHandler: WorkerSelectionViewDelegate {
+    func workerSelectionViewDidTap() {
+        print("workerSelectionViewDidTap")
+    }
+}

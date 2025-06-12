@@ -7,5 +7,6 @@
 
 enum ShiftRegistrationMode {
     case owner
+    case ownerEmployee
     case employee
 }

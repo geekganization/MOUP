@@ -19,3 +19,20 @@ func makeBoxedStackView(with views: [UIView]) -> UIStackView {
         $0.clipsToBounds = true
     }
 }
+
+func configureShiftNavigationBar(
+    for viewController: UIViewController,
+    title: String,
+    target: Any,
+    action: Selector
+) {
+    viewController.title = title
+    let backButton = UIBarButtonItem(
+        image: UIImage(systemName: "chevron.left"),
+        style: .plain,
+        target: target,
+        action: action
+    )
+    backButton.tintColor = .gray700
+    viewController.navigationItem.leftBarButtonItem = backButton
+}

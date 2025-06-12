@@ -16,6 +16,8 @@ protocol ValueRowViewDelegate: AnyObject {
 final class ValueRowView: UIView {
 
     weak var delegate: ValueRowViewDelegate?
+    
+    private var employees: [Employee] = []
 
     // MARK: - UI Components
 
@@ -114,6 +116,14 @@ final class ValueRowView: UIView {
     }
 
     // MARK: - Public API
+    
+    func updateEmployeesData(_ employees: [Employee]) {
+        self.employees = employees
+    }
+    
+    func getEmployeesData() -> [Employee] {
+        return self.employees
+    }
 
     func updateTitle(_ name: String) {
         titleLabel.text = name

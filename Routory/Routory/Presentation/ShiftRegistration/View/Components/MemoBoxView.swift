@@ -56,6 +56,7 @@ final class MemoBoxView: UIStackView {
             $0.isScrollEnabled = true
             $0.textContainerInset = UIEdgeInsets(top: 12, left: 16, bottom: 24, right: 16)
             $0.textContainer.lineFragmentPadding = 0
+            $0.returnKeyType = .done
         }
 
         counterLabel.do {
@@ -114,5 +115,13 @@ extension MemoBoxView: UITextViewDelegate {
             textView.text = String(textView.text.prefix(maxLength))
             counterLabel.text = "\(maxLength)/\(maxLength)"
         }
+    }
+    
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        if text == "\n" {
+            textView.resignFirstResponder()
+            return false                  
+        }
+        return true
     }
 }

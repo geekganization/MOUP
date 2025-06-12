@@ -1,0 +1,169 @@
+//
+//  ShiftRegistrationDelegateHandler.swift
+//  Routory
+//
+//  Created by tlswo on 6/12/25.
+//
+
+import UIKit
+import Then
+import SnapKit
+
+final class ShiftRegistrationDelegateHandler: NSObject {
+
+    weak var contentView: ShiftRegistrationContentView?
+    weak var navigationController: UINavigationController?
+
+    init(contentView: ShiftRegistrationContentView, navigationController: UINavigationController?) {
+        self.contentView = contentView
+        self.navigationController = navigationController
+    }
+}
+
+// MARK: - SimpleRowViewDelegate
+
+extension ShiftRegistrationDelegateHandler: SimpleRowViewDelegate {
+    func simpleRowViewDidTapChevron(_ view: SimpleRowView) {
+        let vc = WorkplaceSelectionViewController()
+        vc.onSelect = { [weak self] workplace in
+            self?.contentView?.simpleRowView.updateTitle(workplace.workplacesName)
+        }
+        navigationController?.pushViewController(vc, animated: true)
+    }
+}
+
+// MARK: - RoutineViewDelegate
+
+extension ShiftRegistrationDelegateHandler: RoutineViewDelegate {
+    func routineViewDidTapAdd() {
+        let vc = RoutineSelectionViewController()
+        vc.onSelect = { [weak self] routines in
+            guard let self, let first = routines.first else { return }
+
+            let displayText = first.routineName
+            if routines.count > 1 {
+                let displayCount = "+\(routines.count - 1)"
+                self.contentView?.routineView.updateCounterLabel(displayCount)
+            }
+            self.contentView?.routineView.updateSelectedRoutine(displayText)
+        }
+        navigationController?.pushViewController(vc, animated: true)
+    }
+}
+
+// MARK: - LabelViewDelegate
+
+extension ShiftRegistrationDelegateHandler: LabelViewDelegate {
+    func labelViewDidTapSelectColor(_ sender: LabelView) {
+        let vc = ColorSelectionViewController()
+        vc.onSelect = { [weak self] labelColor in
+            self?.contentView?.labelView.updateLabelName(labelColor.name, color: labelColor.color)
+        }
+        navigationController?.pushViewController(vc, animated: true)
+    }
+}
+
+// MARK: - WorkDateViewDelegate
+
+extension ShiftRegistrationDelegateHandler: WorkDateViewDelegate {
+    func didTapRepeatRow(from view: WorkDateView) {
+        let vc = RepeatDaysViewController()
+        vc.onSelectDays = { [weak view] shortLabel in
+            view?.updateRepeatValue(shortLabel)
+        }
+        navigationController?.pushViewController(vc, animated: true)
+    }
+
+    func didTapDateRow(completion: @escaping (Date) -> Void) {
+        let alert = UIAlertController(title: "날짜 선택", message: "\n\n\n\n\n\n", preferredStyle: .actionSheet)
+
+        let datePicker = UIDatePicker().then {
+            $0.datePickerMode = .date
+            $0.preferredDatePickerStyle = .wheels
+            $0.frame = CGRect(x: 0, y: 30, width: alert.view.bounds.width - 20, height: 160)
+        }
+
+        alert.view.addSubview(datePicker)
+
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        alert.addAction(UIAlertAction(title: "확인", style: .default, handler: { _ in
+            completion(datePicker.date)
+        }))
+
+        navigationController?.present(alert, animated: true)
+    }
+}
+
+// MARK: - WorkTimeViewDelegate
+
+extension ShiftRegistrationDelegateHandler: WorkTimeViewDelegate {
+    func workTimeViewDidRequestTimePicker(for type: WorkTimeView.TimeType, current: String) {
+        let alert = UIAlertController(title: "\n\n\n\n\n\n\n\n\n", message: nil, preferredStyle: .actionSheet)
+        let picker = UIDatePicker().then {
+            $0.datePickerMode = .time
+            $0.preferredDatePickerStyle = .wheels
+            $0.locale = Locale(identifier: "ko_KR")
+        }
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        if let date = formatter.date(from: current) {
+            picker.date = date
+        }
+
+        alert.view.addSubview(picker)
+        picker.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.top.equalToSuperview().offset(8)
+        }
+
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        alert.addAction(UIAlertAction(title: "확인", style: .default, handler: { [weak self] _ in
+            let newValue = formatter.string(from: picker.date)
+            self?.contentView?.workTimeView.updateValue(for: type, newValue: newValue)
+        }))
+
+        navigationController?.present(alert, animated: true)
+    }
+
+    func workTimeViewDidRequestBreakTimePicker(current: String) {
+        let vc = BreakTimePickerViewController()
+        vc.modalPresentationStyle = .pageSheet
+
+        if let sheet = vc.sheetPresentationController {
+            sheet.detents = [.medium()]
+            sheet.prefersGrabberVisible = true
+        }
+
+        vc.onSelect = { [weak self] index in
+            let minutes = (index + 1) * 30
+            let hour = minutes / 60
+            let minute = minutes % 60
+            let text = hour > 0 ? "\(hour)시간\(minute > 0 ? " \(minute)분" : "")" : "\(minute)분"
+            self?.contentView?.workTimeView.updateRestValue(text)
+        }
+
+        navigationController?.present(vc, animated: true)
+    }
+}
+
+// MARK: - WorkerSelectionViewDelegate
+
+extension ShiftRegistrationDelegateHandler: WorkerSelectionViewDelegate {
+    func workerSelectionViewDidTap() {
+        let employeeVC = EmployeeSelectionViewController()
+        employeeVC.onSelect = { [weak self] selectedEmployees in
+            guard let self = self,
+                  let firstName = selectedEmployees.first?.name else { return }
+
+            self.contentView?.workerSelectionView.updateSelectedEmployees(selectedEmployees)
+            if selectedEmployees.count == 1 {
+                self.contentView?.workerSelectionView.updateSelectedTitle(firstName)
+            } else {
+                self.contentView?.workerSelectionView.updateSelectedTitle("\(firstName) 외 \(selectedEmployees.count - 1)명")
+            }
+        }
+
+        navigationController?.pushViewController(employeeVC, animated: true)
+    }
+}

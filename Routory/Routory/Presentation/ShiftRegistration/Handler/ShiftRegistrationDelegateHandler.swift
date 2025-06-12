@@ -156,6 +156,7 @@ extension ShiftRegistrationDelegateHandler: WorkerSelectionViewDelegate {
             guard let self = self,
                   let firstName = selectedEmployees.first?.name else { return }
 
+            self.contentView?.workerSelectionView.updateSelectedEmployees(selectedEmployees)
             if selectedEmployees.count == 1 {
                 self.contentView?.workerSelectionView.updateSelectedTitle(firstName)
             } else {

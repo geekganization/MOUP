@@ -62,8 +62,12 @@ final class WorkerSelectionView: UIView, ValueRowViewDelegate {
     func updateSelectedValue(_ value: String) {
         selectRow.updateValue(value)
     }
+    
+    func updateSelectedEmployees(_ employees: [Employee]) {
+        selectRow.updateEmployeesData(employees)
+    }
 
-    func getSelectedWorker() -> String {
-        return selectRow.getData()
+    func getSelectedWorkerData() -> [Employee] {
+        return selectRow.getEmployeesData()
     }
 }

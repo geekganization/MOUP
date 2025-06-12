@@ -24,6 +24,7 @@ final class ShiftRegistrationActionHandler: NSObject {
     @objc func didTapRegister() {
         guard let view = contentView else { return }
         print(view.simpleRowView.getData())
+        print(view.workerSelectionView.getSelectedWorkerData())
         print(view.routineView.getTitleData())
         print(view.workDateView.getdateRowData())
         print(view.workDateView.getrepeatRowData())

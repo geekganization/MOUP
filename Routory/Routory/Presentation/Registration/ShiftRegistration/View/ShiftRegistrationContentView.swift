@@ -11,7 +11,7 @@ import Then
 
 final class ShiftRegistrationContentView: UIView {
 
-    let simpleRowView = SimpleRowView()
+    let simpleRowView = WorkPlaceSelectionView()
     let workerSelectionView = WorkerSelectionView()
     let routineView = RoutineView()
     let workDateView = WorkDateView()

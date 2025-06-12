@@ -11,17 +11,17 @@ import Then
 
 // MARK: - Protocol
 
-protocol SimpleRowViewDelegate: AnyObject {
-    func simpleRowViewDidTapChevron(_ view: SimpleRowView)
+protocol WorkPlaceSelectionViewDelegate: AnyObject {
+    func workPlaceSelectionViewDidTapChevron(_ view: WorkPlaceSelectionView)
 }
 
 // MARK: - SimpleRowView
 
-final class SimpleRowView: UIView {
+final class WorkPlaceSelectionView: UIView {
 
     // MARK: - Properties
 
-    weak var delegate: SimpleRowViewDelegate?
+    weak var delegate: WorkPlaceSelectionViewDelegate?
 
     // MARK: - UI Components
 
@@ -92,7 +92,7 @@ final class SimpleRowView: UIView {
     }
 
     @objc private func chevronTapped() {
-        delegate?.simpleRowViewDidTapChevron(self)
+        delegate?.workPlaceSelectionViewDidTapChevron(self)
     }
 
     // MARK: - Public API

@@ -22,8 +22,8 @@ final class ShiftRegistrationDelegateHandler: NSObject {
 
 // MARK: - SimpleRowViewDelegate
 
-extension ShiftRegistrationDelegateHandler: SimpleRowViewDelegate {
-    func simpleRowViewDidTapChevron(_ view: SimpleRowView) {
+extension ShiftRegistrationDelegateHandler: WorkPlaceSelectionViewDelegate {
+    func workPlaceSelectionViewDidTapChevron(_ view: WorkPlaceSelectionView) {
         let vc = WorkplaceSelectionViewController()
         vc.onSelect = { [weak self] workplace in
             self?.contentView?.simpleRowView.updateTitle(workplace.workplacesName)

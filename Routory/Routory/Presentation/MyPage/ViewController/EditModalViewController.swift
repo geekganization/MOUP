@@ -28,7 +28,7 @@ final class EditModalViewController: UIViewController {
     }
     
     private let closeButton = UIButton().then {
-        $0.setImage(UIImage(named: "XMark"), for: .normal)
+        $0.setImage(UIImage.xMark, for: .normal)
     }
     
     // MARK: - Initializer

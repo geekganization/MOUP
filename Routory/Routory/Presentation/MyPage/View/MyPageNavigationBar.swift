@@ -17,7 +17,7 @@ final class MyPageNavigationBar: UIView {
     // MARK: - UI Components
     
     private let backButton = UIButton().then {
-        $0.setImage(UIImage(named: "BackButton"), for: .normal)
+        $0.setImage(UIImage.backButton, for: .normal)
     }
     
     private let titleLabel = UILabel().then {

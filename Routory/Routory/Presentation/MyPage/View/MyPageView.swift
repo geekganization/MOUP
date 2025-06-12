@@ -48,7 +48,7 @@ final class MyPageView: UIView {
     }
     
     private let editButton = UIButton().then {
-        $0.setImage(UIImage(named: "EditButton"), for: .normal)
+        $0.setImage(UIImage.editButton, for: .normal)
         $0.contentMode = .scaleAspectFit
     }
     
@@ -87,7 +87,7 @@ final class MyPageView: UIView {
     func update(user: User) {
         nameLabel.text = user.userName
         roleLabel.text = user.role == "worker" ? "알바생" : "사장님"
-        profileImageView.image = user.role == "worker" ? UIImage(named: "Alba") : UIImage(named: "Owner")
+        profileImageView.image = user.role == "worker" ? UIImage.alba : UIImage.owner
     }
 }
 

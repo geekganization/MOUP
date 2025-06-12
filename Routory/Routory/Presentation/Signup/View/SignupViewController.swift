@@ -69,7 +69,14 @@ private extension SignupViewController {
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] in
                 print("회원가입 성공!")
-                // TODO: Coordinator를 통해 메인화면으로 이동
+                let tabbarVC = TabbarViewController()
+                
+                guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                      let sceneDelegate = scene.delegate as? SceneDelegate,
+                      let window = sceneDelegate.window else { return }
+                
+                window.rootViewController = tabbarVC
+                window.makeKeyAndVisible()
             })
             .disposed(by: disposeBag)
         

@@ -11,6 +11,10 @@ import SnapKit
 
 final class MyPageView: UIView {
     
+    // MARK: - Properties
+    
+    var onEditButtonTapped: (() -> Void)?
+    
     // MARK: - UI Components
     
     private let profileImageFrame = UIImageView().then {
@@ -43,6 +47,11 @@ final class MyPageView: UIView {
         $0.alignment = .leading
     }
     
+    private let editButton = UIButton().then {
+        $0.setImage(UIImage(named: "EditButton"), for: .normal)
+        $0.contentMode = .scaleAspectFit
+    }
+    
     private let menuList = MyPageMenuListView()
     
     private let logoutButton = UIButton().then() {
@@ -58,13 +67,11 @@ final class MyPageView: UIView {
     
     // MARK: - Getter
     
-    var menuListView: MyPageMenuListView {
-        return menuList
-    }
+    var menuListView: MyPageMenuListView { menuList }
     
-    var logoutButtonView: UIButton {
-        return logoutButton
-    }
+    var logoutButtonView: UIButton { logoutButton }
+    
+    var EditButtonView: UIButton { editButton }
     
     // MARK: - Initializer
     
@@ -89,6 +96,7 @@ private extension MyPageView {
     func configure() {
         setHierarchy()
         setConstraints()
+        setActions()
     }
 
     // MARK: - setHierarchy
@@ -101,6 +109,7 @@ private extension MyPageView {
         addSubviews(
             profileImageFrame,
             nameRoleStackView,
+            editButton,
             menuList,
             logoutButton
         )
@@ -126,6 +135,12 @@ private extension MyPageView {
             $0.leading.equalTo(profileImageFrame.snp.trailing).offset(32)
         }
         
+        editButton.snp.makeConstraints {
+            $0.width.height.equalTo(44)
+            $0.leading.equalTo(nameRoleStackView.snp.trailing).offset(4)
+            $0.centerY.equalTo(nameLabel.snp.centerY)
+        }
+        
         menuList.snp.makeConstraints {
             $0.top.equalTo(profileImageFrame.snp.bottom).offset(32)
             $0.horizontalEdges.equalToSuperview().inset(16)
@@ -137,5 +152,18 @@ private extension MyPageView {
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(44)
         }
+    }
+    
+    // MARK: - setActions
+    func setActions() {
+        editButton.addTarget(
+            self,
+            action: #selector(editButtonDidTap),
+            for: .touchUpInside
+        )
+    }
+    
+    @objc func editButtonDidTap() {
+        onEditButtonTapped?()
     }
 }

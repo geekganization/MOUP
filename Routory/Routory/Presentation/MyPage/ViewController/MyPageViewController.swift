@@ -136,6 +136,13 @@ private extension MyPageViewController {
             action: #selector(logoutButtonDidTap),
             for: .touchUpInside
         )
+        
+        myPageView.onEditButtonTapped = { [weak self] in
+            let editModelVC = EditModalViewController()
+            editModelVC.modalPresentationStyle = .overFullScreen
+            editModelVC.modalTransitionStyle = .crossDissolve
+            self?.present(editModelVC, animated: true, completion: nil)
+        }
     }
 }
 

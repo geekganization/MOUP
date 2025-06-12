@@ -156,17 +156,10 @@ extension ShiftRegistrationDelegateHandler: WorkerSelectionViewDelegate {
             guard let self = self,
                   let firstName = selectedEmployees.first?.name else { return }
 
-//            if selectedEmployees.count == 1 {
-//                self.contentView?.workerSelectionView.updateSelectedTitle(firstName)
-//            } else {
-//                self.contentView?.workerSelectionView.updateSelectedTitle("\(firstName) 외 \(selectedEmployees.count - 1)명")
-//            }
-            
             if selectedEmployees.count == 1 {
                 self.contentView?.workerSelectionView.updateSelectedTitle(firstName)
             } else {
-                self.contentView?.workerSelectionView.updateSelectedTitle("\(firstName)")
-                self.contentView?.workerSelectionView.updateSelectedValue("+\(selectedEmployees.count-1)")
+                self.contentView?.workerSelectionView.updateSelectedTitle("\(firstName) 외 \(selectedEmployees.count - 1)명")
             }
         }
 

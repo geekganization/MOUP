@@ -24,9 +24,15 @@ final class OwnerShiftRegistrationViewController: UIViewController {
         setupUI()
         setupNavigationBar()
         layout()
-        headerSegment.selectedSegmentIndex = 0
-        headerSegment.addTarget(self, action: #selector(didChangeSegment(_:)), for: .valueChanged)
-        didChangeSegment(headerSegment)
+        setupSegment()
+        setupKeyboardHandler()
+    }
+
+    deinit {
+        keyboardHandler?.stopObserving()
+    }
+    
+    private func setupKeyboardHandler() {
         keyboardHandler = KeyboardInsetHandler(
             scrollView: scrollView,
             containerView: view,
@@ -34,9 +40,11 @@ final class OwnerShiftRegistrationViewController: UIViewController {
         )
         keyboardHandler?.startObserving()
     }
-
-    deinit {
-        keyboardHandler?.stopObserving()
+    
+    private func setupSegment() {
+        headerSegment.selectedSegmentIndex = 0
+        headerSegment.addTarget(self, action: #selector(didChangeSegment(_:)), for: .valueChanged)
+        didChangeSegment(headerSegment)
     }
 
     private func setupNavigationBar() {

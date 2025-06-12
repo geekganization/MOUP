@@ -48,7 +48,6 @@ final class DeleteAccountViewModel {
                     .catch { [weak self] error in
                         self?.errorSubject.onNext(error)
                         self?.isLoadingSubject.onNext(false)
-                        // TODO: View에서 errorOccurred 구독하여 Toast 메시지 띄우기
                         return .empty()
                     }
             }

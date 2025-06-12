@@ -151,6 +151,25 @@ extension ShiftRegistrationDelegateHandler: WorkTimeViewDelegate {
 
 extension ShiftRegistrationDelegateHandler: WorkerSelectionViewDelegate {
     func workerSelectionViewDidTap() {
-        print("workerSelectionViewDidTap")
+        let employeeVC = EmployeeSelectionViewController()
+        employeeVC.onSelect = { [weak self] selectedEmployees in
+            guard let self = self,
+                  let firstName = selectedEmployees.first?.name else { return }
+
+//            if selectedEmployees.count == 1 {
+//                self.contentView?.workerSelectionView.updateSelectedTitle(firstName)
+//            } else {
+//                self.contentView?.workerSelectionView.updateSelectedTitle("\(firstName) 외 \(selectedEmployees.count - 1)명")
+//            }
+            
+            if selectedEmployees.count == 1 {
+                self.contentView?.workerSelectionView.updateSelectedTitle(firstName)
+            } else {
+                self.contentView?.workerSelectionView.updateSelectedTitle("\(firstName)")
+                self.contentView?.workerSelectionView.updateSelectedValue("+\(selectedEmployees.count-1)")
+            }
+        }
+
+        navigationController?.pushViewController(employeeVC, animated: true)
     }
 }

@@ -55,8 +55,12 @@ final class WorkerSelectionView: UIView, ValueRowViewDelegate {
 
     // MARK: - Public API
 
-    func updateSelectedWorker(_ name: String) {
-        selectRow.updateValue(name)
+    func updateSelectedTitle(_ title: String) {
+        selectRow.updateTitle(title)
+    }
+    
+    func updateSelectedValue(_ value: String) {
+        selectRow.updateValue(value)
     }
 
     func getSelectedWorker() -> String {

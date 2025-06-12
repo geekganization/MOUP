@@ -13,6 +13,7 @@ final class OwnerShiftRegistrationViewController: UIViewController {
     private let scrollView = UIScrollView()
     private let stackView = UIStackView()
     private let headerSegment = UISegmentedControl(items: ["사장님", "알바생"])
+    private var registrationMode: ShiftRegistrationMode = .owner
     private let contentView = ShiftRegistrationContentView()
     private var delegateHandler: ShiftRegistrationDelegateHandler?
     private var actionHandler: ShiftRegistrationActionHandler?
@@ -23,7 +24,9 @@ final class OwnerShiftRegistrationViewController: UIViewController {
         setupUI()
         setupNavigationBar()
         layout()
-
+        headerSegment.selectedSegmentIndex = 0
+        headerSegment.addTarget(self, action: #selector(didChangeSegment(_:)), for: .valueChanged)
+        didChangeSegment(headerSegment)
         keyboardHandler = KeyboardInsetHandler(
             scrollView: scrollView,
             containerView: view,
@@ -81,6 +84,23 @@ final class OwnerShiftRegistrationViewController: UIViewController {
         stackView.snp.makeConstraints {
             $0.edges.equalTo(scrollView.contentLayoutGuide).inset(16)
             $0.width.equalTo(scrollView.frameLayoutGuide).inset(16)
+        }
+    }
+    
+    @objc private func didChangeSegment(_ sender: UISegmentedControl) {
+        switch sender.selectedSegmentIndex {
+        case 0:
+            registrationMode = .owner
+            contentView.simpleRowView.isHidden = true
+            contentView.workerSelectionView.isHidden = true
+            contentView.labelView.isHidden = true
+        case 1:
+            registrationMode = .employee
+            contentView.simpleRowView.isHidden = true
+            contentView.workerSelectionView.isHidden = false
+            contentView.labelView.isHidden = false
+        default:
+            break
         }
     }
 }

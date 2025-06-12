@@ -17,19 +17,26 @@ final class MyPageTableViewCell: UITableViewCell {
     
     // MARK: - UI Components
     
-    let titleLabel = UILabel().then {
+    private let titleLabel = UILabel().then {
         $0.font = .bodyMedium(16)
         $0.setLineSpacing(.bodyMedium)
         $0.textColor = UIColor.gray900
     }
     
     private let rightArrow = UIImageView().then {
-        $0.image = UIImage.chevronRight
+        $0.image = UIImage(named: "ChevronRight")
         $0.contentMode = .scaleAspectFit
     }
     
     private let seperatorView = UIView().then {
         $0.backgroundColor = UIColor.gray400
+    }
+    
+    // MARK: - Getter
+    
+    var title: String? {
+        get { return titleLabel.text }
+        set { titleLabel.text = newValue }
     }
     
     // MARK: - Initializer
@@ -45,17 +52,16 @@ final class MyPageTableViewCell: UITableViewCell {
     }
 }
 
-extension MyPageTableViewCell {
-    
+private extension MyPageTableViewCell {    
     // MARK: - configure
-    private func configure() {
+    func configure() {
         setHierarchy()
         setStyles()
         setConstraints()
     }
     
     // MARK: - setHierarchy
-    private func setHierarchy() {
+    func setHierarchy() {
         addSubviews(
             titleLabel,
             rightArrow,
@@ -64,12 +70,12 @@ extension MyPageTableViewCell {
     }
     
     // MARK: - setStyles
-    private func setStyles() {
+    func setStyles() {
         selectionStyle = .none
     }
     
     // MARK: - setConstraints
-    private func setConstraints() {
+    func setConstraints() {
         titleLabel.snp.makeConstraints {
             $0.centerY.equalToSuperview()
             $0.leading.equalToSuperview().inset(16)

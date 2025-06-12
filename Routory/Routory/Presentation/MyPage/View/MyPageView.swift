@@ -43,9 +43,9 @@ final class MyPageView: UIView {
         $0.alignment = .leading
     }
     
-    let menuList = MyPageMenuListView()
+    private let menuList = MyPageMenuListView()
     
-    let logoutButton = UIButton().then() {
+    private let logoutButton = UIButton().then() {
         $0.titleLabel?.font = .buttonSemibold(16)
         $0.setTitleColor(UIColor.primary600, for: .normal)
         $0.setTitle("로그아웃", for: .normal)
@@ -54,6 +54,16 @@ final class MyPageView: UIView {
         $0.layer.borderWidth = 1
         $0.layer.borderColor = UIColor.primary600.cgColor
         $0.clipsToBounds = true
+    }
+    
+    // MARK: - Getter
+    
+    var menuListView: MyPageMenuListView {
+        return menuList
+    }
+    
+    var logoutButtonView: UIButton {
+        return logoutButton
     }
     
     // MARK: - Initializer
@@ -74,8 +84,7 @@ final class MyPageView: UIView {
     }
 }
 
-extension MyPageView {
-    
+private extension MyPageView {    
     // MARK: - configure
     func configure() {
         setHierarchy()

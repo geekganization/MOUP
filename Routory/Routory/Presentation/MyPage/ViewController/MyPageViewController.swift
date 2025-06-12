@@ -9,6 +9,7 @@ import UIKit
 import RxSwift
 import SnapKit
 import Then
+import FirebaseAuth
 
 struct DummyUser {
     let name: String
@@ -50,11 +51,8 @@ final class MyPageViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.view.backgroundColor = .systemBackground
-        self.navigationController?.navigationBar.isHidden = true
-        
+        configure()
         setUser()
-        setTableView()
     }
     
     private func setUser() {
@@ -63,14 +61,81 @@ final class MyPageViewController: UIViewController {
         myPageView.update(user: dummyUser)
     }
     
-    private func setTableView() {
-        myPageView.menuList.tableView.delegate = self
-        myPageView.menuList.tableView.dataSource = self
-        myPageView.menuList.tableView.register(
+    @objc private func logoutButtonDidTap() {
+        do {
+            try Auth.auth().signOut()
+
+            guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                  let sceneDelegate = scene.delegate as? SceneDelegate,
+                  let window = sceneDelegate.window else {
+                return
+            }
+
+            let loginVC = LoginViewController(
+                viewModel: LoginViewModel(
+                    googleAuthService: GoogleAuthService(),
+                    userService: UserService()
+                )
+            )
+            let navController = UINavigationController(rootViewController: loginVC)
+
+            guard let snapshot = window.snapshotView(afterScreenUpdates: true) else {
+                window.rootViewController = navController
+                return
+            }
+
+            navController.view.frame = window.bounds
+            navController.view.transform = CGAffineTransform(translationX: -window.bounds.width * 0.3, y: 0)
+            window.addSubview(navController.view)
+
+            window.addSubview(snapshot)
+
+            UIView.animate(withDuration: 0.35, delay: 0, options: .curveEaseOut, animations: {
+                snapshot.transform = CGAffineTransform(translationX: window.bounds.width, y: 0)
+                navController.view.transform = .identity
+            }, completion: { _ in
+                snapshot.removeFromSuperview()
+                window.rootViewController = navController
+                window.makeKeyAndVisible()
+            })
+        } catch {
+            print("로그아웃 실패: \(error)")
+        }
+    }
+}
+
+private extension MyPageViewController {
+    // MARK: - configure
+    func configure() {
+        setStyles()
+        setTableView()
+        setActions()
+    }
+    
+    // MARK: - setStyles
+    func setStyles() {
+        self.view.backgroundColor = .systemBackground
+        self.navigationController?.navigationBar.isHidden = true
+    }
+    
+    // MARK: - setTableView
+    func setTableView() {
+        myPageView.menuListView.menuTableView.delegate = self
+        myPageView.menuListView.menuTableView.dataSource = self
+        myPageView.menuListView.menuTableView.register(
             MyPageTableViewCell.self,
             forCellReuseIdentifier: MyPageTableViewCell.id
         )
-        myPageView.menuList.tableView.separatorStyle = .none
+        myPageView.menuListView.menuTableView.separatorStyle = .none
+    }
+    
+    // MARK: - setActions
+    func setActions() {
+        myPageView.logoutButtonView.addTarget(
+            self,
+            action: #selector(logoutButtonDidTap),
+            for: .touchUpInside
+        )
     }
 }
 
@@ -87,7 +152,7 @@ extension MyPageViewController: UITableViewDelegate, UITableViewDataSource {
             return UITableViewCell()
         }
         
-        cell.titleLabel.text = menuItems[indexPath.row].title
+        cell.title = menuItems[indexPath.row].title
         
         return cell
     }
@@ -101,7 +166,8 @@ extension MyPageViewController: UITableViewDelegate, UITableViewDataSource {
         
         switch selectedMenu {
         case .account:
-            print("계정 메뉴 클릭")
+            let accountVC = AccountViewController()
+            navigationController?.pushViewController(accountVC, animated: true)
         case .notification:
             print("알림 설정 메뉴 클릭")
         case .contact:

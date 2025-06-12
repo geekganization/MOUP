@@ -1,57 +1,47 @@
 //
-//  InfoView.swift
+//  AccountView.swift
 //  Routory
 //
-//  Created by shinyoungkim on 6/10/25.
+//  Created by shinyoungkim on 6/11/25.
 //
 
 import UIKit
 import Then
+import SnapKit
 
-final class InfoView: UIView {
-
+final class AccountView: UIView {
+    
+    // MARK: - Properties
+    
+    var onDeleteAccountTapped: (() -> Void)?
+    
     // MARK: - UI Components
     
-    private let navigationBar = MyPageNavigationBar(title: "정보")
+    private let navigationBar = MyPageNavigationBar(title: "계정")
     
-    private let menuList = MyPageMenuListView()
-    
-    private let appVersionTitleLabel = UILabel().then {
+    private let deleteAccountLabel = UILabel().then {
         $0.font = .bodyMedium(16)
         $0.setLineSpacing(.bodyMedium)
-        $0.textColor = UIColor.gray900
-        $0.text = "앱 버전"
+        $0.textColor = .primary500
+        $0.text = "탈퇴하기"
     }
     
-    private let appVersionLabel = UILabel().then {
-        $0.font = .bodyMedium(16)
-        $0.setLineSpacing(.bodyMedium)
-        $0.textColor = UIColor.gray700
-        $0.text = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+    private let rightArrow = UIImageView().then {
+        $0.image = UIImage(named: "ChevronRight")
+        $0.contentMode = .scaleAspectFit
     }
     
-    private let appVersionView = UIView().then {
+    private let deleteAccountView = UIView().then {
         $0.layer.cornerRadius = 12
         $0.layer.masksToBounds = true
         $0.layer.borderWidth = 1
         $0.layer.borderColor = UIColor.gray400.cgColor
     }
     
-    private let appVersionStackView = UIStackView().then {
-        $0.axis = .horizontal
-        $0.alignment = .center
-        $0.distribution = .equalCentering
-
-    }
-    
     // MARK: - Getter
     
     var navigationBarView: MyPageNavigationBar {
         return navigationBar
-    }
-    
-    var menuListView: MyPageMenuListView {
-        return menuList
     }
     
     // MARK: - Initializer
@@ -66,25 +56,23 @@ final class InfoView: UIView {
     }
 }
 
-private extension InfoView {    
+private extension AccountView {
     // MARK: - configure
     func configure() {
         setHierarchy()
         setStyles()
         setConstraints()
+        setActions()
     }
     
-    // MARK: - setHierarchy
     func setHierarchy() {
-        appVersionView.addSubviews(
-            appVersionTitleLabel,
-            appVersionLabel
+        deleteAccountView.addSubviews(
+            deleteAccountLabel,
+            rightArrow
         )
-        
         addSubviews(
             navigationBar,
-            menuList,
-            appVersionView
+            deleteAccountView
         )
     }
     
@@ -101,26 +89,30 @@ private extension InfoView {
             $0.height.equalTo(44)
         }
         
-        menuList.snp.makeConstraints {
-            $0.top.equalTo(navigationBar.snp.bottom).offset(32)
-            $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.height.equalTo(48 * 4)
-        }
-        
-        appVersionTitleLabel.snp.makeConstraints {
+        deleteAccountLabel.snp.makeConstraints {
             $0.leading.equalToSuperview().offset(16)
             $0.centerY.equalToSuperview()
         }
         
-        appVersionLabel.snp.makeConstraints {
+        rightArrow.snp.makeConstraints {
             $0.trailing.equalToSuperview().inset(16)
             $0.centerY.equalToSuperview()
         }
         
-        appVersionView.snp.makeConstraints {
-            $0.top.equalTo(menuList.snp.bottom).offset(20)
+        deleteAccountView.snp.makeConstraints {
+            $0.top.equalTo(navigationBar.snp.bottom).offset(32)
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(48)
         }
+    }
+    
+    func setActions() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(deleteAccountTapped))
+        deleteAccountView.isUserInteractionEnabled = true
+        deleteAccountView.addGestureRecognizer(tapGesture)
+    }
+
+    @objc func deleteAccountTapped() {
+        onDeleteAccountTapped?()
     }
 }

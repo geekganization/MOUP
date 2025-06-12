@@ -36,6 +36,15 @@ final class JTACalendarDayCell: JTACDayCell {
         $0.clipsToBounds = true
     }
     
+    private let workHourLabel = UILabel().then {
+        $0.font = .headBold(12)
+        $0.textColor = .redText
+    }
+    
+    private let eventVStackView = UIStackView().then {
+        $0.axis = .vertical
+    }
+    
     // MARK: - Getter
     
     var getSelectedView: UIView {
@@ -65,20 +74,26 @@ final class JTACalendarDayCell: JTACDayCell {
         dateLabel.layer.cornerRadius = dateLabel.frame.height / 2
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        dateLabel.backgroundColor = .clear
+    }
+    
     // MARK: - Methods
     
-    func update(date: String, isSunday: Bool, isToday: Bool) {
+    func update(date: String, isSaturday: Bool, isSunday: Bool, isToday: Bool, eventList: [CalendarEvent]) {
         dateLabel.text = date
         dateLabel.textColor = isSunday ? .sundayText : .gray900
         
         if isToday {
-            dateLabel.textColor = .primaryBackground
+            dateLabel.textColor = .white
             dateLabel.backgroundColor = .gray900
+        } else if isSaturday {
+            dateLabel.textColor = .saturdayText
         } else if isSunday {
             dateLabel.textColor = .sundayText
         } else {
             dateLabel.textColor = .gray900
-            dateLabel.backgroundColor = .clear
         }
     }
 }

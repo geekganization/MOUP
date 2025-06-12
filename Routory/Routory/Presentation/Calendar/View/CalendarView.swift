@@ -205,7 +205,7 @@ extension CalendarView: JTACMonthViewDelegate {
         guard let cell = calendar.dequeueReusableJTAppleCell(withReuseIdentifier: JTACalendarDayCell.identifier, for: indexPath) as? JTACalendarDayCell else { return JTACDayCell() }
         
         let isToday = (Calendar.current.isDateInToday(date) ? true : false)
-        cell.update(date: cellState.text, isSunday: cellState.day.rawValue == 1, isToday: isToday)
+        cell.update(date: cellState.text, isSaturday: cellState.day.rawValue == 7, isSunday: cellState.day.rawValue == 1, isToday: isToday, eventList: [calendarEventMock])
         self.calendar(calendar, willDisplay: cell, forItemAt: date, cellState: cellState, indexPath: indexPath)
         
         return cell

@@ -43,6 +43,8 @@ private extension DayOfTheWeekHStackView {
                 $0.text = day
                 if index == 0 {
                     $0.textColor = .sundayText
+                } else if index == 6 {
+                    $0.textColor = .saturdayText
                 } else {
                     $0.textColor = .gray900
                 }

@@ -6,14 +6,19 @@
 //
 import RxSwift
 
-final class RegisterUserUseCase: RegisterUserUseCaseProtocol {
+final class UserUseCase: UserUseCaseProtocol {
     private let userRepository: UserRepositoryProtocol
     
     init(userRepository: UserRepositoryProtocol) {
         self.userRepository = userRepository
     }
     
-    func execute(user: User) -> Observable<Void> {
+    func createUser(user: User) -> Observable<Void> {
         return userRepository.createUser(user: user)
     }
+    
+    func deleteUser(uid: String) -> Observable<Void> {
+        return userRepository.deleteUser(uid: uid)
+    }
 }
+

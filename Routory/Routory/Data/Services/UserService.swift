@@ -12,6 +12,7 @@ import RxSwift
 protocol UserServiceProtocol {
     func checkUserExists(uid: String) -> Observable<Bool>
     func createUser(user: User) -> Observable<Void>
+    func deleteUser(uid: String) -> Observable<Void>
 }
 
 final class UserService: UserServiceProtocol {
@@ -51,4 +52,18 @@ final class UserService: UserServiceProtocol {
         }
     }
     
+    // MARK: - 회원 탈퇴 (삭제)
+    func deleteUser(uid: String) -> Observable<Void> {
+        return Observable.create { observer in
+            self.db.collection("users").document(uid).delete { error in
+                if let error = error {
+                    observer.onError(error)
+                } else {
+                    observer.onNext(())
+                    observer.onCompleted()
+                }
+            }
+            return Disposables.create()
+        }
+    }
 }

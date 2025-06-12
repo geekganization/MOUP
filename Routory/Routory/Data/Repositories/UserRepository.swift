@@ -21,4 +21,7 @@ final class UserRepository: UserRepositoryProtocol {
     func deleteUser(uid: String) -> Observable<Void> {
         return userService.deleteUser(uid: uid)
     }
+    func fetchUser(uid: String) -> Observable<User> {
+        return userService.fetchUser(uid: uid)
+    }
 }

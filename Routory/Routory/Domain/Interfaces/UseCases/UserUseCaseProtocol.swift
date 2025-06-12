@@ -10,4 +10,5 @@ import RxSwift
 protocol UserUseCaseProtocol {
     func createUser(user: User) -> Observable<Void>
     func deleteUser(uid: String) -> Observable<Void>
+    func fetchUser(uid: String) -> Observable<User>
 }

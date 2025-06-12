@@ -20,5 +20,9 @@ final class UserUseCase: UserUseCaseProtocol {
     func deleteUser(uid: String) -> Observable<Void> {
         return userRepository.deleteUser(uid: uid)
     }
+    
+    func fetchUser(uid: String) -> Observable<User> {
+        return userRepository.fetchUser(uid: uid)
+    }
 }
 

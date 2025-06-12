@@ -84,10 +84,10 @@ final class MyPageView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func update(user: DummyUser) {
-        nameLabel.text = user.name
+    func update(user: User) {
+        nameLabel.text = user.userName
         roleLabel.text = user.role
-        profileImageView.image = user.role == "알바생" ? UIImage(named: "Alba") : UIImage(named: "Owner")
+        profileImageView.image = user.role == "worker" ? UIImage(named: "Alba") : UIImage(named: "Owner")
     }
 }
 

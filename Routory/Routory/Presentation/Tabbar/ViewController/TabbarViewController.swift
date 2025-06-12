@@ -6,8 +6,14 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 final class TabbarViewController: UITabBarController {
+    
+    // MARK: - Properties
+    
+    private let userUseCase = UserUseCase(userRepository: UserRepository(userService: UserService()))
+    private lazy var myPageVM = MyPageViewModel(userUseCase: userUseCase)
     
     // MARK: - Lifecycle
     
@@ -40,7 +46,12 @@ private extension TabbarViewController {
     func setTabBarItems() {
         let homeVC = HomeViewController()
         let calendarVC = CalendarViewController()
-        let myPageVC = MyPageViewController()
+        
+        guard let userId = Auth.auth().currentUser?.uid else {
+            print("유저 ID를 찾을 수 없습니다.")
+            return
+        }
+        let myPageVC = MyPageViewController(viewModel: myPageVM, uid: userId)
         
         homeVC.tabBarItem = UITabBarItem(title: "홈", image: .homeUnselected, selectedImage: .homeSelected.withRenderingMode(.alwaysOriginal))
         calendarVC.tabBarItem = UITabBarItem(title: "캘린더", image: .calendarUnselected, selectedImage: .calendarSelected.withRenderingMode(.alwaysOriginal))

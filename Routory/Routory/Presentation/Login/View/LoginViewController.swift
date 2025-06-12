@@ -53,25 +53,31 @@ private extension LoginViewController {
             googleLoginTapped: loginView.getGoogleLoginButton.rx.tap.asObservable(),
             presentingVC: self
         )
-
+        
         let output = viewModel.transform(input: input)
-
+        
         output.navigation
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] navigation in
                 switch navigation {
                 case .goToMain:
                     print("로그인 성공 - 메인 화면 이동")
-                    // TODO: Coordinator로 메인 화면 이동
-
+                    let tabbarVC = TabbarViewController()
+                    
+                    guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                          let sceneDelegate = scene.delegate as? SceneDelegate,
+                          let window = sceneDelegate.window else { return }
+                    
+                    window.rootViewController = tabbarVC
+                    window.makeKeyAndVisible()
                 case .goToSignup(let googleUid, let googleNickname):
                     print("신규 사용자 - 회원가입 화면 이동")
                     // DI
                     let userService = UserService()
                     let userRepository = UserRepository(userService: userService)
-                    let registerUserUseCase = RegisterUserUseCase(userRepository: userRepository)
+                    let userUseCase = UserUseCase(userRepository: userRepository)
                     let signupViewModel = SignupViewModel(
-                        registerUserUseCase: registerUserUseCase,
+                        userUseCase: userUseCase,
                         userId: googleUid,
                         userName: googleNickname
                     )

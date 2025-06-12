@@ -14,6 +14,7 @@ final class DeleteAccountModal: UIView {
     // MARK: - Properties
     
     var onRequestDismiss: (() -> Void)?
+    var onRequestDeleteAccount: (() -> Void)?
     
     // MARK: - UI Components
     
@@ -161,6 +162,12 @@ private extension DeleteAccountModal {
             action: #selector(cancelButtonDidTap),
             for: .touchUpInside
         )
+        
+        deleteAccountButton.addTarget(
+            self,
+            action: #selector(deleteAccountButtonDidTap),
+            for: .touchUpInside
+        )
     }
     
     @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
@@ -186,5 +193,8 @@ private extension DeleteAccountModal {
     
     @objc private func cancelButtonDidTap() {
         onRequestDismiss?()
+    }
+    @objc private func deleteAccountButtonDidTap() {
+        onRequestDeleteAccount?()
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 final class AccountViewController: UIViewController {
     
@@ -47,10 +48,24 @@ private extension AccountViewController {
         )
         
         accountView.onDeleteAccountTapped = { [weak self] in
-            let deleteModalVC = DeleteAccountModalViewController()
+            guard let self else { return }
+
+            // 현재 로그인한 유저의 uid 가져오기
+            guard let userId = Auth.auth().currentUser?.uid else {
+                print("유저 ID를 찾을 수 없습니다.")
+                return
+            }
+
+            let userUseCase = UserUseCase(userRepository: UserRepository(userService: UserService()))
+            let authUseCase = AuthUseCase(authRepository: AuthRepository(authService: UserService()))
+            let deleteAccountViewModel = DeleteAccountViewModel(
+                userUseCase: userUseCase, authUseCase: authUseCase,
+                userId: userId
+            )
+            let deleteModalVC = DeleteAccountModalViewController(viewModel: deleteAccountViewModel)
             deleteModalVC.modalPresentationStyle = .overFullScreen
             deleteModalVC.modalTransitionStyle = .crossDissolve
-            self?.present(deleteModalVC, animated: true, completion: nil)
+            self.present(deleteModalVC, animated: true, completion: nil)
         }
     }
     

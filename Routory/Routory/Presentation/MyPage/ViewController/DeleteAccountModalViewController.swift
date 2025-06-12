@@ -108,6 +108,8 @@ private extension DeleteAccountModalViewController {
         output.errorOccurred
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { error in
+                // TODO: 여기서 Toast 메시지 띄우기
+                // Firebase 에러 코드 17014면, '탈퇴에 실패했습니다. 다시 로그인 후 재시도해주세요.' 라고 안내)
                 print("탈퇴 실패: \(error)")
             })
             .disposed(by: disposeBag)

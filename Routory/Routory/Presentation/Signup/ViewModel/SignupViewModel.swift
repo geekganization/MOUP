@@ -39,13 +39,12 @@ final class SignupViewModel {
             .bind(to: selectedRoleRelay)
             .disposed(by: disposeBag)
         
-        // "네" 버튼(회원가입 확정) 눌렀을 때
         let result = input.confirmTapped
             .withLatestFrom(selectedRoleRelay.compactMap { $0 })
             .flatMapLatest { [weak self] role -> Observable<Event<Void>> in
                 guard let self = self else { return .empty() }
-                let user = User(id: self.userId, userName: self.userName, role: role, workplaceList: [])
-                return self.userUseCase.createUser(user: user)
+                let user = User(userName: self.userName, role: role, workplaceList: [])
+                return self.userUseCase.createUser(uid: self.userId, user: user)
                     .materialize()
             }
             .share()

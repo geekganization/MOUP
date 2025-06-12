@@ -91,6 +91,7 @@ final class OwnerShiftRegistrationViewController: UIViewController {
         delegateHandler = ShiftRegistrationDelegateHandler(contentView: contentView, navigationController: navigationController)
         actionHandler = ShiftRegistrationActionHandler(contentView: contentView, navigationController: navigationController)
 
+        contentView.simpleRowView.delegate = delegateHandler
         contentView.routineView.delegate = delegateHandler
         contentView.labelView.delegate = delegateHandler
         contentView.workDateView.delegate = delegateHandler
@@ -121,14 +122,14 @@ final class OwnerShiftRegistrationViewController: UIViewController {
         switch sender.selectedSegmentIndex {
         case 0:
             registrationMode = .owner
-            contentView.simpleRowView.isHidden = true
+            contentView.simpleRowView.isHidden = false
             contentView.workerSelectionView.isHidden = true
             contentView.labelView.isHidden = true
         case 1:
             registrationMode = .employee
-            contentView.simpleRowView.isHidden = true
+            contentView.simpleRowView.isHidden = false
             contentView.workerSelectionView.isHidden = false
-            contentView.labelView.isHidden = false
+            contentView.labelView.isHidden = true
         default:
             break
         }

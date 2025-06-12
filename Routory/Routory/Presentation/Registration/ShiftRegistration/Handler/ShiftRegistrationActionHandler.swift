@@ -28,7 +28,7 @@ final class ShiftRegistrationActionHandler: NSObject {
         print(view.routineView.getTitleData())
         print(view.workDateView.getdateRowData())
         print(view.workDateView.getrepeatRowData())
-        print(view.labelView.getColorData())
+        //print(view.labelView.getColorData().description)
         print(view.labelView.getColorLabelData())
         print(view.workTimeView.getstartRowData())
         print(view.workTimeView.getrestRowData())

@@ -8,12 +8,16 @@
 import UIKit
 import Then
 import SnapKit
+import RxSwift
 
 final class EditModalViewController: UIViewController {
     
     // MARK: - Properties
     
     private var bottomConstraint: Constraint?
+    private let saveButtonDidTapSubject = PublishSubject<Void>()
+    private let viewModel: EditModalViewModel
+    private let disposeBag = DisposeBag()
     
     // MARK: - UI Components
     
@@ -25,6 +29,17 @@ final class EditModalViewController: UIViewController {
     
     private let closeButton = UIButton().then {
         $0.setImage(UIImage(named: "XMark"), for: .normal)
+    }
+    
+    // MARK: - Initializer
+    
+    init(viewModel: EditModalViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     // MARK: - Lifecycle
@@ -53,6 +68,7 @@ private extension EditModalViewController {
         setStyles()
         setConstraints()
         setActions()
+        setBindings()
     }
     
     // MARK: - setHierarchy
@@ -127,9 +143,48 @@ private extension EditModalViewController {
             action: #selector(closeButtonDidTap),
             for: .touchUpInside
         )
+        
+        editModal.saveButtonView.addTarget(
+            self,
+            action: #selector(saveButtonDidTap),
+            for: .touchUpInside
+        )
     }
     
     @objc func closeButtonDidTap() {
         dismiss(animated: true)
+    }
+    
+    @objc func saveButtonDidTap() {
+        saveButtonDidTapSubject.onNext(())
+    }
+    
+    // MARK: - setBindings
+    func setBindings() {
+        let input = EditModalViewModel.Input(
+            textChanged: editModal.textFieldView.rx.text.orEmpty.asObservable(),
+            saveButtonDidTap: saveButtonDidTapSubject.asObservable()
+        )
+
+        let output = viewModel.transform(input: input)
+
+//        output.saveCompleted
+//            .observe(on: MainScheduler.instance)
+//            .subscribe(onNext: { [weak self] newNickname in
+//                self?.onNicknameSaved?(newNickname)
+//                self?.dismiss(animated: true)
+//            })
+//            .disposed(by: disposeBag)
+
+        output.validationError
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] errorMessage in
+                let isValid = errorMessage.isEmpty
+                self?.editModal.updateValidationMessage(
+                    message: isValid ? "사용 가능한 닉네임이에요!" : errorMessage,
+                    isValid: isValid
+                )
+            })
+            .disposed(by: disposeBag)
     }
 }

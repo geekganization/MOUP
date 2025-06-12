@@ -52,7 +52,9 @@ final class EditModal: UIView {
         $0.clipsToBounds = true
     }
     
-    var textFieldView: UIView { textField }
+    // MARK: - Getter
+    var textFieldView: UITextField { textField }
+    var saveButtonView: UIButton { saveButton }
     
     // MARK: - Initializer
     
@@ -65,6 +67,20 @@ final class EditModal: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    func updateValidationMessage(message: String, isValid: Bool) {
+        if isValid {
+            validationLabel.text = message
+            validationLabel.textColor = UIColor.success
+            saveButton.setTitleColor(.white, for: .normal)
+            saveButton.backgroundColor = .primary500
+        } else {
+            validationLabel.text = message
+            validationLabel.textColor = UIColor.fail
+            saveButton.setTitleColor(.gray500, for: .normal)
+            saveButton.backgroundColor = .gray300
+        }
+    }
 }
 
 private extension EditModal {
@@ -73,7 +89,6 @@ private extension EditModal {
         setHierarchy()
         setStyles()
         setConstraints()
-        setActions()
     }
     
     // MARK: - setHierarchy
@@ -114,11 +129,6 @@ private extension EditModal {
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.bottom.equalToSuperview().inset(12)
         }
-    }
-    
-    // MARK: - setActions
-    func setActions() {
-        
     }
 }
 

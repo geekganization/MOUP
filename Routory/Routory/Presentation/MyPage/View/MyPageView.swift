@@ -31,7 +31,7 @@ final class MyPageView: UIView {
     private let nameLabel = UILabel().then {
         $0.font = .bodyMedium(16)
         $0.setLineSpacing(.bodyMedium)
-        $0.text = "김알바"
+        $0.text = "MOUP"
     }
     
     private let roleLabel = UILabel().then {
@@ -86,7 +86,7 @@ final class MyPageView: UIView {
     
     func update(user: User) {
         nameLabel.text = user.userName
-        roleLabel.text = user.role
+        roleLabel.text = user.role == "worker" ? "알바생" : "사장님"
         profileImageView.image = user.role == "worker" ? UIImage(named: "Alba") : UIImage(named: "Owner")
     }
 }

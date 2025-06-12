@@ -145,7 +145,8 @@ private extension MyPageViewController {
         )
         
         myPageView.onEditButtonTapped = { [weak self] in
-            let editModelVC = EditModalViewController()
+            let userUseCase = UserUseCase(userRepository: UserRepository(userService: UserService()))
+            let editModelVC = EditModalViewController(viewModel: EditModalViewModel(userUseCase: userUseCase))
             editModelVC.modalPresentationStyle = .overFullScreen
             editModelVC.modalTransitionStyle = .crossDissolve
             self?.present(editModelVC, animated: true, completion: nil)

@@ -49,6 +49,7 @@ private extension CalendarViewController {
         })
         let todayButton = UIBarButtonItem(title: "오늘", primaryAction: todayButtonAction)
         todayButton.setTitleTextAttributes([.font: UIFont.headBold(14), .foregroundColor: UIColor.gray900], for: .normal)
+        todayButton.setTitleTextAttributes([.font: UIFont.headBold(14), .foregroundColor: UIColor.gray900], for: .selected)
         self.navigationItem.rightBarButtonItem = todayButton
     }
     

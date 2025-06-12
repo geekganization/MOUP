@@ -24,27 +24,25 @@ struct CalendarEvent: Codable {
     /// 종료 시간 (예: "18:00")
     let endTime: String
 
-    /// 색상 HEX 문자열 (예: "#FF0000")
-    let color: String
-
     /// 생성자 UID
     let createdBy: String
 
-    /// 연도, 월, 일 (정렬 및 필터링 용)
+    /// 연도 (정렬 및 필터링 용도)
     let year: Int
+    /// 월 (정렬 및 필터링 용도)
     let month: Int
+    /// 일 (정렬 및 필터링 용도)
     let day: Int
 
     /// 연결된 루틴 ID 리스트 (users/{id}/routine/{id})
     let routineIds: [String]
 
-    init(id: String, title: String, eventDate: String, startTime: String, endTime: String, color: String, createdBy: String, year: Int, month: Int, day: Int, routineIds: [String]) {
+    init(id: String, title: String, eventDate: String, startTime: String, endTime: String, createdBy: String, year: Int, month: Int, day: Int, routineIds: [String]) {
         self.id = id
         self.title = title
         self.eventDate = eventDate
         self.startTime = startTime
         self.endTime = endTime
-        self.color = color
         self.createdBy = createdBy
         self.year = year
         self.month = month

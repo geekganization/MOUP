@@ -18,9 +18,11 @@ final class WorkerSelectionView: UIView, ValueRowViewDelegate {
     weak var delegate: WorkerSelectionViewDelegate?
 
     private let selectRow = ValueRowView(title: "인원 선택", value: nil)
+    private let titleLabel = UILabel()
 
     init() {
         super.init(frame: .zero)
+        titleLabel.attributedText = makeTitleAttributedString(from: "근무자 *")
         setup()
     }
 
@@ -30,24 +32,6 @@ final class WorkerSelectionView: UIView, ValueRowViewDelegate {
 
     private func setup() {
         selectRow.delegate = self
-
-        let titleLabel = UILabel().then {
-            let fullText = "근무자 *"
-            let font = UIFont.headBold(18)
-            
-            let attributedString = NSMutableAttributedString(string: fullText, attributes: [
-                .font: font,
-                .foregroundColor: UIColor.label
-            ])
-            
-            if let range = fullText.range(of: "*") {
-                let nsRange = NSRange(range, in: fullText)
-                attributedString.addAttribute(.foregroundColor, value: UIColor.primary500, range: nsRange)
-            }
-            
-            $0.attributedText = attributedString
-            $0.numberOfLines = 1
-        }
 
         let box = makeBoxedStackView(with: [selectRow])
 

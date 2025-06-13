@@ -33,11 +33,14 @@ final class WorkTimeView: UIView, FieldRowViewDelegate {
     private let startRow = FieldRowView(title: "출근", value: "09:00")
     private let endRow = FieldRowView(title: "퇴근", value: "18:00")
     private let restRow = FieldRowView(title: "휴게", value: "1시간")
+    
+    private let titleLabel = UILabel()
 
     // MARK: - Initializers
 
     init() {
         super.init(frame: .zero)
+        titleLabel.attributedText = makeTitleAttributedString(from: "근무시간 *")
         setup()
     }
 
@@ -49,24 +52,6 @@ final class WorkTimeView: UIView, FieldRowViewDelegate {
 
     private func setup() {
         [startRow, endRow, restRow].forEach { $0.delegate = self }
-
-        let titleLabel = UILabel().then {
-            let fullText = "근무시간 *"
-            let font = UIFont.headBold(18)
-            
-            let attributedString = NSMutableAttributedString(string: fullText, attributes: [
-                .font: font,
-                .foregroundColor: UIColor.label
-            ])
-            
-            if let range = fullText.range(of: "*") {
-                let nsRange = NSRange(range, in: fullText)
-                attributedString.addAttribute(.foregroundColor, value: UIColor.primary500, range: nsRange)
-            }
-            
-            $0.attributedText = attributedString
-            $0.numberOfLines = 1
-        }
 
         let box = makeBoxedStackView(with: [startRow, endRow, restRow])
         let stack = UIStackView(arrangedSubviews: [titleLabel, box]).then {

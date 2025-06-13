@@ -13,7 +13,7 @@ final class WorkplaceRegistrationContentView: UIView {
 
     // MARK: - Subviews
 
-    let workplaceInfoView = WorkplaceInfoView()
+    let workplaceInfoView = WorkplaceInfoView(title: "근무지 *")
     let salaryInfoView = SalaryInfoView()
     let workConditionView = WorkConditionView()
     let labelView = LabelView()

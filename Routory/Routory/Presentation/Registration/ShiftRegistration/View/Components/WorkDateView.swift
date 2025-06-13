@@ -26,11 +26,14 @@ final class WorkDateView: UIView, FieldRowViewDelegate, ValueRowViewDelegate {
 
     private let dateRow = FieldRowView(title: "날짜", value: "2025.07.07")
     private let repeatRow = ValueRowView(title: "반복", value: "없음")
+    
+    private let titleLabel = UILabel()
 
     // MARK: - Initializers
 
     init() {
         super.init(frame: .zero)
+        titleLabel.attributedText = makeTitleAttributedString(from: "근무 날짜 *")
         setup()
     }
 
@@ -43,24 +46,6 @@ final class WorkDateView: UIView, FieldRowViewDelegate, ValueRowViewDelegate {
     private func setup() {
         dateRow.delegate = self
         repeatRow.delegate = self
-
-        let titleLabel = UILabel().then {
-            let fullText = "근무 날짜 *"
-            let font = UIFont.headBold(18)
-            
-            let attributedString = NSMutableAttributedString(string: fullText, attributes: [
-                .font: font,
-                .foregroundColor: UIColor.label
-            ])
-            
-            if let range = fullText.range(of: "*") {
-                let nsRange = NSRange(range, in: fullText)
-                attributedString.addAttribute(.foregroundColor, value: UIColor.primary500, range: nsRange)
-            }
-            
-            $0.attributedText = attributedString
-            $0.numberOfLines = 1
-        }
 
         let box = makeBoxedStackView(with: [dateRow, repeatRow])
 

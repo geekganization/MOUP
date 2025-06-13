@@ -34,8 +34,44 @@ final class WorkplaceAddView: UIView {
         $0.backgroundColor = .clear
     }
     
-    private let enterInviteCodeIcon = UIImageView().then {
+    private let inviteCodeIcon = UIImageView().then {
         $0.image = UIImage.mail
+    }
+    
+    private let inviteCodeTitleLabel = UILabel().then {
+        $0.text = "초대 코드 입력하기"
+        $0.font = .bodyMedium(14)
+        $0.textColor = .gray900
+    }
+    
+    private let inviteCodeStackView = UIStackView().then {
+        $0.axis = .horizontal
+        $0.spacing = 12
+        $0.alignment = .center
+        $0.layer.cornerRadius = 8
+        $0.clipsToBounds = true
+        $0.layer.borderColor = UIColor.gray400.cgColor
+        $0.layer.borderWidth = 1
+    }
+    
+    private let manualInputIcon = UIImageView().then {
+        $0.image = UIImage.plus
+    }
+    
+    private let manualInputTitleLabel = UILabel().then {
+        $0.text = "직접 입력하기"
+        $0.font = .bodyMedium(14)
+        $0.textColor = .gray900
+    }
+    
+    private let manualInputStackView = UIStackView().then {
+        $0.axis = .horizontal
+        $0.spacing = 12
+        $0.alignment = .center
+        $0.layer.cornerRadius = 8
+        $0.clipsToBounds = true
+        $0.layer.borderColor = UIColor.gray400.cgColor
+        $0.layer.borderWidth = 1
     }
     
     // MARK: - Initializer
@@ -68,7 +104,21 @@ private extension WorkplaceAddView {
             seperatorView
         )
         
-        addSubviews(titleView)
+        inviteCodeStackView.addArrangedSubviews(
+            inviteCodeIcon,
+            inviteCodeTitleLabel
+        )
+        
+        manualInputStackView.addArrangedSubviews(
+            manualInputIcon,
+            manualInputTitleLabel
+        )
+        
+        addSubviews(
+            titleView,
+            inviteCodeStackView,
+            manualInputStackView
+        )
     }
     
     // MARK: - setStyles
@@ -100,6 +150,28 @@ private extension WorkplaceAddView {
             $0.top.equalToSuperview()
             $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(64)
+        }
+        
+        inviteCodeIcon.snp.makeConstraints {
+            $0.leading.equalToSuperview().offset(16)
+            $0.height.width.equalTo(20)
+        }
+        
+        inviteCodeStackView.snp.makeConstraints {
+            $0.top.equalTo(titleView.snp.bottom).offset(12)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.height.equalTo(45)
+        }
+        
+        manualInputIcon.snp.makeConstraints {
+            $0.leading.equalToSuperview().offset(16)
+            $0.height.width.equalTo(20)
+        }
+        
+        manualInputStackView.snp.makeConstraints {
+            $0.top.equalTo(inviteCodeStackView.snp.bottom).offset(8)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.height.equalTo(45)
         }
     }
 }

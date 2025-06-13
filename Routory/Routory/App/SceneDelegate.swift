@@ -20,19 +20,20 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let rootVC: UIViewController
         
-        if Auth.auth().currentUser != nil {
-            // 로그인된 상태 → 메인(TabBar)으로
-            rootVC = TabbarViewController()
-        } else {
-            // 로그인 안 됨 → 로그인 화면
-            let loginVC = LoginViewController(
-                viewModel: LoginViewModel(
-                    googleAuthService: GoogleAuthService(),
-                    userService: UserService()
-                )
-            )
-            rootVC = UINavigationController(rootViewController: loginVC)
-        }
+//        if Auth.auth().currentUser != nil {
+//            // 로그인된 상태 → 메인(TabBar)으로
+//            rootVC = TabbarViewController()
+//        } else {
+//            // 로그인 안 됨 → 로그인 화면
+//            let loginVC = LoginViewController(
+//                viewModel: LoginViewModel(
+//                    googleAuthService: GoogleAuthService(),
+//                    userService: UserService()
+//                )
+//            )
+//            rootVC = UINavigationController(rootViewController: loginVC)
+//        }
+        rootVC = WorkplaceAddViewController()
         
         window.rootViewController = rootVC
         window.makeKeyAndVisible()

@@ -11,7 +11,9 @@ import RxSwift
 
 protocol UserServiceProtocol {
     func checkUserExists(uid: String) -> Observable<Bool>
-    func createUser(user: User) -> Observable<Void>
+    func createUser(uid: String, user: User) -> Observable<Void>
+    func deleteUser(uid: String) -> Observable<Void>
+    func fetchUser(uid: String) -> Observable<(User)>
 }
 
 final class UserService: UserServiceProtocol {
@@ -32,14 +34,14 @@ final class UserService: UserServiceProtocol {
     }
     
     // MARK: - 회원가입
-    func createUser(user: User) -> Observable<Void> {
+    func createUser(uid: String, user: User) -> Observable<Void> {
         let data: [String: Any] = [
             "userName": user.userName,
             "role": user.role,
             "workplaceList": user.workplaceList
         ]
         return Observable.create { observer in
-            self.db.collection("users").document(user.id).setData(data) { error in
+            self.db.collection("users").document(uid).setData(data) { error in
                 if let error = error {
                     observer.onError(error)
                 } else {
@@ -51,4 +53,41 @@ final class UserService: UserServiceProtocol {
         }
     }
     
+    // MARK: - 회원 탈퇴 (삭제)
+    func deleteUser(uid: String) -> Observable<Void> {
+        return Observable.create { observer in
+            self.db.collection("users").document(uid).delete { error in
+                if let error = error {
+                    observer.onError(error)
+                } else {
+                    observer.onNext(())
+                    observer.onCompleted()
+                }
+            }
+            return Disposables.create() 
+        }
+    }
+    
+    // MARK: - 내 정보 조회
+    func fetchUser(uid: String) -> Observable<User> {
+        return Observable.create { observer in
+            self.db.collection("users").document(uid).getDocument { document, error in
+                if let error = error {
+                    observer.onError(error)
+                } else if let document = document, let data = document.data() {
+                    do {
+                        let jsonData = try JSONSerialization.data(withJSONObject: data)
+                        let user = try JSONDecoder().decode(User.self, from: jsonData)
+                        observer.onNext(user)
+                        observer.onCompleted()
+                    } catch {
+                        observer.onError(error)
+                    }
+                } else {
+                    observer.onError(NSError(domain: "UserService", code: -1, userInfo: [NSLocalizedDescriptionKey: "User not found"]))
+                }
+            }
+            return Disposables.create()
+        }
+    }
 }

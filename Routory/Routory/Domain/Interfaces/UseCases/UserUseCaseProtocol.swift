@@ -1,0 +1,14 @@
+//
+//  UserUseCaseProtocol.swift
+//  Routory
+//
+//  Created by 양원식 on 6/11/25.
+//
+
+import RxSwift
+
+protocol UserUseCaseProtocol {
+    func createUser(uid: String, user: User) -> Observable<Void>
+    func deleteUser(uid: String) -> Observable<Void>
+    func fetchUser(uid: String) -> Observable<User>
+}

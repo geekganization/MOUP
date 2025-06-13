@@ -8,5 +8,7 @@
 import RxSwift
 
 protocol UserRepositoryProtocol {
-    func createUser(user: User) -> Observable<Void>
+    func createUser(uid: String, user: User) -> Observable<Void>
+    func deleteUser(uid: String) -> Observable<Void>
+    func fetchUser(uid: String) -> Observable<User>
 }

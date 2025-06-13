@@ -14,7 +14,15 @@ final class UserRepository: UserRepositoryProtocol {
         self.userService = userService
     }
     
-    func createUser(user: User) -> Observable<Void> {
-        return userService.createUser(user: user)
+    func createUser(uid: String, user: User) -> Observable<Void> {
+        return userService.createUser(uid: uid, user: user)
+    }
+    
+    func deleteUser(uid: String) -> Observable<Void> {
+        return userService.deleteUser(uid: uid)
+    }
+    
+    func fetchUser(uid: String) -> Observable<User> {
+        return userService.fetchUser(uid: uid)
     }
 }

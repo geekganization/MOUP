@@ -45,8 +45,21 @@ final class WorkDateView: UIView, FieldRowViewDelegate, ValueRowViewDelegate {
         repeatRow.delegate = self
 
         let titleLabel = UILabel().then {
-            $0.text = "근무 날짜"
-            $0.font = .headBold(18)
+            let fullText = "근무 날짜 *"
+            let font = UIFont.headBold(18)
+            
+            let attributedString = NSMutableAttributedString(string: fullText, attributes: [
+                .font: font,
+                .foregroundColor: UIColor.label
+            ])
+            
+            if let range = fullText.range(of: "*") {
+                let nsRange = NSRange(range, in: fullText)
+                attributedString.addAttribute(.foregroundColor, value: UIColor.primary500, range: nsRange)
+            }
+            
+            $0.attributedText = attributedString
+            $0.numberOfLines = 1
         }
 
         let box = makeBoxedStackView(with: [dateRow, repeatRow])

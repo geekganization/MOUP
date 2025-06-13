@@ -9,8 +9,6 @@
 
 /// Firestore의 workplaces/{workplaceId}/worker/{userId} 문서에 대응되는 알바 정보 모델
 struct WorkerDetail: Codable {
-    /// Firebase UID (문서 ID)
-    let id: String
 
     /// 알바 이름 (표시용)
     let workerName: String
@@ -51,8 +49,7 @@ struct WorkerDetail: Codable {
     /// 야간 수당 지급 여부
     let nightAllowance: Bool
 
-    init(id: String, workerName: String, wage: Int, wageCalcMethod: String, wageType: String, weeklyAllowance: Bool, payDay: Int, payWeekday: String, breakTimeMinutes: Int, employmentInsurance: Bool, healthInsurance: Bool, industrialAccident: Bool, nationalPension: Bool, incomeTax: Bool, nightAllowance: Bool) {
-        self.id = id
+    init(workerName: String, wage: Int, wageCalcMethod: String, wageType: String, weeklyAllowance: Bool, payDay: Int, payWeekday: String, breakTimeMinutes: Int, employmentInsurance: Bool, healthInsurance: Bool, industrialAccident: Bool, nationalPension: Bool, incomeTax: Bool, nightAllowance: Bool) {
         self.workerName = workerName
         self.wage = wage
         self.wageCalcMethod = wageCalcMethod

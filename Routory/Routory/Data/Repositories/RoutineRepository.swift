@@ -1,0 +1,19 @@
+//
+//  RoutineRepository.swift
+//  Routory
+//
+//  Created by 양원식 on 6/13/25.
+//
+import RxSwift
+
+final class RoutineRepository: RoutineRepositoryProtocol {
+    private let service: RoutineServiceProtocol
+    
+    init(service: RoutineServiceProtocol) {
+        self.service = service
+    }
+    
+    func fetchAllRoutines(uid: String) -> Observable<[Routine]> {
+        return service.fetchAllRoutines(uid: uid)
+    }
+}

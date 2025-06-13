@@ -16,8 +16,8 @@ final class WorkplaceInfoView: UIView, ValueRowViewDelegate {
 
     weak var delegate: WorkplaceInfoViewDelegate?
 
-    private let nameRow = ValueRowView(title: "이름", value: "세븐일레븐 동탄제일점")
-    private let categoryRow = ValueRowView(title: "카테고리", value: "편의점")
+    private let nameRow = ValueRowView(title: "이름", value: nil)
+    private let categoryRow = ValueRowView(title: "카테고리", value: nil)
 
     init() {
         super.init(frame: .zero)

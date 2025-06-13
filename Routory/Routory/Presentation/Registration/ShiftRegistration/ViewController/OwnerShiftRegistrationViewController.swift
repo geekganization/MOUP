@@ -144,6 +144,7 @@ final class OwnerShiftRegistrationViewController: UIViewController {
             contentView.simpleRowView.isHidden = false
             contentView.workerSelectionView.isHidden = false
             contentView.labelView.isHidden = true
+            contentView.routineView.isHidden = true
         default:
             break
         }

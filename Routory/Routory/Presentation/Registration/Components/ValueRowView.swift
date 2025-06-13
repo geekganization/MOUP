@@ -35,6 +35,9 @@ final class ValueRowView: UIView {
     private let valueLabel = UILabel().then {
         $0.textColor = .gray700
         $0.font = .bodyMedium(16)
+        $0.textAlignment = .right
+        $0.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        $0.setContentCompressionResistancePriority(.required, for: .horizontal)
     }
     
     private let plusLabel = UILabel().then {

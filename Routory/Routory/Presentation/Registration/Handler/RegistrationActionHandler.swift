@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class ShiftRegistrationActionHandler: NSObject {
+final class RegistrationActionHandler: NSObject {
 
     weak var contentView: ShiftRegistrationContentView?
     weak var navigationController: UINavigationController?

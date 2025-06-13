@@ -35,7 +35,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
         
         //window.rootViewController = rootVC
-        window.rootViewController = UINavigationController(rootViewController: OwnerShiftRegistrationViewController())
+        window.rootViewController = UINavigationController(rootViewController: WorkerWorkplaceRegistrationViewController())
         window.makeKeyAndVisible()
         self.window = window
     }

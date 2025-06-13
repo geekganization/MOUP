@@ -14,8 +14,8 @@ final class WorkShiftRegistrationViewController: UIViewController {
 
     private let scrollView = UIScrollView()
     private let contentView = ShiftRegistrationContentView()
-    private var delegateHandler: ShiftRegistrationDelegateHandler?
-    private var actionHandler: ShiftRegistrationActionHandler?
+    private var delegateHandler: RegistrationDelegateHandler?
+    private var actionHandler: RegistrationActionHandler?
     private var keyboardHandler: KeyboardInsetHandler?
 
     override func viewDidLoad() {
@@ -37,7 +37,7 @@ final class WorkShiftRegistrationViewController: UIViewController {
             for: self,
             title: "근무 등록",
             target: actionHandler as Any,
-            action: #selector(ShiftRegistrationActionHandler.didTapBack)
+            action: #selector(RegistrationActionHandler.didTapBack)
         )
     }
 
@@ -46,8 +46,8 @@ final class WorkShiftRegistrationViewController: UIViewController {
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
 
-        delegateHandler = ShiftRegistrationDelegateHandler(contentView: contentView, navigationController: navigationController)
-        actionHandler = ShiftRegistrationActionHandler(contentView: contentView, navigationController: navigationController)
+        delegateHandler = RegistrationDelegateHandler(contentView: contentView, navigationController: navigationController)
+        actionHandler = RegistrationActionHandler(contentView: contentView, navigationController: navigationController)
 
         contentView.simpleRowView.delegate = delegateHandler
         contentView.routineView.delegate = delegateHandler
@@ -58,9 +58,9 @@ final class WorkShiftRegistrationViewController: UIViewController {
         contentView.workerSelectionView.isHidden = true
         contentView.labelView.isHidden = true
 
-        contentView.registerButton.addTarget(actionHandler, action: #selector(ShiftRegistrationActionHandler.didTapRegister), for: .touchUpInside)
-        contentView.registerButton.addTarget(actionHandler, action: #selector(ShiftRegistrationActionHandler.buttonTouchDown(_:)), for: .touchDown)
-        contentView.registerButton.addTarget(actionHandler, action: #selector(ShiftRegistrationActionHandler.buttonTouchUp(_:)), for: [.touchUpInside, .touchUpOutside, .touchCancel])
+        contentView.registerButton.addTarget(actionHandler, action: #selector(RegistrationActionHandler.didTapRegister), for: .touchUpInside)
+        contentView.registerButton.addTarget(actionHandler, action: #selector(RegistrationActionHandler.buttonTouchDown(_:)), for: .touchDown)
+        contentView.registerButton.addTarget(actionHandler, action: #selector(RegistrationActionHandler.buttonTouchUp(_:)), for: [.touchUpInside, .touchUpOutside, .touchCancel])
     }
 
     private func layout() {

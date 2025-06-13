@@ -9,7 +9,7 @@ import UIKit
 import Then
 import SnapKit
 
-final class ShiftRegistrationDelegateHandler: NSObject {
+final class RegistrationDelegateHandler: NSObject {
 
     weak var contentView: ShiftRegistrationContentView?
     weak var navigationController: UINavigationController?
@@ -22,7 +22,7 @@ final class ShiftRegistrationDelegateHandler: NSObject {
 
 // MARK: - SimpleRowViewDelegate
 
-extension ShiftRegistrationDelegateHandler: WorkPlaceSelectionViewDelegate {
+extension RegistrationDelegateHandler: WorkPlaceSelectionViewDelegate {
     func workPlaceSelectionViewDidTapChevron(_ view: WorkPlaceSelectionView) {
         let vc = WorkplaceSelectionViewController()
         vc.onSelect = { [weak self] workplace in
@@ -34,7 +34,7 @@ extension ShiftRegistrationDelegateHandler: WorkPlaceSelectionViewDelegate {
 
 // MARK: - RoutineViewDelegate
 
-extension ShiftRegistrationDelegateHandler: RoutineViewDelegate {
+extension RegistrationDelegateHandler: RoutineViewDelegate {
     func routineViewDidTapAdd() {
         let vc = RoutineSelectionViewController()
         vc.onSelect = { [weak self] routines in
@@ -53,7 +53,7 @@ extension ShiftRegistrationDelegateHandler: RoutineViewDelegate {
 
 // MARK: - LabelViewDelegate
 
-extension ShiftRegistrationDelegateHandler: LabelViewDelegate {
+extension RegistrationDelegateHandler: LabelViewDelegate {
     func labelViewDidTapSelectColor(_ sender: LabelView) {
         let vc = ColorSelectionViewController()
         vc.onSelect = { [weak self] labelColor in
@@ -65,7 +65,7 @@ extension ShiftRegistrationDelegateHandler: LabelViewDelegate {
 
 // MARK: - WorkDateViewDelegate
 
-extension ShiftRegistrationDelegateHandler: WorkDateViewDelegate {
+extension RegistrationDelegateHandler: WorkDateViewDelegate {
     func didTapRepeatRow(from view: WorkDateView) {
         let vc = RepeatDaysViewController()
         vc.onSelectDays = { [weak view] shortLabel in
@@ -96,7 +96,7 @@ extension ShiftRegistrationDelegateHandler: WorkDateViewDelegate {
 
 // MARK: - WorkTimeViewDelegate
 
-extension ShiftRegistrationDelegateHandler: WorkTimeViewDelegate {
+extension RegistrationDelegateHandler: WorkTimeViewDelegate {
     func workTimeViewDidRequestTimePicker(for type: WorkTimeView.TimeType, current: String) {
         let alert = UIAlertController(title: "\n\n\n\n\n\n\n\n\n", message: nil, preferredStyle: .actionSheet)
         let picker = UIDatePicker().then {
@@ -149,7 +149,7 @@ extension ShiftRegistrationDelegateHandler: WorkTimeViewDelegate {
 
 // MARK: - WorkerSelectionViewDelegate
 
-extension ShiftRegistrationDelegateHandler: WorkerSelectionViewDelegate {
+extension RegistrationDelegateHandler: WorkerSelectionViewDelegate {
     func workerSelectionViewDidTap() {
         let employeeVC = EmployeeSelectionViewController()
         employeeVC.onSelect = { [weak self] selectedEmployees in

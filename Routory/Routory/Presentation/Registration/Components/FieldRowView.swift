@@ -22,6 +22,7 @@ final class FieldRowView: UIView {
     // MARK: - Properties
 
     weak var delegate: FieldRowViewDelegate?
+    private let withBackground: Bool
 
     // MARK: - UI Components
 
@@ -37,7 +38,6 @@ final class FieldRowView: UIView {
     }
 
     private let valueContainerView = UIView().then {
-        $0.backgroundColor = .primary100
         $0.layer.cornerRadius = 10
     }
 
@@ -49,7 +49,8 @@ final class FieldRowView: UIView {
 
     // MARK: - Initializer
 
-    init(title: String, value: String?, showDot: Bool = false) {
+    init(title: String, value: String?, showDot: Bool = false, withBackground: Bool = true) {
+        self.withBackground = withBackground
         super.init(frame: .zero)
         titleLabel.text = title
         valueLabel.text = value
@@ -65,6 +66,9 @@ final class FieldRowView: UIView {
     // MARK: - Layout
 
     private func setupLayout() {
+        // 배경색 조건 적용
+        valueContainerView.backgroundColor = withBackground ? .primary100 : .clear
+
         addSubview(titleLabel)
         addSubview(dotView)
         addSubview(valueContainerView)
@@ -99,6 +103,7 @@ final class FieldRowView: UIView {
         let separator = UIView().then {
             $0.backgroundColor = UIColor.systemGray5
         }
+
         addSubview(separator)
         separator.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(16)

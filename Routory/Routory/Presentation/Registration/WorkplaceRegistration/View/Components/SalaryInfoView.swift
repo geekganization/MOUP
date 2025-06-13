@@ -15,6 +15,7 @@ protocol SalaryInfoViewDelegate: AnyObject {
     func didTapTypeRow()
     func didTapCalcRow()
     func didTapFixedSalaryRow()
+    func didTapHourlyWageRow()
     func didTapPayDateRow()
     func didTapPayWeekdayRow()
 }
@@ -23,11 +24,7 @@ protocol SalaryInfoViewDelegate: AnyObject {
 
 final class SalaryInfoView: UIView, ValueRowViewDelegate, FieldRowViewDelegate {
 
-    // MARK: - Delegate
-
     weak var delegate: SalaryInfoViewDelegate?
-
-    // MARK: - Subviews
 
     private let typeRow = ValueRowView(title: "급여 유형", value: "매월")
     private let calcRow = ValueRowView(title: "급여 계산", value: "고정")
@@ -36,23 +33,24 @@ final class SalaryInfoView: UIView, ValueRowViewDelegate, FieldRowViewDelegate {
     private let payDateRow = FieldRowView(title: "급여일", value: "25일")
     private let payWeekdayRow = FieldRowView(title: "급여일(요일)", value: "월요일")
 
-    // MARK: - Initializer
+    private var boxStackView: UIStackView!
 
     init() {
         super.init(frame: .zero)
         setup()
+        updateVisibleSalaryRows()
+        updateVisibleDateRows()
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: - Setup
-
     private func setup() {
         typeRow.delegate = self
         calcRow.delegate = self
         fixedSalaryRow.delegate = self
+        hourlyWageRow.delegate = self
         payDateRow.delegate = self
         payWeekdayRow.delegate = self
 
@@ -61,21 +59,49 @@ final class SalaryInfoView: UIView, ValueRowViewDelegate, FieldRowViewDelegate {
             $0.font = .headBold(18)
         }
 
-        let box = makeBoxedStackView(with: [
+        hourlyWageRow.isHidden = true
+
+        boxStackView = makeBoxedStackView(with: [
             typeRow,
             calcRow,
             fixedSalaryRow,
+            hourlyWageRow,
             payDateRow,
             payWeekdayRow
         ])
 
-        let stack = UIStackView(arrangedSubviews: [titleLabel, box]).then {
+        let stack = UIStackView(arrangedSubviews: [titleLabel, boxStackView]).then {
             $0.axis = .vertical
             $0.spacing = 8
         }
 
         addSubview(stack)
         stack.snp.makeConstraints { $0.edges.equalToSuperview() }
+    }
+
+    private func updateVisibleSalaryRows() {
+        let isFixed = calcRow.getValueData() == "고정"
+        fixedSalaryRow.isHidden = !isFixed
+        hourlyWageRow.isHidden = isFixed
+    }
+    
+    private func updateVisibleDateRows() {
+        let typeValue = typeRow.getValueData()
+
+        switch typeValue {
+        case "매월":
+            payDateRow.isHidden = false
+            payWeekdayRow.isHidden = true
+        case "매주":
+            payDateRow.isHidden = true
+            payWeekdayRow.isHidden = false
+        case "매일":
+            payDateRow.isHidden = true
+            payWeekdayRow.isHidden = true
+        default:
+            payDateRow.isHidden = true
+            payWeekdayRow.isHidden = true
+        }
     }
 
     // MARK: - ValueRowViewDelegate
@@ -88,6 +114,8 @@ final class SalaryInfoView: UIView, ValueRowViewDelegate, FieldRowViewDelegate {
             delegate?.didTapCalcRow()
         case fixedSalaryRow:
             delegate?.didTapFixedSalaryRow()
+        case hourlyWageRow:
+            delegate?.didTapHourlyWageRow()
         default:
             break
         }
@@ -110,14 +138,20 @@ final class SalaryInfoView: UIView, ValueRowViewDelegate, FieldRowViewDelegate {
 
     func updateTypeValue(_ value: String) {
         typeRow.updateValue(value)
+        updateVisibleDateRows()
     }
 
     func updateCalcValue(_ value: String) {
         calcRow.updateValue(value)
+        updateVisibleSalaryRows()
     }
 
     func updateFixedSalaryValue(_ value: String) {
         fixedSalaryRow.updateValue(value)
+    }
+
+    func updateHourlyWageValue(_ value: String) {
+        hourlyWageRow.updateValue(value)
     }
 
     func updatePayDateValue(_ value: String) {
@@ -138,6 +172,10 @@ final class SalaryInfoView: UIView, ValueRowViewDelegate, FieldRowViewDelegate {
 
     func getFixedSalaryValue() -> String {
         return fixedSalaryRow.getValueData()
+    }
+
+    func getHourlyWageValue() -> String {
+        return hourlyWageRow.getValueData()
     }
 
     func getPayDateValue() -> String {

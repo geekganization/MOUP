@@ -17,6 +17,42 @@ final class WorkplaceRegistrationDelegateHandler: NSObject {
     }
 }
 
+extension WorkplaceRegistrationDelegateHandler: WorkplaceInfoViewDelegate {
+    func didTapNameRow() {
+        let vc = TextInputViewController(
+            title: "근무지 이름",
+            description: "근무지 이름을 입력해주세요",
+            placeholder: "예: 세븐일레븐 안양점"
+        )
+        vc.onComplete = { labelName in
+            self.contentView?.workplaceInfoView.updateName(labelName)
+        }
+        navigationController?.pushViewController(vc, animated: true)
+    }
+
+    func didTapCategoryRow() {
+        let categoryItems: [SelectionViewController<String>.Item] = [
+            .init(title: "음식점", icon: UIImage(named: "restaurant"), value: "음식점"),
+            .init(title: "카페", icon: UIImage(named: "cafe"), value: "카페"),
+            .init(title: "편의점", icon: UIImage(named: "convenience"), value: "편의점"),
+            .init(title: "영화관", icon: UIImage(named: "cinema"), value: "영화관"),
+            .init(title: "기타", icon: UIImage(named: "box"), value: "기타")
+        ]
+
+        let vc = SelectionViewController<String>(
+            title: "카테고리",
+            description: "근무지 카테고리를 선택해주세요",
+            items: categoryItems,
+            selected: "음식점"
+        )
+
+        vc.onSelect = { selected in
+            self.contentView?.workplaceInfoView.updateCategory(selected)
+        }
+        navigationController?.pushViewController(vc, animated: true)
+    }
+}
+
 extension WorkplaceRegistrationDelegateHandler: SalaryInfoViewDelegate {
     func didTapTypeRow() {
         let items = [
@@ -33,7 +69,7 @@ extension WorkplaceRegistrationDelegateHandler: SalaryInfoViewDelegate {
         )
 
         vc.onSelect = { selected in
-            print("선택된 급여 유형:", selected)
+            self.contentView?.salaryInfoView.updateTypeValue(selected)
         }
 
         navigationController?.pushViewController(vc, animated: true)
@@ -54,6 +90,7 @@ extension WorkplaceRegistrationDelegateHandler: SalaryInfoViewDelegate {
 
         vc.onSelect = { selected in
             print("선택된 계산 방법:", selected)
+            self.contentView?.salaryInfoView.updateCalcValue(selected)
         }
 
         navigationController?.pushViewController(vc, animated: true)
@@ -76,7 +113,7 @@ extension WorkplaceRegistrationDelegateHandler: SalaryInfoViewDelegate {
             }
         )
         vc.onComplete = { value in
-            print("입력된 값: \(value)")
+            self.contentView?.salaryInfoView.updateFixedSalaryValue(value)
         }
         navigationController?.pushViewController(vc, animated: true)
     }
@@ -98,7 +135,7 @@ extension WorkplaceRegistrationDelegateHandler: SalaryInfoViewDelegate {
             }
         )
         vc.onComplete = { value in
-            print("입력된 값: \(value)")
+            self.contentView?.salaryInfoView.updateHourlyWageValue(value)
         }
         navigationController?.pushViewController(vc, animated: true)
     }
@@ -109,6 +146,7 @@ extension WorkplaceRegistrationDelegateHandler: SalaryInfoViewDelegate {
         let vc = ReusablePickerViewController(data: [days]) { selectedIndexes in
             let index = selectedIndexes[0]
             print("선택한 날: \(days[index])")
+            self.contentView?.salaryInfoView.updatePayDateValue(days[index])
         }
         
         if let sheet = vc.sheetPresentationController {
@@ -124,11 +162,11 @@ extension WorkplaceRegistrationDelegateHandler: SalaryInfoViewDelegate {
     }
     
     func didTapPayWeekdayRow() {
-        let weekDays = ["월", "화", "수", "목", "금", "토", "일"]
+        let weekDays = ["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"]
 
         let vc = ReusablePickerViewController(data: [weekDays]) { selectedIndexes in
             let index = selectedIndexes[0]
-            print("선택한 요일: \(weekDays[index])")
+            self.contentView?.salaryInfoView.updatePayWeekdayValue(weekDays[index])
         }
         
         if let sheet = vc.sheetPresentationController {
@@ -141,42 +179,6 @@ extension WorkplaceRegistrationDelegateHandler: SalaryInfoViewDelegate {
         vc.modalPresentationStyle = .custom
         vc.modalTransitionStyle = .coverVertical
         navigationController?.present(vc, animated: true, completion: nil)
-    }
-}
-
-extension WorkplaceRegistrationDelegateHandler: WorkplaceInfoViewDelegate {
-    func didTapNameRow() {
-        let vc = TextInputViewController(
-            title: "근무지 이름",
-            description: "근무지 이름을 입력해주세요",
-            placeholder: "예: 세븐일레븐 안양점"
-        )
-        vc.onComplete = { labelName in
-            print("입력된 근무지: \(labelName)")
-        }
-        navigationController?.pushViewController(vc, animated: true)
-    }
-
-    func didTapCategoryRow() {
-        let categoryItems: [SelectionViewController<String>.Item] = [
-            .init(title: "음식점", icon: UIImage(named: "restaurant"), value: "음식점"),
-            .init(title: "카페", icon: UIImage(named: "cafe"), value: "카페"),
-            .init(title: "편의점", icon: UIImage(named: "convenience"), value: "편의점"),
-            .init(title: "영화관", icon: UIImage(named: "cinema"), value: "영화관"),
-            .init(title: "기타", icon: UIImage(named: "box"), value: "기타")
-        ]
-
-        let vc = SelectionViewController<String>(
-            title: "카테고리",
-            description: "근무지 카테고리를 선택해주세요",
-            items: categoryItems,
-            selected: "음식점"
-        )
-
-        vc.onSelect = { selected in
-            print("선택된 카테고리:", selected)
-        }
-        navigationController?.pushViewController(vc, animated: true)
     }
 }
 

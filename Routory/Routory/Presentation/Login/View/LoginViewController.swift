@@ -70,7 +70,7 @@ private extension LoginViewController {
                     
                     window.rootViewController = tabbarVC
                     window.makeKeyAndVisible()
-                case .goToSignup(let googleUid, let googleNickname):
+                case .goToSignup(let nickname, let credential):
                     print("신규 사용자 - 회원가입 화면 이동")
                     // DI
                     let userService = UserService()
@@ -78,8 +78,8 @@ private extension LoginViewController {
                     let userUseCase = UserUseCase(userRepository: userRepository)
                     let signupViewModel = SignupViewModel(
                         userUseCase: userUseCase,
-                        userId: googleUid,
-                        userName: googleNickname
+                        credential: credential,
+                        userName: nickname
                     )
                     let signupVC = SignupViewController(signupViewModel: signupViewModel)
                     self?.navigationController?.pushViewController(signupVC, animated: true)

@@ -107,7 +107,7 @@ private extension SignupView {
 
     func setConstraints() {
         titleLabel.snp.makeConstraints {
-            $0.top.equalTo(safeAreaLayoutGuide).offset(153)
+            $0.top.equalTo(self.safeAreaLayoutGuide).offset(159)
             $0.centerX.equalToSuperview()
         }
         buttonHStack.snp.makeConstraints {
@@ -115,8 +115,8 @@ private extension SignupView {
             $0.centerX.equalToSuperview().inset(16)
         }
         startButton.snp.makeConstraints {
-            $0.top.equalTo(buttonHStack.snp.bottom).offset(225)
             $0.leading.trailing.equalToSuperview().inset(16)
+            $0.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom)
             $0.height.equalTo(45)
         }
     }

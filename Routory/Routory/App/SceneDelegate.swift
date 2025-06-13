@@ -34,8 +34,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             rootVC = UINavigationController(rootViewController: loginVC)
         }
         
-        //window.rootViewController = rootVC
-        window.rootViewController = UINavigationController(rootViewController: WorkShiftRegistrationViewController())
+        window.rootViewController = rootVC
         window.makeKeyAndVisible()
         self.window = window
     }
@@ -70,4 +69,3 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 
 }
-

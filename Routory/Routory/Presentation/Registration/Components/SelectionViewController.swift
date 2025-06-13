@@ -27,7 +27,6 @@ final class SelectionViewController<T>: UIViewController,UITableViewDataSource, 
         self.titleText = title
         self.descriptionText = description
         self.items = items
-        //self.selectedIndex = items.firstIndex { $0.value as AnyObject === selected as AnyObject }
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -132,6 +131,10 @@ final class SelectionViewController<T>: UIViewController,UITableViewDataSource, 
         guard let index = selectedIndex else { return }
         onSelect?(items[index].value)
         navigationController?.popViewController(animated: true)
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 72
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

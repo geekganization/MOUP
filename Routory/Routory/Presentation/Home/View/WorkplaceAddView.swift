@@ -11,6 +11,10 @@ import SnapKit
 
 final class WorkplaceAddView: UIView {
     
+    // MARK: - Properties
+    
+    var onDismiss: (() -> Void)?
+    
     // MARK: - UI Components
     
     private let handleView = UIView().then {
@@ -34,45 +38,20 @@ final class WorkplaceAddView: UIView {
         $0.backgroundColor = .clear
     }
     
-    private let inviteCodeIcon = UIImageView().then {
-        $0.image = UIImage.mail
-    }
+    private lazy var inviteCodeButton = makeFilledButton(
+        title: "초대 코드 입력하기",
+        image: UIImage.mail
+    )
+
+    private lazy var manualInputButton = makeFilledButton(
+        title: "직접 입력하기",
+        image: UIImage.plus
+    )
     
-    private let inviteCodeTitleLabel = UILabel().then {
-        $0.text = "초대 코드 입력하기"
-        $0.font = .bodyMedium(14)
-        $0.textColor = .gray900
-    }
+    // MARK: - Getter
     
-    private let inviteCodeStackView = UIStackView().then {
-        $0.axis = .horizontal
-        $0.spacing = 12
-        $0.alignment = .center
-        $0.layer.cornerRadius = 8
-        $0.clipsToBounds = true
-        $0.layer.borderColor = UIColor.gray400.cgColor
-        $0.layer.borderWidth = 1
-    }
-    
-    private let manualInputIcon = UIImageView().then {
-        $0.image = UIImage.plus
-    }
-    
-    private let manualInputTitleLabel = UILabel().then {
-        $0.text = "직접 입력하기"
-        $0.font = .bodyMedium(14)
-        $0.textColor = .gray900
-    }
-    
-    private let manualInputStackView = UIStackView().then {
-        $0.axis = .horizontal
-        $0.spacing = 12
-        $0.alignment = .center
-        $0.layer.cornerRadius = 8
-        $0.clipsToBounds = true
-        $0.layer.borderColor = UIColor.gray400.cgColor
-        $0.layer.borderWidth = 1
-    }
+    var inviteCodeButtonView: UIButton { inviteCodeButton }
+    var manualInputButtonView: UIButton { manualInputButton }
     
     // MARK: - Initializer
     
@@ -94,6 +73,7 @@ private extension WorkplaceAddView {
         setHierarchy()
         setStyles()
         setConstraints()
+        setActions()
     }
     
     // MARK: - setHierarchy
@@ -104,20 +84,10 @@ private extension WorkplaceAddView {
             seperatorView
         )
         
-        inviteCodeStackView.addArrangedSubviews(
-            inviteCodeIcon,
-            inviteCodeTitleLabel
-        )
-        
-        manualInputStackView.addArrangedSubviews(
-            manualInputIcon,
-            manualInputTitleLabel
-        )
-        
         addSubviews(
             titleView,
-            inviteCodeStackView,
-            manualInputStackView
+            inviteCodeButton,
+            manualInputButton
         )
     }
     
@@ -152,26 +122,74 @@ private extension WorkplaceAddView {
             $0.height.equalTo(64)
         }
         
-        inviteCodeIcon.snp.makeConstraints {
-            $0.leading.equalToSuperview().offset(16)
-            $0.height.width.equalTo(20)
-        }
-        
-        inviteCodeStackView.snp.makeConstraints {
+        inviteCodeButton.snp.makeConstraints {
             $0.top.equalTo(titleView.snp.bottom).offset(12)
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(45)
         }
         
-        manualInputIcon.snp.makeConstraints {
-            $0.leading.equalToSuperview().offset(16)
-            $0.height.width.equalTo(20)
-        }
-        
-        manualInputStackView.snp.makeConstraints {
-            $0.top.equalTo(inviteCodeStackView.snp.bottom).offset(8)
+        manualInputButton.snp.makeConstraints {
+            $0.top.equalTo(inviteCodeButton.snp.bottom).offset(8)
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(45)
         }
+    }
+    
+    // MARK: - setActions
+    func setActions() {
+        let panGesture = UIPanGestureRecognizer(
+            target: self,
+            action: #selector(handlePanGesture(_:))
+        )
+        titleView.isUserInteractionEnabled = true
+        titleView.addGestureRecognizer(panGesture)
+    }
+    
+    @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
+        let translation = gesture.translation(in: self)
+
+        switch gesture.state {
+        case .changed:
+            if translation.y > 0 {
+                self.transform = CGAffineTransform(translationX: 0, y: translation.y)
+            }
+        case .ended, .cancelled:
+            if translation.y > 100 {
+                onDismiss?()
+            } else {
+                UIView.animate(withDuration: 0.3, animations: {
+                    self.transform = .identity
+                })
+            }
+        default:
+            break
+        }
+    }    
+    
+    func makeFilledButton(title: String, image: UIImage) -> UIButton {
+        let button = UIButton().then {
+            var config = UIButton.Configuration.filled()
+            config.title = title
+            config.image = image
+            config.imagePadding = 12
+            config.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
+            config.baseForegroundColor = .gray900
+            config.baseBackgroundColor = .white
+            config.cornerStyle = .fixed
+            config.imagePlacement = .leading
+            config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+                var outgoing = incoming
+                outgoing.font = .bodyMedium(14)
+                return outgoing
+            }
+
+            $0.configuration = config
+            $0.contentHorizontalAlignment = .leading
+            $0.layer.cornerRadius = 8
+            $0.clipsToBounds = true
+            $0.layer.borderColor = UIColor.gray400.cgColor
+            $0.layer.borderWidth = 1
+        }
+        return button
     }
 }

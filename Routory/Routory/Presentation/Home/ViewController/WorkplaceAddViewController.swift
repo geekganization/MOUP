@@ -38,6 +38,7 @@ private extension WorkplaceAddViewController {
         setHierarchy()
         setStyles()
         setConstraints()
+        setActions()
     }
     
     // MARK: - setHierarchy
@@ -56,5 +57,32 @@ private extension WorkplaceAddViewController {
             $0.height.equalTo(227)
             $0.horizontalEdges.bottom.equalToSuperview()
         }
+    }
+    
+    // MARK: - setActions
+    func setActions() {
+        workplaceAddView.onDismiss = { [weak self] in
+            self?.dismiss(animated: true, completion: nil)
+        }
+        
+        workplaceAddView.inviteCodeButtonView.addTarget(
+            self,
+            action: #selector(inviteCodeButtonDidTap),
+            for: .touchUpInside
+        )
+        
+        workplaceAddView.manualInputButtonView.addTarget(
+            self,
+            action: #selector(manualInputButtonDidTap),
+            for: .touchUpInside
+        )
+    }
+    
+    @objc func inviteCodeButtonDidTap() {
+        print("초대 코드 입력하기")
+    }
+    
+    @objc func manualInputButtonDidTap() {
+        print("직접 입력하기")
     }
 }

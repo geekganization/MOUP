@@ -22,5 +22,6 @@ struct User: Codable {
     init(userName: String, role: String, workplaceList: [String]) {
         self.userName = userName
         self.role = role
+        self.workplaceList = workplaceList
     }
 }

@@ -12,7 +12,7 @@ final class SelectableListCell: UITableViewCell {
 
     private let container = UIView()
     private let nameLabel = UILabel()
-    private let checkIcon = UIImageView(image: UIImage(systemName: "checkmark"))
+    private let checkIcon = UIImageView()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -35,9 +35,8 @@ final class SelectableListCell: UITableViewCell {
         nameLabel.font = .bodyMedium(16)
         nameLabel.textColor = .gray900
 
-        checkIcon.tintColor = .primary500
-        checkIcon.isHidden = true
         checkIcon.setContentHuggingPriority(.required, for: .horizontal)
+        checkIcon.contentMode = .scaleAspectFit
 
         contentView.addSubview(container)
         container.addSubview(nameLabel)
@@ -62,7 +61,8 @@ final class SelectableListCell: UITableViewCell {
 
     func configure(icon: UIImage?, text: String, selected: Bool) {
         nameLabel.text = text
-        checkIcon.isHidden = !selected
+
+        checkIcon.image = UIImage(named: selected ? "RadioSelected" : "RadioUnselected")
 
         container.layer.borderColor = selected ? UIColor.primary500.cgColor : UIColor.systemGray4.cgColor
         container.backgroundColor = selected ? UIColor.primary500.withAlphaComponent(0.1) : .white

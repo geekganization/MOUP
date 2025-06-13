@@ -42,11 +42,22 @@ final class SelectionViewController<T>: UIViewController,UITableViewDataSource, 
         super.viewDidLoad()
         view.backgroundColor = .white
         setupUI()
+        setupNavigationBar()
+    }
+    
+    private func setupNavigationBar() {
+        title = titleText
+        let backButton = UIBarButtonItem(
+            image: UIImage(systemName: "chevron.left"),
+            style: .plain,
+            target: self,
+            action: #selector(didTapBack)
+        )
+        backButton.tintColor = .gray700
+        navigationItem.leftBarButtonItem = backButton
     }
 
     private func setupUI() {
-        navigationItem.title = titleText
-        view.backgroundColor = .white
 
         let descriptionLabel = UILabel().then {
             $0.text = descriptionText
@@ -95,6 +106,10 @@ final class SelectionViewController<T>: UIViewController,UITableViewDataSource, 
             $0.bottom.equalTo(view.safeAreaLayoutGuide).offset(-12)
             $0.height.equalTo(52)
         }
+    }
+    
+    @objc private func didTapBack() {
+        navigationController?.popViewController(animated: true)
     }
 
     @objc private func didTapDone() {

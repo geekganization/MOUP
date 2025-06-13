@@ -78,6 +78,7 @@ private extension CalendarViewController {
         if let sheet = modalNC.sheetPresentationController {
             sheet.detents = [.medium()]
             sheet.prefersGrabberVisible = true
+            sheet.preferredCornerRadius = 12
         }
         
         self.present(modalNC, animated: true)

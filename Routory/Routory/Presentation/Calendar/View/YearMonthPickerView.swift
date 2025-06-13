@@ -59,21 +59,13 @@ final class YearMonthPickerView: UIView {
     
     // MARK: - Getter
     
-    var getSelectedYearMonth: (year: Int, month: Int) {
-        return (focusedYear, focusedMonth)
-    }
+    var getSelectedYearMonth: (year: Int, month: Int) { (focusedYear, focusedMonth) }
     
-    var getCancelButton: UIButton {
-        return cancelButton
-    }
+    var getCancelButton: UIButton { cancelButton }
     
-    var getGotoButton: UIButton {
-        return gotoButton
-    }
+    var getGotoButton: UIButton { gotoButton }
     
-    var getPickerView: UIPickerView {
-        return pickerView
-    }
+    var getPickerView: UIPickerView { pickerView }
     
     // MARK: - Initializer
     
@@ -98,8 +90,8 @@ private extension YearMonthPickerView {
     }
     
     func setHierarchy() {
-        self.addSubviews(buttonHStackView,
-                         pickerView)
+        self.addSubviews(pickerView,
+                         buttonHStackView)
         
         buttonHStackView.addArrangedSubviews(cancelButton, gotoButton)
     }

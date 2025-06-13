@@ -45,6 +45,8 @@ final class JTACalendarDayCell: JTACDayCell {
     
     private let firstEventStackView = CalendarEventVStackView()
     private let secondEventStackView = CalendarEventVStackView()
+    private let thirdEventStackView = CalendarEventVStackView()
+    private let otherEventLabel = OtherEventLabel()
     
     private let eventVStackView = UIStackView().then {
         $0.axis = .vertical
@@ -53,13 +55,9 @@ final class JTACalendarDayCell: JTACDayCell {
     
     // MARK: - Getter
     
-    var getSelectedView: UIView {
-        return selectedView
-    }
+    var getSelectedView: UIView { selectedView }
     
-    var getDateLabel: UILabel {
-        return dateLabel
-    }
+    var getDateLabel: UILabel { dateLabel }
     
     // MARK: - Initializer
     
@@ -110,13 +108,18 @@ final class JTACalendarDayCell: JTACDayCell {
             } else {
                 eventVStackView.isHidden = false
                 
+                if isShared && eventList.count > 3 {
+                    otherEventLabel.text = "+\(eventList.count - 3)"
+                    otherEventLabel.isHidden = false
+                }
                 for (index, event) in eventList.enumerated() {
-                    if index > 1 {
+                    if index > (isShared ? 2 : 1) {
                         break
                     } else {
                         guard let eventView = eventVStackView.subviews[index] as? CalendarEventVStackView else { continue }
                         // TODO: 캘린더가 isShared인지 확인 필요
                         let workHour = hourDiffDecimal(from: event.startTime, to: event.endTime)
+                        // TODO: dailyWage 계산 필요
                         eventView.update(workHourOrName: "\(workHour?.hours ?? 0)", dailyWage: "100,000", isShared: isShared, color: "red")
                         eventView.isHidden = false
                     }
@@ -142,7 +145,9 @@ private extension JTACalendarDayCell {
                          eventVStackView)
         
         eventVStackView.addArrangedSubviews(firstEventStackView,
-                                            secondEventStackView)
+                                            secondEventStackView,
+                                            thirdEventStackView,
+                                            otherEventLabel)
     }
     
     func setStyles() {

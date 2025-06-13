@@ -29,7 +29,10 @@ final class CalendarView: UIView {
         $0.timeZone = TimeZone(identifier: "Asia/Seoul")
     }
     
-    private var calendarEventDataSource: [String: [CalendarEvent]] = [:]
+//    private var calendarList = WorkCalendar
+    // TODO: 
+    private var personalEventDataSource: [String: [CalendarEvent]] = [:]
+    private var sharedEventDataSource: [String: [CalendarEvent]] = [:]
     
     // MARK: - UI Components
     
@@ -41,17 +44,11 @@ final class CalendarView: UIView {
     
     // MARK: - Getter
     
-    var getDateFormatter: DateFormatter {
-        return yearMonthDateFormatter
-    }
+    var getDateFormatter: DateFormatter { yearMonthDateFormatter }
     
-    var getCalendarHeaderView: CalendarHeaderView {
-        return calendarHeaderView
-    }
+    var getCalendarHeaderView: CalendarHeaderView { calendarHeaderView }
     
-    var getJTACalendar: JTACMonthView {
-        return jtaCalendar
-    }
+    var getJTACalendar: JTACMonthView { jtaCalendar }
     
     // MARK: - Initializer
     
@@ -75,6 +72,7 @@ private extension CalendarView {
         setStyles()
         setConstraints()
         setDelegates()
+        setActions()
     }
     
     func setHierarchy() {
@@ -117,6 +115,13 @@ private extension CalendarView {
     func setDelegates() {
         jtaCalendar.calendarDataSource = self
         jtaCalendar.calendarDelegate = self
+    }
+    
+    func setActions() {
+        calendarHeaderView.getToggleSwitch.addAction(UIAction(handler: { [weak self] _ in
+            guard let self else { return }
+            
+        }), for: .valueChanged)
     }
 }
 
@@ -189,7 +194,7 @@ private extension CalendarView {
         let dateStr = dataSourceDateFormatter.string(from: cellState.date)
         
         // TODO: CalendarEvent, UserWorkplace와 WorkCalendar.isShared, WorkerDetail에서 필요한 데이터만 뽑아서 묶어서 전달해야 함
-        cell.update(date: cellState.text, isSaturday: cellState.day.rawValue == 7, isSunday: cellState.day.rawValue == 1, isToday: isToday, isShared: false, eventList: calendarEventDataSource[dateStr])
+        cell.update(date: cellState.text, isSaturday: cellState.day.rawValue == 7, isSunday: cellState.day.rawValue == 1, isToday: isToday, isShared: false, eventList: personalEventDataSource[dateStr])
     }
     
     func populateDataSource() {

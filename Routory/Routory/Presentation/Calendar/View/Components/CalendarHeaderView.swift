@@ -48,9 +48,8 @@ final class CalendarHeaderView: UIView {
     
     // MARK: - Getter
     
-    var getYearMonthLabel: UILabel {
-        return yearMonthLabel
-    }
+    var getYearMonthLabel: UILabel { yearMonthLabel }
+    var getToggleSwitch: BetterSegmentedControl { toggleSwitch }
     
     // MARK: - Initializer
     

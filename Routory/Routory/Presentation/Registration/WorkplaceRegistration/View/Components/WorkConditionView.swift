@@ -18,6 +18,9 @@ final class WorkConditionView: UIView {
 
     private var checkBoxes: [UIButton] = []
 
+    private let mainGroupItem = "4대 보험"
+    private let subGroupItems = ["국민연금", "건강보험", "고용보험", "산재보험"]
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setup()
@@ -116,14 +119,42 @@ final class WorkConditionView: UIView {
             $0.bottom.equalToSuperview()
         }
     }
-    
+
+    @objc private func toggleCheckbox(_ sender: UIButton) {
+        guard let index = checkBoxes.firstIndex(of: sender) else { return }
+
+        sender.isSelected.toggle()
+
+        let tappedItem = items[index]
+
+        if tappedItem == mainGroupItem {
+            for (i, item) in items.enumerated() {
+                if subGroupItems.contains(item) {
+                    checkBoxes[i].isSelected = sender.isSelected
+                }
+            }
+        } else if subGroupItems.contains(tappedItem) {
+            let allChecked = subGroupItems.allSatisfy { item in
+                guard let i = items.firstIndex(of: item) else { return false }
+                return checkBoxes[i].isSelected
+            }
+
+            if let mainIndex = items.firstIndex(of: mainGroupItem) {
+                checkBoxes[mainIndex].isSelected = allChecked
+            }
+        }
+    }
+
     func getSelectedConditions() -> [String] {
         return zip(items, checkBoxes)
             .filter { $0.1.isSelected }
             .map { $0.0 }
     }
 
-    @objc private func toggleCheckbox(_ sender: UIButton) {
-        sender.isSelected.toggle()
+    func setCheckboxEnabled(for item: String, isEnabled: Bool) {
+        guard let index = items.firstIndex(of: item), checkBoxes.indices.contains(index) else { return }
+        let checkbox = checkBoxes[index]
+        checkbox.isEnabled = isEnabled
+        checkbox.alpha = isEnabled ? 1.0 : 0.5
     }
 }

@@ -137,16 +137,13 @@ final class TextInputViewController: UIViewController {
     @objc private func textFieldDidChange() {
         guard var text = textField.text else { return }
 
-        // 포맷 적용
         if let formatter = formatter {
             let raw = text.replacingOccurrences(of: ",", with: "")
             text = formatter(raw)
             textField.text = text
 
-            // 커서를 맨 뒤로 이동
-            if let end = textField.endOfDocument {
-                textField.selectedTextRange = textField.textRange(from: end, to: end)
-            }
+            let end = textField.endOfDocument
+            textField.selectedTextRange = textField.textRange(from: end, to: end)
         }
 
         let isValid = validator?(text) ?? !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty

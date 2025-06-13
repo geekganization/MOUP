@@ -27,7 +27,7 @@ final class SelectionViewController<T>: UIViewController,UITableViewDataSource, 
         self.titleText = title
         self.descriptionText = description
         self.items = items
-        self.selectedIndex = items.firstIndex { $0.value as AnyObject === selected as AnyObject }
+        //self.selectedIndex = items.firstIndex { $0.value as AnyObject === selected as AnyObject }
         super.init(nibName: nil, bundle: nil)
     }
 

@@ -19,16 +19,66 @@ final class WorkplaceRegistrationDelegateHandler: NSObject {
 
 extension WorkplaceRegistrationDelegateHandler: SalaryInfoViewDelegate {
     func didTapTypeRow() {
-        print("didTapTypeRow")
+        let items = [
+            SelectionViewController<String>.Item(title: "매월", icon: nil, value: "매월"),
+            SelectionViewController<String>.Item(title: "매주", icon: nil, value: "매주"),
+            SelectionViewController<String>.Item(title: "매일", icon: nil, value: "매일")
+        ]
+
+        let vc = SelectionViewController<String>(
+            title: "급여 유형",
+            description: "급여 유형을 선택해주세요",
+            items: items,
+            selected: "매월"
+        )
+
+        vc.onSelect = { selected in
+            print("선택된 급여 유형:", selected)
+        }
+
+        navigationController?.pushViewController(vc, animated: true)
     }
 
     func didTapCalcRow() {
-        print("didTapCalcRow")
+        let items = [
+            SelectionViewController<String>.Item(title: "시급", icon: nil, value: "시급"),
+            SelectionViewController<String>.Item(title: "고정", icon: nil, value: "고정")
+        ]
+
+        let vc = SelectionViewController<String>(
+            title: "급여 계산",
+            description: "급여 계산방법을 선택해주세요",
+            items: items,
+            selected: "고정"
+        )
+
+        vc.onSelect = { selected in
+            print("선택된 계산 방법:", selected)
+        }
+
+        navigationController?.pushViewController(vc, animated: true)
     }
 
     func didTapFixedSalaryRow() {
-        print("didTapFixedSalaryRow")
-        
+        let vc = TextInputViewController(
+            title: "고정급",
+            description: "고정급을 입력해주세요",
+            placeholder: "3,000,000원",
+            keyboardType: .numberPad,
+            formatter: { input in
+                let formatter = NumberFormatter()
+                formatter.numberStyle = .decimal
+                let num = Int(input) ?? 0
+                return formatter.string(from: NSNumber(value: num)) ?? ""
+            },
+            validator: { input in
+                Int(input.replacingOccurrences(of: ",", with: "")) != nil
+            }
+        )
+        vc.onComplete = { value in
+            print("입력된 값: \(value)")
+        }
+        navigationController?.pushViewController(vc, animated: true)
     }
 
     func didTapPayDateRow() {
@@ -38,7 +88,15 @@ extension WorkplaceRegistrationDelegateHandler: SalaryInfoViewDelegate {
 
 extension WorkplaceRegistrationDelegateHandler: WorkplaceInfoViewDelegate {
     func didTapNameRow() {
-        print("didTapNameRow")
+        let vc = TextInputViewController(
+            title: "근무지 이름",
+            description: "근무지 이름을 입력해주세요",
+            placeholder: "예: 세븐일레븐 안양점"
+        )
+        vc.onComplete = { labelName in
+            print("입력된 근무지: \(labelName)")
+        }
+        navigationController?.pushViewController(vc, animated: true)
     }
 
     func didTapCategoryRow() {
@@ -54,7 +112,7 @@ extension WorkplaceRegistrationDelegateHandler: WorkplaceInfoViewDelegate {
             title: "카테고리",
             description: "근무지 카테고리를 선택해주세요",
             items: categoryItems,
-            selected: "카페"
+            selected: "음식점"
         )
 
         vc.onSelect = { selected in

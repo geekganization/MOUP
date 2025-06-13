@@ -65,6 +65,7 @@ final class RoutineSelectionViewController: UIViewController {
             action: #selector(didTapBack)
         )
         backButton.tintColor = .gray700
+        navigationItem.rightBarButtonItem?.tintColor = .gray700
         navigationItem.leftBarButtonItem = backButton
     }
 

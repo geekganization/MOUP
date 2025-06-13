@@ -52,6 +52,7 @@ final class NewRoutineViewController: UIViewController {
     private let addTaskButton = UIButton(type: .system).then {
         let image = UIImage(systemName: "plus")
         $0.setImage(image, for: .normal)
+        $0.tintColor = .gray700
     }
 
     private let tableView = UITableView().then {
@@ -92,6 +93,7 @@ final class NewRoutineViewController: UIViewController {
             action: #selector(didTapBack)
         )
         backButton.tintColor = .gray700
+        navigationItem.rightBarButtonItem?.tintColor = .gray700
         navigationItem.leftBarButtonItem = backButton
     }
 

@@ -14,7 +14,7 @@ final class WorkShiftRegistrationViewController: UIViewController {
 
     private let scrollView = UIScrollView()
     private let contentView = ShiftRegistrationContentView()
-    private var delegateHandler: RegistrationDelegateHandler?
+    private var delegateHandler: ShiftRegistrationDelegateHandler?
     private var actionHandler: RegistrationActionHandler?
     private var keyboardHandler: KeyboardInsetHandler?
 
@@ -46,7 +46,7 @@ final class WorkShiftRegistrationViewController: UIViewController {
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
 
-        delegateHandler = RegistrationDelegateHandler(contentView: contentView, navigationController: navigationController)
+        delegateHandler = ShiftRegistrationDelegateHandler(contentView: contentView, navigationController: navigationController)
         actionHandler = RegistrationActionHandler(contentView: contentView, navigationController: navigationController)
 
         contentView.simpleRowView.delegate = delegateHandler
@@ -58,7 +58,7 @@ final class WorkShiftRegistrationViewController: UIViewController {
         contentView.workerSelectionView.isHidden = true
         contentView.labelView.isHidden = true
 
-        contentView.registerButton.addTarget(actionHandler, action: #selector(RegistrationActionHandler.didTapRegister), for: .touchUpInside)
+        contentView.registerButton.addTarget(self, action: #selector(didTapRegister), for: .touchUpInside)
         contentView.registerButton.addTarget(actionHandler, action: #selector(RegistrationActionHandler.buttonTouchDown(_:)), for: .touchDown)
         contentView.registerButton.addTarget(actionHandler, action: #selector(RegistrationActionHandler.buttonTouchUp(_:)), for: [.touchUpInside, .touchUpOutside, .touchCancel])
     }
@@ -72,5 +72,19 @@ final class WorkShiftRegistrationViewController: UIViewController {
             $0.edges.equalTo(scrollView.contentLayoutGuide).inset(16)
             $0.width.equalTo(scrollView.frameLayoutGuide).inset(16)
         }
+    }
+    
+    @objc func didTapRegister() {
+        print(contentView.simpleRowView.getData())
+        print(contentView.workerSelectionView.getSelectedWorkerData())
+        print(contentView.routineView.getTitleData())
+        print(contentView.workDateView.getdateRowData())
+        print(contentView.workDateView.getrepeatRowData())
+        //print(contentView.labelView.getColorData().description)
+        print(contentView.labelView.getColorLabelData())
+        print(contentView.workTimeView.getstartRowData())
+        print(contentView.workTimeView.getrestRowData())
+        print(contentView.workTimeView.getendRowData())
+        print(contentView.memoBoxView.getData())
     }
 }

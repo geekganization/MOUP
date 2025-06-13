@@ -9,31 +9,16 @@ import UIKit
 
 final class RegistrationActionHandler: NSObject {
 
-    weak var contentView: ShiftRegistrationContentView?
+    weak var contentView: UIView?
     weak var navigationController: UINavigationController?
 
-    init(contentView: ShiftRegistrationContentView, navigationController: UINavigationController?) {
+    init(contentView: UIView, navigationController: UINavigationController?) {
         self.contentView = contentView
         self.navigationController = navigationController
     }
 
     @objc func didTapBack() {
         navigationController?.popViewController(animated: true)
-    }
-
-    @objc func didTapRegister() {
-        guard let view = contentView else { return }
-        print(view.simpleRowView.getData())
-        print(view.workerSelectionView.getSelectedWorkerData())
-        print(view.routineView.getTitleData())
-        print(view.workDateView.getdateRowData())
-        print(view.workDateView.getrepeatRowData())
-        //print(view.labelView.getColorData().description)
-        print(view.labelView.getColorLabelData())
-        print(view.workTimeView.getstartRowData())
-        print(view.workTimeView.getrestRowData())
-        print(view.workTimeView.getendRowData())
-        print(view.memoBoxView.getData())
     }
 
     @objc func buttonTouchDown(_ sender: UIButton) {

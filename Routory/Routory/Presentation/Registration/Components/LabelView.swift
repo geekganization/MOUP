@@ -70,11 +70,11 @@ final class LabelView: UIView, ValueRowViewDelegate {
     }
 
     func getData() -> String {
-        return redLabelRow.getData()
+        return redLabelRow.getValueData()
     }
 
     func getColorLabelData() -> String {
-        return redLabelRow.getColorLabelData()
+        return redLabelRow.getTitleData()
     }
 
     func getColorData() -> UIColor {

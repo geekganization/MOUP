@@ -14,8 +14,9 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController {
     private let scrollView = UIScrollView()
     private let contentView = WorkplaceRegistrationContentView()
 
-    // 예: KeyboardInsetHandler, ActionHandler 등이 있다면 여기에 선언 가능
-
+    private var delegateHandler: WorkplaceRegistrationDelegateHandler?
+    private var actionHandler: RegistrationActionHandler?
+    
     // MARK: - Lifecycle
 
     override func viewDidLoad() {
@@ -41,7 +42,16 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController {
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
 
+        delegateHandler = WorkplaceRegistrationDelegateHandler(contentView: contentView, navigationController: navigationController)
+        actionHandler = RegistrationActionHandler(contentView: contentView, navigationController: navigationController)
+
+        contentView.salaryInfoView.delegate = delegateHandler
+        contentView.workplaceInfoView.delegate = delegateHandler
+        contentView.labelView.delegate = delegateHandler
+
         contentView.registerButton.addTarget(self, action: #selector(didTapRegister), for: .touchUpInside)
+        contentView.registerButton.addTarget(actionHandler, action: #selector(RegistrationActionHandler.buttonTouchDown(_:)), for: .touchDown)
+        contentView.registerButton.addTarget(actionHandler, action: #selector(RegistrationActionHandler.buttonTouchUp(_:)), for: [.touchUpInside, .touchUpOutside, .touchCancel])
     }
 
     private func layout() {
@@ -60,8 +70,15 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController {
     @objc private func didTapBack() {
         navigationController?.popViewController(animated: true)
     }
-
-    @objc private func didTapRegister() {
-        print("등록 버튼 탭됨")
+    
+    @objc func didTapRegister() {
+        print("이름:", contentView.workplaceInfoView.getName())
+        print("카테고리:", contentView.workplaceInfoView.getCategory())
+        print("급여 유형:", contentView.salaryInfoView.getTypeValue())
+        print("급여 계산:", contentView.salaryInfoView.getCalcValue())
+        print("고정급:", contentView.salaryInfoView.getFixedSalaryValue())
+        print("급여일:", contentView.salaryInfoView.getPayDateValue())
+        print("근무 조건:", contentView.workConditionView.getSelectedConditions())
+        print("라벨:", contentView.labelView.getColorLabelData())
     }
 }

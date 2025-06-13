@@ -116,6 +116,12 @@ final class WorkConditionView: UIView {
             $0.bottom.equalToSuperview()
         }
     }
+    
+    func getSelectedConditions() -> [String] {
+        return zip(items, checkBoxes)
+            .filter { $0.1.isSelected }
+            .map { $0.0 }
+    }
 
     @objc private func toggleCheckbox(_ sender: UIButton) {
         sender.isSelected.toggle()

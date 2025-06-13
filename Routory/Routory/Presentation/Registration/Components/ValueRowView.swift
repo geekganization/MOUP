@@ -154,15 +154,11 @@ final class ValueRowView: UIView {
         }
     }
 
-    func getData() -> String {
+    func getValueData() -> String {
         return valueLabel.text ?? ""
     }
 
     func getTitleData() -> String {
-        return titleLabel.text ?? ""
-    }
-
-    func getColorLabelData() -> String {
         return titleLabel.text ?? ""
     }
 

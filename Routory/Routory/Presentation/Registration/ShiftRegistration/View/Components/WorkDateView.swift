@@ -88,6 +88,6 @@ final class WorkDateView: UIView, FieldRowViewDelegate, ValueRowViewDelegate {
     }
 
     func getrepeatRowData() -> String {
-        return repeatRow.getData()
+        return repeatRow.getValueData()
     }
 }

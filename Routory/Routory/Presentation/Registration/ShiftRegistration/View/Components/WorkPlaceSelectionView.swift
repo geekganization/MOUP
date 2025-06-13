@@ -33,11 +33,12 @@ final class WorkPlaceSelectionView: UIView {
 
     private let chevronImageView = UIImageView().then {
         $0.image = UIImage(systemName: "chevron.right")
-        $0.tintColor = .systemGray2
+        $0.tintColor = .gray700
         $0.contentMode = .scaleAspectFit
         $0.isUserInteractionEnabled = true
+        $0.snp.makeConstraints { $0.size.equalTo(CGSize(width: 8, height: 14)) }
     }
-
+    
     private let separatorView = UIView().then {
         $0.backgroundColor = UIColor.systemGray4
     }
@@ -69,8 +70,6 @@ final class WorkPlaceSelectionView: UIView {
         chevronImageView.snp.makeConstraints {
             $0.trailing.equalToSuperview()
             $0.centerY.equalToSuperview()
-            $0.width.equalTo(12)
-            $0.height.equalTo(12)
         }
 
         separatorView.snp.makeConstraints {

@@ -149,7 +149,7 @@ extension ShiftRegistrationDelegateHandler: WorkTimeViewDelegate {
 
     func workTimeViewDidRequestBreakTimePicker(current: String) {
         let timesInMinutes = Array(stride(from: 30, through: 180, by: 30))
-        let displayTexts = timesInMinutes.map { minutes -> String in
+        let displayTexts = ["없음"] + timesInMinutes.map { minutes -> String in
             let hour = minutes / 60
             let minute = minutes % 60
             return hour > 0 ? "\(hour)시간\(minute > 0 ? " \(minute)분" : "")" : "\(minute)분"

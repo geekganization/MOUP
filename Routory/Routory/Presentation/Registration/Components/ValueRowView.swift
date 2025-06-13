@@ -49,7 +49,7 @@ final class ValueRowView: UIView {
 
     private let arrow = UIImageView().then {
         $0.image = UIImage(systemName: "chevron.right")
-        $0.tintColor = .systemGray3
+        $0.tintColor = .gray700
         $0.contentMode = .scaleAspectFit
         $0.isUserInteractionEnabled = true
         $0.snp.makeConstraints { $0.size.equalTo(CGSize(width: 8, height: 14)) }

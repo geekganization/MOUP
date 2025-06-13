@@ -75,16 +75,15 @@ final class WorkShiftRegistrationViewController: UIViewController {
     }
     
     @objc func didTapRegister() {
-        print(contentView.simpleRowView.getData())
-        print(contentView.workerSelectionView.getSelectedWorkerData())
-        print(contentView.routineView.getTitleData())
-        print(contentView.workDateView.getdateRowData())
-        print(contentView.workDateView.getrepeatRowData())
-        //print(contentView.labelView.getColorData().description)
-        print(contentView.labelView.getColorLabelData())
-        print(contentView.workTimeView.getstartRowData())
-        print(contentView.workTimeView.getrestRowData())
-        print(contentView.workTimeView.getendRowData())
-        print(contentView.memoBoxView.getData())
+        print("근무지: ",contentView.simpleRowView.getData())
+        print("근무자: ",contentView.workerSelectionView.getSelectedWorkerData())
+        print("근무 날짜 - 날짜: ",contentView.workDateView.getdateRowData())
+        print("근무 날짜 - 반복: ",contentView.workDateView.getrepeatRowData())
+        print("근무 시간 - 출근: ",contentView.workTimeView.getstartRowData())
+        print("근무 시간 - 퇴근: ",contentView.workTimeView.getendRowData())
+        print("근무 시간 - 휴게: ",contentView.workTimeView.getrestRowData())
+        print("루틴: ",contentView.routineView.getTitleData())
+        print("색깔: ",contentView.labelView.getColorLabelData())
+        print("메모: ",contentView.memoBoxView.getData())
     }
 }

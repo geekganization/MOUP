@@ -84,7 +84,7 @@ final class WorkShiftRegistrationViewController: UIViewController {
         print("근무 시간 - 퇴근: ",contentView.workTimeView.getendRowData())
         print("근무 시간 - 휴게: ",contentView.workTimeView.getrestRowData())
         print("루틴: ",contentView.routineView.getTitleData())
-        print("색깔: ",contentView.labelView.getColorLabelData())
+        //print("색깔: ",contentView.labelView.getColorLabelData())
         print("메모: ",contentView.memoBoxView.getData())
     }
 }

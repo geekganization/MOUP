@@ -24,10 +24,36 @@ final class ShiftRegistrationDelegateHandler: NSObject {
 
 extension ShiftRegistrationDelegateHandler: WorkPlaceSelectionViewDelegate {
     func workPlaceSelectionViewDidTapChevron(_ view: WorkPlaceSelectionView) {
-        let vc = WorkplaceSelectionViewController()
+//        let vc = WorkplaceSelectionViewController()
+//        vc.onSelect = { [weak self] workplace in
+//            self?.contentView?.simpleRowView.updateTitle(workplace.workplacesName)
+//        }
+//        navigationController?.pushViewController(vc, animated: true)
+        let workplaces: [Workplace] = [
+            Workplace(id: "1", workplacesName: "맥도날드", category: "패스트푸드", ownerId: "owner1", inviteCode: "...", inviteCodeExpiresAt: "...", isOfficial: true),
+            Workplace(id: "2", workplacesName: "쿠팡 야간", category: "물류", ownerId: "owner2", inviteCode: "...", inviteCodeExpiresAt: "...", isOfficial: false),
+            Workplace(id: "3", workplacesName: "올리브영", category: "뷰티", ownerId: "owner3", inviteCode: "...", inviteCodeExpiresAt: "...", isOfficial: true)
+        ]
+
+        let workplaceItems = workplaces.map {
+            SelectionViewController<Workplace>.Item(
+                title: $0.workplacesName,
+                icon: nil,
+                value: $0
+            )
+        }
+        
+        let vc = SelectionViewController<Workplace>(
+            title: "근무지 선택",
+            description: "등록할 근무지를 선택해 주세요",
+            items: workplaceItems,
+            selected: nil
+        )
+        
         vc.onSelect = { [weak self] workplace in
             self?.contentView?.simpleRowView.updateTitle(workplace.workplacesName)
         }
+        
         navigationController?.pushViewController(vc, animated: true)
     }
 }

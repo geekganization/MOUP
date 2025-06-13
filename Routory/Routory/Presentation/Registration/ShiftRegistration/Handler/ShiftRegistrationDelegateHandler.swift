@@ -148,23 +148,27 @@ extension ShiftRegistrationDelegateHandler: WorkTimeViewDelegate {
     }
 
     func workTimeViewDidRequestBreakTimePicker(current: String) {
-        let vc = BreakTimePickerViewController()
-        vc.modalPresentationStyle = .pageSheet
+        let timesInMinutes = Array(stride(from: 30, through: 180, by: 30))
+        let displayTexts = timesInMinutes.map { minutes -> String in
+            let hour = minutes / 60
+            let minute = minutes % 60
+            return hour > 0 ? "\(hour)시간\(minute > 0 ? " \(minute)분" : "")" : "\(minute)분"
+        }
+
+        let vc = ReusablePickerViewController(data: [displayTexts]) { [weak self] selectedIndexes in
+            let selectedIndex = selectedIndexes[0]
+            let selectedText = displayTexts[selectedIndex]
+            self?.contentView?.workTimeView.updateRestValue(selectedText)
+        }
 
         if let sheet = vc.sheetPresentationController {
             sheet.detents = [.medium()]
             sheet.prefersGrabberVisible = true
+            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
+            sheet.preferredCornerRadius = 16
         }
 
-        vc.onSelect = { [weak self] index in
-            let minutes = (index + 1) * 30
-            let hour = minutes / 60
-            let minute = minutes % 60
-            let text = hour > 0 ? "\(hour)시간\(minute > 0 ? " \(minute)분" : "")" : "\(minute)분"
-            self?.contentView?.workTimeView.updateRestValue(text)
-        }
-
-        navigationController?.present(vc, animated: true)
+        navigationController?.present(vc, animated: true, completion: nil)
     }
 }
 

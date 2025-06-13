@@ -23,7 +23,7 @@ final class ReusablePickerViewController: UIViewController {
     // MARK: - Properties
 
     private let data: PickerData
-    private let onSelect: PickerSelectionHandler
+    var onSelect: PickerSelectionHandler
 
     // MARK: - Init
 

@@ -36,13 +36,23 @@ final class SelectionViewController<T>: UIViewController,UITableViewDataSource, 
     }
 
     private let tableView = UITableView()
-    private let doneButton = UIButton(type: .system)
+    private let doneButton = UIButton(type: .system).then {
+        $0.setTitle("완료", for: .normal)
+        $0.titleLabel?.font = .buttonSemibold(18)
+        $0.setTitleColor(.white, for: .normal)
+        $0.backgroundColor = .primary500
+        $0.layer.cornerRadius = 12
+        $0.isEnabled = false
+        $0.alpha = 0.5
+        $0.addTarget(self, action: #selector(didTapDone), for: .touchUpInside)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupUI()
         setupNavigationBar()
+        updateDoneButtonState()
     }
     
     private func setupNavigationBar() {
@@ -108,6 +118,12 @@ final class SelectionViewController<T>: UIViewController,UITableViewDataSource, 
         }
     }
     
+    private func updateDoneButtonState() {
+        let isSelected = selectedIndex != nil
+        doneButton.isEnabled = isSelected
+        doneButton.alpha = isSelected ? 1.0 : 0.5
+    }
+    
     @objc private func didTapBack() {
         navigationController?.popViewController(animated: true)
     }
@@ -131,9 +147,10 @@ final class SelectionViewController<T>: UIViewController,UITableViewDataSource, 
         cell.configure(icon: item.icon, text: item.title, selected: selected)
         return cell
     }
-
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         selectedIndex = indexPath.row
         tableView.reloadData()
+        updateDoneButtonState()
     }
 }

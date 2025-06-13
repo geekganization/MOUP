@@ -13,8 +13,8 @@ final class UserUseCase: UserUseCaseProtocol {
         self.userRepository = userRepository
     }
     
-    func createUser(user: User) -> Observable<Void> {
-        return userRepository.createUser(user: user)
+    func createUser(uid: String, user: User) -> Observable<Void> {
+        return userRepository.createUser(uid: uid, user: user)
     }
     
     func deleteUser(uid: String) -> Observable<Void> {
@@ -25,4 +25,3 @@ final class UserUseCase: UserUseCaseProtocol {
         return userRepository.fetchUser(uid: uid)
     }
 }
-

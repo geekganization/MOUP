@@ -11,11 +11,6 @@ import SnapKit
 import Then
 import FirebaseAuth
 
-struct DummyUser {
-    let name: String
-    let role: String
-}
-
 enum MyPageMenu: CaseIterable {
     case account
     case notification
@@ -36,11 +31,29 @@ final class MyPageViewController: UIViewController {
     
     // MARK: - Properties
     
+    private let uid: String
+    private let viewModel: MyPageViewModel
+    private let disposeBag = DisposeBag()
+    
+    private let uidSubject = BehaviorSubject<String>(value: "")
+    
     private let menuItems = MyPageMenu.allCases
     
     // MARK: - UI Components
     
     private let myPageView = MyPageView()
+    
+    // MARK: - Initializer
+    
+    init(viewModel: MyPageViewModel, uid: String) {
+        self.viewModel = viewModel
+        self.uid = uid
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: - Lifecycle
     
@@ -52,13 +65,6 @@ final class MyPageViewController: UIViewController {
         super.viewDidLoad()
         
         configure()
-        setUser()
-    }
-    
-    private func setUser() {
-        let dummyUser = DummyUser(name: "김알바", role: "알바생")
-        
-        myPageView.update(user: dummyUser)
     }
     
     @objc private func logoutButtonDidTap() {
@@ -110,6 +116,7 @@ private extension MyPageViewController {
         setStyles()
         setTableView()
         setActions()
+        setBindings()
     }
     
     // MARK: - setStyles
@@ -136,6 +143,27 @@ private extension MyPageViewController {
             action: #selector(logoutButtonDidTap),
             for: .touchUpInside
         )
+        
+        myPageView.onEditButtonTapped = { [weak self] in
+            let userUseCase = UserUseCase(userRepository: UserRepository(userService: UserService()))
+            let editModelVC = EditModalViewController(viewModel: EditModalViewModel(userUseCase: userUseCase))
+            editModelVC.modalPresentationStyle = .overFullScreen
+            editModelVC.modalTransitionStyle = .crossDissolve
+            self?.present(editModelVC, animated: true, completion: nil)
+        }
+    }
+    
+    // MARK: - setBindings
+    func setBindings() {
+        let input = MyPageViewModel.Input(uid: Observable.just(uid))
+        let output = viewModel.transform(input: input)
+        
+        output.user
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] user in
+                self?.myPageView.update(user: user)
+            })
+            .disposed(by: disposeBag)
     }
 }
 

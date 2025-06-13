@@ -57,7 +57,7 @@ private extension AccountViewController {
             }
 
             let userUseCase = UserUseCase(userRepository: UserRepository(userService: UserService()))
-            let authUseCase = AuthUseCase(authRepository: AuthRepository(authService: UserService()))
+            let authUseCase = AuthUseCase(authRepository: AuthRepository(authService: AuthService()))
             let deleteAccountViewModel = DeleteAccountViewModel(
                 userUseCase: userUseCase, authUseCase: authUseCase,
                 userId: userId

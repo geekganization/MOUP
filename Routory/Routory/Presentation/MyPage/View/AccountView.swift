@@ -27,7 +27,7 @@ final class AccountView: UIView {
     }
     
     private let rightArrow = UIImageView().then {
-        $0.image = UIImage(named: "ChevronRight")
+        $0.image = UIImage.chevronRight
         $0.contentMode = .scaleAspectFit
     }
     

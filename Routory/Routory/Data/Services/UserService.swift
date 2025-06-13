@@ -8,21 +8,15 @@
 import Foundation
 import FirebaseFirestore
 import RxSwift
-import FirebaseAuth
 
 protocol UserServiceProtocol {
     func checkUserExists(uid: String) -> Observable<Bool>
-    func createUser(user: User) -> Observable<Void>
+    func createUser(uid: String, user: User) -> Observable<Void>
     func deleteUser(uid: String) -> Observable<Void>
-    func fetchUser(uid: String) -> Observable<User>
+    func fetchUser(uid: String) -> Observable<(User)>
 }
 
-protocol AuthServiceProtocol {
-    func deleteAccount() -> Observable<Void>
-}
-
-
-final class UserService: UserServiceProtocol, AuthServiceProtocol {
+final class UserService: UserServiceProtocol {
     private let db = Firestore.firestore()
     
     func checkUserExists(uid: String) -> Observable<Bool> {
@@ -40,14 +34,14 @@ final class UserService: UserServiceProtocol, AuthServiceProtocol {
     }
     
     // MARK: - 회원가입
-    func createUser(user: User) -> Observable<Void> {
+    func createUser(uid: String, user: User) -> Observable<Void> {
         let data: [String: Any] = [
             "userName": user.userName,
             "role": user.role,
             "workplaceList": user.workplaceList
         ]
         return Observable.create { observer in
-            self.db.collection("users").document(user.id).setData(data) { error in
+            self.db.collection("users").document(uid).setData(data) { error in
                 if let error = error {
                     observer.onError(error)
                 } else {
@@ -70,25 +64,7 @@ final class UserService: UserServiceProtocol, AuthServiceProtocol {
                     observer.onCompleted()
                 }
             }
-            return Disposables.create()
-        }
-    }
-    /// Firebase Auth 계정 삭제 (회원탈퇴)
-    func deleteAccount() -> Observable<Void> {
-        return Observable.create { observer in
-            guard let user = Auth.auth().currentUser else {
-                observer.onError(NSError(domain: "NoUser", code: -1))
-                return Disposables.create()
-            }
-            user.delete { error in
-                if let error = error {
-                    observer.onError(error)
-                } else {
-                    observer.onNext(())
-                    observer.onCompleted()
-                }
-            }
-            return Disposables.create()
+            return Disposables.create() 
         }
     }
     
@@ -100,7 +76,6 @@ final class UserService: UserServiceProtocol, AuthServiceProtocol {
                     observer.onError(error)
                 } else if let document = document, let data = document.data() {
                     do {
-                        // Firestore 데이터 → User 모델 디코딩
                         let jsonData = try JSONSerialization.data(withJSONObject: data)
                         let user = try JSONDecoder().decode(User.self, from: jsonData)
                         observer.onNext(user)

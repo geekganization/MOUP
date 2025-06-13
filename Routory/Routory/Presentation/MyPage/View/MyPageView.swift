@@ -11,6 +11,10 @@ import SnapKit
 
 final class MyPageView: UIView {
     
+    // MARK: - Properties
+    
+    var onEditButtonTapped: (() -> Void)?
+    
     // MARK: - UI Components
     
     private let profileImageFrame = UIImageView().then {
@@ -27,7 +31,7 @@ final class MyPageView: UIView {
     private let nameLabel = UILabel().then {
         $0.font = .bodyMedium(16)
         $0.setLineSpacing(.bodyMedium)
-        $0.text = "김알바"
+        $0.text = "MOUP"
     }
     
     private let roleLabel = UILabel().then {
@@ -41,6 +45,11 @@ final class MyPageView: UIView {
         $0.axis = .vertical
         $0.spacing = 12
         $0.alignment = .leading
+    }
+    
+    private let editButton = UIButton().then {
+        $0.setImage(UIImage.editButton, for: .normal)
+        $0.contentMode = .scaleAspectFit
     }
     
     private let menuList = MyPageMenuListView()
@@ -58,13 +67,11 @@ final class MyPageView: UIView {
     
     // MARK: - Getter
     
-    var menuListView: MyPageMenuListView {
-        return menuList
-    }
+    var menuListView: MyPageMenuListView { menuList }
     
-    var logoutButtonView: UIButton {
-        return logoutButton
-    }
+    var logoutButtonView: UIButton { logoutButton }
+    
+    var EditButtonView: UIButton { editButton }
     
     // MARK: - Initializer
     
@@ -77,10 +84,10 @@ final class MyPageView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func update(user: DummyUser) {
-        nameLabel.text = user.name
-        roleLabel.text = user.role
-        profileImageView.image = user.role == "알바생" ? UIImage(named: "Alba") : UIImage(named: "Owner")
+    func update(user: User) {
+        nameLabel.text = user.userName
+        roleLabel.text = user.role == "worker" ? "알바생" : "사장님"
+        profileImageView.image = user.role == "worker" ? UIImage.alba : UIImage.owner
     }
 }
 
@@ -89,6 +96,7 @@ private extension MyPageView {
     func configure() {
         setHierarchy()
         setConstraints()
+        setActions()
     }
 
     // MARK: - setHierarchy
@@ -101,6 +109,7 @@ private extension MyPageView {
         addSubviews(
             profileImageFrame,
             nameRoleStackView,
+            editButton,
             menuList,
             logoutButton
         )
@@ -126,6 +135,12 @@ private extension MyPageView {
             $0.leading.equalTo(profileImageFrame.snp.trailing).offset(32)
         }
         
+        editButton.snp.makeConstraints {
+            $0.width.height.equalTo(44)
+            $0.leading.equalTo(nameRoleStackView.snp.trailing).offset(4)
+            $0.centerY.equalTo(nameLabel.snp.centerY)
+        }
+        
         menuList.snp.makeConstraints {
             $0.top.equalTo(profileImageFrame.snp.bottom).offset(32)
             $0.horizontalEdges.equalToSuperview().inset(16)
@@ -137,5 +152,18 @@ private extension MyPageView {
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(44)
         }
+    }
+    
+    // MARK: - setActions
+    func setActions() {
+        editButton.addTarget(
+            self,
+            action: #selector(editButtonDidTap),
+            for: .touchUpInside
+        )
+    }
+    
+    @objc func editButtonDidTap() {
+        onEditButtonTapped?()
     }
 }

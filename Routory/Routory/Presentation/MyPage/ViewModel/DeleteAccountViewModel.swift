@@ -40,21 +40,19 @@ final class DeleteAccountViewModel {
             .do(onNext: { [weak self] _ in self?.isLoadingSubject.onNext(true) })
             .flatMap { [weak self] _ -> Observable<Void> in
                 guard let self = self else { return .empty() }
-                return self.userUseCase.deleteUser(uid: self.userId)
+                return self.authUseCase.deleteAccount()
                     .flatMap { [weak self] _ -> Observable<Void> in
                         guard let self = self else { return .empty() }
-                        return self.authUseCase.deleteAccount()
+                        return self.userUseCase.deleteUser(uid: self.userId)
                     }
                     .catch { [weak self] error in
                         self?.errorSubject.onNext(error)
+                        self?.isLoadingSubject.onNext(false)
                         return .empty()
                     }
             }
             .subscribe(onNext: { [weak self] in
                 self?.deleteCompletedSubject.onNext(())
-                self?.isLoadingSubject.onNext(false)
-            }, onError: { [weak self] error in
-                self?.errorSubject.onNext(error)
                 self?.isLoadingSubject.onNext(false)
             })
             .disposed(by: disposeBag)

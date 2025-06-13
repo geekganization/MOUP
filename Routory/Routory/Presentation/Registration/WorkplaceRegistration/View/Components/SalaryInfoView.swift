@@ -28,8 +28,8 @@ final class SalaryInfoView: UIView, ValueRowViewDelegate, FieldRowViewDelegate {
 
     private let typeRow = ValueRowView(title: "급여 유형", value: "매월")
     private let calcRow = ValueRowView(title: "급여 계산", value: "고정")
-    private let fixedSalaryRow = ValueRowView(title: "고정급", value: "1,000,000원")
-    private let hourlyWageRow = ValueRowView(title: "시급", value: "10,030원")
+    private let fixedSalaryRow = ValueRowView(title: "고정급", value: "1,000,000")
+    private let hourlyWageRow = ValueRowView(title: "시급", value: "10,030")
     private let payDateRow = FieldRowView(title: "급여일", value: "25일")
     private let payWeekdayRow = FieldRowView(title: "급여일(요일)", value: "월요일")
 

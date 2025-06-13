@@ -100,7 +100,7 @@ extension WorkplaceRegistrationDelegateHandler: SalaryInfoViewDelegate {
         let vc = TextInputViewController(
             title: "고정급",
             description: "고정급을 입력해주세요",
-            placeholder: "3,000,000원",
+            placeholder: "3,000,000",
             keyboardType: .numberPad,
             formatter: { input in
                 let formatter = NumberFormatter()
@@ -122,7 +122,7 @@ extension WorkplaceRegistrationDelegateHandler: SalaryInfoViewDelegate {
         let vc = TextInputViewController(
             title: "시급",
             description: "시급을 입력해주세요",
-            placeholder: "10,030원",
+            placeholder: "10,030",
             keyboardType: .numberPad,
             formatter: { input in
                 let formatter = NumberFormatter()

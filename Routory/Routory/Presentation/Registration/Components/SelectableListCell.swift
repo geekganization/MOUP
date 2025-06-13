@@ -43,7 +43,8 @@ final class SelectableListCell: UITableViewCell {
         container.addSubview(checkIcon)
 
         container.snp.makeConstraints {
-            $0.edges.equalToSuperview().inset(12)
+            $0.top.bottom.equalToSuperview().inset(8)
+            $0.leading.trailing.equalToSuperview().inset(12)
         }
 
         nameLabel.snp.makeConstraints {

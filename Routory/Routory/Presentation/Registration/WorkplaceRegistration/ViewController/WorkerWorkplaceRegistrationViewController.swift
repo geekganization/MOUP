@@ -72,6 +72,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController {
     }
     
     @objc func didTapRegister() {
+        print("알바생 새 근무지 등록 데이터")
         print("이름:", contentView.workplaceInfoView.getName())
         print("카테고리:", contentView.workplaceInfoView.getCategory())
         print("급여 유형:", contentView.salaryInfoView.getTypeValue())

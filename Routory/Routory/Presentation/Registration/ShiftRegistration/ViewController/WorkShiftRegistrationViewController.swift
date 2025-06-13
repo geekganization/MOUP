@@ -75,8 +75,9 @@ final class WorkShiftRegistrationViewController: UIViewController {
     }
     
     @objc func didTapRegister() {
+        print("근무 등록 데이터")
         print("근무지: ",contentView.simpleRowView.getData())
-        print("근무자: ",contentView.workerSelectionView.getSelectedWorkerData())
+        //print("근무자: ",contentView.workerSelectionView.getSelectedWorkerData())
         print("근무 날짜 - 날짜: ",contentView.workDateView.getdateRowData())
         print("근무 날짜 - 반복: ",contentView.workDateView.getrepeatRowData())
         print("근무 시간 - 출근: ",contentView.workTimeView.getstartRowData())

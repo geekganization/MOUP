@@ -24,4 +24,8 @@ final class UserUseCase: UserUseCaseProtocol {
     func fetchUser(uid: String) -> Observable<User> {
         return userRepository.fetchUser(uid: uid)
     }
+    
+    func updateUserName(uid: String, newUserName: String) -> Observable<Void> {
+        return userRepository.updateUserName(uid: uid, newUserName: newUserName)
+    }
 }

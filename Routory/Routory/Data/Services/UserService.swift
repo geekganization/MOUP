@@ -14,6 +14,7 @@ protocol UserServiceProtocol {
     func createUser(uid: String, user: User) -> Observable<Void>
     func deleteUser(uid: String) -> Observable<Void>
     func fetchUser(uid: String) -> Observable<(User)>
+    func updateUserName(uid: String, newUserName: String) -> Observable<Void>
 }
 
 final class UserService: UserServiceProtocol {
@@ -90,4 +91,22 @@ final class UserService: UserServiceProtocol {
             return Disposables.create()
         }
     }
+    
+    // MARK: - 닉네임 변경
+    func updateUserName(uid: String, newUserName: String) -> Observable<Void> {
+        return Observable.create { observer in
+            self.db.collection("users").document(uid).updateData([
+                "userName": newUserName
+            ]) { error in
+                if let error = error {
+                    observer.onError(error)
+                } else {
+                    observer.onNext(())
+                    observer.onCompleted()
+                }
+            }
+            return Disposables.create()
+        }
+    }
+
 }

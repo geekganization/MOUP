@@ -17,41 +17,41 @@ final class HomeViewController: UIViewController {
     // MARK: - Properties
     private let homeView = HomeView()
     private let homeViewModel: HomeViewModel
+    private let disposeBag = DisposeBag()
     private let viewDidLoadRelay = PublishRelay<Void>()
     private let refreshBtnTappedRelay = PublishRelay<Void>()
+    private let cellTappedRelay = PublishRelay<IndexPath>()
+    private let expandedIndexPathRelay = BehaviorRelay<Set<IndexPath>>(value: [])
 
-    private let dataSource = RxCollectionViewSectionedReloadDataSource<HomeCollectionViewFirstSection> (
-        configureCell: { dataSource, collectionView, indexPath, item in
+    private lazy var input = HomeViewModel.Input(
+        viewDidLoad: viewDidLoadRelay,
+        refreshBtnTapped: refreshBtnTappedRelay,
+        cellTapped: cellTappedRelay.asObservable()
+    )
+    private lazy var output = homeViewModel.transform(input: input)
+
+    private lazy var dataSource = RxTableViewSectionedReloadDataSource<HomeTableViewFirstSection> (
+        configureCell: { [weak self] dataSource, tableView, indexPath, item in
             switch item {
             case .workplace(let dummy):
-                guard let cell = collectionView.dequeueReusableCell(
-                    withReuseIdentifier: MyWorkSpaceCell.identifier,
+                guard let cell = tableView.dequeueReusableCell(
+                    withIdentifier: MyWorkSpaceCell.identifier,
                     for: indexPath
                 ) as? MyWorkSpaceCell else {
-                    return UICollectionViewCell()
+                    return UITableViewCell()
                 }
+                let isExpanded = self?.expandedIndexPathRelay.value.contains(indexPath) ?? false
+                cell.update(with: dummy, isExpanded: isExpanded)
                 return cell
             case .store(let dummy):
-                guard let cell = collectionView.dequeueReusableCell(
-                    withReuseIdentifier: MyStoreCell.identifier,
+                guard let cell = tableView.dequeueReusableCell(
+                    withIdentifier: MyStoreCell.identifier,
                     for: indexPath
                 ) as? MyStoreCell else {
-                    return UICollectionViewCell()
+                    return UITableViewCell()
                 }
                 return cell
             }
-        },
-        configureSupplementaryView: { dataSource, collectionView, kind, indexPath in
-            guard let headerView = collectionView.dequeueReusableSupplementaryView(
-                ofKind: UICollectionView.elementKindSectionHeader,
-                withReuseIdentifier: HomeHeaderView.identifier,
-                for: indexPath
-            ) as? HomeHeaderView else {
-                return UICollectionReusableView()
-            }
-            let section = dataSource[indexPath.section]
-            headerView.update(with: section.header)
-            return headerView
         }
     )
 
@@ -72,44 +72,78 @@ final class HomeViewController: UIViewController {
     }
     
     // MARK: - Lifecycle
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        viewDidLoadRelay.accept(())
         configure()
+        viewDidLoadRelay.accept(())
     }
 }
 
 private extension HomeViewController {
-    // MARK: - configure
     func configure() {
         setStyles()
         setBindings()
     }
 
-    // MARK: - setStyles
     func setStyles() {
         self.view.backgroundColor = .systemBackground
+        self.navigationController?.navigationBar.isHidden = true
     }
 
-    // MARK: - setBindings
     func setBindings() {
-        let input = HomeViewModel.Input(
-            viewDidLoad: viewDidLoadRelay,
-            refreshBtnTapped: refreshBtnTappedRelay
-        )
-        let output = homeViewModel.transform(input: input)
-
         homeView.rx.setDelegate
             .onNext(self)
         homeView.rx.bindItems
             .onNext((output.sectionData, dataSource))
+        
+        let selectedIndexPath = homeView.rx.itemSelected
+            .do(onNext: { [weak self] indexPath in
+                self?.homeView.rx.deselectRow.onNext(indexPath)
+            })
+            .share()
+        
+        selectedIndexPath
+            .bind(to: cellTappedRelay)
+            .disposed(by: disposeBag)
+
+        // ViewModel의 Output을 ViewController의 상태에 반영
+        output.expandedIndexPath
+            .bind(to: expandedIndexPathRelay)
+            .disposed(by: disposeBag)
+
+        // 상태 변경 시 테이블뷰 리로드
+        expandedIndexPathRelay.skip(1)
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] _ in
+                self?.homeView.rx.reloadData.onNext(())
+            })
+            .disposed(by: disposeBag)
     }
 }
 
-extension HomeViewController: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: collectionView.bounds.width, height: 340)
+extension HomeViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        guard let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: HomeHeaderView.identifier) as? HomeHeaderView else {
+            return UIView()
+        }
+        
+        return headerView
+    }
+
+    func tableView(_ tableView: UITableView, estimatedHeightForHeaderInSection section: Int) -> CGFloat {
+        return 340
+    }
+
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return UITableView.automaticDimension
+    }
+
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return UITableView.automaticDimension
+    }
+
+    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 100
     }
 }
+

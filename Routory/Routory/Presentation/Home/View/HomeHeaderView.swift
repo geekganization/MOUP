@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class HomeHeaderView: UICollectionReusableView {
+final class HomeHeaderView: UITableViewHeaderFooterView {
     // MARK: - Properties
     static let identifier = "HomeHeaderView"
     // MARK: - UI Components
@@ -43,23 +43,23 @@ final class HomeHeaderView: UICollectionReusableView {
         $0.textColor = .gray900
         $0.textAlignment = .center
     }
-    private let routineCardStackView = UIStackView().then {
+    private lazy var routineCardStackView = UIStackView().then {
         $0.spacing = 12
         $0.axis = .horizontal
         $0.distribution = .fillEqually
     }
 
     // 오늘의 루틴 카드 관련
-    private let todaysRoutineCardView = CardView()
-    private let todaysRoutineTitleLabel = UILabel().then {
+    private lazy var todaysRoutineCardView = CardView()
+    private lazy var todaysRoutineTitleLabel = UILabel().then {
         $0.text = "오늘의 루틴"
         $0.textColor = .gray900
         $0.font = .bodyMedium(16)
     }
-    private let todaysRoutineChevronIcon = UIImageView().then {
+    private lazy var todaysRoutineChevronIcon = UIImageView().then {
         $0.image = .chevronRight
     }
-    private let todaysRoutineNoticeLabel = UILabel().then {
+    private lazy var todaysRoutineNoticeLabel = UILabel().then {
         $0.text = "오늘 루틴 총 3개 있어요!"
         $0.textColor = .gray700
         $0.font = .bodyMedium(12)
@@ -67,16 +67,16 @@ final class HomeHeaderView: UICollectionReusableView {
     }
 
     // 전체 루틴 카드 관련
-    private let allRoutineCardView = CardView()
-    private let allRoutineTitleLabel = UILabel().then {
+    private lazy var allRoutineCardView = CardView()
+    private lazy var allRoutineTitleLabel = UILabel().then {
         $0.text = "전체 루틴"
         $0.textColor = .gray900
         $0.font = .bodyMedium(16)
     }
-    private let allRoutineChevronIcon = UIImageView().then {
+    private lazy var allRoutineChevronIcon = UIImageView().then {
         $0.image = .chevronRight
     }
-    private let allRoutineNoticeLabel = UILabel().then {
+    private lazy var allRoutineNoticeLabel = UILabel().then {
         $0.text = "모든 루틴을 확인해 보세요!"
         $0.textColor = .gray700
         $0.font = .bodyMedium(12)
@@ -98,8 +98,8 @@ final class HomeHeaderView: UICollectionReusableView {
     }
 
     // MARK: - Initializer
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    override init(reuseIdentifier: String?) {
+        super.init(reuseIdentifier: reuseIdentifier)
 
         configure()
     }
@@ -125,7 +125,7 @@ private extension HomeHeaderView {
 
     // MARK: - setHierarchy
     func setHierarchy() {
-        addSubviews(totalMonthlySalaryCardView, routineSectionLabel, routineCardStackView, workSpaceSectionLabel, plusButton)
+        contentView.addSubviews(totalMonthlySalaryCardView, routineSectionLabel, routineCardStackView, workSpaceSectionLabel, plusButton)
         routineCardStackView.addArrangedSubviews(todaysRoutineCardView, allRoutineCardView)
         totalMonthlySalaryCardView.addSubviews(totalMonthlySalaryTitleLabel, totalMonthlySalaryLabel, separatorLine, monthlyChangeCommentLabel)
         todaysRoutineCardView.addSubviews(todaysRoutineTitleLabel, todaysRoutineChevronIcon, todaysRoutineNoticeLabel)
@@ -134,7 +134,9 @@ private extension HomeHeaderView {
 
     // MARK: - setStyles
     func setStyles() {
-        backgroundColor = .systemBackground
+        backgroundView = UIView().then {
+            $0.backgroundColor = .systemBackground
+        }
     }
 
     // MARK: - setConstraints
@@ -218,6 +220,7 @@ private extension HomeHeaderView {
         workSpaceSectionLabel.snp.makeConstraints {
             $0.top.equalTo(allRoutineCardView.snp.bottom).offset(20)
             $0.leading.equalToSuperview().inset(16)
+            $0.bottom.equalToSuperview().inset(8)
         }
 
         plusButton.snp.makeConstraints {

@@ -7,11 +7,11 @@
 
 import UIKit
 
-class MyStoreCell: UICollectionViewCell {
+class MyStoreCell: UITableViewCell {
     static let identifier = "MyStoreCell"
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
     }
 
     @available(*, unavailable, message: "storyboard is not been implemented.")

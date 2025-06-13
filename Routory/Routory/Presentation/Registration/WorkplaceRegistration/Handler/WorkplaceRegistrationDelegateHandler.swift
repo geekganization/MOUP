@@ -104,11 +104,43 @@ extension WorkplaceRegistrationDelegateHandler: SalaryInfoViewDelegate {
     }
 
     func didTapPayDateRow() {
-        print("didTapPayDateRow")
+        let days = (1...31).map { "\($0)일" }
+
+        let vc = ReusablePickerViewController(data: [days]) { selectedIndexes in
+            let index = selectedIndexes[0]
+            print("선택한 날: \(days[index])")
+        }
+        
+        if let sheet = vc.sheetPresentationController {
+            sheet.detents = [.medium()]
+            sheet.prefersGrabberVisible = true
+            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
+            sheet.preferredCornerRadius = 16
+        }
+
+        vc.modalPresentationStyle = .custom
+        vc.modalTransitionStyle = .coverVertical
+        navigationController?.present(vc, animated: true, completion: nil)
     }
     
     func didTapPayWeekdayRow() {
-        print("didTapPayWeekdayRow")
+        let weekDays = ["월", "화", "수", "목", "금", "토", "일"]
+
+        let vc = ReusablePickerViewController(data: [weekDays]) { selectedIndexes in
+            let index = selectedIndexes[0]
+            print("선택한 요일: \(weekDays[index])")
+        }
+        
+        if let sheet = vc.sheetPresentationController {
+            sheet.detents = [.medium()]
+            sheet.prefersGrabberVisible = true
+            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
+            sheet.preferredCornerRadius = 16
+        }
+
+        vc.modalPresentationStyle = .custom
+        vc.modalTransitionStyle = .coverVertical
+        navigationController?.present(vc, animated: true, completion: nil)
     }
 }
 

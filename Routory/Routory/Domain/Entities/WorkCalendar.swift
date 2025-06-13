@@ -23,12 +23,16 @@ struct WorkCalendar: Codable {
 
     /// 연결된 근무지 ID
     let workplaceId: String
+    
+    /// 캘린더를 공유하는 사용자 ID 배열
+    let sharedWith: [String]
 
-    init(id: String, calendarName: String, isShared: Bool, ownerId: String, workplaceId: String) {
+    init(id: String, calendarName: String, isShared: Bool, ownerId: String, workplaceId: String, sharedWith: [String]) {
         self.id = id
         self.calendarName = calendarName
         self.isShared = isShared
         self.ownerId = ownerId
         self.workplaceId = workplaceId
+        self.sharedWith = sharedWith
     }
 }

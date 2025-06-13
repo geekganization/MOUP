@@ -13,6 +13,10 @@ import Then
 
 final class CalendarViewController: UIViewController {
     
+    // MARK: - Properties
+    
+    private let viewModel = CalendarViewModel()
+    
     // MARK: - UI Components
     
     private let calendarView = CalendarView()

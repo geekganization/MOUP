@@ -7,11 +7,16 @@
 
 import Foundation
 
-let calendarEventMock = CalendarEvent(id: "41KfzzHijbRcrmaq6XPp", title: "테스트이벤트", eventDate: "", startTime: "09:00", endTime: "18:00", createdBy: "qW04Z01bzttiy2a6RQZ8", year: 2025, month: 6, day: 9, routineIds: ["6CdUWL27fcXbbAWd5mUN"])
+let calendarEventMockList = [
+    CalendarEvent(id: "41KfzzHijbRcrmaq6XPp", title: "테스트이벤트", eventDate: "2025년 6월 8일", startTime: "09:00", endTime: "19:00", createdBy: "qW04Z01bzttiy2a6RQZ8", year: 2025, month: 6, day: 8, routineIds: ["6CdUWL27fcXbbAWd5mUN"]),
+    CalendarEvent(id: "41KfzzHijbRcrmaq6XPp", title: "테스트이벤트", eventDate: "2025년 6월 9일", startTime: "09:00", endTime: "20:00", createdBy: "qW04Z01bzttiy2a6RQZ8", year: 2025, month: 6, day: 9, routineIds: ["6CdUWL27fcXbbAWd5mUN"]),
+    CalendarEvent(id: "41KfzzHijbRcrmaq6XPp", title: "테스트이벤트", eventDate: "2025년 6월 9일", startTime: "20:00", endTime: "21:00", createdBy: "qW04Z01bzttiy2a6RQZ8", year: 2025, month: 6, day: 9, routineIds: ["6CdUWL27fcXbbAWd5mUN"]),
+    CalendarEvent(id: "41KfzzHijbRcrmaq6XPp", title: "테스트이벤트", eventDate: "2025년 6월 9일", startTime: "09:00", endTime: "19:00", createdBy: "qW04Z01bzttiy2a6RQZ8", year: 2025, month: 6, day: 9, routineIds: ["6CdUWL27fcXbbAWd5mUN"])
+]
 
 let routineMock = Routine(id: "6CdUWL27fcXbbAWd5mUN", routineName: "테스트루틴", alarmTime: "17:00", tasks: ["출입문 열기", "전등 켜기"])
 
-let userMock = User(id: "qW04Z01bzttiy2a6RQZ8", userName: "테스트알바사용자", role: "worker")
+let userMock = User(userName: "테스트알바사용자", role: "worker", workplaceList: [])
 
 let userWockplaceMock = UserWorkplace(color: "red")
 

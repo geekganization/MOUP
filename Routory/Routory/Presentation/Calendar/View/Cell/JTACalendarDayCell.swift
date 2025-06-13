@@ -17,6 +17,13 @@ final class JTACalendarDayCell: JTACDayCell {
     
     static let identifier = String(describing: JTACalendarDayCell.self)
     
+    /// 근무 시간 계산용 `DateFormatter`
+    private let dateFormatter = DateFormatter().then {
+        $0.dateFormat = "HH:mm"
+        $0.locale = Locale(identifier: "ko_KR")
+        $0.timeZone = TimeZone(identifier: "Asia/Seoul")
+    }
+    
     // MARK: - UI Components
     
     private let seperatorView = UIView().then {
@@ -36,13 +43,12 @@ final class JTACalendarDayCell: JTACDayCell {
         $0.clipsToBounds = true
     }
     
-    private let workHourLabel = UILabel().then {
-        $0.font = .headBold(12)
-        $0.textColor = .redText
-    }
+    private let firstEventStackView = CalendarEventVStackView()
+    private let secondEventStackView = CalendarEventVStackView()
     
     private let eventVStackView = UIStackView().then {
         $0.axis = .vertical
+        $0.spacing = 4
     }
     
     // MARK: - Getter
@@ -81,7 +87,7 @@ final class JTACalendarDayCell: JTACDayCell {
     
     // MARK: - Methods
     
-    func update(date: String, isSaturday: Bool, isSunday: Bool, isToday: Bool, eventList: [CalendarEvent]) {
+    func update(date: String, isSaturday: Bool, isSunday: Bool, isToday: Bool, isShared: Bool, eventList: [CalendarEvent]?) {
         dateLabel.text = date
         dateLabel.textColor = isSunday ? .sundayText : .gray900
         
@@ -95,8 +101,32 @@ final class JTACalendarDayCell: JTACDayCell {
         } else {
             dateLabel.textColor = .gray900
         }
+        
+        eventVStackView.subviews.forEach { $0.isHidden = true }
+        
+        if let eventList {
+            if eventList.isEmpty {
+                eventVStackView.isHidden = true
+            } else {
+                eventVStackView.isHidden = false
+                
+                for (index, event) in eventList.enumerated() {
+                    if index > 1 {
+                        break
+                    } else {
+                        guard let eventView = eventVStackView.subviews[index] as? CalendarEventVStackView else { continue }
+                        // TODO: 캘린더가 isShared인지 확인 필요
+                        let workHour = hourDiffDecimal(from: event.startTime, to: event.endTime)
+                        eventView.update(workHourOrName: "\(workHour?.hours ?? 0)", dailyWage: "100,000", isShared: isShared, color: "red")
+                        eventView.isHidden = false
+                    }
+                }
+            }
+        }
     }
 }
+
+// MARK: - UI Methods
 
 private extension JTACalendarDayCell {
     func configure() {
@@ -108,7 +138,11 @@ private extension JTACalendarDayCell {
     func setHierarchy() {
         self.addSubviews(seperatorView,
                          selectedView,
-                         dateLabel)
+                         dateLabel,
+                         eventVStackView)
+        
+        eventVStackView.addArrangedSubviews(firstEventStackView,
+                                            secondEventStackView)
     }
     
     func setStyles() {
@@ -133,5 +167,29 @@ private extension JTACalendarDayCell {
             $0.width.height.equalTo(22)
             $0.centerX.equalToSuperview()
         }
+        
+        eventVStackView.snp.makeConstraints {
+            $0.top.equalTo(dateLabel.snp.bottom)
+            $0.leading.trailing.equalToSuperview().inset(2)
+        }
+    }
+}
+
+// MARK: - Private Methods
+
+private extension JTACalendarDayCell {
+    func hourDiffDecimal(from start: String, to end: String) -> (hours: Int, minutes: Int, decimal: Double)? {
+        guard let startDate = dateFormatter.date(from: start),
+              let endDate = dateFormatter.date(from: end) else { return nil }
+        
+        let todayOverEnd = endDate < startDate ? Calendar.current.date(byAdding: .day, value: 1, to: endDate) ?? endDate : endDate
+        
+        let components = Calendar.current.dateComponents([.hour, .minute], from: startDate, to: todayOverEnd)
+        
+        let h = components.hour ?? 0
+        let m = components.minute ?? 0
+        let decimalHours = Double(h) + Double(m) / 60.0
+        
+        return (h, m, decimalHours)
     }
 }

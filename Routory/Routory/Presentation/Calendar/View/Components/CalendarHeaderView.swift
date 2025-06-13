@@ -72,8 +72,6 @@ private extension CalendarHeaderView {
         setHierarchy()
         setStyles()
         setConstraints()
-        setDelegates()
-        setBinding()
     }
     
     func setHierarchy() {
@@ -111,23 +109,5 @@ private extension CalendarHeaderView {
             $0.centerY.equalToSuperview()
             $0.width.height.equalTo(44)
         }
-    }
-    
-    func setDelegates() {
-        
-    }
-    
-    func setBinding() {
-//        yearMonthTextField.rx.text.orEmpty
-//            .subscribe(with: self) { owner, text in
-//                if let currYear = Int(text.prefix(4)),
-//                   let currMonth = Int(text.suffix(2)) {
-//                    let yearRow = currYear - JTACalendarRange.startYear.rawValue
-//                    let monthRow = currMonth - 1
-//                    owner.focusedMonth = currMonth
-//                    owner.pickerView.selectRow(yearRow, inComponent: PickerViewComponents.year.rawValue, animated: false)
-//                    owner.pickerView.selectRow(monthRow, inComponent: PickerViewComponents.month.rawValue, animated: false)
-//                }
-//            }.disposed(by: disposeBag)
     }
 }

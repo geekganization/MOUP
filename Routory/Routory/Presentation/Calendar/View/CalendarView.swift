@@ -16,11 +16,20 @@ final class CalendarView: UIView {
     // MARK: - Properties
     
     /// `CalendarHeaderView`에서 `yearMonthLabel`의 연/월 형식을 만들기 위한 `DateFormatter`
-    private let dateFormatter = DateFormatter().then {
+    private let yearMonthDateFormatter = DateFormatter().then {
         $0.dateFormat = "yyyy. MM"
         $0.locale = Locale(identifier: "ko_KR")
         $0.timeZone = TimeZone(identifier: "Asia/Seoul")
     }
+    
+    /// `CalendarView`에서 `dataSource` 관련 데이터의 연/월 형식을 만들기 위한 `DateFormatter`
+    private let dataSourceDateFormatter = DateFormatter().then {
+        $0.dateFormat = "yyyy년 M월 d일"
+        $0.locale = Locale(identifier: "ko_KR")
+        $0.timeZone = TimeZone(identifier: "Asia/Seoul")
+    }
+    
+    private var calendarEventDataSource: [String: [CalendarEvent]] = [:]
     
     // MARK: - UI Components
     
@@ -33,7 +42,7 @@ final class CalendarView: UIView {
     // MARK: - Getter
     
     var getDateFormatter: DateFormatter {
-        return dateFormatter
+        return yearMonthDateFormatter
     }
     
     var getCalendarHeaderView: CalendarHeaderView {
@@ -50,6 +59,8 @@ final class CalendarView: UIView {
         super.init(frame: frame)
         configure()
         setCalendarView()
+        
+        populateDataSource()
     }
     
     @available(*, unavailable, message: "storyboard is not supported.")
@@ -128,7 +139,7 @@ private extension CalendarView {
     ///
     /// - Parameter date: 레이블에 표시할 날짜.
     func setMonthLabel(date: Date) {
-        calendarHeaderView.getYearMonthLabel.text = dateFormatter.string(from: date)
+        calendarHeaderView.getYearMonthLabel.text = yearMonthDateFormatter.string(from: date)
     }
     
     /// 셀의 색상 및 선택 상태를 종합적으로 구성하는 진입점 메서드입니다.
@@ -136,10 +147,11 @@ private extension CalendarView {
     /// - Parameters:
     ///   - cell: 구성할 `JTACDayCell` 인스턴스 (`JTACalendarDayCell`로 캐스팅됨).
     ///   - cellState: 셀의 상태 정보를 담은 `CellState`.
-    func handleConfiguration(cell: JTACDayCell?, cellState: CellState) {
+    func configureCell(cell: JTACDayCell?, date: Date, cellState: CellState) {
         guard let cell = cell as? JTACalendarDayCell else { return }
         handleCellColor(cell: cell, cellState: cellState)
         handleCellSelection(cell: cell, cellState: cellState)
+        handleCellEvents(cell: cell, date: date, cellState: cellState)
     }
     
     /// 셀에서 `seperatorView`를 제외한 UI 컴포넌트 표시 여부 및 상호작용 가능 여부를 설정합니다.
@@ -171,19 +183,30 @@ private extension CalendarView {
             cell.getSelectedView.isHidden = true
         }
     }
+    
+    func handleCellEvents(cell: JTACalendarDayCell, date: Date, cellState: CellState) {
+        let isToday = (Calendar.current.isDateInToday(date) ? true : false)
+        let dateStr = dataSourceDateFormatter.string(from: cellState.date)
+        
+        // TODO: CalendarEvent, UserWorkplace와 WorkCalendar.isShared, WorkerDetail에서 필요한 데이터만 뽑아서 묶어서 전달해야 함
+        cell.update(date: cellState.text, isSaturday: cellState.day.rawValue == 7, isSunday: cellState.day.rawValue == 1, isToday: isToday, isShared: false, eventList: calendarEventDataSource[dateStr])
+    }
+    
+    func populateDataSource() {
+        calendarEventMockList.forEach {
+            calendarEventDataSource[$0.eventDate, default: []].append($0)
+        }
+        
+        jtaCalendar.reloadData()
+    }
 }
 
 // MARK: - JTACMonthViewDataSource
 
 extension CalendarView: JTACMonthViewDataSource {
     func configureCalendar(_ calendar: JTAppleCalendar.JTACMonthView) -> JTAppleCalendar.ConfigurationParameters {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy MM dd"
-        dateFormatter.locale = Locale(identifier: "ko_KR")
-        dateFormatter.timeZone = TimeZone(identifier: "Asia/Seoul")
-        
-        let startDate = dateFormatter.date(from: "\(JTACalendarRange.startYear.rawValue) 01 01")
-        let endDate = dateFormatter.date(from: "\(JTACalendarRange.endYear.rawValue) 12 31")
+        let startDate = dataSourceDateFormatter.date(from: "\(JTACalendarRange.startYear.rawValue)년 1월 1일")
+        let endDate = dataSourceDateFormatter.date(from: "\(JTACalendarRange.endYear.rawValue)년 12월 31일")
         
         let parameter = ConfigurationParameters(startDate: startDate ?? .distantPast,
                                                 endDate: endDate ?? .distantFuture,
@@ -198,14 +221,12 @@ extension CalendarView: JTACMonthViewDataSource {
 
 extension CalendarView: JTACMonthViewDelegate {
     func calendar(_ calendar: JTAppleCalendar.JTACMonthView, willDisplay cell: JTAppleCalendar.JTACDayCell, forItemAt date: Date, cellState: JTAppleCalendar.CellState, indexPath: IndexPath) {
-        self.handleConfiguration(cell: cell, cellState: cellState)
+        configureCell(cell: cell, date: date, cellState: cellState)
     }
     
     func calendar(_ calendar: JTAppleCalendar.JTACMonthView, cellForItemAt date: Date, cellState: JTAppleCalendar.CellState, indexPath: IndexPath) -> JTAppleCalendar.JTACDayCell {
         guard let cell = calendar.dequeueReusableJTAppleCell(withReuseIdentifier: JTACalendarDayCell.identifier, for: indexPath) as? JTACalendarDayCell else { return JTACDayCell() }
         
-        let isToday = (Calendar.current.isDateInToday(date) ? true : false)
-        cell.update(date: cellState.text, isSaturday: cellState.day.rawValue == 7, isSunday: cellState.day.rawValue == 1, isToday: isToday, eventList: [calendarEventMock])
         self.calendar(calendar, willDisplay: cell, forItemAt: date, cellState: cellState, indexPath: indexPath)
         
         return cell
@@ -227,10 +248,10 @@ extension CalendarView: JTACMonthViewDelegate {
     
     func calendar(_ calendar: JTACMonthView, didSelectDate date: Date, cell: JTACDayCell?, cellState: CellState, indexPath: IndexPath) {
         dump(date)
-        handleConfiguration(cell: cell, cellState: cellState)
+        configureCell(cell: cell, date: date, cellState: cellState)
     }
     
     func calendar(_ calendar: JTACMonthView, didDeselectDate date: Date, cell: JTACDayCell?, cellState: CellState, indexPath: IndexPath) {
-        handleConfiguration(cell: cell, cellState: cellState)
+        configureCell(cell: cell, date: date, cellState: cellState)
     }
 }

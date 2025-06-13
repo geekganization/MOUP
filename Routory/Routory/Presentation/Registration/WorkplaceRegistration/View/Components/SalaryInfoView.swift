@@ -15,6 +15,7 @@ protocol SalaryInfoViewDelegate: AnyObject {
     func didTapTypeRow()
     func didTapCalcRow()
     func didTapFixedSalaryRow()
+    func didTapHourlyWageRow()
     func didTapPayDateRow()
 }
 
@@ -31,6 +32,7 @@ final class SalaryInfoView: UIView, ValueRowViewDelegate, FieldRowViewDelegate {
     private let typeRow = ValueRowView(title: "급여 유형", value: "매월")
     private let calcRow = ValueRowView(title: "급여 계산", value: "고정")
     private let fixedSalaryRow = ValueRowView(title: "고정급", value: "1,000,000원")
+    private let hourlyWageRow = ValueRowView(title: "시급", value: "10,030원")
     private let payDateRow = FieldRowView(title: "급여일", value: "25일")
 
     // MARK: - Initializer
@@ -50,6 +52,7 @@ final class SalaryInfoView: UIView, ValueRowViewDelegate, FieldRowViewDelegate {
         typeRow.delegate = self
         calcRow.delegate = self
         fixedSalaryRow.delegate = self
+        hourlyWageRow.delegate = self
         payDateRow.delegate = self
 
         let titleLabel = UILabel().then {
@@ -57,7 +60,7 @@ final class SalaryInfoView: UIView, ValueRowViewDelegate, FieldRowViewDelegate {
             $0.font = .headBold(18)
         }
 
-        let box = makeBoxedStackView(with: [typeRow, calcRow, fixedSalaryRow, payDateRow])
+        let box = makeBoxedStackView(with: [typeRow, calcRow, fixedSalaryRow,hourlyWageRow, payDateRow])
 
         let stack = UIStackView(arrangedSubviews: [titleLabel, box]).then {
             $0.axis = .vertical
@@ -78,6 +81,8 @@ final class SalaryInfoView: UIView, ValueRowViewDelegate, FieldRowViewDelegate {
             delegate?.didTapCalcRow()
         case fixedSalaryRow:
             delegate?.didTapFixedSalaryRow()
+        case hourlyWageRow:
+            delegate?.didTapHourlyWageRow()
         default:
             break
         }
@@ -123,5 +128,13 @@ final class SalaryInfoView: UIView, ValueRowViewDelegate, FieldRowViewDelegate {
 
     func getPayDateValue() -> String {
         return payDateRow.getData()
+    }
+    
+    func updateHourlyWageValue(_ value: String) {
+        hourlyWageRow.updateValue(value)
+    }
+
+    func getHourlyWageValue() -> String {
+        return hourlyWageRow.getValueData()
     }
 }

@@ -80,6 +80,28 @@ extension WorkplaceRegistrationDelegateHandler: SalaryInfoViewDelegate {
         }
         navigationController?.pushViewController(vc, animated: true)
     }
+    
+    func didTapHourlyWageRow() {
+        let vc = TextInputViewController(
+            title: "시급",
+            description: "시급을 입력해주세요",
+            placeholder: "10,030원",
+            keyboardType: .numberPad,
+            formatter: { input in
+                let formatter = NumberFormatter()
+                formatter.numberStyle = .decimal
+                let num = Int(input) ?? 0
+                return formatter.string(from: NSNumber(value: num)) ?? ""
+            },
+            validator: { input in
+                Int(input.replacingOccurrences(of: ",", with: "")) != nil
+            }
+        )
+        vc.onComplete = { value in
+            print("입력된 값: \(value)")
+        }
+        navigationController?.pushViewController(vc, animated: true)
+    }
 
     func didTapPayDateRow() {
         print("didTapPayDateRow")

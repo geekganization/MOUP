@@ -106,6 +106,10 @@ extension WorkplaceRegistrationDelegateHandler: SalaryInfoViewDelegate {
     func didTapPayDateRow() {
         print("didTapPayDateRow")
     }
+    
+    func didTapPayWeekdayRow() {
+        print("didTapPayWeekdayRow")
+    }
 }
 
 extension WorkplaceRegistrationDelegateHandler: WorkplaceInfoViewDelegate {

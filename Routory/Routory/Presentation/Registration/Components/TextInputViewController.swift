@@ -21,8 +21,8 @@ final class TextInputViewController: UIViewController {
     private let descriptionText: String
     private let placeholder: String
     private let keyboardType: UIKeyboardType
-    private let formatter: ((String) -> String)?  // 예: 숫자 포맷용
-    private let validator: ((String) -> Bool)?    // 완료 활성화 조건
+    private let formatter: ((String) -> String)?
+    private let validator: ((String) -> Bool)?   
 
     private let textField = UITextField()
     private let doneButton = UIButton(type: .system)

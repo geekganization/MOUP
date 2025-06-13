@@ -15,8 +15,8 @@ protocol SalaryInfoViewDelegate: AnyObject {
     func didTapTypeRow()
     func didTapCalcRow()
     func didTapFixedSalaryRow()
-    func didTapHourlyWageRow()
     func didTapPayDateRow()
+    func didTapPayWeekdayRow()
 }
 
 // MARK: - View
@@ -34,6 +34,7 @@ final class SalaryInfoView: UIView, ValueRowViewDelegate, FieldRowViewDelegate {
     private let fixedSalaryRow = ValueRowView(title: "고정급", value: "1,000,000원")
     private let hourlyWageRow = ValueRowView(title: "시급", value: "10,030원")
     private let payDateRow = FieldRowView(title: "급여일", value: "25일")
+    private let payWeekdayRow = FieldRowView(title: "급여일(요일)", value: "월요일")
 
     // MARK: - Initializer
 
@@ -52,15 +53,21 @@ final class SalaryInfoView: UIView, ValueRowViewDelegate, FieldRowViewDelegate {
         typeRow.delegate = self
         calcRow.delegate = self
         fixedSalaryRow.delegate = self
-        hourlyWageRow.delegate = self
         payDateRow.delegate = self
+        payWeekdayRow.delegate = self
 
         let titleLabel = UILabel().then {
             $0.text = "급여"
             $0.font = .headBold(18)
         }
 
-        let box = makeBoxedStackView(with: [typeRow, calcRow, fixedSalaryRow,hourlyWageRow, payDateRow])
+        let box = makeBoxedStackView(with: [
+            typeRow,
+            calcRow,
+            fixedSalaryRow,
+            payDateRow,
+            payWeekdayRow
+        ])
 
         let stack = UIStackView(arrangedSubviews: [titleLabel, box]).then {
             $0.axis = .vertical
@@ -81,8 +88,6 @@ final class SalaryInfoView: UIView, ValueRowViewDelegate, FieldRowViewDelegate {
             delegate?.didTapCalcRow()
         case fixedSalaryRow:
             delegate?.didTapFixedSalaryRow()
-        case hourlyWageRow:
-            delegate?.didTapHourlyWageRow()
         default:
             break
         }
@@ -91,8 +96,13 @@ final class SalaryInfoView: UIView, ValueRowViewDelegate, FieldRowViewDelegate {
     // MARK: - FieldRowViewDelegate
 
     func fieldRowViewDidTapChevron(_ row: FieldRowView) {
-        if row === payDateRow {
+        switch row {
+        case payDateRow:
             delegate?.didTapPayDateRow()
+        case payWeekdayRow:
+            delegate?.didTapPayWeekdayRow()
+        default:
+            break
         }
     }
 
@@ -114,6 +124,10 @@ final class SalaryInfoView: UIView, ValueRowViewDelegate, FieldRowViewDelegate {
         payDateRow.updateValue(value)
     }
 
+    func updatePayWeekdayValue(_ value: String) {
+        payWeekdayRow.updateValue(value)
+    }
+
     func getTypeValue() -> String {
         return typeRow.getValueData()
     }
@@ -129,12 +143,8 @@ final class SalaryInfoView: UIView, ValueRowViewDelegate, FieldRowViewDelegate {
     func getPayDateValue() -> String {
         return payDateRow.getData()
     }
-    
-    func updateHourlyWageValue(_ value: String) {
-        hourlyWageRow.updateValue(value)
-    }
 
-    func getHourlyWageValue() -> String {
-        return hourlyWageRow.getValueData()
+    func getPayWeekdayValue() -> String {
+        return payWeekdayRow.getData()
     }
 }

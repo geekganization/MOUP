@@ -9,7 +9,6 @@ import UIKit
 
 import RxCocoa
 import RxSwift
-import SnapKit
 import Then
 
 final class YearMonthPickerViewController: UIViewController {
@@ -57,14 +56,14 @@ final class YearMonthPickerViewController: UIViewController {
 private extension YearMonthPickerViewController {
     func configure() {
         setStyles()
-        setBindings()
+        setBinding()
     }
     
     func setStyles() {
         self.view.backgroundColor = .primaryBackground
     }
     
-    func setBindings() {
+    func setBinding() {
         yearMonthPickerView.getCancelButton.rx.tap
             .subscribe(with: self) { owner, _ in
                 owner.dismiss(animated: true)
@@ -73,7 +72,7 @@ private extension YearMonthPickerViewController {
         yearMonthPickerView.getGotoButton.rx.tap
             .subscribe(with: self, onNext: { owner, _ in
                 let (year, month) = owner.yearMonthPickerView.getSelectedYearMonth
-                owner.delegate?.didGotoButtonTapped(year: year, month: month)
+                owner.delegate?.gotoButtonDidTapped(year: year, month: month)
                 owner.dismiss(animated: true)
             }).disposed(by: disposeBag)
     }

@@ -29,7 +29,6 @@ final class CalendarViewModel {
     // MARK: - Transform (Input ➡️ Output)
     
     func tranform(input: Input) -> Output {
-        
         input.viewDidLoad
             .subscribe(with: self) { owner, _ in
                 

@@ -8,7 +8,8 @@
 import UIKit
 
 import JTAppleCalendar
-import SnapKit
+import RxCocoa
+import RxSwift
 import Then
 
 final class CalendarViewController: UIViewController {
@@ -38,7 +39,9 @@ final class CalendarViewController: UIViewController {
 private extension CalendarViewController {
     func configure() {
         setStyles()
+        setDelegates()
         setActions()
+        setBinding()
     }
     
     func setStyles() {
@@ -57,9 +60,19 @@ private extension CalendarViewController {
         self.navigationItem.rightBarButtonItem = todayButton
     }
     
+    func setDelegates() {
+        calendarView.delegate = self
+    }
+    
     func setActions() {
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(didYearMonthLabelTapped(_:)))
         calendarView.getCalendarHeaderView.getYearMonthLabel.addGestureRecognizer(tapGestureRecognizer)
+    }
+    
+    func setBinding() {
+        let input = CalendarViewModel.Input(viewDidLoad: Infallible.just(()))
+        
+        let output = viewModel.tranform(input: input)
     }
 }
 
@@ -74,11 +87,30 @@ private extension CalendarViewController {
         let pickerModalVC = YearMonthPickerViewController(currYear: currYear, currMonth: currMonth)
         pickerModalVC.delegate = self
         
-        let modalNC = UINavigationController(rootViewController: pickerModalVC)
-        if let sheet = modalNC.sheetPresentationController {
+        if let sheet = pickerModalVC.sheetPresentationController {
             sheet.detents = [.medium()]
             sheet.prefersGrabberVisible = true
             sheet.preferredCornerRadius = 12
+        }
+        
+        self.present(pickerModalVC, animated: true)
+    }
+}
+
+// MARK: - CalendarViewDelegate
+
+extension CalendarViewController: CalendarViewDelegate {
+    func didSelectCell(day: Int, eventList: [CalendarEvent]) {
+        let viewModel = CalendarEventListViewModel(eventList: eventList)
+        let calendarEventListModalVC = CalendarEventListViewController(viewModel: viewModel, day: day)
+        
+        let modalNC = UINavigationController(rootViewController: calendarEventListModalVC)
+        if let sheet = modalNC.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.prefersGrabberVisible = true
+            sheet.preferredCornerRadius = 0
+            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
+            sheet.largestUndimmedDetentIdentifier = .medium
         }
         
         self.present(modalNC, animated: true)
@@ -88,7 +120,7 @@ private extension CalendarViewController {
 // MARK: - YearMonthPickerVCDelegate
 
 extension CalendarViewController: YearMonthPickerVCDelegate {
-    func didGotoButtonTapped(year: Int, month: Int) {
+    func gotoButtonDidTapped(year: Int, month: Int) {
         let yearMonthText = "\(year). \(month)"
         guard let date = calendarView.getDateFormatter.date(from: yearMonthText) else { return }
         calendarView.getJTACalendar.scrollToDate(date)

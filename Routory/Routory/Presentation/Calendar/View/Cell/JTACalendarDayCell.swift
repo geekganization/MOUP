@@ -35,7 +35,7 @@ final class JTACalendarDayCell: JTACDayCell {
         $0.isHidden = true
     }
     
-    private let dateLabel = UILabel().then {
+    private let dayLabel = UILabel().then {
         $0.textColor = .gray900
         $0.font = .bodyMedium(14)
         $0.textAlignment = .center
@@ -57,7 +57,7 @@ final class JTACalendarDayCell: JTACDayCell {
     
     var getSelectedView: UIView { selectedView }
     
-    var getDateLabel: UILabel { dateLabel }
+    var getDateLabel: UILabel { dayLabel }
     
     // MARK: - Initializer
     
@@ -75,29 +75,29 @@ final class JTACalendarDayCell: JTACDayCell {
         
     override func layoutSubviews() {
         super.layoutSubviews()
-        dateLabel.layer.cornerRadius = dateLabel.frame.height / 2
+        dayLabel.layer.cornerRadius = dayLabel.frame.height / 2
     }
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        dateLabel.backgroundColor = .clear
+        dayLabel.backgroundColor = .clear
     }
     
     // MARK: - Methods
     
     func update(date: String, isSaturday: Bool, isSunday: Bool, isToday: Bool, isShared: Bool, eventList: [CalendarEvent]?) {
-        dateLabel.text = date
-        dateLabel.textColor = isSunday ? .sundayText : .gray900
+        dayLabel.text = date
+        dayLabel.textColor = isSunday ? .sundayText : .gray900
         
         if isToday {
-            dateLabel.textColor = .white
-            dateLabel.backgroundColor = .gray900
+            dayLabel.textColor = .white
+            dayLabel.backgroundColor = .gray900
         } else if isSaturday {
-            dateLabel.textColor = .saturdayText
+            dayLabel.textColor = .saturdayText
         } else if isSunday {
-            dateLabel.textColor = .sundayText
+            dayLabel.textColor = .sundayText
         } else {
-            dateLabel.textColor = .gray900
+            dayLabel.textColor = .gray900
         }
         
         eventVStackView.subviews.forEach { $0.isHidden = true }
@@ -141,7 +141,7 @@ private extension JTACalendarDayCell {
     func setHierarchy() {
         self.addSubviews(seperatorView,
                          selectedView,
-                         dateLabel,
+                         dayLabel,
                          eventVStackView)
         
         eventVStackView.addArrangedSubviews(firstEventStackView,
@@ -167,14 +167,14 @@ private extension JTACalendarDayCell {
             $0.bottom.equalToSuperview()
         }
         
-        dateLabel.snp.makeConstraints {
+        dayLabel.snp.makeConstraints {
             $0.top.equalTo(seperatorView.snp.bottom).offset(4)
             $0.width.height.equalTo(22)
             $0.centerX.equalToSuperview()
         }
         
         eventVStackView.snp.makeConstraints {
-            $0.top.equalTo(dateLabel.snp.bottom)
+            $0.top.equalTo(dayLabel.snp.bottom)
             $0.leading.trailing.equalToSuperview().inset(2)
         }
     }

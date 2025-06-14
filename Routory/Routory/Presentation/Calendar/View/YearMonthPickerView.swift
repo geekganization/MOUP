@@ -60,11 +60,8 @@ final class YearMonthPickerView: UIView {
     // MARK: - Getter
     
     var getSelectedYearMonth: (year: Int, month: Int) { (focusedYear, focusedMonth) }
-    
     var getCancelButton: UIButton { cancelButton }
-    
     var getGotoButton: UIButton { gotoButton }
-    
     var getPickerView: UIPickerView { pickerView }
     
     // MARK: - Initializer

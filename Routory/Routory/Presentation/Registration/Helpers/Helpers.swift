@@ -36,3 +36,19 @@ func configureShiftNavigationBar(
     backButton.tintColor = .gray700
     viewController.navigationItem.leftBarButtonItem = backButton
 }
+
+func makeTitleAttributedString(from title: String) -> NSAttributedString {
+    let fullText = title
+    let attributed = NSMutableAttributedString(string: fullText)
+
+    let fullRange = NSRange(location: 0, length: attributed.length)
+    attributed.addAttribute(.font, value: UIFont.headBold(18), range: fullRange)
+    attributed.addAttribute(.foregroundColor, value: UIColor.label, range: fullRange)
+
+    if let starRange = fullText.range(of: "*") {
+        let nsRange = NSRange(starRange, in: fullText)
+        attributed.addAttribute(.foregroundColor, value: UIColor.primary500, range: nsRange)
+    }
+
+    return attributed
+}

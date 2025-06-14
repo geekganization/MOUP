@@ -1,22 +1,22 @@
 //
-//  WorkerWorkplaceRegistrationViewController.swift
+//  OwnerWorkplaceRegistrationViewController.swift
 //  Routory
 //
-//  Created by tlswo on 6/13/25.
+//  Created by tlswo on 6/14/25.
 //
 
 import UIKit
 import SnapKit
 import Then
 
-final class WorkerWorkplaceRegistrationViewController: UIViewController {
+final class OwnerWorkplaceRegistrationViewController: UIViewController {
 
     private let scrollView = UIScrollView()
-    private let contentView = WorkplaceRegistrationContentView(workplaceTitle: "근무지 *")
+    private let contentView = WorkplaceRegistrationContentView(workplaceTitle: "매장 *")
 
     private var delegateHandler: WorkplaceRegistrationDelegateHandler?
     private var actionHandler: RegistrationActionHandler?
-    
+
     // MARK: - Lifecycle
 
     override func viewDidLoad() {
@@ -31,7 +31,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController {
     private func setupNavigationBar() {
         configureShiftNavigationBar(
             for: self,
-            title: "새 근무지 등록",
+            title: "새 매장 등록",
             target: self,
             action: #selector(didTapBack)
         )
@@ -42,13 +42,15 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController {
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
 
-        delegateHandler = WorkplaceRegistrationDelegateHandler(contentView: contentView, navigationController: navigationController)
-        actionHandler = RegistrationActionHandler(contentView: contentView, navigationController: navigationController)
+        contentView.salaryInfoView.isHidden = true
+        contentView.workConditionView.isHidden = true
 
-        contentView.salaryInfoView.delegate = delegateHandler
+        delegateHandler = WorkplaceRegistrationDelegateHandler(contentView: contentView, navigationController: navigationController)
+
         contentView.workplaceInfoView.delegate = delegateHandler
         contentView.labelView.delegate = delegateHandler
 
+        actionHandler = RegistrationActionHandler(contentView: contentView, navigationController: navigationController)
         contentView.registerButton.addTarget(self, action: #selector(didTapRegister), for: .touchUpInside)
         contentView.registerButton.addTarget(actionHandler, action: #selector(RegistrationActionHandler.buttonTouchDown(_:)), for: .touchDown)
         contentView.registerButton.addTarget(actionHandler, action: #selector(RegistrationActionHandler.buttonTouchUp(_:)), for: [.touchUpInside, .touchUpOutside, .touchCancel])
@@ -70,16 +72,11 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController {
     @objc private func didTapBack() {
         navigationController?.popViewController(animated: true)
     }
-    
+
     @objc func didTapRegister() {
-        print("알바생 새 근무지 등록 데이터")
+        print("사장님 새 근무지 등록 데이터")
         print("이름:", contentView.workplaceInfoView.getName())
         print("카테고리:", contentView.workplaceInfoView.getCategory())
-        print("급여 유형:", contentView.salaryInfoView.getTypeValue())
-        print("급여 계산:", contentView.salaryInfoView.getCalcValue())
-        print("고정급:", contentView.salaryInfoView.getFixedSalaryValue())
-        print("급여일:", contentView.salaryInfoView.getPayDateValue())
-        print("근무 조건:", contentView.workConditionView.getSelectedConditions())
         print("라벨:", contentView.labelView.getColorLabelData())
     }
 }

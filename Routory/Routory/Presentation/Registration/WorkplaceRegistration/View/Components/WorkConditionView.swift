@@ -20,9 +20,13 @@ final class WorkConditionView: UIView {
 
     private let mainGroupItem = "4대 보험"
     private let subGroupItems = ["국민연금", "건강보험", "고용보험", "산재보험"]
+    private let titleLabel = UILabel().then {
+        $0.font = .headBold(18)
+    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
+        titleLabel.attributedText = makeTitleAttributedString(from: "근무조건 *")
         setup()
     }
 
@@ -31,10 +35,6 @@ final class WorkConditionView: UIView {
     }
 
     private func setup() {
-        let titleLabel = UILabel().then {
-            $0.text = "근무 조건"
-            $0.font = .headBold(18)
-        }
 
         let boxView = UIView().then {
             $0.layer.cornerRadius = 8

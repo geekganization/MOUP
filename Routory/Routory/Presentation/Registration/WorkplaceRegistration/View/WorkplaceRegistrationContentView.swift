@@ -13,7 +13,7 @@ final class WorkplaceRegistrationContentView: UIView {
 
     // MARK: - Subviews
 
-    let workplaceInfoView = WorkplaceInfoView()
+    let workplaceInfoView: WorkplaceInfoView
     let salaryInfoView = SalaryInfoView()
     let workConditionView = WorkConditionView()
     let labelView = LabelView()
@@ -26,8 +26,9 @@ final class WorkplaceRegistrationContentView: UIView {
 
     // MARK: - Initializer
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(workplaceTitle: String) {
+        self.workplaceInfoView = WorkplaceInfoView(title: workplaceTitle)
+        super.init(frame: .zero)
         setupUI()
         layout()
     }

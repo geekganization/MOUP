@@ -32,11 +32,15 @@ final class SalaryInfoView: UIView, ValueRowViewDelegate, FieldRowViewDelegate {
     private let hourlyWageRow = ValueRowView(title: "시급", value: "10,030")
     private let payDateRow = FieldRowView(title: "급여일", value: "25일")
     private let payWeekdayRow = FieldRowView(title: "급여일(요일)", value: "월요일")
+    private let titleLabel = UILabel().then {
+        $0.font = .headBold(18)
+    }
 
     private var boxStackView: UIStackView!
 
     init() {
         super.init(frame: .zero)
+        titleLabel.attributedText = makeTitleAttributedString(from: "급여 *")
         setup()
         updateVisibleSalaryRows()
         updateVisibleDateRows()
@@ -53,11 +57,6 @@ final class SalaryInfoView: UIView, ValueRowViewDelegate, FieldRowViewDelegate {
         hourlyWageRow.delegate = self
         payDateRow.delegate = self
         payWeekdayRow.delegate = self
-
-        let titleLabel = UILabel().then {
-            $0.text = "급여"
-            $0.font = .headBold(18)
-        }
 
         hourlyWageRow.isHidden = true
 

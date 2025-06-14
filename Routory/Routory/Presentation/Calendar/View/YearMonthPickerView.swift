@@ -18,9 +18,9 @@ final class YearMonthPickerView: UIView {
     private let yearMonthList: [[Int]]
     
     /// `pickerView`에서 didSelect된 연도
-    private var focusedYear = CalendarRange.startYear.rawValue
+    private var focusedYear: Int
     /// `pickerView`에서 didSelect된 월
-    private var focusedMonth = 1
+    private var focusedMonth: Int
     
     // MARK: - UI Components
     
@@ -66,9 +66,11 @@ final class YearMonthPickerView: UIView {
     
     // MARK: - Initializer
     
-    override init(frame: CGRect) {
+    init(focusedYear: Int, focusedMonth: Int) {
         yearMonthList = [Array(CalendarRange.startYear.rawValue...CalendarRange.endYear.rawValue), Array(1...12)]
-        super.init(frame: frame)
+        self.focusedYear = focusedYear
+        self.focusedMonth = focusedMonth
+        super.init(frame: .zero)
         configure()
     }
     

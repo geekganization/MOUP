@@ -50,6 +50,7 @@ final class CalendarHeaderView: UIView {
     
     var getYearMonthLabel: UILabel { yearMonthLabel }
     var getToggleSwitch: BetterSegmentedControl { toggleSwitch }
+    var getFilterButton: UIButton { filterButton }
     
     // MARK: - Initializer
     

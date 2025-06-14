@@ -7,27 +7,13 @@
 
 import UIKit
 
-import BetterSegmentedControl
 import JTAppleCalendar
 import SnapKit
 import Then
 
-enum CalendarMode: CaseIterable {
-    case personal
-    case shared
-}
-
 final class CalendarView: UIView {
     
     // MARK: - Properties
-    
-    weak var delegate: CalendarViewDelegate?
-    
-    private var calendarMode: CalendarMode = .personal {
-        didSet {
-            print(calendarMode)
-        }
-    }
     
     /// `CalendarHeaderView`에서 `yearMonthLabel`의 연/월 형식을 만들기 위한 `DateFormatter`
     private let yearMonthDateFormatter = DateFormatter().then {
@@ -35,16 +21,6 @@ final class CalendarView: UIView {
         $0.locale = Locale(identifier: "ko_KR")
         $0.timeZone = TimeZone(identifier: "Asia/Seoul")
     }
-    
-    /// `CalendarView`에서 `dataSource` 관련 데이터의 연/월 형식을 만들기 위한 `DateFormatter`
-    private let dataSourceDateFormatter = DateFormatter().then {
-        $0.dateFormat = "yyyy년 M월 d일"
-        $0.locale = Locale(identifier: "ko_KR")
-        $0.timeZone = TimeZone(identifier: "Asia/Seoul")
-    }
-    
-    private var personalEventDataSource: [Date: [CalendarEvent]] = [:]
-    private var sharedEventDataSource: [Date: [CalendarEvent]] = [:]
     
     // MARK: - UI Components
     
@@ -66,8 +42,6 @@ final class CalendarView: UIView {
         super.init(frame: frame)
         configure()
         setCalendarView()
-        
-        populateDataSource()
     }
     
     @available(*, unavailable, message: "storyboard is not supported.")
@@ -81,8 +55,6 @@ private extension CalendarView {
         setHierarchy()
         setStyles()
         setConstraints()
-        setDelegates()
-        setActions()
     }
     
     func setHierarchy() {
@@ -121,26 +93,14 @@ private extension CalendarView {
             $0.bottom.equalTo(self.safeAreaLayoutGuide)
         }
     }
-    
-    func setDelegates() {
-        jtaCalendar.calendarDataSource = self
-        jtaCalendar.calendarDelegate = self
-    }
-    
-    func setActions() {
-        calendarHeaderView.getToggleSwitch.addAction(UIAction(handler: { [weak self] action in
-            guard let self, let sender = action.sender as? BetterSegmentedControl else { return }
-            calendarMode = CalendarMode.allCases[sender.index]
-        }), for: .valueChanged)
-    }
 }
 
 // MARK: - JTAppleCalendar Methods
 
-private extension CalendarView {
+extension CalendarView {
     /// `JTACMonthView`에 `JTACalendarDayCell`을 `register`하고 현재 날짜로 스크롤한 후, `CalendarHeaderView`의 초기 `yearMonthLabel`을 설정합니다.
     func setCalendarView() {
-        jtaCalendar.register(JTACalendarDayCell.self, forCellWithReuseIdentifier: JTACalendarDayCell.identifier)
+        jtaCalendar.register(CalendarDayCell.self, forCellWithReuseIdentifier: CalendarDayCell.identifier)
         
         jtaCalendar.scrollToDate(.now, animateScroll: false)
         
@@ -162,11 +122,11 @@ private extension CalendarView {
     /// - Parameters:
     ///   - cell: 구성할 `JTACDayCell` 인스턴스 (`JTACalendarDayCell`로 캐스팅됨).
     ///   - cellState: 셀의 상태 정보를 담은 `CellState`.
-    func configureCell(cell: JTACDayCell?, date: Date, cellState: CellState) {
-        guard let cell = cell as? JTACalendarDayCell else { return }
+    func configureCell(cell: JTACDayCell?, date: Date, cellState: CellState, calendarEventList: [CalendarEvent]) {
+        guard let cell = cell as? CalendarDayCell else { return }
         handleCellColor(cell: cell, cellState: cellState)
         handleCellSelection(cell: cell, cellState: cellState)
-        handleCellEvents(cell: cell, date: date, cellState: cellState)
+        handleCellEvents(cell: cell, date: date, cellState: cellState, calendarEventList: calendarEventList)
     }
     
     /// 셀에서 `seperatorView`를 제외한 UI 컴포넌트 표시 여부 및 상호작용 가능 여부를 설정합니다.
@@ -174,7 +134,7 @@ private extension CalendarView {
     /// - Parameters:
     ///   - cell: DayCell 인스턴스.
     ///   - cellState: 셀의 상태 정보. `.thisMonth`인 경우에만 표시됩니다.
-    func handleCellColor(cell: JTACalendarDayCell, cellState: CellState) {
+    func handleCellColor(cell: CalendarDayCell, cellState: CellState) {
         if cellState.dateBelongsTo == .thisMonth {
             cell.getDateLabel.isHidden = false
             cell.getSelectedView.isHidden = false
@@ -191,7 +151,7 @@ private extension CalendarView {
     /// - Parameters:
     ///   - cell: `DayCell` 인스턴스.
     ///   - cellState: 셀의 상태 정보. `isSelected`가 `true`인 경우 `selectedView`가 표시됩니다.
-    func handleCellSelection(cell: JTACalendarDayCell, cellState: CellState) {
+    func handleCellSelection(cell: CalendarDayCell, cellState: CellState) {
         if cellState.isSelected {
             cell.getSelectedView.isHidden = false
         } else {
@@ -199,84 +159,15 @@ private extension CalendarView {
         }
     }
     
-    func handleCellEvents(cell: JTACalendarDayCell, date: Date, cellState: CellState) {
+    func handleCellEvents(cell: CalendarDayCell, date: Date, cellState: CellState, calendarEventList: [CalendarEvent]) {
         let isToday = Calendar.current.isDateInToday(date) ? true : false
         
-        // TODO: CalendarEvent, UserWorkplace와 WorkCalendar.isShared, WorkerDetail에서 필요한 데이터만 뽑아서 묶어서 전달해야 함
+        // TODO: CalendarEvent, UserWorkplace와 WorkCalendar.isShared, WorkerDetail에서 필요한 데이터만 뽑아서 전달해야 함
         cell.update(date: cellState.text,
                     isSaturday: cellState.day.rawValue == 7,
                     isSunday: cellState.day.rawValue == 1,
                     isToday: isToday,
                     isShared: false,
-                    eventList: personalEventDataSource[date])
-    }
-    
-    func populateDataSource() {
-//        calendarEventMockList.forEach {
-//            calendarEventDataSource[$0.eventDate, default: []].append($0)
-//        }
-        
-        jtaCalendar.reloadData()
-    }
-}
-
-// MARK: - JTACMonthViewDataSource
-
-extension CalendarView: JTACMonthViewDataSource {
-    func configureCalendar(_ calendar: JTAppleCalendar.JTACMonthView) -> JTAppleCalendar.ConfigurationParameters {
-        let startDate = dataSourceDateFormatter.date(from: "\(JTACalendarRange.startYear.rawValue)년 1월 1일")
-        let endDate = dataSourceDateFormatter.date(from: "\(JTACalendarRange.endYear.rawValue)년 12월 31일")
-        
-        let parameter = ConfigurationParameters(startDate: startDate ?? .distantPast,
-                                                endDate: endDate ?? .distantFuture,
-                                                generateInDates: .forAllMonths,
-                                                generateOutDates: .tillEndOfRow)
-        
-        return parameter
-    }
-}
-
-// MARK: - JTACMonthViewDelegate
-
-extension CalendarView: JTACMonthViewDelegate {
-    func calendar(_ calendar: JTAppleCalendar.JTACMonthView, willDisplay cell: JTAppleCalendar.JTACDayCell, forItemAt date: Date, cellState: JTAppleCalendar.CellState, indexPath: IndexPath) {
-        configureCell(cell: cell, date: date, cellState: cellState)
-    }
-    
-    func calendar(_ calendar: JTAppleCalendar.JTACMonthView, cellForItemAt date: Date, cellState: JTAppleCalendar.CellState, indexPath: IndexPath) -> JTAppleCalendar.JTACDayCell {
-        guard let cell = calendar.dequeueReusableJTAppleCell(withReuseIdentifier: JTACalendarDayCell.identifier, for: indexPath) as? JTACalendarDayCell else { return JTACDayCell() }
-        
-        self.calendar(calendar, willDisplay: cell, forItemAt: date, cellState: cellState, indexPath: indexPath)
-        
-        return cell
-    }
-    
-    func calendar(_ calendar: JTACMonthView, didScrollToDateSegmentWith visibleDates: DateSegmentInfo) {
-        guard let date = visibleDates.monthDates.first?.date else { return }
-        setMonthLabel(date: date)
-    }
-    
-    // 이미 선택된 셀인 경우 ➡️ 선택 해제
-    func calendar(_ calendar: JTACMonthView, shouldSelectDate date: Date, cell: JTACDayCell?, cellState: CellState, indexPath: IndexPath) -> Bool {
-        if cellState.isSelected {
-            calendar.deselect(dates: [date])
-            return false
-        }
-        return true
-    }
-    
-    func calendar(_ calendar: JTACMonthView, didSelectDate date: Date, cell: JTACDayCell?, cellState: CellState, indexPath: IndexPath) {
-        configureCell(cell: cell, date: date, cellState: cellState)
-        let day = Calendar.current.component(.day, from: date)
-        switch calendarMode {
-        case .personal:
-            delegate?.didSelectCell(day: day, eventList: personalEventDataSource[date] ?? [])
-        case .shared:
-            delegate?.didSelectCell(day: day, eventList: sharedEventDataSource[date] ?? [])
-        }
-    }
-    
-    func calendar(_ calendar: JTACMonthView, didDeselectDate date: Date, cell: JTACDayCell?, cellState: CellState, indexPath: IndexPath) {
-        configureCell(cell: cell, date: date, cellState: cellState)
+                    eventList: calendarEventList)
     }
 }

@@ -28,7 +28,7 @@ final class YearMonthPickerViewController: UIViewController {
     init(currYear: Int, currMonth: Int) {
         super.init(nibName: nil, bundle: nil)
         
-        let yearRow = currYear - JTACalendarRange.startYear.rawValue
+        let yearRow = currYear - CalendarRange.startYear.rawValue
         let monthRow = currMonth - 1
         yearMonthPickerView.getPickerView.selectRow(yearRow, inComponent: PickerViewComponents.year.rawValue, animated: false)
         yearMonthPickerView.getPickerView.selectRow(monthRow, inComponent: PickerViewComponents.month.rawValue, animated: false)

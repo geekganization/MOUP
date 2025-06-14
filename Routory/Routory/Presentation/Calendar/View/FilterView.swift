@@ -1,36 +1,41 @@
 //
-//  CalendarEventListView.swift
+//  FilterView.swift
 //  Routory
 //
-//  Created by 서동환 on 6/14/25.
+//  Created by 서동환 on 6/15/25.
 //
 
 import UIKit
 
-import RxCocoa
-import RxSwift
 import SnapKit
 import Then
 
-final class CalendarEventListView: UIView {
+final class FilterView: UIView {
     
     // MARK: - UI Components
     
     private let titleLabel = UILabel().then {
+        $0.text = "필터"
         $0.font = .headBold(20)
         $0.textColor = .gray900
     }
     
-    private let eventTableView = UITableView().then {
-        $0.register(EventCell.self, forCellReuseIdentifier: EventCell.identifier)
-        
-        $0.rowHeight = 84  // 64 + 16(셀 간격)
-        $0.separatorStyle = .none
+    private let separatorView = UIView().then {
+        $0.backgroundColor = .gray300
     }
     
-    private let assignButton = UIButton().then {
+    private let workplaceTableView = UITableView().then {
+        $0.register(WorkplaceCell.self, forCellReuseIdentifier: WorkplaceCell.identifier)
+        $0.register(WorkplaceTableHeaderView.self, forHeaderFooterViewReuseIdentifier: WorkplaceTableHeaderView.identifier)
+        
+        $0.separatorStyle = .none
+        $0.rowHeight = 56  // 40 + 16(셀 간격)
+        $0.sectionHeaderTopPadding = 0.0
+    }
+    
+    private let applyButton = UIButton().then {
         var config = UIButton.Configuration.filled()
-        config.attributedTitle = AttributedString("근무 등록하기", attributes: .init([.font: UIFont.buttonSemibold(18), .foregroundColor: UIColor.white]))
+        config.attributedTitle = AttributedString("적용하기", attributes: .init([.font: UIFont.buttonSemibold(18), .foregroundColor: UIColor.white]))
         
         $0.configuration = config
         $0.clipsToBounds = true
@@ -38,8 +43,8 @@ final class CalendarEventListView: UIView {
     
     // MARK: - Getter
     
-    var getTitleLabel: UILabel { titleLabel }
-    var getEventTableView: UITableView { eventTableView }
+    var getWorkplaceTableView: UITableView { workplaceTableView }
+    var getApplyButton: UIButton { applyButton }
     
     // MARK: - Initializer
     
@@ -57,31 +62,27 @@ final class CalendarEventListView: UIView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        assignButton.layer.cornerRadius = 12
+        applyButton.layer.cornerRadius = 12
     }
 }
 
-// MARK: - UI Methods
-
-private extension CalendarEventListView {
+private extension FilterView {
     func configure() {
         setHierarchy()
         setStyles()
         setConstraints()
-        setActions()
         setBinding()
     }
     
     func setHierarchy() {
         self.addSubviews(titleLabel,
-                         eventTableView,
-                         assignButton)
+                         separatorView,
+                         workplaceTableView,
+                         applyButton)
     }
     
     func setStyles() {
         self.backgroundColor = .primaryBackground
-        self.layer.borderWidth = 1.0
-        self.layer.borderColor = UIColor.gray400.cgColor
     }
     
     func setConstraints() {
@@ -90,13 +91,19 @@ private extension CalendarEventListView {
             $0.leading.equalToSuperview().inset(16)
         }
         
-        eventTableView.snp.makeConstraints {
+        separatorView.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(12)
-            $0.leading.trailing.equalTo(self.safeAreaLayoutGuide)
-            $0.bottom.equalTo(assignButton.snp.top).offset(-12)
+            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.height.equalTo(1)
         }
         
-        assignButton.snp.makeConstraints {
+        workplaceTableView.snp.makeConstraints {
+            $0.top.equalTo(separatorView.snp.bottom).offset(12)
+            $0.leading.trailing.equalTo(self.safeAreaLayoutGuide)
+            $0.bottom.equalTo(applyButton.snp.top).offset(-12)
+        }
+        
+        applyButton.snp.makeConstraints {
             $0.leading.trailing.equalTo(self.safeAreaLayoutGuide).inset(16)
             $0.bottom.equalTo(self.safeAreaLayoutGuide).inset(12)
             $0.height.equalTo(44)

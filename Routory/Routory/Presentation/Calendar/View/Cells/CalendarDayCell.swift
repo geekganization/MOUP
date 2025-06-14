@@ -1,5 +1,5 @@
 //
-//  JTACalendarDayCell.swift
+//  CalendarDayCell.swift
 //  Routory
 //
 //  Created by 서동환 on 6/10/25.
@@ -11,11 +11,11 @@ import JTAppleCalendar
 import SnapKit
 import Then
 
-final class JTACalendarDayCell: JTACDayCell {
+final class CalendarDayCell: JTACDayCell {
     
     // MARK: - Properties
     
-    static let identifier = String(describing: JTACalendarDayCell.self)
+    static let identifier = String(describing: CalendarDayCell.self)
     
     /// 근무 시간 계산용 `DateFormatter`
     private let dateFormatter = DateFormatter().then {
@@ -131,7 +131,7 @@ final class JTACalendarDayCell: JTACDayCell {
 
 // MARK: - UI Methods
 
-private extension JTACalendarDayCell {
+private extension CalendarDayCell {
     func configure() {
         setHierarchy()
         setStyles()
@@ -139,7 +139,7 @@ private extension JTACalendarDayCell {
     }
     
     func setHierarchy() {
-        self.addSubviews(seperatorView,
+        self.contentView.addSubviews(seperatorView,
                          selectedView,
                          dayLabel,
                          eventVStackView)
@@ -151,7 +151,7 @@ private extension JTACalendarDayCell {
     }
     
     func setStyles() {
-        self.backgroundColor = .primaryBackground
+        self.contentView.backgroundColor = .primaryBackground
     }
     
     func setConstraints() {
@@ -182,7 +182,7 @@ private extension JTACalendarDayCell {
 
 // MARK: - Private Methods
 
-private extension JTACalendarDayCell {
+private extension CalendarDayCell {
     func hourDiffDecimal(from start: String, to end: String) -> (hours: Int, minutes: Int, decimal: Double)? {
         guard let startDate = dateFormatter.date(from: start),
               let endDate = dateFormatter.date(from: end) else { return nil }

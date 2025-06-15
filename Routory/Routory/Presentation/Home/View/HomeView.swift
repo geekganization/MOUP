@@ -18,14 +18,14 @@ final class HomeView: UIView {
         $0.image = .textLogo
     }
 
-    private let refreshButton = UIButton().then {
+    fileprivate let refreshButton = UIButton().then {
         var config = UIButton.Configuration.plain()
         config.image = .refresh.withTintColor(.gray700, renderingMode: .alwaysOriginal)
         config.contentInsets = .init(top: 13.75, leading: 12.98, bottom: 13.75, trailing: 12.98)
         $0.configuration = config
     }
 
-    private let notificationButton = UIButton().then {
+    fileprivate let notificationButton = UIButton().then {
         var config = UIButton.Configuration.plain()
         config.image = .bellEmpty
         config.contentInsets = .init(top: 10, leading: 10, bottom: 10, trailing: 10)
@@ -131,19 +131,6 @@ extension Reactive where Base: HomeView {
         return base.tableView.rx.itemSelected
     }
 
-    var reloadRows: Binder<[IndexPath]> {
-        Binder(base) { view, indexPaths in
-            view.tableView.reloadRows(at: indexPaths, with: .automatic)
-        }
-    }
-
-    var updateHeight: Binder<Void> {
-        return Binder(self.base) { view, _ in
-            view.tableView.beginUpdates()
-            view.tableView.endUpdates()
-        }
-    }
-
     var deselectRow: Binder<IndexPath> {
         Binder(base) { view, indexPath in
             view.tableView.deselectRow(at: indexPath, animated: true)
@@ -162,5 +149,13 @@ extension Reactive where Base: HomeView {
             let cell = view.tableView.cellForRow(at: indexPath) as? MyWorkSpaceCell
             completion(cell)
         }
+    }
+
+    var refreshButtonTapped: ControlEvent<Void> {
+        return base.refreshButton.rx.tap
+    }
+    
+    var notificationButtonTapped: ControlEvent<Void> {
+        return base.notificationButton.rx.tap
     }
 }

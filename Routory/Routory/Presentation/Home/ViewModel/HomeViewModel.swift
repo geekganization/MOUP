@@ -11,6 +11,7 @@ import RxRelay
 
 final class HomeViewModel {
     private let disposeBag = DisposeBag()
+    private let userId = ""
 
     // MARK: - Mock Data
     let dummyWorkplace = DummyWorkplaceInfo(
@@ -33,27 +34,33 @@ final class HomeViewModel {
         insuranceDeduction: 24_947,
         taxDeduction: 3_528
     )
+    private lazy var dummyWorkplace2 = dummyWorkplace
+    private lazy var dummyWorkerHeaderInfo = DummyHomeHeaderInfo(currentMonth: 6, monthlyAmount: 516000, amountDifference: 32000, todayRoutineCount: 4)
 
-    private lazy var firstSectionData = BehaviorRelay<[HomeTableViewFirstSection]>(value: [HomeTableViewFirstSection(header: "나의 근무지", items: [.workplace(dummyWorkplace)])])
-
+    private lazy var firstSectionData = BehaviorRelay<[HomeTableViewFirstSection]>(value: [HomeTableViewFirstSection(header: "나의 근무지", items: [.workplace(dummyWorkplace), .workplace(dummyWorkplace2)])])
     private let expandedIndexPathRelay = BehaviorRelay<Set<IndexPath>>(value: [])
+    private lazy var workerHomeHeaderInfoRelay = BehaviorRelay<DummyHomeHeaderInfo>(value: dummyWorkerHeaderInfo)
 
     // MARK: - Input, Output
     struct Input {
         let viewDidLoad: PublishRelay<Void>
         let refreshBtnTapped: PublishRelay<Void>
         let cellTapped: Observable<IndexPath>
+        let menuBtnTapped: Observable<IndexPath>
     }
 
     struct Output {
         let sectionData: Observable<[HomeTableViewFirstSection]>
         let expandedIndexPath: Observable<Set<IndexPath>>
+        let headerData: Observable<DummyHomeHeaderInfo>
     }
 
     func transform(input: Input) -> Output {
         input.viewDidLoad
             .subscribe(onNext: {
                 print("viewDidLoad - 데이터 로드")
+                // TODO: - userId, headerInfo, cellInfo 저장
+
             }).disposed(by: disposeBag)
 
         input.refreshBtnTapped
@@ -80,9 +87,22 @@ final class HomeViewModel {
             .bind(to: expandedIndexPathRelay)
             .disposed(by: disposeBag)
 
+        // 메뉴 버튼 탭 처리
+        input.menuBtnTapped
+            .subscribe(onNext: { indexPath in
+                print("ViewModel - 메뉴 버튼 탭됨: \(indexPath)")
+                // TODO: 메뉴 관련 비즈니스 로직
+            })
+            .disposed(by: disposeBag)
+
         return Output(
             sectionData: firstSectionData.asObservable(),
-            expandedIndexPath: expandedIndexPathRelay.asObservable()
+            expandedIndexPath: expandedIndexPathRelay.asObservable(),
+            headerData: workerHomeHeaderInfoRelay.asObservable()
         )
+    }
+
+    func getUserId() -> String {
+        return userId
     }
 }

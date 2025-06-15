@@ -15,12 +15,13 @@ class MyWorkSpaceCell: UITableViewCell {
     static let identifier = "MyWorkSpaceCell"
     private var expandToggleTopToHeaderConstraint: Constraint?
     private var expandToggleTopToDetailConstraint: Constraint?
+    fileprivate var disposeBag = DisposeBag()
 
     // MARK: - UI Components
     private let containerView = CardView()
 
     private let headerView = UIView().then {
-        $0.backgroundColor = .systemBackground
+        $0.backgroundColor = .clear
     }
 
     private let storeNameLabel = UILabel().then {
@@ -30,7 +31,7 @@ class MyWorkSpaceCell: UITableViewCell {
         $0.textAlignment = .left
     }
 
-    private let menuButton = UIButton().then {
+    fileprivate let menuButton = UIButton().then {
         var config = UIButton.Configuration.plain()
         config.image = .ellipsis.withTintColor(.gray700, renderingMode: .alwaysOriginal)
         config.contentInsets = .init(top: 20, leading: 12, bottom: 19.7, trailing: 12)
@@ -93,10 +94,11 @@ class MyWorkSpaceCell: UITableViewCell {
         expandToggleImageView.image = .chevronFolded
         expandToggleTopToDetailConstraint?.deactivate()
         expandToggleTopToHeaderConstraint?.activate()
+        disposeBag = DisposeBag() // 이전 바인딩 해제
     }
 
     // MARK: - Public Methods
-    func update(with workplaceInfo: DummyWorkplaceInfo, isExpanded: Bool) {
+    func update(with workplaceInfo: DummyWorkplaceInfo, isExpanded: Bool, menuActions: [UIAction]) {
         print("셀 업데이트: \(workplaceInfo.storeName), isExpanded: \(isExpanded)")
         storeNameLabel.text = workplaceInfo.storeName
         daysUntilPaydayLabel.text = "급여일까지 D-\(workplaceInfo.daysUntilPayday)"
@@ -118,6 +120,7 @@ class MyWorkSpaceCell: UITableViewCell {
         taxDeductionRow.update(title: "소득세", time: nil, amount: workplaceInfo.taxDeduction, isLabelBold: true, showTimeLabel: false)
 
         toggleDetailView(isExpanded: isExpanded)
+        setupButtonMenu(with: menuActions)
     }
 }
 
@@ -161,9 +164,9 @@ private extension MyWorkSpaceCell {
 
     func setConstraints() {
         containerView.snp.makeConstraints {
-            $0.top.equalToSuperview().inset(12)
+            $0.top.equalToSuperview().inset(4)
             $0.directionalHorizontalEdges.equalToSuperview().inset(16)
-            $0.bottom.equalToSuperview().priority(.high)
+            $0.bottom.equalToSuperview().inset(8).priority(.high)
         }
 
         headerView.snp.makeConstraints {
@@ -224,7 +227,15 @@ private extension MyWorkSpaceCell {
             expandToggleTopToHeaderConstraint?.activate()
         }
 
-        UIView.animate(withDuration: 0.3) {
+        if isExpanded {
+            // 펼칠 때는 애니메이션 적용
+            UIView.animate(withDuration: 0.3) {
+                self.layoutIfNeeded()
+                self.contentView.layoutIfNeeded()
+                self.superview?.layoutIfNeeded()
+            }
+        } else {
+            // 접을 때는 애니메이션 없이 즉시 적용
             self.layoutIfNeeded()
             self.contentView.layoutIfNeeded()
             self.superview?.layoutIfNeeded()
@@ -238,6 +249,13 @@ private extension MyWorkSpaceCell {
         
         updateExpandToggleConstraints(isExpanded: isExpanded)
     }
+
+    func setupButtonMenu(with actions: [UIAction]) {
+        let menu = UIMenu(children: actions)
+
+        self.menuButton.menu = menu
+        self.menuButton.showsMenuAsPrimaryAction = true
+    }
 }
 
 extension Reactive where Base: MyWorkSpaceCell {
@@ -245,5 +263,9 @@ extension Reactive where Base: MyWorkSpaceCell {
         Binder(base) { cell, isExpanded in
             cell.toggleDetailView(isExpanded: isExpanded)
         }
+    }
+    
+    var disposeBag: DisposeBag {
+        return base.disposeBag
     }
 }

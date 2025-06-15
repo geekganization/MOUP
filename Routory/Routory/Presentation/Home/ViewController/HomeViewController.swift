@@ -21,12 +21,15 @@ final class HomeViewController: UIViewController {
     private let viewDidLoadRelay = PublishRelay<Void>()
     private let refreshBtnTappedRelay = PublishRelay<Void>()
     private let cellTappedRelay = PublishRelay<IndexPath>()
-    private let expandedIndexPathRelay = BehaviorRelay<Set<IndexPath>>(value: [])
+    private let expandedIndexPathRelay = BehaviorRelay<Set<IndexPath>>(value: []) // 확장된 셀 인덱스 관리
+    private let menuBtnTappedRelay = PublishRelay<IndexPath>()
+    private let navigationRequestRelay = PublishRelay<Void>()
 
     private lazy var input = HomeViewModel.Input(
         viewDidLoad: viewDidLoadRelay,
         refreshBtnTapped: refreshBtnTappedRelay,
-        cellTapped: cellTappedRelay.asObservable()
+        cellTapped: cellTappedRelay.asObservable(),
+        menuBtnTapped: menuBtnTappedRelay.asObservable()
     )
     private lazy var output = homeViewModel.transform(input: input)
 
@@ -41,7 +44,8 @@ final class HomeViewController: UIViewController {
                     return UITableViewCell()
                 }
                 let isExpanded = self?.expandedIndexPathRelay.value.contains(indexPath) ?? false
-                cell.update(with: dummy, isExpanded: isExpanded)
+                cell.update(with: dummy, isExpanded: isExpanded, menuActions: self?.createWorkspaceMenuActions() ?? [])
+
                 return cell
             case .store(let dummy):
                 guard let cell = tableView.dequeueReusableCell(
@@ -95,7 +99,7 @@ private extension HomeViewController {
             .onNext(self)
         homeView.rx.bindItems
             .onNext((output.sectionData, dataSource))
-        
+
         let selectedIndexPath = homeView.rx.itemSelected
             .do(onNext: { [weak self] indexPath in
                 self?.homeView.rx.deselectRow.onNext(indexPath)
@@ -104,6 +108,18 @@ private extension HomeViewController {
         
         selectedIndexPath
             .bind(to: cellTappedRelay)
+            .disposed(by: disposeBag)
+        
+        // HomeView 버튼 이벤트 바인딩
+        homeView.rx.refreshButtonTapped
+            .bind(to: refreshBtnTappedRelay)
+            .disposed(by: disposeBag)
+        
+        homeView.rx.notificationButtonTapped
+            .subscribe(onNext: {
+                let vc = NotificationViewController()
+                self.navigationController?.pushViewController(vc, animated: true)
+            })
             .disposed(by: disposeBag)
 
         // ViewModel의 Output을 ViewController의 상태에 반영
@@ -118,6 +134,33 @@ private extension HomeViewController {
                 self?.homeView.rx.reloadData.onNext(())
             })
             .disposed(by: disposeBag)
+
+    }
+
+    // MARK: - 셀 내 메뉴에 대한 Action 정의
+    func createWorkspaceMenuActions() -> [UIAction] { // TODO: - 실제 수정 삭제가 이뤄질 시 과정에 필요한 데이터 입력
+        let editAction = UIAction(title: "수정하기") { _ in
+            print("근무지 수정")
+        }
+        let deleteAction = UIAction(title: "삭제하기", attributes: .destructive) { _ in
+            print("근무지 삭제")
+        }
+
+        return [editAction, deleteAction]
+    }
+
+    func createStoreMenuActions() -> [UIAction] { // TODO: - 실제 수정 삭제가 이뤄질 시 과정에 필요한 데이터 입력
+        let editAction = UIAction(title: "수정하기") { _ in
+            print("매장 수정")
+        }
+        let deleteAction = UIAction(title: "삭제하기", attributes: .destructive) { _ in
+            print("매장 삭제")
+        }
+        let sendInvitationCode = UIAction(title: "초대 코드 보내기") { _ in
+            print("초대 코드 보내기")
+        }
+
+        return [editAction, deleteAction, sendInvitationCode]
     }
 }
 
@@ -126,7 +169,27 @@ extension HomeViewController: UITableViewDelegate {
         guard let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: HomeHeaderView.identifier) as? HomeHeaderView else {
             return UIView()
         }
-        
+        output.headerData
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { headerData in
+                headerView.update(with: headerData)
+            })
+            .disposed(by: disposeBag)
+
+        // headerView 내 액션 정의
+        headerView.rx.todaysRoutineCardTapped
+            .subscribe(onNext: {
+                print("오늘의 루틴 탭")
+                let vc = ManageRoutineViewController() // 추가 params 입력을 통해 오늘 or 전체 여부 분기
+                self.navigationController?.pushViewController(vc, animated: true)
+            }).disposed(by: disposeBag)
+        headerView.rx.allRoutineCardTapped
+            .subscribe(onNext: {
+                print("모든 루틴 탭")
+                let vc = ManageRoutineViewController()
+                self.navigationController?.pushViewController(vc, animated: true)
+            }).disposed(by: disposeBag)
+
         return headerView
     }
 

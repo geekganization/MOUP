@@ -6,21 +6,25 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
 final class HomeHeaderView: UITableViewHeaderFooterView {
     // MARK: - Properties
     static let identifier = "HomeHeaderView"
+
+    fileprivate var reuseBag = DisposeBag()
     // MARK: - UI Components
 
     // 현재 기준 총 급여 카드 관련
-    private let totalMonthlySalaryCardView = CardView()
-    private let totalMonthlySalaryTitleLabel = UILabel().then {
+    private let monthlyAmountCardView = CardView()
+    private let monthlyAmountTitleLabel = UILabel().then {
         $0.text = "총 급여"
         $0.font = .headBold(20)
         $0.textColor = .gray900
         $0.textAlignment = .left
     }
-    private let totalMonthlySalaryLabel = UILabel().then {
+    private let monthlyAmountLabel = UILabel().then {
         $0.text = "00,000원"
         $0.font = .headBold(20)
         $0.textColor = .gray900
@@ -50,7 +54,7 @@ final class HomeHeaderView: UITableViewHeaderFooterView {
     }
 
     // 오늘의 루틴 카드 관련
-    private lazy var todaysRoutineCardView = CardView()
+    fileprivate lazy var todaysRoutineCardView = CardView()
     private lazy var todaysRoutineTitleLabel = UILabel().then {
         $0.text = "오늘의 루틴"
         $0.textColor = .gray900
@@ -67,7 +71,7 @@ final class HomeHeaderView: UITableViewHeaderFooterView {
     }
 
     // 전체 루틴 카드 관련
-    private lazy var allRoutineCardView = CardView()
+    fileprivate lazy var allRoutineCardView = CardView()
     private lazy var allRoutineTitleLabel = UILabel().then {
         $0.text = "전체 루틴"
         $0.textColor = .gray900
@@ -83,8 +87,8 @@ final class HomeHeaderView: UITableViewHeaderFooterView {
         $0.numberOfLines = 1
     }
 
-    // 나의 근무지 섹션 헤더
-    private let workSpaceSectionLabel = UILabel().then {
+    // 나의 근무지 섹션 타이틀
+    private let firstSectionLabel = UILabel().then {
         $0.font = .headBold(18)
         $0.textColor = .gray900
         $0.text = "나의 근무지" // TODO: - 역할 확인 실패 시 띄워줄 값을 필요로 할지
@@ -109,9 +113,25 @@ final class HomeHeaderView: UITableViewHeaderFooterView {
         fatalError("init(coder:) has not been implemented.")
     }
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        reuseBag = DisposeBag()
+    }
+
     // MARK: - Public Methods
-    func update(with title: String) {
-        workSpaceSectionLabel.text = title
+    func update(with headerData: DummyHomeHeaderInfo) {
+        // firstSectionLabel, totalMonthly~는 역할 데이터가 있어야 하므로 임시 보류
+        monthlyAmountTitleLabel.text = "\(headerData.monthlyTitle)" // 역할 별로 다르게 분기
+        monthlyAmountLabel.text = "\(headerData.monthlyAmount.withComma)원"
+        monthlyChangeCommentLabel.text = {
+            if headerData.amountDifference >= 0 {
+                "지난 달 오늘 대비 \(headerData.amountDifference.withComma)원 더 벌었어요!"
+            } else {
+                "지난 달 오늘 대비 \(abs(headerData.amountDifference).withComma)원 덜 벌었어요"
+            }
+
+        }()
+        todaysRoutineNoticeLabel.attributedText = createRoutineNoticeText(count: headerData.todayRoutineCount)
     }
 }
 
@@ -125,9 +145,9 @@ private extension HomeHeaderView {
 
     // MARK: - setHierarchy
     func setHierarchy() {
-        contentView.addSubviews(totalMonthlySalaryCardView, routineSectionLabel, routineCardStackView, workSpaceSectionLabel, plusButton)
+        contentView.addSubviews(monthlyAmountCardView, routineSectionLabel, routineCardStackView, firstSectionLabel, plusButton)
         routineCardStackView.addArrangedSubviews(todaysRoutineCardView, allRoutineCardView)
-        totalMonthlySalaryCardView.addSubviews(totalMonthlySalaryTitleLabel, totalMonthlySalaryLabel, separatorLine, monthlyChangeCommentLabel)
+        monthlyAmountCardView.addSubviews(monthlyAmountTitleLabel, monthlyAmountLabel, separatorLine, monthlyChangeCommentLabel)
         todaysRoutineCardView.addSubviews(todaysRoutineTitleLabel, todaysRoutineChevronIcon, todaysRoutineNoticeLabel)
         allRoutineCardView.addSubviews(allRoutineTitleLabel, allRoutineChevronIcon, allRoutineNoticeLabel)
     }
@@ -142,24 +162,24 @@ private extension HomeHeaderView {
     // MARK: - setConstraints
     func setConstraints() {
         // 최상단 총 급여 레이아웃
-        totalMonthlySalaryCardView.snp.makeConstraints {
+        monthlyAmountCardView.snp.makeConstraints {
             $0.top.equalToSuperview().inset(12)
             $0.directionalHorizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(121)
         }
 
-        totalMonthlySalaryTitleLabel.snp.makeConstraints {
+        monthlyAmountTitleLabel.snp.makeConstraints {
             $0.top.equalToSuperview().inset(12)
             $0.directionalHorizontalEdges.equalToSuperview().inset(16)
         }
 
-        totalMonthlySalaryLabel.snp.makeConstraints {
-            $0.top.equalTo(totalMonthlySalaryTitleLabel.snp.bottom).offset(12)
+        monthlyAmountLabel.snp.makeConstraints {
+            $0.top.equalTo(monthlyAmountTitleLabel.snp.bottom).offset(12)
             $0.directionalHorizontalEdges.equalToSuperview().inset(16)
         }
 
         separatorLine.snp.makeConstraints {
-            $0.top.equalTo(totalMonthlySalaryLabel.snp.bottom).offset(6)
+            $0.top.equalTo(monthlyAmountLabel.snp.bottom).offset(6)
             $0.directionalHorizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(1)
         }
@@ -171,7 +191,7 @@ private extension HomeHeaderView {
 
         // 루틴 관련 레이아웃
         routineSectionLabel.snp.makeConstraints {
-            $0.top.equalTo(totalMonthlySalaryCardView.snp.bottom).offset(20)
+            $0.top.equalTo(monthlyAmountCardView.snp.bottom).offset(20)
             $0.leading.equalToSuperview().inset(16)
         }
 
@@ -217,17 +237,61 @@ private extension HomeHeaderView {
             $0.bottom.equalToSuperview().inset(12)
         }
 
-        workSpaceSectionLabel.snp.makeConstraints {
+        firstSectionLabel.snp.makeConstraints {
             $0.top.equalTo(allRoutineCardView.snp.bottom).offset(20)
             $0.leading.equalToSuperview().inset(16)
-            $0.bottom.equalToSuperview().inset(8)
+            $0.bottom.equalToSuperview().inset(16)
         }
 
         plusButton.snp.makeConstraints {
             $0.trailing.equalToSuperview().inset(6)
-            $0.centerY.equalTo(workSpaceSectionLabel.snp.centerY)
+            $0.centerY.equalTo(firstSectionLabel.snp.centerY)
             $0.size.equalTo(44)
         }
     }
+
+    func createRoutineNoticeText(count: Int) -> NSAttributedString {
+        let text = "오늘 루틴 총 \(count)개 있어요!"
+        let attributedString = NSMutableAttributedString(string: text)
+
+        // 전체 텍스트 기본 스타일
+        attributedString.addAttribute(.foregroundColor,
+                                      value: UIColor.gray700,
+                                      range: NSRange(location: 0, length: text.count))
+        attributedString.addAttribute(.font,
+                                      value: UIFont.bodyMedium(12),
+                                      range: NSRange(location: 0, length: text.count))
+
+        // 숫자 부분만 강조
+        let countString = "\(count)"
+        if let range = text.range(of: countString) {
+            let nsRange = NSRange(range, in: text)
+            attributedString.addAttribute(.foregroundColor,
+                                          value: UIColor.primary500,
+                                          range: nsRange)
+            attributedString.addAttribute(.font,
+                                          value: UIFont.headBold(12),
+                                          range: nsRange)
+        }
+
+        return attributedString
+    }
 }
 
+extension Reactive where Base: HomeHeaderView {
+    var todaysRoutineCardTapped: ControlEvent<Void> {
+        let tapGesture = UITapGestureRecognizer()
+        base.todaysRoutineCardView.addGestureRecognizer(tapGesture)
+        base.todaysRoutineCardView.isUserInteractionEnabled = true
+
+        return ControlEvent(events: tapGesture.rx.event.map { _ in })
+    }
+
+    var allRoutineCardTapped: ControlEvent<Void> {
+        let tapGesture = UITapGestureRecognizer()
+        base.allRoutineCardView.addGestureRecognizer(tapGesture)
+        base.allRoutineCardView.isUserInteractionEnabled = true
+
+        return ControlEvent(events: tapGesture.rx.event.map { _ in })
+    }
+}

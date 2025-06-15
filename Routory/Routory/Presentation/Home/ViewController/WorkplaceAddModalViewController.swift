@@ -9,11 +9,11 @@ import UIKit
 import Then
 import SnapKit
 
-final class WorkplaceAddViewController: UIViewController {
+final class WorkplaceAddModalViewController: UIViewController {
     
     // MARK: - UI Components
     
-    private let workplaceAddView = WorkplaceAddView().then {
+    private let workplaceAddView = WorkplaceAddModalView().then {
         $0.layer.cornerRadius = 12
         $0.layer.maskedCorners = [
             .layerMinXMinYCorner,
@@ -32,7 +32,7 @@ final class WorkplaceAddViewController: UIViewController {
     }
 }
 
-private extension WorkplaceAddViewController {
+private extension WorkplaceAddModalViewController {
     // MARK: - configure
     func configure() {
         setHierarchy()

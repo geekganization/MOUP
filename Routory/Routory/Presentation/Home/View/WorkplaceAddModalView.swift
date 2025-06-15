@@ -9,7 +9,7 @@ import UIKit
 import Then
 import SnapKit
 
-final class WorkplaceAddView: UIView {
+final class WorkplaceAddModalView: UIView {
     
     // MARK: - Properties
     
@@ -67,7 +67,7 @@ final class WorkplaceAddView: UIView {
     }
 }
 
-private extension WorkplaceAddView {
+private extension WorkplaceAddModalView {
     // MARK: - configure
     func configure() {
         setHierarchy()

@@ -79,7 +79,8 @@ private extension WorkplaceAddModalViewController {
     }
     
     @objc func inviteCodeButtonDidTap() {
-        print("초대 코드 입력하기")
+        let inviteCodeVC = InviteCodeViewController()
+        navigationController?.pushViewController(inviteCodeVC, animated: true)
     }
     
     @objc func manualInputButtonDidTap() {

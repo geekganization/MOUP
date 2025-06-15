@@ -180,13 +180,13 @@ extension HomeViewController: UITableViewDelegate {
         headerView.rx.todaysRoutineCardTapped
             .subscribe(onNext: {
                 print("오늘의 루틴 탭")
-                let vc = ManageRoutineViewController() // 추가 params 입력을 통해 오늘 or 전체 여부 분기
+                let vc = ManageRoutineViewController(routineType: .today) // 추가 params 입력을 통해 오늘 or 전체 여부 분기
                 self.navigationController?.pushViewController(vc, animated: true)
             }).disposed(by: disposeBag)
         headerView.rx.allRoutineCardTapped
             .subscribe(onNext: {
                 print("모든 루틴 탭")
-                let vc = ManageRoutineViewController()
+                let vc = ManageRoutineViewController(routineType: .all)
                 self.navigationController?.pushViewController(vc, animated: true)
             }).disposed(by: disposeBag)
         
@@ -217,7 +217,7 @@ extension HomeViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 100
+        return 400
     }
 }
 

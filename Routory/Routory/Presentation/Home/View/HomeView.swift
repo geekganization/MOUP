@@ -44,8 +44,6 @@ final class HomeView: UIView {
             forCellReuseIdentifier: MyStoreCell.identifier
         )
         $0.register(HomeHeaderView.self, forHeaderFooterViewReuseIdentifier: HomeHeaderView.identifier)
-        $0.estimatedRowHeight = 400
-        $0.rowHeight = UITableView.automaticDimension
         $0.separatorStyle = .none
         $0.backgroundColor = .systemBackground
     }

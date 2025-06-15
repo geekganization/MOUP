@@ -48,7 +48,7 @@ private extension WorkplaceAddModalViewController {
     
     // MARK: - setStyles
     func setStyles() {
-        view.backgroundColor = .background
+        view.backgroundColor = .modalBackground
     }
     
     // MARK: - setConstraints

@@ -12,4 +12,10 @@ protocol UserRepositoryProtocol {
     func deleteUser(uid: String) -> Observable<Void>
     func fetchUser(uid: String) -> Observable<User>
     func updateUserName(uid: String, newUserName: String) -> Observable<Void>
+    func createWorkplace(
+            workplace: Workplace,
+            role: Role,
+            workerDetail: WorkerDetail?,
+            userId: String
+        ) -> Observable<String>
 }

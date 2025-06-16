@@ -35,9 +35,6 @@ final class MyPageViewController: UIViewController {
     private let uid: String
     private let viewModel: MyPageViewModel
     private let disposeBag = DisposeBag()
-    
-    private let uidSubject = BehaviorSubject<String>(value: "")
-    
     private let menuItems = MyPageMenu.allCases
     
     // MARK: - UI Components
@@ -146,8 +143,14 @@ private extension MyPageViewController {
         )
         
         myPageView.onEditButtonTapped = { [weak self] in
+            guard let uid = self?.uid else { return }
             let userUseCase = UserUseCase(userRepository: UserRepository(userService: UserService()))
-            let editModelVC = EditModalViewController(viewModel: EditModalViewModel(userUseCase: userUseCase))
+            let editModelVC = EditModalViewController(viewModel: EditModalViewModel(uid: uid, userUseCase: userUseCase))
+            
+            editModelVC.onNicknameSaved = { [weak self] newNickname in
+                self?.myPageView.updateNickname(newNickname)
+            }
+            
             editModelVC.modalPresentationStyle = .overFullScreen
             editModelVC.modalTransitionStyle = .crossDissolve
             self?.present(editModelVC, animated: true, completion: nil)
@@ -200,7 +203,7 @@ extension MyPageViewController: UITableViewDelegate, UITableViewDataSource {
         case .notification:
             print("알림 설정 메뉴 클릭")
         case .contact:
-            print("문의하기 메뉴 클릭")
+            presentContactMailComposer()
         case .info:
             let infoVC = InfoViewController()
             navigationController?.pushViewController(infoVC, animated: true)

@@ -89,6 +89,10 @@ final class MyPageView: UIView {
         roleLabel.text = user.role == "worker" ? "알바생" : "사장님"
         profileImageView.image = user.role == "worker" ? UIImage.alba : UIImage.owner
     }
+    
+    func updateNickname(_ nickname: String) {
+        nameLabel.text = nickname
+    }
 }
 
 private extension MyPageView {    

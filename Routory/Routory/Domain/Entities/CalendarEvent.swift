@@ -9,8 +9,6 @@
 
 /// Firestore의 calendars/{calendarId}/events/{eventId} 문서에 대응되는 일정 이벤트 모델
 struct CalendarEvent: Codable {
-    /// 이벤트 ID (Firestore 문서 ID)
-    let id: String
 
     /// 이벤트 제목
     let title: String
@@ -35,10 +33,15 @@ struct CalendarEvent: Codable {
     let day: Int
 
     /// 연결된 루틴 ID 리스트 (users/{id}/routine/{id})
-    let routineIds: [String]
+    let routineIds: [String]?
+    
+    /// 반복 요일
+    let repeatDays: [String]?
+    
+    /// 메모
+    let memo: String
 
-    init(id: String, title: String, eventDate: String, startTime: String, endTime: String, createdBy: String, year: Int, month: Int, day: Int, routineIds: [String]) {
-        self.id = id
+    init(title: String, eventDate: String, startTime: String, endTime: String, createdBy: String, year: Int, month: Int, day: Int, routineIds: [String], repeatDays: [String], memo: String) {
         self.title = title
         self.eventDate = eventDate
         self.startTime = startTime
@@ -48,5 +51,7 @@ struct CalendarEvent: Codable {
         self.month = month
         self.day = day
         self.routineIds = routineIds
+        self.repeatDays = repeatDays
+        self.memo = memo
     }
 }

@@ -25,4 +25,21 @@ final class UserRepository: UserRepositoryProtocol {
     func fetchUser(uid: String) -> Observable<User> {
         return userService.fetchUser(uid: uid)
     }
+    
+    func updateUserName(uid: String, newUserName: String) -> Observable<Void> {
+        return userService.updateUserName(uid: uid, newUserName: newUserName)
+    }
+    func createWorkplace(
+            workplace: Workplace,
+            role: Role,
+            workerDetail: WorkerDetail?,
+            uid: String
+        ) -> Observable<String> {
+            return userService.createWorkplace(
+                workplace: workplace,
+                role: role,
+                workerDetail: workerDetail,
+                uid: uid
+            )
+        }
 }

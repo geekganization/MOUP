@@ -14,16 +14,6 @@
 		5B6E8F942DF17CB9006B061E /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E8F932DF17CB9006B061E /* Then */; };
 		5B6E8F972DF17CCA006B061E /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E8F962DF17CCA006B061E /* SnapKit */; };
 		5B6E9E1D2DF697FC006B061E /* BetterSegmentedControl in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E9E1C2DF697FC006B061E /* BetterSegmentedControl */; };
-		5B6E9F4F2DF6A0B9006B061E /* KakaoSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E9F4E2DF6A0B9006B061E /* KakaoSDK */; };
-		5B6E9F512DF6A0B9006B061E /* KakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E9F502DF6A0B9006B061E /* KakaoSDKAuth */; };
-		5B6E9F532DF6A0B9006B061E /* KakaoSDKCert in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E9F522DF6A0B9006B061E /* KakaoSDKCert */; };
-		5B6E9F552DF6A0B9006B061E /* KakaoSDKCertCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E9F542DF6A0B9006B061E /* KakaoSDKCertCore */; };
-		5B6E9F572DF6A0B9006B061E /* KakaoSDKCommon in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E9F562DF6A0B9006B061E /* KakaoSDKCommon */; };
-		5B6E9F5A2DF6B507006B061E /* RxKakaoSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E9F592DF6B507006B061E /* RxKakaoSDK */; };
-		5B6E9F5C2DF6B507006B061E /* RxKakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E9F5B2DF6B507006B061E /* RxKakaoSDKAuth */; };
-		5B6E9F5E2DF6B507006B061E /* RxKakaoSDKCert in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E9F5D2DF6B507006B061E /* RxKakaoSDKCert */; };
-		5B6E9F602DF6B507006B061E /* RxKakaoSDKCommon in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E9F5F2DF6B507006B061E /* RxKakaoSDKCommon */; };
-		5B6E9F622DF6B507006B061E /* RxKakaoSDKUser in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E9F612DF6B507006B061E /* RxKakaoSDKUser */; };
 		5B6E9F652DF6B686006B061E /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E9F642DF6B686006B061E /* FirebaseAuth */; };
 		5B6E9F672DF6B686006B061E /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E9F662DF6B686006B061E /* FirebaseCore */; };
 		5B6E9F692DF6B686006B061E /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E9F682DF6B686006B061E /* FirebaseFirestore */; };
@@ -67,27 +57,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				5B6E8F912DF17C8F006B061E /* RxSwift in Frameworks */,
-				5B6E9F622DF6B507006B061E /* RxKakaoSDKUser in Frameworks */,
-				5B6E9F5C2DF6B507006B061E /* RxKakaoSDKAuth in Frameworks */,
-				5B6E9F5A2DF6B507006B061E /* RxKakaoSDK in Frameworks */,
-				5B6E9F4F2DF6A0B9006B061E /* KakaoSDK in Frameworks */,
 				5B6E8F8F2DF17C8F006B061E /* RxRelay in Frameworks */,
 				5B6E8F8D2DF17C8F006B061E /* RxCocoa in Frameworks */,
 				5B6E9F672DF6B686006B061E /* FirebaseCore in Frameworks */,
-				5B6E9F572DF6A0B9006B061E /* KakaoSDKCommon in Frameworks */,
 				5B6E8F942DF17CB9006B061E /* Then in Frameworks */,
 				5B6E9E1D2DF697FC006B061E /* BetterSegmentedControl in Frameworks */,
 				5B6E8F972DF17CCA006B061E /* SnapKit in Frameworks */,
 				078D4DBA8E91D815B9025C38 /* libPods-Routory.a in Frameworks */,
 				5B6E9F692DF6B686006B061E /* FirebaseFirestore in Frameworks */,
-				5B6E9F512DF6A0B9006B061E /* KakaoSDKAuth in Frameworks */,
-				9505F61A2DF9977F008CC731 /* Differentiator in Frameworks */,
 				5B6E9F652DF6B686006B061E /* FirebaseAuth in Frameworks */,
-				5B6E9F602DF6B507006B061E /* RxKakaoSDKCommon in Frameworks */,
-				5B6E9F552DF6A0B9006B061E /* KakaoSDKCertCore in Frameworks */,
-				5B6E9F5E2DF6B507006B061E /* RxKakaoSDKCert in Frameworks */,
-				5B6E9F532DF6A0B9006B061E /* KakaoSDKCert in Frameworks */,
-				9505F61C2DF9977F008CC731 /* RxDataSources in Frameworks */,
 				E861509C2DF8029D005CE9A7 /* GoogleSignIn in Frameworks */,
 				E861509E2DF8029D005CE9A7 /* GoogleSignInSwift in Frameworks */,
 			);
@@ -158,16 +136,6 @@
 				5B6E8F932DF17CB9006B061E /* Then */,
 				5B6E8F962DF17CCA006B061E /* SnapKit */,
 				5B6E9E1C2DF697FC006B061E /* BetterSegmentedControl */,
-				5B6E9F4E2DF6A0B9006B061E /* KakaoSDK */,
-				5B6E9F502DF6A0B9006B061E /* KakaoSDKAuth */,
-				5B6E9F522DF6A0B9006B061E /* KakaoSDKCert */,
-				5B6E9F542DF6A0B9006B061E /* KakaoSDKCertCore */,
-				5B6E9F562DF6A0B9006B061E /* KakaoSDKCommon */,
-				5B6E9F592DF6B507006B061E /* RxKakaoSDK */,
-				5B6E9F5B2DF6B507006B061E /* RxKakaoSDKAuth */,
-				5B6E9F5D2DF6B507006B061E /* RxKakaoSDKCert */,
-				5B6E9F5F2DF6B507006B061E /* RxKakaoSDKCommon */,
-				5B6E9F612DF6B507006B061E /* RxKakaoSDKUser */,
 				5B6E9F642DF6B686006B061E /* FirebaseAuth */,
 				5B6E9F662DF6B686006B061E /* FirebaseCore */,
 				5B6E9F682DF6B686006B061E /* FirebaseFirestore */,
@@ -209,8 +177,6 @@
 				5B6E8F922DF17CB9006B061E /* XCRemoteSwiftPackageReference "Then" */,
 				5B6E8F952DF17CCA006B061E /* XCRemoteSwiftPackageReference "SnapKit" */,
 				5B6E9E1B2DF697FC006B061E /* XCRemoteSwiftPackageReference "BetterSegmentedControl" */,
-				5B6E9F4D2DF6A0B9006B061E /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
-				5B6E9F582DF6B507006B061E /* XCRemoteSwiftPackageReference "kakao-ios-sdk-rx" */,
 				5B6E9F632DF6B686006B061E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				E861509A2DF8029D005CE9A7 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				9505F6182DF9977F008CC731 /* XCRemoteSwiftPackageReference "RxDataSources" */,
@@ -280,7 +246,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = R6V7ZUXR5H;
+				DEVELOPMENT_TEAM = 52YSN62MCL;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Routory/Resources/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -316,7 +282,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = R6V7ZUXR5H;
+				DEVELOPMENT_TEAM = 52YSN62MCL;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Routory/Resources/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -520,22 +486,6 @@
 				minimumVersion = 2.0.1;
 			};
 		};
-		5B6E9F4D2DF6A0B9006B061E /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/kakao/kakao-ios-sdk";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.24.4;
-			};
-		};
-		5B6E9F582DF6B507006B061E /* XCRemoteSwiftPackageReference "kakao-ios-sdk-rx" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/kakao/kakao-ios-sdk-rx";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.24.4;
-			};
-		};
 		5B6E9F632DF6B686006B061E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
@@ -592,56 +542,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 5B6E9E1B2DF697FC006B061E /* XCRemoteSwiftPackageReference "BetterSegmentedControl" */;
 			productName = BetterSegmentedControl;
-		};
-		5B6E9F4E2DF6A0B9006B061E /* KakaoSDK */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 5B6E9F4D2DF6A0B9006B061E /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
-			productName = KakaoSDK;
-		};
-		5B6E9F502DF6A0B9006B061E /* KakaoSDKAuth */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 5B6E9F4D2DF6A0B9006B061E /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
-			productName = KakaoSDKAuth;
-		};
-		5B6E9F522DF6A0B9006B061E /* KakaoSDKCert */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 5B6E9F4D2DF6A0B9006B061E /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
-			productName = KakaoSDKCert;
-		};
-		5B6E9F542DF6A0B9006B061E /* KakaoSDKCertCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 5B6E9F4D2DF6A0B9006B061E /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
-			productName = KakaoSDKCertCore;
-		};
-		5B6E9F562DF6A0B9006B061E /* KakaoSDKCommon */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 5B6E9F4D2DF6A0B9006B061E /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
-			productName = KakaoSDKCommon;
-		};
-		5B6E9F592DF6B507006B061E /* RxKakaoSDK */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 5B6E9F582DF6B507006B061E /* XCRemoteSwiftPackageReference "kakao-ios-sdk-rx" */;
-			productName = RxKakaoSDK;
-		};
-		5B6E9F5B2DF6B507006B061E /* RxKakaoSDKAuth */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 5B6E9F582DF6B507006B061E /* XCRemoteSwiftPackageReference "kakao-ios-sdk-rx" */;
-			productName = RxKakaoSDKAuth;
-		};
-		5B6E9F5D2DF6B507006B061E /* RxKakaoSDKCert */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 5B6E9F582DF6B507006B061E /* XCRemoteSwiftPackageReference "kakao-ios-sdk-rx" */;
-			productName = RxKakaoSDKCert;
-		};
-		5B6E9F5F2DF6B507006B061E /* RxKakaoSDKCommon */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 5B6E9F582DF6B507006B061E /* XCRemoteSwiftPackageReference "kakao-ios-sdk-rx" */;
-			productName = RxKakaoSDKCommon;
-		};
-		5B6E9F612DF6B507006B061E /* RxKakaoSDKUser */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 5B6E9F582DF6B507006B061E /* XCRemoteSwiftPackageReference "kakao-ios-sdk-rx" */;
-			productName = RxKakaoSDKUser;
 		};
 		5B6E9F642DF6B686006B061E /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;

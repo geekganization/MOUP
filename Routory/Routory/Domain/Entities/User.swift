@@ -16,9 +16,6 @@ struct User: Codable {
     /// 사용자 역할 ("worker" 또는 "owner")
     let role: String
 
-    /// 사용자가 속한 workplace ID 리스트
-    let workplaceList: [String]
-
     init(userName: String, role: String, workplaceList: [String]) {
         self.userName = userName
         self.role = role

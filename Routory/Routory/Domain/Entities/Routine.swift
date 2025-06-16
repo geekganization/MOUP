@@ -9,8 +9,6 @@
 
 /// Firestore의 users/{userId}/routine/{routineId} 문서에 대응되는 루틴 모델
 struct Routine: Codable {
-    /// 루틴 ID (Firestore 문서 ID)
-    let id: String
 
     /// 루틴 이름
     let routineName: String
@@ -21,8 +19,7 @@ struct Routine: Codable {
     /// 루틴에 포함된 작업 목록
     let tasks: [String]
 
-    init(id: String, routineName: String, alarmTime: String, tasks: [String]) {
-        self.id = id
+    init(routineName: String, alarmTime: String, tasks: [String]) {
         self.routineName = routineName
         self.alarmTime = alarmTime
         self.tasks = tasks

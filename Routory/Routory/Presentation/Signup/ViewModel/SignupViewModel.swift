@@ -7,6 +7,7 @@
 
 import RxSwift
 import RxCocoa
+import FirebaseAuth
 
 final class SignupViewModel {
     struct Input {
@@ -20,43 +21,57 @@ final class SignupViewModel {
     
     // 의존성
     private let userUseCase: UserUseCaseProtocol
-    private let userId: String // 구글 로그인된 uid
+    private let credential: AuthCredential
     private let userName: String // 구글 닉네임
     private let disposeBag = DisposeBag()
     
     // 상태 저장
     private let selectedRoleRelay = BehaviorRelay<String?>(value: nil)
     
-    init(userUseCase: UserUseCaseProtocol, userId: String, userName: String) {
+    init(userUseCase: UserUseCaseProtocol, credential: AuthCredential, userName: String) {
         self.userUseCase = userUseCase
-        self.userId = userId
         self.userName = userName
+        self.credential = credential
     }
     
     func transform(input: Input) -> Output {
-        // 역할 저장
-        input.roleSelected
-            .bind(to: selectedRoleRelay)
-            .disposed(by: disposeBag)
-        
-        let result = input.confirmTapped
-            .withLatestFrom(selectedRoleRelay.compactMap { $0 })
-            .flatMapLatest { [weak self] role -> Observable<Event<Void>> in
-                guard let self = self else { return .empty() }
-                let user = User(userName: self.userName, role: role, workplaceList: [])
-                return self.userUseCase.createUser(uid: self.userId, user: user)
-                    .materialize()
-            }
-            .share()
-        
-        let signupSuccess = result
-            .compactMap { $0.element }
-        let signupError = result
-            .compactMap { $0.error }
-        
-        return Output(
-            signupSuccess: signupSuccess,
-            signupError: signupError
-        )
-    }
+            input.roleSelected
+                .bind(to: selectedRoleRelay)
+                .disposed(by: disposeBag)
+            
+            let result = input.confirmTapped
+                .withLatestFrom(selectedRoleRelay.compactMap { $0 })
+                .flatMapLatest { [weak self] role -> Observable<Event<Void>> in
+                    guard let self = self else { return .empty() }
+                    return Observable.create { observer in
+                        Auth.auth().signIn(with: self.credential) { result, error in
+                            if let error = error {
+                                observer.onError(error)
+                            } else if let user = result?.user {
+                                let uid = user.uid
+                                let userData = User(userName: self.userName, role: role, workplaceList: [])
+                                self.userUseCase.createUser(uid: uid, user: userData)
+                                    .subscribe(
+                                        onNext: { observer.onNext(()) },
+                                        onError: { observer.onError($0) },
+                                        onCompleted: { observer.onCompleted() }
+                                    )
+                                    .disposed(by: self.disposeBag)
+                            } else {
+                                observer.onError(NSError(domain: "Signup", code: -1, userInfo: [NSLocalizedDescriptionKey: "Auth 실패"]))
+                            }
+                        }
+                        return Disposables.create()
+                    }.materialize()
+                }
+                .share()
+            
+            let signupSuccess = result.compactMap { $0.element }
+            let signupError = result.compactMap { $0.error }
+            
+            return Output(
+                signupSuccess: signupSuccess,
+                signupError: signupError
+            )
+        }
 }

@@ -26,12 +26,18 @@ final class FilterView: UIView {
         $0.backgroundColor = .gray300
     }
     
+    private let headerLabel = UILabel().then {
+        // TODO: 알바생인지 사장님인지에 따라 바뀌어야 함
+        $0.text = "나의 근무지"
+        $0.textColor = .gray900
+        $0.font = .headBold(16)
+    }
+    
     private let workplaceTableView = UITableView().then {
         $0.register(WorkplaceCell.self, forCellReuseIdentifier: WorkplaceCell.identifier)
-        $0.register(WorkplaceTableHeaderView.self, forHeaderFooterViewReuseIdentifier: WorkplaceTableHeaderView.identifier)
         
         $0.separatorStyle = .none
-        $0.rowHeight = 56  // 40 + 16(셀 간격)
+        $0.rowHeight = 52  // 40 + 12(셀 간격)
         $0.sectionHeaderTopPadding = 0.0
     }
     
@@ -80,6 +86,7 @@ private extension FilterView {
         self.addSubviews(grabberView,
                          titleLabel,
                          separatorView,
+                         headerLabel,
                          workplaceTableView,
                          applyButton)
     }
@@ -91,24 +98,29 @@ private extension FilterView {
     func setConstraints() {
         grabberView.snp.makeConstraints {
             $0.top.equalToSuperview().inset(12)
-            $0.centerX.equalToSuperview()
+            $0.centerX.equalTo(self.safeAreaLayoutGuide)
             $0.width.equalTo(45)
             $0.height.equalTo(4)
         }
         
         titleLabel.snp.makeConstraints {
             $0.top.equalToSuperview().inset(28)
-            $0.leading.equalToSuperview().inset(16)
+            $0.leading.equalTo(self.safeAreaLayoutGuide).inset(16)
         }
         
         separatorView.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(12)
-            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.leading.trailing.equalTo(self.safeAreaLayoutGuide).inset(16)
             $0.height.equalTo(1)
         }
         
-        workplaceTableView.snp.makeConstraints {
+        headerLabel.snp.makeConstraints {
             $0.top.equalTo(separatorView.snp.bottom).offset(12)
+            $0.leading.equalTo(self.safeAreaLayoutGuide).inset(16)
+        }
+        
+        workplaceTableView.snp.makeConstraints {
+            $0.top.equalTo(headerLabel.snp.bottom).offset(12)
             $0.leading.trailing.equalTo(self.safeAreaLayoutGuide)
             $0.bottom.equalTo(applyButton.snp.top).offset(-12)
         }

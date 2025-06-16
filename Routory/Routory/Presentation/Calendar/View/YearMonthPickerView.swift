@@ -24,6 +24,9 @@ final class YearMonthPickerView: UIView {
     
     // MARK: - UI Components
     
+    /// 모달 핸들을 표시하는 `GrabberView`
+    private let grabberView = GrabberView()
+    
     /// 이동할 연/월을 선택하는 `UIPickerView`
     private lazy var pickerView = UIPickerView().then {
         $0.backgroundColor = .white
@@ -89,7 +92,8 @@ private extension YearMonthPickerView {
     }
     
     func setHierarchy() {
-        self.addSubviews(pickerView,
+        self.addSubviews(grabberView,
+                         pickerView,
                          buttonHStackView)
         
         buttonHStackView.addArrangedSubviews(cancelButton, gotoButton)
@@ -100,8 +104,15 @@ private extension YearMonthPickerView {
     }
     
     func setConstraints() {
+        grabberView.snp.makeConstraints {
+            $0.top.equalToSuperview().inset(12)
+            $0.centerX.equalTo(self.safeAreaLayoutGuide)
+            $0.width.equalTo(45)
+            $0.height.equalTo(4)
+        }
+        
         pickerView.snp.makeConstraints {
-            $0.top.equalTo(self.safeAreaLayoutGuide)
+            $0.top.equalTo(grabberView).offset(16)
             $0.leading.trailing.equalTo(self.safeAreaLayoutGuide)
             $0.bottom.equalTo(buttonHStackView.snp.top).offset(-12)
         }

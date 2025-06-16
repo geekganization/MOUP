@@ -151,7 +151,7 @@ private extension CalendarViewController {
         
         if let sheet = filterModalVC.sheetPresentationController {
             sheet.detents = [.medium()]
-            sheet.prefersGrabberVisible = true
+            sheet.prefersGrabberVisible = false
             sheet.preferredCornerRadius = 12
             sheet.prefersScrollingExpandsWhenScrolledToEdge = false
         }

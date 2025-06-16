@@ -87,7 +87,6 @@ private extension EventCell {
         
         labelStackView.addArrangedSubviews(workplaceLabel,
                                            workHourLabel)
-        
     }
     
     func setStyles() {

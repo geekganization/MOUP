@@ -90,14 +90,14 @@ private extension CalendarEventListView {
     func setConstraints() {
         grabberView.snp.makeConstraints {
             $0.top.equalToSuperview().inset(12)
-            $0.centerX.equalToSuperview()
+            $0.centerX.equalTo(self.safeAreaLayoutGuide)
             $0.width.equalTo(45)
             $0.height.equalTo(4)
         }
         
         titleLabel.snp.makeConstraints {
             $0.top.equalToSuperview().inset(28)
-            $0.leading.equalToSuperview().inset(16)
+            $0.leading.equalTo(self.safeAreaLayoutGuide).inset(16)
         }
         
         eventTableView.snp.makeConstraints {

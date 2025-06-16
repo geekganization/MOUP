@@ -77,9 +77,5 @@ extension FilterViewController: UITableViewDataSource {
 }
 
 extension FilterViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        guard let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: WorkplaceTableHeaderView.identifier) as? WorkplaceTableHeaderView else { return UIView() }
-        
-        return header
-    }
+
 }

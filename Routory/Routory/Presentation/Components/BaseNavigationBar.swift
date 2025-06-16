@@ -46,6 +46,10 @@ final class BaseNavigationBar: UIView {
         }
     }
 
+    func configureTitle(title: String) {
+        titleLabel.text = title
+    }
+
     // MARK: - Initializer
 
     init(title: String) {

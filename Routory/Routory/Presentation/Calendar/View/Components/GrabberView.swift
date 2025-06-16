@@ -7,6 +7,7 @@
 
 import UIKit
 
+/// 모달 상단 Grabber 핸들 `UIView`
 final class GrabberView: UIView {
     
     // MARK: - Initializer

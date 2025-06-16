@@ -63,15 +63,6 @@ private extension CalendarViewController {
         
         self.navigationController?.navigationBar.topItem?.title = "캘린더"
         self.navigationController?.navigationBar.titleTextAttributes = [.font: UIFont.headBold(20), .foregroundColor: UIColor.gray900]
-        
-        let todayButtonAction = UIAction(handler: { [weak self] _ in
-            guard let self else { return }
-            self.calendarView.getJTACalendar.scrollToDate(.now, animateScroll: true)
-        })
-        let todayButton = UIBarButtonItem(title: "오늘", primaryAction: todayButtonAction)
-        todayButton.setTitleTextAttributes([.font: UIFont.headBold(14), .foregroundColor: UIColor.gray900], for: .normal)
-        todayButton.setTitleTextAttributes([.font: UIFont.headBold(14), .foregroundColor: UIColor.gray900], for: .selected)
-        self.navigationItem.rightBarButtonItem = todayButton
     }
     
     func setDelegates() {
@@ -80,14 +71,31 @@ private extension CalendarViewController {
     }
     
     func setActions() {
-        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(didYearMonthLabelTapped(_:)))
-        calendarView.getCalendarHeaderView.getYearMonthLabel.addGestureRecognizer(tapGestureRecognizer)
+        // 네비게이션 바 "오늘" 버튼
+        let todayButtonAction = UIAction(handler: { [weak self] _ in
+            guard let self else { return }
+            self.calendarView.getJTACalendar.scrollToDate(.now, animateScroll: true)
+        })
+        let todayButton = UIBarButtonItem(title: "오늘", primaryAction: todayButtonAction)
+        todayButton.setTitleTextAttributes([.font: UIFont.headBold(14), .foregroundColor: UIColor.gray900], for: .normal)
+        todayButton.setTitleTextAttributes([.font: UIFont.headBold(14), .foregroundColor: UIColor.gray900], for: .selected)
+        self.navigationItem.rightBarButtonItem = todayButton
         
+        let calendarViewTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didCalendarViewTapped(_:)))
+        calendarViewTapRecognizer.cancelsTouchesInView = false
+        calendarView.addGestureRecognizer(calendarViewTapRecognizer)
+        
+        // 캘린더 연/월 이동 피커
+        let yearMonthLabelTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didYearMonthLabelTapped(_:)))
+        calendarView.getCalendarHeaderView.getYearMonthLabel.addGestureRecognizer(yearMonthLabelTapRecognizer)
+        
+        // 개인/공유 캘린더 토글 스위치
         calendarView.getCalendarHeaderView.getToggleSwitch.addAction(UIAction(handler: { [weak self] action in
             guard let self, let sender = action.sender as? BetterSegmentedControl else { return }
             calendarMode.accept(CalendarMode.allCases[sender.index])
         }), for: .valueChanged)
         
+        // 근무지/매장 필터 버튼
         calendarView.getCalendarHeaderView.getFilterButton.addAction(UIAction(handler: { [weak self] action in
             guard let self else { return }
             self.didFilterButtonTap()
@@ -105,6 +113,10 @@ private extension CalendarViewController {
 // MARK: - @objc Methods
 
 @objc private extension CalendarViewController {
+    func didCalendarViewTapped(_ sender: UITapGestureRecognizer) {
+        self.presentedViewController?.dismiss(animated: true)
+    }
+    
     func didYearMonthLabelTapped(_ sender: UITapGestureRecognizer) {
         guard let yearMonthText = calendarView.getCalendarHeaderView.getYearMonthLabel.text,
               let currYear = Int(yearMonthText.prefix(4)),
@@ -205,6 +217,10 @@ extension CalendarViewController: JTACMonthViewDelegate {
     
     // 이미 선택된 셀인 경우 ➡️ 선택 해제
     func calendar(_ calendar: JTACMonthView, shouldSelectDate date: Date, cell: JTACDayCell?, cellState: CellState, indexPath: IndexPath) -> Bool {
+        if self.presentedViewController != nil {
+            return false
+        }
+        
         if cellState.isSelected {
             calendar.deselect(dates: [date])
             return false
@@ -239,7 +255,7 @@ extension CalendarViewController: CalendarEventListVCDelegate {
 // MARK: - YearMonthPickerVCDelegate
 
 extension CalendarViewController: YearMonthPickerVCDelegate {
-    func gotoButtonDidTapped(year: Int, month: Int) {
+    func didTapGotoButton(year: Int, month: Int) {
         let yearMonthText = "\(year). \(month)"
         guard let date = calendarView.getDateFormatter.date(from: yearMonthText) else { return }
         calendarView.getJTACalendar.scrollToDate(date)

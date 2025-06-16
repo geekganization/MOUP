@@ -73,7 +73,7 @@ private extension YearMonthPickerViewController {
         yearMonthPickerView.getGotoButton.rx.tap
             .subscribe(with: self, onNext: { owner, _ in
                 let (year, month) = owner.yearMonthPickerView.getSelectedYearMonth
-                owner.delegate?.gotoButtonDidTapped(year: year, month: month)
+                owner.delegate?.didTapGotoButton(year: year, month: month)
                 owner.dismiss(animated: true)
             }).disposed(by: disposeBag)
     }

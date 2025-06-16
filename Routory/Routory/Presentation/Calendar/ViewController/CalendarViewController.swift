@@ -86,12 +86,12 @@ private extension CalendarViewController {
         self.navigationItem.rightBarButtonItem = todayButton
         
         // CalendarEventListVC 모달 이외 영역 터치
-        let calendarViewTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didCalendarViewTouched(_:)))
+        let calendarViewTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didCalendarViewTap(_:)))
         calendarViewTapRecognizer.cancelsTouchesInView = false
         calendarView.addGestureRecognizer(calendarViewTapRecognizer)
         
         // 캘린더 연/월 이동 피커
-        let yearMonthLabelTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didYearMonthLabelTapped(_:)))
+        let yearMonthLabelTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didYearMonthLabelTap(_:)))
         calendarView.getCalendarHeaderView.getYearMonthLabel.addGestureRecognizer(yearMonthLabelTapRecognizer)
         
         // 개인/공유 캘린더 토글 스위치
@@ -120,12 +120,12 @@ private extension CalendarViewController {
 // MARK: - @objc Methods
 
 @objc private extension CalendarViewController {
-    func didCalendarViewTouched(_ sender: UITapGestureRecognizer) {
+    func didCalendarViewTap(_ sender: UITapGestureRecognizer) {
         deselectCell()
     }
     
-    func didYearMonthLabelTapped(_ sender: UITapGestureRecognizer) {
-        if deselectCell() { return }
+    func didYearMonthLabelTap(_ sender: UITapGestureRecognizer) {
+        deselectCell()
         
         guard let yearMonthText = calendarView.getCalendarHeaderView.getYearMonthLabel.text,
               let currYear = Int(yearMonthText.prefix(4)),
@@ -169,13 +169,10 @@ private extension CalendarViewController {
         self.tabBarController?.present(modalNC, animated: true)
     }
     
-    @discardableResult
-    func deselectCell() -> Bool {
+    func deselectCell() {
         if let selectedDate {
             calendarView.getJTACalendar.deselect(dates: [selectedDate])
-            return true
         }
-        return false
     }
     
     func didFilterButtonTap() {
@@ -266,6 +263,10 @@ extension CalendarViewController: JTACMonthViewDelegate {
 // MARK: - CalendarEventListVCDelegate
 
 extension CalendarViewController: CalendarEventListVCDelegate {
+    func presentationControllerDidDismiss() {
+        deselectCell()
+    }
+    
     func didTapEventCell() {
         // TODO: 존재하는 근무 표시
         let workShiftRegisterVC = WorkShiftRegistrationViewController()

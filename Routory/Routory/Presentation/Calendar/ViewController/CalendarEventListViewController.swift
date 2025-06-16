@@ -65,6 +65,8 @@ private extension CalendarEventListViewController {
     }
     
     func setDelegates() {
+        self.navigationController?.presentationController?.delegate = self
+        
         calendarEventListView.getEventTableView.dataSource = self
     }
     
@@ -80,6 +82,12 @@ private extension CalendarEventListViewController {
                 // TODO: 사장님 근무 VC에 데이터 연결
                 owner.delegate?.didTapAssignButton()
             }.disposed(by: disposeBag)
+    }
+}
+
+extension CalendarEventListViewController: UIAdaptivePresentationControllerDelegate {
+    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        delegate?.presentationControllerDidDismiss()
     }
 }
 

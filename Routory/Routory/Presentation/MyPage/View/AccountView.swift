@@ -86,7 +86,7 @@ private extension AccountView {
         navigationBar.snp.makeConstraints {
             $0.top.equalTo(safeAreaLayoutGuide)
             $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(44)
+            $0.height.equalTo(50)
         }
         
         deleteAccountLabel.snp.makeConstraints {

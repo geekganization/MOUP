@@ -63,3 +63,13 @@ func parseDateComponents(from dateString: String) -> (year: Int, month: Int, day
     }
     return (year, month, day)
 }
+
+func parseCurrencyStringToInt(_ value: String) -> Int {
+    let cleaned = value.replacingOccurrences(of: ",", with: "")
+    return Int(cleaned) ?? 0
+}
+
+func parseDateStringToInt(_ value: String) -> Int {
+    let digitsOnly = value.trimmingCharacters(in: CharacterSet(charactersIn: "일")).trimmingCharacters(in: .whitespaces)
+    return Int(digitsOnly) ?? 1
+}

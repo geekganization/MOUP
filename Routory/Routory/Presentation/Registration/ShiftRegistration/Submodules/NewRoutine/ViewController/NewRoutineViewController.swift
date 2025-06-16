@@ -217,7 +217,7 @@ final class NewRoutineViewController: UIViewController {
             print("제목:", title)
             print("알림시간:", alarmTime)
             print("할 일 리스트:", tasks)
-            print(Routine(routineName: title, alarmTime: alarmTime, tasks: tasks))
+            dump(Routine(routineName: title, alarmTime: alarmTime, tasks: tasks))
         case .edit(let existingTitle, _, _):
             let updatedTitle = (titleTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false)
                 ? titleTextField.text!
@@ -229,7 +229,7 @@ final class NewRoutineViewController: UIViewController {
             print("제목:", updatedTitle)
             print("알림시간:", updatedTime)
             print("할 일 리스트:", updatedTasks)
-            print(Routine(routineName: updatedTitle, alarmTime: updatedTime, tasks: updatedTasks))
+            dump(Routine(routineName: updatedTitle, alarmTime: updatedTime, tasks: updatedTasks))
         }
     }
 

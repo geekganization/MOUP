@@ -45,7 +45,7 @@ private extension TabbarViewController {
     
     func setTabBarItems() {
         let homeVC = HomeViewController(homeViewModel: HomeViewModel())
-        let calendarVC = WorkShiftRegistrationViewController()
+        let calendarVC = CalendarViewController()
         
         guard let userId = Auth.auth().currentUser?.uid else {
             print("유저 ID를 찾을 수 없습니다.")

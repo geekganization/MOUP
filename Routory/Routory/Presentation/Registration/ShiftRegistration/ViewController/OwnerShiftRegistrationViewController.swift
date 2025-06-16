@@ -134,7 +134,7 @@ final class OwnerShiftRegistrationViewController: UIViewController {
         
         switch registrationMode {
         case .owner:
-            print("사장님 새 근무지 등록 데이터 - 사장님")
+            print("사장님 새 근무 등록 데이터 - 사장님")
             print("근무지: ", workPlace)
             print("근무 날짜 - 날짜: ", eventDate)
             print("근무 날짜 - 반복: ", repeatDays)
@@ -162,7 +162,7 @@ final class OwnerShiftRegistrationViewController: UIViewController {
             print(workPlace,event)
 
         case .employee:
-            print("사장님 새 근무지 등록 데이터 - 알바생")
+            print("사장님 새 근무 등록 데이터 - 알바생")
             print("근무지: ", workPlace)
             let worker = contentView.workerSelectionView.getSelectedWorkerData()
             print("근무자: ", worker)

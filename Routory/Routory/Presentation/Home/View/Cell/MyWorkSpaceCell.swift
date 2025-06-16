@@ -39,7 +39,7 @@ class MyWorkSpaceCell: UITableViewCell {
     }
 
     private let daysUntilPaydayLabel = UILabel().then {
-        $0.textColor = .gray900
+        $0.textColor = .gray700
         $0.font = .bodyMedium(12)
         $0.numberOfLines = 1
         $0.textAlignment = .left

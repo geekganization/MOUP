@@ -38,6 +38,11 @@ final class ManageRoutineView: UIView {
     }
 
     // MARK: - Public Methods
+    func update(by routineType: RoutineType) {
+        if case .all = routineType {
+            navigationBar.configureRightButton(icon: .plus, title: nil)
+        }
+    }
 }
 
 private extension ManageRoutineView {
@@ -67,7 +72,7 @@ private extension ManageRoutineView {
         }
 
         tableView.snp.makeConstraints {
-            $0.top.equalTo(navigationBar.snp.bottom).offset(20)
+            $0.top.equalTo(navigationBar.snp.bottom)
             $0.directionalHorizontalEdges.bottom.equalToSuperview()
         }
     }
@@ -88,10 +93,10 @@ extension Reactive where Base: ManageRoutineView {
         }
     }
 
-    var bindAllRoutines: Binder<[Routine]> {
+    var bindAllRoutines: Binder<[RoutineInfo]> {
         return Binder(base) { view, routines in
             Observable.just(routines)
-                .bind(to: view.tableView.rx.items) { tableView, index, routine in
+                .bind(to: view.tableView.rx.items) { tableView, index, routineInfo in
                     let indexPath = IndexPath(row: index, section: 0)
 
                     guard let cell = tableView.dequeueReusableCell(
@@ -100,7 +105,7 @@ extension Reactive where Base: ManageRoutineView {
                     ) as? CommonRoutineCell else {
                         return UITableViewCell()
                     }
-                    //                         cell.update(with: routine)
+                    cell.update(with: routineInfo.routine)
 
                     return cell
                 }
@@ -120,11 +125,15 @@ extension Reactive where Base: ManageRoutineView {
                     ) as? TodaysRoutineCell else {
                         return UITableViewCell()
                     }
-                     cell.update(with: routine)
+                    cell.update(with: routine)
 
 
                     return cell
                 }.disposed(by: view.disposeBag)
         }
+    }
+
+    var itemSelected: ControlEvent<IndexPath> {
+        return base.tableView.rx.itemSelected
     }
 }

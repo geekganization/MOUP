@@ -9,5 +9,5 @@ import Foundation
 
 struct DummyTodaysRoutine {
     let workplaceName: String
-    let routines: [Routine]
+    let routines: [RoutineInfo]
 }

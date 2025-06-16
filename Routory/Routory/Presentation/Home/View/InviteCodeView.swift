@@ -37,6 +37,15 @@ final class InviteCodeView: UIView {
         $0.setLeftPadding(16)
     }
     
+    private let workplaceSearchResult = WorkplaceSearchResultView().then {
+        $0.backgroundColor = .white
+        $0.layer.cornerRadius = 12
+        $0.clipsToBounds = true
+        $0.layer.borderWidth = 1
+        $0.layer.borderColor = UIColor.gray500.cgColor
+        $0.isHidden = true
+    }
+    
     private let searchButton = UIButton().then {
         var config = UIButton.Configuration.filled()
         config.title = "조회하기"
@@ -55,8 +64,10 @@ final class InviteCodeView: UIView {
     
     // MARK: - Getter
     
+    var navigationBarView: MyPageNavigationBar { navigationBar }
     var codeTextFieldView: UITextField { codeTextField }
     var searchButtonView: UIButton { searchButton }
+    var workplaceSearchResultView: WorkplaceSearchResultView { workplaceSearchResult }
     
     // MARK: - Lifecycle
     
@@ -68,6 +79,22 @@ final class InviteCodeView: UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func update(state: InviteCodeViewState) {
+        switch state {
+        case .input:
+            titleLabel.isHidden = false
+            codeTextField.isHidden = false
+            searchButton.setTitle("조회하기", for: .normal)
+            workplaceSearchResult.isHidden = true
+            
+        case .result:
+            titleLabel.isHidden = true
+            codeTextField.isHidden = true
+            searchButton.setTitle("등록하기", for: .normal)
+            workplaceSearchResult.isHidden = false
+        }
     }
 }
 
@@ -82,6 +109,7 @@ private extension InviteCodeView {
             navigationBar,
             titleLabel,
             codeTextField,
+            workplaceSearchResult,
             searchButton
         )
     }
@@ -102,6 +130,12 @@ private extension InviteCodeView {
             $0.top.equalTo(titleLabel.snp.bottom).offset(24)
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(48)
+        }
+        
+        workplaceSearchResult.snp.makeConstraints {
+            $0.top.equalTo(navigationBar.snp.bottom).offset(20)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.height.equalTo(143)
         }
         
         searchButton.snp.makeConstraints {

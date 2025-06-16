@@ -103,4 +103,34 @@ extension InfoViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 48
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        let menu = menuItems[indexPath.row]
+        
+        switch menu {
+        case .reviewAndRating:
+            openAppStoreReviewPage()
+            
+        case .termsOfService:
+            // TODO: 약관 페이지 푸시
+            break
+        case .privacyPolicy:
+            // TODO: 개인정보 페이지 푸시
+            break
+        case .openSourceLicense:
+            // TODO: 오픈소스 페이지 푸시
+            break
+        }
+    }
+    
+    func openAppStoreReviewPage() {
+        // 시뮬레이터에서는 테스트 불가합니다. appID는 출시 이후 실제 ID로 넣어야합니다.
+        let appID = "393499958"
+        let urlStr = "itms-apps://itunes.apple.com/app/apple-store/\(appID)"
+        
+        if let url = URL(string: urlStr), UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        }
+    }
 }

@@ -119,27 +119,74 @@ final class OwnerShiftRegistrationViewController: UIViewController {
     }
     
     @objc func didTapRegister() {
+        let workPlace = contentView.simpleRowView.getData()
+        let eventDate = contentView.workDateView.getdateRowData()
+        let startTime = contentView.workTimeView.getstartRowData()
+        let endTime = contentView.workTimeView.getendRowData()
+        let breakTime = contentView.workTimeView.getrestRowData()
+        let repeatDays = contentView.workDateView.getRepeatData()
+        let memo = contentView.memoBoxView.getData()
+        
+        guard let dateComponents = parseDateComponents(from: eventDate) else {
+            print("날짜 파싱 실패: \(eventDate)")
+            return
+        }
+        
         switch registrationMode {
         case .owner:
-            print("사장님 새 근무지 등록 데이터 - 사장님")
-            print("근무지: ",contentView.simpleRowView.getData())
-            print("근무 날짜 - 날짜: ",contentView.workDateView.getdateRowData())
-            print("근무 날짜 - 반복: ",contentView.workDateView.getrepeatRowData())
-            print("근무 시간 - 출근: ",contentView.workTimeView.getstartRowData())
-            print("근무 시간 - 퇴근: ",contentView.workTimeView.getendRowData())
-            print("근무 시간 - 휴게: ",contentView.workTimeView.getrestRowData())
-            print("루틴: ",contentView.routineView.getTitleData())
-            print("메모: ",contentView.memoBoxView.getData())
+            print("사장님 새 근무 등록 데이터 - 사장님")
+            print("근무지: ", workPlace)
+            print("근무 날짜 - 날짜: ", eventDate)
+            print("근무 날짜 - 반복: ", repeatDays)
+            print("근무 시간 - 출근: ", startTime)
+            print("근무 시간 - 퇴근: ", endTime)
+            print("근무 시간 - 휴게: ", breakTime)
+            
+            let routineIDs = contentView.routineView.getSelectedRoutineIDs()
+            print("루틴: ", routineIDs)
+            print("메모: ", memo)
+            
+            let event = CalendarEvent(
+                title: "",
+                eventDate: eventDate,
+                startTime: startTime,
+                endTime: endTime,
+                createdBy: "owner",
+                year: dateComponents.year,
+                month: dateComponents.month,
+                day: dateComponents.day,
+                routineIds: routineIDs,
+                repeatDays: repeatDays,
+                memo: memo
+            )
+            print(workPlace,event)
+
         case .employee:
-            print("사장님 새 근무지 등록 데이터 - 알바생")
-            print("근무지: ",contentView.simpleRowView.getData())
-            print("근무자: ",contentView.workerSelectionView.getSelectedWorkerData())
-            print("근무 날짜 - 날짜: ",contentView.workDateView.getdateRowData())
-            print("근무 날짜 - 반복: ",contentView.workDateView.getrepeatRowData())
-            print("근무 시간 - 출근: ",contentView.workTimeView.getstartRowData())
-            print("근무 시간 - 퇴근: ",contentView.workTimeView.getendRowData())
-            print("근무 시간 - 휴게: ",contentView.workTimeView.getrestRowData())
-            print("메모: ",contentView.memoBoxView.getData())
+            print("사장님 새 근무 등록 데이터 - 알바생")
+            print("근무지: ", workPlace)
+            let worker = contentView.workerSelectionView.getSelectedWorkerData()
+            print("근무자: ", worker)
+            print("근무 날짜 - 날짜: ", eventDate)
+            print("근무 날짜 - 반복: ", repeatDays)
+            print("근무 시간 - 출근: ", startTime)
+            print("근무 시간 - 퇴근: ", endTime)
+            print("근무 시간 - 휴게: ", breakTime)
+            print("메모: ", memo)
+            
+            let event = CalendarEvent(
+                title: "",
+                eventDate: eventDate,
+                startTime: startTime,
+                endTime: endTime,
+                createdBy: "",
+                year: dateComponents.year,
+                month: dateComponents.month,
+                day: dateComponents.day,
+                routineIds: [],
+                repeatDays: repeatDays,
+                memo: memo
+            )
+            print(workPlace,event)
         }
     }
     

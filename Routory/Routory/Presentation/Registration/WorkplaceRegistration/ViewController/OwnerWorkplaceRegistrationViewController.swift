@@ -78,5 +78,14 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController {
         print("이름:", contentView.workplaceInfoView.getName())
         print("카테고리:", contentView.workplaceInfoView.getCategory())
         print("라벨:", contentView.labelView.getColorLabelData())
+        
+        let name = contentView.workplaceInfoView.getName()
+        let category = contentView.workplaceInfoView.getCategory()
+        let label = contentView.labelView.getColorLabelData()
+
+        let workPlace = Workplace(workplacesName: name, category: category, ownerId: "", inviteCode: "", isOfficial: true)
+        let userWorkPlace = UserWorkplace(color: label, memo: "")
+        
+        print(workPlace,userWorkPlace)
     }
 }

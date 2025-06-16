@@ -76,13 +76,43 @@ final class WorkShiftRegistrationViewController: UIViewController {
     
     @objc func didTapRegister() {
         print("근무 등록 데이터")
-        print("근무지: ",contentView.simpleRowView.getData())
-        print("근무 날짜 - 날짜: ",contentView.workDateView.getdateRowData())
-        print("근무 날짜 - 반복: ",contentView.workDateView.getrepeatRowData())
-        print("근무 시간 - 출근: ",contentView.workTimeView.getstartRowData())
-        print("근무 시간 - 퇴근: ",contentView.workTimeView.getendRowData())
-        print("근무 시간 - 휴게: ",contentView.workTimeView.getrestRowData())
-        print("루틴: ",contentView.routineView.getTitleData())
-        print("메모: ",contentView.memoBoxView.getData())
+//        print("근무지: ",contentView.simpleRowView.getData())
+//        print("근무 날짜 - 날짜: ",contentView.workDateView.getdateRowData())
+//        print("근무 날짜 - 반복: ",contentView.workDateView.getrepeatRowData())
+//        print("근무 시간 - 출근: ",contentView.workTimeView.getstartRowData())
+//        print("근무 시간 - 퇴근: ",contentView.workTimeView.getendRowData())
+//        print("근무 시간 - 휴게: ",contentView.workTimeView.getrestRowData())
+//        print("루틴: ",contentView.routineView.getSelectedRoutineIDs())
+//        print("메모: ",contentView.memoBoxView.getData())
+        
+        let workPlace = contentView.simpleRowView.getData()
+        let eventDate = contentView.workDateView.getdateRowData()
+        let startTime = contentView.workTimeView.getstartRowData()
+        let endTime = contentView.workTimeView.getendRowData()
+        let breakTime = contentView.workTimeView.getrestRowData()
+        let routineIDs = contentView.routineView.getSelectedRoutineIDs()
+        let repeatDays = contentView.workDateView.getRepeatData()
+        let memo = contentView.memoBoxView.getData()
+        
+        guard let dateComponents = parseDateComponents(from: eventDate) else {
+            print("날짜 파싱 실패: \(eventDate)")
+            return
+        }
+
+        let event = CalendarEvent(
+            title: "",
+            eventDate: eventDate,
+            startTime: startTime,
+            endTime: endTime,
+            createdBy: "",
+            year: dateComponents.year,
+            month: dateComponents.month,
+            day: dateComponents.day,
+            routineIds: routineIDs,
+            repeatDays: repeatDays,
+            memo: memo
+        )
+
+        print(workPlace,event)
     }
 }

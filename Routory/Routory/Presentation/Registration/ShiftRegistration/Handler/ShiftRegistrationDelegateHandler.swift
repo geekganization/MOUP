@@ -61,12 +61,15 @@ extension ShiftRegistrationDelegateHandler: RoutineViewDelegate {
         vc.onSelect = { [weak self] routines in
             guard let self, let first = routines.first else { return }
 
-            let displayText = first.routineName
+            let displayText = first.routine.routineName
             if routines.count > 1 {
                 let displayCount = "+\(routines.count - 1)"
                 self.contentView?.routineView.updateCounterLabel(displayCount)
+            } else {
+                self.contentView?.routineView.updateCounterLabel("")
             }
             self.contentView?.routineView.updateSelectedRoutine(displayText)
+            self.contentView?.routineView.updateSelectedRoutineData(routines)
         }
         navigationController?.pushViewController(vc, animated: true)
     }
@@ -89,8 +92,10 @@ extension ShiftRegistrationDelegateHandler: LabelViewDelegate {
 extension ShiftRegistrationDelegateHandler: WorkDateViewDelegate {
     func didTapRepeatRow(from view: WorkDateView) {
         let vc = RepeatDaysViewController()
-        vc.onSelectDays = { [weak view] shortLabel in
-            view?.updateRepeatValue(shortLabel)
+        vc.onSelectDays = { [weak view] repeatDays in
+            let display = repeatDays.joined(separator: ", ")
+            view?.updateRepeatData(repeatDays)
+            view?.updateRepeatValue(display)
         }
         navigationController?.pushViewController(vc, animated: true)
     }

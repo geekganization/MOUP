@@ -18,7 +18,7 @@ final class RepeatDaysViewController: UIViewController {
     private let days = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"]
     private var selectedDays = Set<Int>()
 
-    var onSelectDays: ((String) -> Void)?
+    var onSelectDays: (([String]) -> Void)?
 
     // MARK: - UI Components
 
@@ -106,8 +106,7 @@ final class RepeatDaysViewController: UIViewController {
     @objc private func didTapApply() {
         let shortDayNames = ["일", "월", "화", "수", "목", "금", "토"]
         let selectedNames = selectedDays.sorted().map { shortDayNames[$0] }
-        let display = selectedNames.joined(separator: ", ")
-        onSelectDays?(display)
+        onSelectDays?(selectedNames)
         navigationController?.popViewController(animated: true)
     }
 }

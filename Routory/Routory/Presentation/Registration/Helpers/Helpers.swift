@@ -52,3 +52,24 @@ func makeTitleAttributedString(from title: String) -> NSAttributedString {
 
     return attributed
 }
+
+func parseDateComponents(from dateString: String) -> (year: Int, month: Int, day: Int)? {
+    let components = dateString.split(separator: ".").map { String($0) }
+    guard components.count == 3,
+          let year = Int(components[0]),
+          let month = Int(components[1]),
+          let day = Int(components[2]) else {
+        return nil
+    }
+    return (year, month, day)
+}
+
+func parseCurrencyStringToInt(_ value: String) -> Int {
+    let cleaned = value.replacingOccurrences(of: ",", with: "")
+    return Int(cleaned) ?? 0
+}
+
+func parseDateStringToInt(_ value: String) -> Int {
+    let digitsOnly = value.trimmingCharacters(in: CharacterSet(charactersIn: "일")).trimmingCharacters(in: .whitespaces)
+    return Int(digitsOnly) ?? 1
+}

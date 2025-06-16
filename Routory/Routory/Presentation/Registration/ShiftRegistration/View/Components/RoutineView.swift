@@ -22,6 +22,8 @@ final class RoutineView: UIView, ValueRowViewDelegate {
     // MARK: - Properties
 
     weak var delegate: RoutineViewDelegate?
+    
+    private var routines: [RoutineInfo] = []
 
     private let addRow = ValueRowView(title: "루틴 추가", value: nil)
 
@@ -64,6 +66,10 @@ final class RoutineView: UIView, ValueRowViewDelegate {
     }
 
     // MARK: - Public API
+    
+    func updateSelectedRoutineData(_ routines: [RoutineInfo]) {
+        self.routines = routines
+    }
 
     func updateSelectedRoutine(_ name: String) {
         addRow.updateTitle(name)
@@ -75,5 +81,13 @@ final class RoutineView: UIView, ValueRowViewDelegate {
 
     func getTitleData() -> String {
         return addRow.getTitleData()
+    }
+    
+    func getSelectedRoutineData() -> [RoutineInfo] {
+        return self.routines
+    }
+    
+    func getSelectedRoutineIDs() -> [String] {
+        return routines.map { $0.id }
     }
 }

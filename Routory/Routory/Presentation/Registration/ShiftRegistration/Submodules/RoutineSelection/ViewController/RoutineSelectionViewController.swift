@@ -8,20 +8,26 @@
 import UIKit
 import SnapKit
 import Then
+import FirebaseAuth
+import RxSwift
 
 // MARK: - RoutineSelectionViewController
 
 final class RoutineSelectionViewController: UIViewController {
 
     // MARK: - Properties
-
-    var onSelect: (([Routine]) -> Void)?
     
-    private var routines: [RoutineItem] = [
-        RoutineItem(routine: Routine(routineName: "오픈", alarmTime: "09:00", tasks: []), isSelected: true),
-        RoutineItem(routine: Routine(routineName: "포기", alarmTime: "15:00", tasks: []), isSelected: false),
-        RoutineItem(routine: Routine(routineName: "마감", alarmTime: "18:00", tasks: []), isSelected: false)
-    ]
+    private let disposeBag = DisposeBag()
+
+    var onSelect: (([RoutineInfo]) -> Void)?
+    
+//    private var routines: [RoutineItem] = [
+//        RoutineItem(routineInfo: RoutineInfo(id: "1", routine: Routine(routineName: "오픈", alarmTime: "09:00", tasks: [])), isSelected: false),
+//        RoutineItem(routineInfo: RoutineInfo(id: "2", routine: Routine(routineName: "포기", alarmTime: "15:00", tasks: [])), isSelected: false),
+//        RoutineItem(routineInfo: RoutineInfo(id: "3", routine: Routine(routineName: "마감", alarmTime: "18:00", tasks: [])), isSelected: false)
+//    ]
+    
+    private var routines: [RoutineItem] = []
 
     // MARK: - UI Components
 
@@ -49,10 +55,36 @@ final class RoutineSelectionViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        getRoutines()
         setupUI()
         setupNavigationBar()
         layout()
     }
+    
+    private func getRoutines() {
+        let routineUseCase = RoutineUseCase(repository: RoutineRepository(service: RoutineService()))
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+
+        routineUseCase.fetchAllRoutines(uid: uid)
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] routineInfos in
+                let items = routineInfos.map {
+                    RoutineItem(routineInfo: $0, isSelected: false)
+                }
+                self?.routines = items
+                self?.tableView.reloadData()
+
+                for item in items {
+                    let info = item.routineInfo
+                    let routine = info.routine
+                    print("ID: \(info.id), 이름: \(routine.routineName), 알람: \(routine.alarmTime)")
+                }
+            }, onError: { error in
+                print("루틴 불러오기 실패: \(error.localizedDescription)")
+            })
+            .disposed(by: disposeBag)
+    }
+
 
     // MARK: - Setup
     
@@ -116,7 +148,7 @@ final class RoutineSelectionViewController: UIViewController {
     }
 
     @objc private func didTapApply() {
-        let selectedRoutines = routines.filter { $0.isSelected }.map { $0.routine }
+        let selectedRoutines = routines.filter { $0.isSelected }.map { $0.routineInfo }
         guard !selectedRoutines.isEmpty else { return }
         onSelect?(selectedRoutines)
         navigationController?.popViewController(animated: true)
@@ -159,12 +191,12 @@ extension RoutineSelectionViewController: UITableViewDataSource, UITableViewDele
 
         cell.onTapChevron = { [weak self] in
             guard let self else { return }
-            let routine = item.routine
+            let routineInfo = item.routineInfo
             let editVC = NewRoutineViewController(
                 mode: .edit(
-                    existingTitle: routine.routineName,
-                    existingTime: routine.alarmTime,
-                    existingTasks: routine.tasks
+                    existingTitle: routineInfo.routine.routineName,
+                    existingTime: routineInfo.routine.alarmTime,
+                    existingTasks: routineInfo.routine.tasks
                 )
             )
             navigationController?.pushViewController(editVC, animated: true)

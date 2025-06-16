@@ -23,6 +23,7 @@ final class WorkDateView: UIView, FieldRowViewDelegate, ValueRowViewDelegate {
     // MARK: - Properties
 
     weak var delegate: WorkDateViewDelegate?
+    private var repeatDays: [String] = []
 
     private let dateRow = FieldRowView(title: "날짜", value: "2025.07.07")
     private let repeatRow = ValueRowView(title: "반복", value: "없음")
@@ -76,6 +77,14 @@ final class WorkDateView: UIView, FieldRowViewDelegate, ValueRowViewDelegate {
     }
 
     // MARK: - Public API
+    
+    func updateRepeatData(_ data: [String]) {
+        repeatDays = data
+    }
+    
+    func getRepeatData() -> [String] {
+        return repeatDays
+    }
 
     func updateRepeatValue(_ value: String) {
         repeatRow.updateValue(value)

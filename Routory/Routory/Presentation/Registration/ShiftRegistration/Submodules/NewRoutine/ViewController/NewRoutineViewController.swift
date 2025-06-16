@@ -209,7 +209,28 @@ final class NewRoutineViewController: UIViewController {
     }
 
     @objc private func didTapSave() {
-        print("루틴 저장")
+        switch mode {
+        case .create:
+            let title = titleTextField.text ?? ""
+            let alarmTime = alarmField.getLabel()
+            print("새 루틴 저장")
+            print("제목:", title)
+            print("알림시간:", alarmTime)
+            print("할 일 리스트:", tasks)
+            dump(Routine(routineName: title, alarmTime: alarmTime, tasks: tasks))
+        case .edit(let existingTitle, _, _):
+            let updatedTitle = (titleTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false)
+                ? titleTextField.text!
+                : existingTitle
+            let updatedTime = alarmField.getLabel()
+            let updatedTasks = tasks
+
+            print("기존 루틴 편집")
+            print("제목:", updatedTitle)
+            print("알림시간:", updatedTime)
+            print("할 일 리스트:", updatedTasks)
+            dump(Routine(routineName: updatedTitle, alarmTime: updatedTime, tasks: updatedTasks))
+        }
     }
 
     @objc private func didTapAlarmField() {

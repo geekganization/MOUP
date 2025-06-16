@@ -98,8 +98,8 @@ final class RoutineCell: UITableViewCell {
     // MARK: - Configuration
 
     func configure(with item: RoutineItem) {
-        nameLabel.text = item.routine.routineName
-        timeLabel.text = item.routine.alarmTime
+        nameLabel.text = item.routineInfo.routine.routineName
+        timeLabel.text = item.routineInfo.routine.alarmTime
         let imageName = item.isSelected ? "CheckboxSelected" : "CheckboxUnselected"
         checkbox.image = UIImage(named: imageName)
     }

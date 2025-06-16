@@ -71,15 +71,86 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     
+//    @objc func didTapRegister() {
+//        print("알바생 새 근무지 등록 데이터")
+//        let name = contentView.workplaceInfoView.getName()
+//        let category = contentView.workplaceInfoView.getCategory()
+//        let salaryType = contentView.salaryInfoView.getTypeValue()
+//        let salaryCalc = contentView.salaryInfoView.getCalcValue()
+//        let fixedSalary = contentView.salaryInfoView.getFixedSalaryValue()
+//        let hourlyWage = contentView.salaryInfoView.getHourlyWageValue()
+//        let payWeekday = contentView.salaryInfoView.getPayWeekdayValue()
+//        let payDate = contentView.salaryInfoView.getPayDateValue()
+//        let workConditions = contentView.workConditionView.getSelectedConditions()
+//        let label = contentView.labelView.getColorLabelData()
+//
+//        print("이름:", name)
+//        print("카테고리:", category)
+//        print("급여 유형:", salaryType)
+//        print("급여 계산:", salaryCalc)
+//        print("고정급:", fixedSalary)
+//        print("시급:", hourlyWage)
+//        print("급여일:", payDate)
+//        print("급여일(요일):", payWeekday)
+//        print("근무 조건:", workConditions)
+//        print("라벨:", label)
+//        
+//        print(Workplace(workplacesName: name, category: category, ownerId: "", inviteCode: "", isOfficial: false))
+//    }
+    
     @objc func didTapRegister() {
-        print("알바생 새 근무지 등록 데이터")
-        print("이름:", contentView.workplaceInfoView.getName())
-        print("카테고리:", contentView.workplaceInfoView.getCategory())
-        print("급여 유형:", contentView.salaryInfoView.getTypeValue())
-        print("급여 계산:", contentView.salaryInfoView.getCalcValue())
-        print("고정급:", contentView.salaryInfoView.getFixedSalaryValue())
-        print("급여일:", contentView.salaryInfoView.getPayDateValue())
-        print("근무 조건:", contentView.workConditionView.getSelectedConditions())
-        print("라벨:", contentView.labelView.getColorLabelData())
+        let name = contentView.workplaceInfoView.getName()
+        let category = contentView.workplaceInfoView.getCategory()
+        let salaryType = contentView.salaryInfoView.getTypeValue() // "매월", "매주", "매일"
+        let salaryCalc = contentView.salaryInfoView.getCalcValue()
+        let fixedSalary = contentView.salaryInfoView.getFixedSalaryValue()
+        let hourlyWage = contentView.salaryInfoView.getHourlyWageValue()
+        let payWeekday = contentView.salaryInfoView.getPayWeekdayValue()
+        let payDate = contentView.salaryInfoView.getPayDateValue()
+        let selectedConditions = contentView.workConditionView.getSelectedConditions() // [String]
+        let label = contentView.labelView.getColorLabelData()
+        
+        let (wage, wageCalcMethod): (Int, String) = {
+            switch salaryType {
+            case "매월":
+                return (parseCurrencyStringToInt(fixedSalary), "monthly")
+            case "매주", "매일":
+                return (parseCurrencyStringToInt(hourlyWage), "hourly")
+            default:
+                return (0, "hourly")
+            }
+        }()
+
+        let employmentInsurance = selectedConditions.contains("고용보험")
+        let healthInsurance = selectedConditions.contains("건강보험")
+        let industrialAccident = selectedConditions.contains("산재보험")
+        let nationalPension = selectedConditions.contains("국민연금")
+        let incomeTax = selectedConditions.contains("소득세")
+        let weeklyAllowance = selectedConditions.contains("주휴수당")
+        let nightAllowance = selectedConditions.contains("야간수당*")
+
+        let breakTimeMinutes = 0
+        
+        let workPlace = Workplace(workplacesName: name, category: category, ownerId: "", inviteCode: "", isOfficial: false)
+
+        let worker = WorkerDetail(
+            workerName: "",
+            wage: wage,
+            wageCalcMethod: wageCalcMethod,
+            wageType: salaryType,
+            weeklyAllowance: weeklyAllowance,
+            payDay: parseDateStringToInt(payDate),
+            payWeekday: payWeekday,
+            breakTimeMinutes: breakTimeMinutes,
+            employmentInsurance: employmentInsurance,
+            healthInsurance: healthInsurance,
+            industrialAccident: industrialAccident,
+            nationalPension: nationalPension,
+            incomeTax: incomeTax,
+            nightAllowance: nightAllowance,
+            color: label
+        )
+
+        print(workPlace,worker)
     }
 }

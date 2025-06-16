@@ -58,4 +58,8 @@ final class AlarmTimeFieldView: UIView {
     func update(text: String) {
         label.text = text
     }
+    
+    func getLabel() -> String {
+        return label.text ?? "00:00"
+    }
 }

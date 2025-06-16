@@ -27,7 +27,7 @@ struct Routine: Codable {
 }
 
 struct RoutineItem {
-    let routine: Routine
+    let routineInfo: RoutineInfo
     var isSelected: Bool
 }
 

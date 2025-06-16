@@ -61,7 +61,7 @@ extension ShiftRegistrationDelegateHandler: RoutineViewDelegate {
         vc.onSelect = { [weak self] routines in
             guard let self, let first = routines.first else { return }
 
-            let displayText = first.routineName
+            let displayText = first.routine.routineName
             if routines.count > 1 {
                 let displayCount = "+\(routines.count - 1)"
                 self.contentView?.routineView.updateCounterLabel(displayCount)

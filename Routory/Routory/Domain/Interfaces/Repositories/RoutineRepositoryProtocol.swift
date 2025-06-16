@@ -8,4 +8,5 @@ import RxSwift
 
 protocol RoutineRepositoryProtocol {
     func fetchAllRoutines(uid: String) -> Observable<[RoutineInfo]>
+    func createRoutine(uid: String, routine: Routine) -> Observable<Void>
 }

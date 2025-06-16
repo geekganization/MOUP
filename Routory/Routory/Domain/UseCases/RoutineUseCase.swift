@@ -16,4 +16,9 @@ final class RoutineUseCase: RoutineUseCaseProtocol {
     func fetchAllRoutines(uid: String) -> Observable<[RoutineInfo]> {
         return repository.fetchAllRoutines(uid: uid)
     }
+    
+    func createRoutine(uid: String, routine: Routine) -> Observable<Void> {
+        return repository.createRoutine(uid: uid, routine: routine)
+    }
+    
 }

@@ -11,6 +11,7 @@ import FirebaseFirestore
 
 protocol RoutineServiceProtocol {
     func fetchAllRoutines(uid: String) -> Observable<[RoutineInfo]>
+    func createRoutine(uid: String, routine: Routine) -> Observable<Void>
 }
 
 final class RoutineService: RoutineServiceProtocol {
@@ -44,6 +45,31 @@ final class RoutineService: RoutineServiceProtocol {
                     observer.onNext(routines)
                     observer.onCompleted()
                 }
+            return Disposables.create()
+        }
+    }
+    
+    /// 루틴 등록 (루틴 ID 자동 생성, 성공 시 해당 ID 반환)
+    func createRoutine(uid: String, routine: Routine) -> Observable<Void> {
+        return Observable.create { observer in
+
+            let routineRef = self.db.collection("users").document(uid).collection("routine").document()
+            let routineId = routineRef.documentID
+            
+            let data: [String: Any] = [
+                "routineName": routine.routineName,
+                "alarmTime": routine.alarmTime,
+                "tasks": routine.tasks
+            ]
+            
+            routineRef.setData(data) { error in
+                if let error = error {
+                    observer.onError(error)
+                } else {
+                    observer.onNext(())
+                    observer.onCompleted()
+                }
+            }
             return Disposables.create()
         }
     }

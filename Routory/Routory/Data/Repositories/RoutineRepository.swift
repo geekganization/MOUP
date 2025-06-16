@@ -16,4 +16,9 @@ final class RoutineRepository: RoutineRepositoryProtocol {
     func fetchAllRoutines(uid: String) -> Observable<[RoutineInfo]> {
         return service.fetchAllRoutines(uid: uid)
     }
+    
+    func createRoutine(uid: String, routine: Routine) -> Observable<Void> {
+        return service.createRoutine(uid: uid, routine: routine)
+    }
+    
 }

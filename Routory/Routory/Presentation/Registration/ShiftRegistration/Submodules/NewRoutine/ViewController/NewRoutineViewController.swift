@@ -217,12 +217,13 @@ final class NewRoutineViewController: UIViewController {
             print("제목:", title)
             print("알림시간:", alarmTime)
             print("할 일 리스트:", tasks)
-            
+            print(Routine(id: "", routineName: title, alarmTime: alarmTime, tasks: tasks))
         case .edit(let existingTitle, let existingTime, let existingTasks):
             print("기존 루틴 편집")
             print("제목: ", existingTitle)
             print("알림시간: ", existingTime)
             print("할 일 리스트: ", existingTasks)
+            print(Routine(id: "", routineName: existingTitle, alarmTime: existingTime, tasks: existingTasks))
         }
     }
 

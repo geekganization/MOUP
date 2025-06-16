@@ -42,6 +42,7 @@ final class CalendarEventListView: UIView {
     
     var getTitleLabel: UILabel { titleLabel }
     var getEventTableView: UITableView { eventTableView }
+    var getAssignButton: UIButton { assignButton }
     
     // MARK: - Initializer
     
@@ -70,8 +71,6 @@ private extension CalendarEventListView {
         setHierarchy()
         setStyles()
         setConstraints()
-        setActions()
-        setBinding()
     }
     
     func setHierarchy() {
@@ -111,13 +110,5 @@ private extension CalendarEventListView {
             $0.bottom.equalTo(self.safeAreaLayoutGuide).inset(12)
             $0.height.equalTo(44)
         }
-    }
-    
-    func setActions() {
-        
-    }
-    
-    func setBinding() {
-        
     }
 }

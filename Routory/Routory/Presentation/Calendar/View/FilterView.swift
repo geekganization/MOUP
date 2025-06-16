@@ -79,7 +79,6 @@ private extension FilterView {
         setHierarchy()
         setStyles()
         setConstraints()
-        setBinding()
     }
     
     func setHierarchy() {
@@ -130,13 +129,5 @@ private extension FilterView {
             $0.bottom.equalTo(self.safeAreaLayoutGuide).inset(12)
             $0.height.equalTo(44)
         }
-    }
-    
-    func setActions() {
-        
-    }
-    
-    func setBinding() {
-        
     }
 }

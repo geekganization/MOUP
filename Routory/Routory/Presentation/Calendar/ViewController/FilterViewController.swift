@@ -7,7 +7,14 @@
 
 import UIKit
 
+import RxCocoa
+import RxSwift
+
 final class FilterViewController: UIViewController {
+    
+    // MARK: - Properties
+    
+    private let disposeBag = DisposeBag()
     
     // MARK: UI Components
     
@@ -51,10 +58,11 @@ private extension FilterViewController {
     }
     
     func setActions() {
-        filterView.getApplyButton.addAction(UIAction(handler: { _ in
-            // TODO: 선택된 근무지/매장 전달
-            self.dismiss(animated: true)
-        }), for: .touchUpInside)
+        filterView.getApplyButton.rx.tap
+            .subscribe(with: self) { owner, _ in
+                // TODO: 선택된 근무지/매장 전달
+                owner.dismiss(animated: true)
+            }.disposed(by: disposeBag)
     }
     
     func setBinding() {

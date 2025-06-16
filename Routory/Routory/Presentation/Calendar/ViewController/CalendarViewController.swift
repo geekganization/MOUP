@@ -19,17 +19,21 @@ final class CalendarViewController: UIViewController {
     
     private let viewModel = CalendarViewModel()
     
+    private let disposeBag = DisposeBag()
+    
     private let calendarMode = BehaviorRelay<CalendarMode>(value: .personal)
     
     /// `calendarView`에서 `dataSource` 관련 데이터의 연/월 형식을 만들기 위한 `DateFormatter`
     private let dataSourceDateFormatter = DateFormatter().then {
-        $0.dateFormat = "yyyy년 M월 d일"
+        $0.dateFormat = "yyyy.MM.dd"
         $0.locale = Locale(identifier: "ko_KR")
         $0.timeZone = TimeZone(identifier: "Asia/Seoul")
     }
     
     private var personalEventDataSource: [Date: [CalendarEvent]] = [:]
     private var sharedEventDataSource: [Date: [CalendarEvent]] = [:]
+    
+    private var selectedDate: Date?
     
     // MARK: - UI Components
     
@@ -73,15 +77,15 @@ private extension CalendarViewController {
     func setActions() {
         // 네비게이션 바 "오늘" 버튼
         let todayButtonAction = UIAction(handler: { [weak self] _ in
-            guard let self else { return }
-            self.calendarView.getJTACalendar.scrollToDate(.now, animateScroll: true)
+            self?.calendarView.getJTACalendar.scrollToDate(.now, animateScroll: true)
         })
         let todayButton = UIBarButtonItem(title: "오늘", primaryAction: todayButtonAction)
         todayButton.setTitleTextAttributes([.font: UIFont.headBold(14), .foregroundColor: UIColor.gray900], for: .normal)
         todayButton.setTitleTextAttributes([.font: UIFont.headBold(14), .foregroundColor: UIColor.gray900], for: .selected)
         self.navigationItem.rightBarButtonItem = todayButton
         
-        let calendarViewTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didCalendarViewTapped(_:)))
+        // CalendarEventListVC 모달 이외 영역 터치
+        let calendarViewTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didCalendarViewTouched(_:)))
         calendarViewTapRecognizer.cancelsTouchesInView = false
         calendarView.addGestureRecognizer(calendarViewTapRecognizer)
         
@@ -91,15 +95,15 @@ private extension CalendarViewController {
         
         // 개인/공유 캘린더 토글 스위치
         calendarView.getCalendarHeaderView.getToggleSwitch.addAction(UIAction(handler: { [weak self] action in
-            guard let self, let sender = action.sender as? BetterSegmentedControl else { return }
-            calendarMode.accept(CalendarMode.allCases[sender.index])
+            guard let sender = action.sender as? BetterSegmentedControl else { return }
+            self?.calendarMode.accept(CalendarMode.allCases[sender.index])
         }), for: .valueChanged)
         
         // 근무지/매장 필터 버튼
-        calendarView.getCalendarHeaderView.getFilterButton.addAction(UIAction(handler: { [weak self] action in
-            guard let self else { return }
-            self.didFilterButtonTap()
-        }), for: .touchUpInside)
+        calendarView.getCalendarHeaderView.getFilterButton.rx.tap
+            .subscribe(with: self) { owner, _ in
+                owner.didFilterButtonTap()
+            }.disposed(by: disposeBag)
     }
     
     func setBinding() {
@@ -113,8 +117,9 @@ private extension CalendarViewController {
 // MARK: - @objc Methods
 
 @objc private extension CalendarViewController {
-    func didCalendarViewTapped(_ sender: UITapGestureRecognizer) {
-        self.presentedViewController?.dismiss(animated: true)
+    func didCalendarViewTouched(_ sender: UITapGestureRecognizer) {
+        guard let selectedDate else { return }
+        calendarView.getJTACalendar.deselect(dates: [selectedDate])
     }
     
     func didYearMonthLabelTapped(_ sender: UITapGestureRecognizer) {
@@ -144,10 +149,12 @@ private extension CalendarViewController {
     ///   - day: 탭한 셀의 일
     ///   - eventList: 탭한 셀의 일에 해당하는 `CalendarEvent` 배열
     func didSelectCell(day: Int, eventList: [CalendarEvent]) {
-        let calendarEventListModalVC = CalendarEventListViewController(day: day)
-        calendarEventListModalVC.delegate = self
+        let calendarEventListVC = CalendarEventListViewController(day: day)
+        calendarEventListVC.delegate = self
         
-        if let sheet = calendarEventListModalVC.sheetPresentationController {
+        let modalNC = UINavigationController(rootViewController: calendarEventListVC)
+        
+        if let sheet = modalNC.sheetPresentationController {
             sheet.detents = [.medium()]
             sheet.prefersGrabberVisible = false
             sheet.preferredCornerRadius = 0
@@ -155,7 +162,7 @@ private extension CalendarViewController {
             sheet.largestUndimmedDetentIdentifier = .medium
         }
         
-        self.present(calendarEventListModalVC, animated: true)
+        self.tabBarController?.present(modalNC, animated: true)
     }
     
     func didFilterButtonTap() {
@@ -183,8 +190,8 @@ private extension CalendarViewController {
 
 extension CalendarViewController: JTACMonthViewDataSource {
     func configureCalendar(_ calendar: JTAppleCalendar.JTACMonthView) -> JTAppleCalendar.ConfigurationParameters {
-        let startDate = dataSourceDateFormatter.date(from: "\(CalendarRange.startYear.rawValue)년 1월 1일")
-        let endDate = dataSourceDateFormatter.date(from: "\(CalendarRange.endYear.rawValue)년 12월 31일")
+        let startDate = dataSourceDateFormatter.date(from: "\(CalendarRange.startYear.rawValue).01.01")
+        let endDate = dataSourceDateFormatter.date(from: "\(CalendarRange.endYear.rawValue).12.31")
         
         let parameter = ConfigurationParameters(startDate: startDate ?? .distantPast,
                                                 endDate: endDate ?? .distantFuture,
@@ -221,16 +228,13 @@ extension CalendarViewController: JTACMonthViewDelegate {
             return false
         }
         
-        if cellState.isSelected {
-            calendar.deselect(dates: [date])
-            return false
-        }
         return true
     }
     
     func calendar(_ calendar: JTACMonthView, didSelectDate date: Date, cell: JTACDayCell?, cellState: CellState, indexPath: IndexPath) {
         calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarEventList: personalEventDataSource[date] ?? [])
         let day = Calendar.current.component(.day, from: date)
+        selectedDate = date
         switch calendarMode.value {
         case .personal:
             didSelectCell(day: day, eventList: personalEventDataSource[date] ?? [])
@@ -241,14 +245,32 @@ extension CalendarViewController: JTACMonthViewDelegate {
     
     func calendar(_ calendar: JTACMonthView, didDeselectDate date: Date, cell: JTACDayCell?, cellState: CellState, indexPath: IndexPath) {
         calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarEventList: personalEventDataSource[date] ?? [])
+        selectedDate = nil
+        self.presentedViewController?.dismiss(animated: true)
     }
 }
 
 // MARK: - CalendarEventListVCDelegate
 
 extension CalendarViewController: CalendarEventListVCDelegate {
-    func viewWillDisappear() {
-        calendarView.getJTACalendar.deselectAllDates()
+    func didTapEventCell() {
+        // TODO: 존재하는 근무 표시
+        let workShiftRegisterVC = WorkShiftRegistrationViewController()
+        workShiftRegisterVC.hidesBottomBarWhenPushed = true
+        workShiftRegisterVC.delegate = self
+        
+        self.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
+        self.tabBarController?.presentedViewController?.dismiss(animated: true)
+    }
+    
+    func didTapAssignButton() {
+        // TODO: 새로운 근무 작성
+        let workShiftRegisterVC = WorkShiftRegistrationViewController()
+        workShiftRegisterVC.hidesBottomBarWhenPushed = true
+        workShiftRegisterVC.delegate = self
+        
+        self.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
+        self.tabBarController?.presentedViewController?.dismiss(animated: true)
     }
 }
 
@@ -259,5 +281,13 @@ extension CalendarViewController: YearMonthPickerVCDelegate {
         let yearMonthText = "\(year). \(month)"
         guard let date = calendarView.getDateFormatter.date(from: yearMonthText) else { return }
         calendarView.getJTACalendar.scrollToDate(date)
+    }
+}
+
+extension CalendarViewController: RegistrationVCDelegate {
+    func registrationVCIsMovingFromParent() {
+        // TODO: 해당 날짜 이벤트 다시 로드
+        guard let selectedDate else { return }
+        calendarView.getJTACalendar.selectDates([selectedDate])
     }
 }

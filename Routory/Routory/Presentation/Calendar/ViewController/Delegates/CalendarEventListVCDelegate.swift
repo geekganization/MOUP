@@ -8,5 +8,8 @@
 import Foundation
 
 protocol CalendarEventListVCDelegate: AnyObject {
-    func viewWillDisappear()
+    /// `eventTableView`의 셀을 탭했을 때 호출하는 메서드
+    func didTapEventCell()
+    /// `assignButton`을 탭했을 때 호출하는 메서드
+    func didTapAssignButton()
 }

@@ -7,6 +7,8 @@
 
 import UIKit
 
+import RxCocoa
+import RxSwift
 import Then
 
 final class CalendarEventListViewController: UIViewController {
@@ -14,6 +16,8 @@ final class CalendarEventListViewController: UIViewController {
     // MARK: - Properties
     
     weak var delegate: CalendarEventListVCDelegate?
+    
+    private let disposeBag = DisposeBag()
     
     private let day: Int
     
@@ -43,11 +47,6 @@ final class CalendarEventListViewController: UIViewController {
         super.viewDidLoad()
         configure()
     }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        delegate?.viewWillDisappear()
-    }
 }
 
 // MARK: - UI Methods
@@ -67,11 +66,20 @@ private extension CalendarEventListViewController {
     
     func setDelegates() {
         calendarEventListView.getEventTableView.dataSource = self
-        calendarEventListView.getEventTableView.delegate = self
     }
     
     func setBinding() {
-//        calendarEventListView.getEventTableView
+        calendarEventListView.getEventTableView.rx.itemSelected
+            .subscribe(with: self) { owner, indexPath in
+                // TODO: 사장님 근무 VC에 데이터 연결
+                owner.delegate?.didTapEventCell()
+            }.disposed(by: disposeBag)
+        
+        calendarEventListView.getAssignButton.rx.tap
+            .subscribe(with: self) { owner, _ in
+                // TODO: 사장님 근무 VC에 데이터 연결
+                owner.delegate?.didTapAssignButton()
+            }.disposed(by: disposeBag)
     }
 }
 
@@ -87,8 +95,4 @@ extension CalendarEventListViewController: UITableViewDataSource {
         
         return cell
     }
-}
-
-extension CalendarEventListViewController: UITableViewDelegate {
-    
 }

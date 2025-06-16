@@ -21,4 +21,8 @@ final class RoutineRepository: RoutineRepositoryProtocol {
         return service.createRoutine(uid: uid, routine: routine)
     }
     
+    func deleteRoutine(uid: String, routineId: String) -> Observable<Void> {
+        return service.deleteRoutine(uid: uid, routineId: routineId)
+    }
+    
 }

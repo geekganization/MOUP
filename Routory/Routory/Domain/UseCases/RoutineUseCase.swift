@@ -21,4 +21,8 @@ final class RoutineUseCase: RoutineUseCaseProtocol {
         return repository.createRoutine(uid: uid, routine: routine)
     }
     
+    func deleteRoutine(uid: String, routineId: String) -> Observable<Void> {
+        return repository.deleteRoutine(uid: uid, routineId: routineId)
+    }
+    
 }

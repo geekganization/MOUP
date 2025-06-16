@@ -9,4 +9,5 @@ import RxSwift
 protocol RoutineRepositoryProtocol {
     func fetchAllRoutines(uid: String) -> Observable<[RoutineInfo]>
     func createRoutine(uid: String, routine: Routine) -> Observable<Void>
+    func deleteRoutine(uid: String, routineId: String) -> Observable<Void>
 }

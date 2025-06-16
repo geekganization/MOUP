@@ -112,10 +112,10 @@ private extension ManageRoutineViewController {
                 .withLatestFrom(output.allRoutine) { indexPath, routines in
                     return routines[indexPath.row]
                 }
-                .subscribe(onNext: { routine in
+                .subscribe(onNext: { [weak self] routine in
                     print("\(routine) 루틴 탭")
                     let vc = NewRoutineViewController(mode: .create)
-                    self.navigationController?.pushViewController(vc, animated: true)
+                    self?.navigationController?.pushViewController(vc, animated: true)
                 })
                 .disposed(by: disposeBag)
         }

@@ -14,5 +14,5 @@ protocol YearMonthPickerVCDelegate: AnyObject {
     /// - Parameters:
     ///   - year: 이동할 연도
     ///   - month: 이동할 월
-    func didGotoButtonTapped(year: Int, month: Int)
+    func didTapGotoButton(year: Int, month: Int)
 }

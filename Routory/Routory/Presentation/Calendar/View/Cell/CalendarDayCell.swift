@@ -1,5 +1,5 @@
 //
-//  JTACalendarDayCell.swift
+//  CalendarDayCell.swift
 //  Routory
 //
 //  Created by 서동환 on 6/10/25.
@@ -11,11 +11,11 @@ import JTAppleCalendar
 import SnapKit
 import Then
 
-final class JTACalendarDayCell: JTACDayCell {
+final class CalendarDayCell: JTACDayCell {
     
     // MARK: - Properties
     
-    static let identifier = String(describing: JTACalendarDayCell.self)
+    static let identifier = String(describing: CalendarDayCell.self)
     
     /// 근무 시간 계산용 `DateFormatter`
     private let dateFormatter = DateFormatter().then {
@@ -35,16 +35,19 @@ final class JTACalendarDayCell: JTACDayCell {
         $0.isHidden = true
     }
     
-    private let dateLabel = UILabel().then {
+    private let dayLabel = UILabel().then {
         $0.textColor = .gray900
         $0.font = .bodyMedium(14)
         $0.textAlignment = .center
         $0.backgroundColor = .clear
         $0.clipsToBounds = true
+        $0.layer.cornerRadius = 11
     }
     
     private let firstEventStackView = CalendarEventVStackView()
     private let secondEventStackView = CalendarEventVStackView()
+    private let thirdEventStackView = CalendarEventVStackView()
+    private let otherEventLabel = OtherEventLabel()
     
     private let eventVStackView = UIStackView().then {
         $0.axis = .vertical
@@ -53,13 +56,9 @@ final class JTACalendarDayCell: JTACDayCell {
     
     // MARK: - Getter
     
-    var getSelectedView: UIView {
-        return selectedView
-    }
+    var getSelectedView: UIView { selectedView }
     
-    var getDateLabel: UILabel {
-        return dateLabel
-    }
+    var getDateLabel: UILabel { dayLabel }
     
     // MARK: - Initializer
     
@@ -74,32 +73,27 @@ final class JTACalendarDayCell: JTACDayCell {
     }
     
     // MARK: - Lifecycle
-        
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        dateLabel.layer.cornerRadius = dateLabel.frame.height / 2
-    }
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        dateLabel.backgroundColor = .clear
+        dayLabel.backgroundColor = .clear
     }
     
     // MARK: - Methods
     
     func update(date: String, isSaturday: Bool, isSunday: Bool, isToday: Bool, isShared: Bool, eventList: [CalendarEvent]?) {
-        dateLabel.text = date
-        dateLabel.textColor = isSunday ? .sundayText : .gray900
+        dayLabel.text = date
+        dayLabel.textColor = isSunday ? .sundayText : .gray900
         
         if isToday {
-            dateLabel.textColor = .white
-            dateLabel.backgroundColor = .gray900
+            dayLabel.textColor = .white
+            dayLabel.backgroundColor = .gray900
         } else if isSaturday {
-            dateLabel.textColor = .saturdayText
+            dayLabel.textColor = .saturdayText
         } else if isSunday {
-            dateLabel.textColor = .sundayText
+            dayLabel.textColor = .sundayText
         } else {
-            dateLabel.textColor = .gray900
+            dayLabel.textColor = .gray900
         }
         
         eventVStackView.subviews.forEach { $0.isHidden = true }
@@ -110,13 +104,18 @@ final class JTACalendarDayCell: JTACDayCell {
             } else {
                 eventVStackView.isHidden = false
                 
+                if isShared && eventList.count > 3 {
+                    otherEventLabel.text = "+\(eventList.count - 3)"
+                    otherEventLabel.isHidden = false
+                }
                 for (index, event) in eventList.enumerated() {
-                    if index > 1 {
+                    if index > (isShared ? 2 : 1) {
                         break
                     } else {
                         guard let eventView = eventVStackView.subviews[index] as? CalendarEventVStackView else { continue }
                         // TODO: 캘린더가 isShared인지 확인 필요
                         let workHour = hourDiffDecimal(from: event.startTime, to: event.endTime)
+                        // TODO: dailyWage 계산 필요
                         eventView.update(workHourOrName: "\(workHour?.hours ?? 0)", dailyWage: "100,000", isShared: isShared, color: "red")
                         eventView.isHidden = false
                     }
@@ -128,7 +127,7 @@ final class JTACalendarDayCell: JTACDayCell {
 
 // MARK: - UI Methods
 
-private extension JTACalendarDayCell {
+private extension CalendarDayCell {
     func configure() {
         setHierarchy()
         setStyles()
@@ -136,17 +135,19 @@ private extension JTACalendarDayCell {
     }
     
     func setHierarchy() {
-        self.addSubviews(seperatorView,
+        self.contentView.addSubviews(seperatorView,
                          selectedView,
-                         dateLabel,
+                         dayLabel,
                          eventVStackView)
         
         eventVStackView.addArrangedSubviews(firstEventStackView,
-                                            secondEventStackView)
+                                            secondEventStackView,
+                                            thirdEventStackView,
+                                            otherEventLabel)
     }
     
     func setStyles() {
-        self.backgroundColor = .primaryBackground
+        self.contentView.backgroundColor = .primaryBackground
     }
     
     func setConstraints() {
@@ -162,14 +163,14 @@ private extension JTACalendarDayCell {
             $0.bottom.equalToSuperview()
         }
         
-        dateLabel.snp.makeConstraints {
+        dayLabel.snp.makeConstraints {
             $0.top.equalTo(seperatorView.snp.bottom).offset(4)
             $0.width.height.equalTo(22)
             $0.centerX.equalToSuperview()
         }
         
         eventVStackView.snp.makeConstraints {
-            $0.top.equalTo(dateLabel.snp.bottom)
+            $0.top.equalTo(dayLabel.snp.bottom)
             $0.leading.trailing.equalToSuperview().inset(2)
         }
     }
@@ -177,7 +178,7 @@ private extension JTACalendarDayCell {
 
 // MARK: - Private Methods
 
-private extension JTACalendarDayCell {
+private extension CalendarDayCell {
     func hourDiffDecimal(from start: String, to end: String) -> (hours: Int, minutes: Int, decimal: Double)? {
         guard let startDate = dateFormatter.date(from: start),
               let endDate = dateFormatter.date(from: end) else { return nil }

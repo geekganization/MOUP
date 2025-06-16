@@ -18,11 +18,14 @@ final class YearMonthPickerView: UIView {
     private let yearMonthList: [[Int]]
     
     /// `pickerView`에서 didSelect된 연도
-    private var focusedYear = JTACalendarRange.startYear.rawValue
+    private var focusedYear: Int
     /// `pickerView`에서 didSelect된 월
-    private var focusedMonth = 1
+    private var focusedMonth: Int
     
     // MARK: - UI Components
+    
+    /// 모달 핸들을 표시하는 `GrabberView`
+    private let grabberView = GrabberView()
     
     /// 이동할 연/월을 선택하는 `UIPickerView`
     private lazy var pickerView = UIPickerView().then {
@@ -59,27 +62,18 @@ final class YearMonthPickerView: UIView {
     
     // MARK: - Getter
     
-    var getSelectedYearMonth: (year: Int, month: Int) {
-        return (focusedYear, focusedMonth)
-    }
-    
-    var getCancelButton: UIButton {
-        return cancelButton
-    }
-    
-    var getGotoButton: UIButton {
-        return gotoButton
-    }
-    
-    var getPickerView: UIPickerView {
-        return pickerView
-    }
+    var getSelectedYearMonth: (year: Int, month: Int) { (focusedYear, focusedMonth) }
+    var getCancelButton: UIButton { cancelButton }
+    var getGotoButton: UIButton { gotoButton }
+    var getPickerView: UIPickerView { pickerView }
     
     // MARK: - Initializer
     
-    override init(frame: CGRect) {
-        yearMonthList = [Array(JTACalendarRange.startYear.rawValue...JTACalendarRange.endYear.rawValue), Array(1...12)]
-        super.init(frame: frame)
+    init(focusedYear: Int, focusedMonth: Int) {
+        yearMonthList = [Array(CalendarRange.startYear.rawValue...CalendarRange.endYear.rawValue), Array(1...12)]
+        self.focusedYear = focusedYear
+        self.focusedMonth = focusedMonth
+        super.init(frame: .zero)
         configure()
     }
     
@@ -98,8 +92,9 @@ private extension YearMonthPickerView {
     }
     
     func setHierarchy() {
-        self.addSubviews(buttonHStackView,
-                         pickerView)
+        self.addSubviews(grabberView,
+                         pickerView,
+                         buttonHStackView)
         
         buttonHStackView.addArrangedSubviews(cancelButton, gotoButton)
     }
@@ -109,8 +104,15 @@ private extension YearMonthPickerView {
     }
     
     func setConstraints() {
+        grabberView.snp.makeConstraints {
+            $0.top.equalToSuperview().inset(12)
+            $0.centerX.equalTo(self.safeAreaLayoutGuide)
+            $0.width.equalTo(45)
+            $0.height.equalTo(4)
+        }
+        
         pickerView.snp.makeConstraints {
-            $0.top.equalTo(self.safeAreaLayoutGuide)
+            $0.top.equalTo(grabberView).offset(16)
             $0.leading.trailing.equalTo(self.safeAreaLayoutGuide)
             $0.bottom.equalTo(buttonHStackView.snp.top).offset(-12)
         }
@@ -168,7 +170,7 @@ extension YearMonthPickerView: UIPickerViewDelegate {
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         switch component {
         case PickerViewComponents.year.rawValue:
-            focusedYear = row + JTACalendarRange.startYear.rawValue
+            focusedYear = row + CalendarRange.startYear.rawValue
         case PickerViewComponents.month.rawValue:
             focusedMonth = row + 1
         default:

@@ -9,6 +9,8 @@ import UIKit
 import SnapKit
 
 final class OwnerShiftRegistrationViewController: UIViewController {
+    
+    weak var delegate: RegistrationVCDelegate?
 
     private let scrollView = UIScrollView()
     private let stackView = UIStackView()
@@ -42,6 +44,14 @@ final class OwnerShiftRegistrationViewController: UIViewController {
         layout()
         setupSegment()
         setupKeyboardHandler()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        if self.isMovingFromParent {
+            delegate?.registrationVCIsMovingFromParent()
+        }
     }
 
     deinit {

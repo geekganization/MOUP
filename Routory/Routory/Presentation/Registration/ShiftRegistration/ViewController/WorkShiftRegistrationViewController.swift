@@ -11,6 +11,8 @@ import SnapKit
 // MARK: - WorkShiftRegistrationViewController
 
 final class WorkShiftRegistrationViewController: UIViewController {
+    
+    weak var delegate: RegistrationVCDelegate?
 
     private let scrollView = UIScrollView()
     private let contentView = ShiftRegistrationContentView()
@@ -26,6 +28,14 @@ final class WorkShiftRegistrationViewController: UIViewController {
 
         keyboardHandler = KeyboardInsetHandler(scrollView: scrollView, containerView: view,targetView: contentView.memoBoxView)
         keyboardHandler?.startObserving()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        if self.isMovingFromParent {
+            delegate?.registrationVCIsMovingFromParent()
+        }
     }
 
     deinit {

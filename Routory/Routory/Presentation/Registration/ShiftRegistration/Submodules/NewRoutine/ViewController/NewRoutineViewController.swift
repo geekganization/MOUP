@@ -14,6 +14,7 @@ import Then
 enum RoutineFormMode {
     case create
     case edit(existingTitle: String, existingTime: String, existingTasks: [String])
+    case read(existingTitle: String, existingTime: String, existingTasks: [String])
 }
 
 // MARK: - NewRoutineViewController
@@ -93,25 +94,28 @@ final class NewRoutineViewController: UIViewController {
             action: #selector(didTapBack)
         )
         backButton.tintColor = .gray700
-        navigationItem.rightBarButtonItem?.tintColor = .gray700
         navigationItem.leftBarButtonItem = backButton
+
+        if case .read = mode {
+            navigationItem.rightBarButtonItem = nil
+        } else {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(
+                title: "저장",
+                style: .done,
+                target: self,
+                action: #selector(didTapSave)
+            )
+            navigationItem.rightBarButtonItem?.tintColor = .gray700
+        }
     }
 
     private func setupUI() {
         view.backgroundColor = .white
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            title: "저장",
-            style: .done,
-            target: self,
-            action: #selector(didTapSave)
-        )
-
         addTaskButton.addTarget(self, action: #selector(didTapAddTask), for: .touchUpInside)
 
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.isEditing = true
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(didTapAlarmField))
         alarmField.addGestureRecognizer(tap)
@@ -180,15 +184,29 @@ final class NewRoutineViewController: UIViewController {
         switch mode {
         case .create:
             title = "새 루틴"
+
         case .edit(let existingTitle, let existingTime, let existingTasks):
             title = "루틴 편집"
             titleTextField.text = existingTitle
             alarmField.update(text: existingTime)
             tasks = existingTasks
-            tableView.reloadData()
-            tableView.snp.updateConstraints {
-                $0.height.equalTo(44 * tasks.count)
-            }
+
+        case .read(let existingTitle, let existingTime, let existingTasks):
+            title = "루틴 보기"
+            titleTextField.text = existingTitle
+            alarmField.update(text: existingTime)
+            tasks = existingTasks
+
+            titleTextField.isEnabled = false
+            alarmField.isUserInteractionEnabled = false
+            taskInputField.isEnabled = false
+            addTaskButton.isHidden = true
+            tableView.isEditing = false
+        }
+
+        tableView.reloadData()
+        tableView.snp.updateConstraints {
+            $0.height.equalTo(44 * tasks.count)
         }
     }
 
@@ -213,27 +231,29 @@ final class NewRoutineViewController: UIViewController {
         case .create:
             let title = titleTextField.text ?? ""
             let alarmTime = alarmField.getLabel()
-            print("새 루틴 저장")
-            print("제목:", title)
-            print("알림시간:", alarmTime)
-            print("할 일 리스트:", tasks)
             dump(Routine(routineName: title, alarmTime: alarmTime, tasks: tasks))
+
         case .edit(let existingTitle, _, _):
             let updatedTitle = (titleTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false)
                 ? titleTextField.text!
                 : existingTitle
             let updatedTime = alarmField.getLabel()
             let updatedTasks = tasks
-
-            print("기존 루틴 편집")
-            print("제목:", updatedTitle)
-            print("알림시간:", updatedTime)
-            print("할 일 리스트:", updatedTasks)
             dump(Routine(routineName: updatedTitle, alarmTime: updatedTime, tasks: updatedTasks))
+
+        case .read:
+            break
         }
     }
 
     @objc private func didTapAlarmField() {
+        guard case .read = mode else {
+            presentTimePicker()
+            return
+        }
+    }
+
+    private func presentTimePicker() {
         let alert = UIAlertController(title: "\n\n\n\n\n\n\n\n\n", message: nil, preferredStyle: .actionSheet)
 
         let picker = UIDatePicker().then {
@@ -278,21 +298,26 @@ extension NewRoutineViewController: UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        true
+        if case .read = mode {
+            return false
+        }
+        return true
     }
 
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            tasks.remove(at: indexPath.row)
-            tableView.deleteRows(at: [indexPath], with: .automatic)
-            tableView.snp.updateConstraints {
-                $0.height.equalTo(44 * tasks.count)
-            }
+        guard editingStyle == .delete else { return }
+        tasks.remove(at: indexPath.row)
+        tableView.deleteRows(at: [indexPath], with: .automatic)
+        tableView.snp.updateConstraints {
+            $0.height.equalTo(44 * tasks.count)
         }
     }
 
     func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        true
+        if case .read = mode {
+            return false
+        }
+        return true
     }
 
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {

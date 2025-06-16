@@ -115,7 +115,7 @@ private extension CalendarViewController {
         
         if let sheet = pickerModalVC.sheetPresentationController {
             sheet.detents = [.medium()]
-            sheet.prefersGrabberVisible = true
+            sheet.prefersGrabberVisible = false
             sheet.preferredCornerRadius = 12
         }
         
@@ -136,15 +136,14 @@ private extension CalendarViewController {
         calendarEventListModalVC.delegate = self
         
         if let sheet = calendarEventListModalVC.sheetPresentationController {
-            sheet.detents = [.medium(), .large()]
-            sheet.prefersGrabberVisible = true
+            sheet.detents = [.medium()]
+            sheet.prefersGrabberVisible = false
             sheet.preferredCornerRadius = 0
             sheet.prefersScrollingExpandsWhenScrolledToEdge = false
-//            sheet.largestUndimmedDetentIdentifier = .medium
+            sheet.largestUndimmedDetentIdentifier = .medium
         }
         
         self.present(calendarEventListModalVC, animated: true)
-        
     }
     
     func didFilterButtonTap() {
@@ -161,10 +160,10 @@ private extension CalendarViewController {
     }
     
     func populateDataSource() {
-        for event in calendarEventMockList {
-            guard let eventDate = dataSourceDateFormatter.date(from: event.eventDate) else { continue }
-            personalEventDataSource[eventDate, default: []].append(event)
-        }
+//        for event in calendarEventMockList {
+//            guard let eventDate = dataSourceDateFormatter.date(from: event.eventDate) else { continue }
+//            personalEventDataSource[eventDate, default: []].append(event)
+//        }
     }
 }
 

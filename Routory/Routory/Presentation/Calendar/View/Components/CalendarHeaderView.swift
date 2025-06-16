@@ -40,7 +40,7 @@ final class CalendarHeaderView: UIView {
     /// 필터 `UIButton`
     private let filterButton = UIButton().then {
         var config = UIButton.Configuration.plain()
-        config.image = UIImage(systemName: "slider.horizontal.3")?.withTintColor(.gray900, renderingMode: .alwaysOriginal)
+        config.image = UIImage(systemName: "slider.horizontal.3")?.withTintColor(.gray700, renderingMode: .alwaysOriginal)
         config.contentInsets = .init(top: 12, leading: 10, bottom: 12, trailing: 10)
         
         $0.configuration = config

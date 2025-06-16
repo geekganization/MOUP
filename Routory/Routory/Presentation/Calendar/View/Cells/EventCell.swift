@@ -59,6 +59,9 @@ final class EventCell: UITableViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         self.contentView.frame = self.contentView.frame.inset(by: UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16))
+        
+        self.backgroundView = ColorBorderView(frame: self.contentView.bounds, borderColor: .red)
+        self.backgroundView?.frame = self.contentView.frame
     }
     
     
@@ -88,10 +91,6 @@ private extension EventCell {
     }
     
     func setStyles() {
-        self.contentView.backgroundColor = .gray100
-        
-        self.contentView.layer.cornerRadius = 12
-        // TODO: 왼쪽 colored border 적용
         self.selectionStyle = .none
     }
     

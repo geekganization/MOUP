@@ -16,6 +16,8 @@ final class CalendarEventListView: UIView {
     
     // MARK: - UI Components
     
+    private let grabberView = GrabberView()
+    
     private let titleLabel = UILabel().then {
         $0.font = .headBold(20)
         $0.textColor = .gray900
@@ -73,7 +75,8 @@ private extension CalendarEventListView {
     }
     
     func setHierarchy() {
-        self.addSubviews(titleLabel,
+        self.addSubviews(grabberView,
+                         titleLabel,
                          eventTableView,
                          assignButton)
     }
@@ -85,6 +88,13 @@ private extension CalendarEventListView {
     }
     
     func setConstraints() {
+        grabberView.snp.makeConstraints {
+            $0.top.equalToSuperview().inset(12)
+            $0.centerX.equalToSuperview()
+            $0.width.equalTo(45)
+            $0.height.equalTo(4)
+        }
+        
         titleLabel.snp.makeConstraints {
             $0.top.equalToSuperview().inset(28)
             $0.leading.equalToSuperview().inset(16)

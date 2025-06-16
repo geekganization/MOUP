@@ -14,6 +14,8 @@ final class FilterView: UIView {
     
     // MARK: - UI Components
     
+    private let grabberView = GrabberView()
+    
     private let titleLabel = UILabel().then {
         $0.text = "필터"
         $0.font = .headBold(20)
@@ -75,7 +77,8 @@ private extension FilterView {
     }
     
     func setHierarchy() {
-        self.addSubviews(titleLabel,
+        self.addSubviews(grabberView,
+                         titleLabel,
                          separatorView,
                          workplaceTableView,
                          applyButton)
@@ -86,6 +89,13 @@ private extension FilterView {
     }
     
     func setConstraints() {
+        grabberView.snp.makeConstraints {
+            $0.top.equalToSuperview().inset(12)
+            $0.centerX.equalToSuperview()
+            $0.width.equalTo(45)
+            $0.height.equalTo(4)
+        }
+        
         titleLabel.snp.makeConstraints {
             $0.top.equalToSuperview().inset(28)
             $0.leading.equalToSuperview().inset(16)

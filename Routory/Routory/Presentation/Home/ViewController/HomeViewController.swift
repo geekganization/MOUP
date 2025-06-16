@@ -191,7 +191,7 @@ extension HomeViewController: UITableViewDelegate {
                 self.navigationController?.pushViewController(vc, animated: true)
             }).disposed(by: disposeBag)
         
-        headerView.rx.addPlusButtonTapped
+        headerView.rx.plusButtonTapped
             .subscribe(onNext: {
                 print("근무지 추가")
                 let workplaceAddModalVC = WorkplaceAddModalViewController()

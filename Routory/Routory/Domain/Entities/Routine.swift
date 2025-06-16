@@ -30,3 +30,8 @@ struct RoutineItem {
     let routine: Routine
     var isSelected: Bool
 }
+
+struct RoutineInfo {
+    let id: String
+    let routine: Routine
+}

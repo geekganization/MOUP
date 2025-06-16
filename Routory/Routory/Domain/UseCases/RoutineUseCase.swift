@@ -13,7 +13,7 @@ final class RoutineUseCase: RoutineUseCaseProtocol {
         self.repository = repository
     }
     
-    func fetchAllRoutines(uid: String) -> Observable<[Routine]> {
+    func fetchAllRoutines(uid: String) -> Observable<[RoutineInfo]> {
         return repository.fetchAllRoutines(uid: uid)
     }
 }

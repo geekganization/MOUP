@@ -13,7 +13,7 @@ final class RoutineRepository: RoutineRepositoryProtocol {
         self.service = service
     }
     
-    func fetchAllRoutines(uid: String) -> Observable<[Routine]> {
+    func fetchAllRoutines(uid: String) -> Observable<[RoutineInfo]> {
         return service.fetchAllRoutines(uid: uid)
     }
 }

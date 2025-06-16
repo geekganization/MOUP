@@ -7,5 +7,5 @@
 import RxSwift
 
 protocol RoutineUseCaseProtocol {
-    func fetchAllRoutines(uid: String) -> Observable<[Routine]>
+    func fetchAllRoutines(uid: String) -> Observable<[RoutineInfo]>
 }

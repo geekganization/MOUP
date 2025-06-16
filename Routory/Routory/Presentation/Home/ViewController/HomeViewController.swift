@@ -176,17 +176,18 @@ extension HomeViewController: UITableViewDelegate {
             })
             .disposed(by: disposeBag)
 
+        let manageRoutineVM = ManageRoutineViewModel(userId: "123132")
         // headerView 내 액션 정의
         headerView.rx.todaysRoutineCardTapped
             .subscribe(onNext: {
                 print("오늘의 루틴 탭")
-                let vc = ManageRoutineViewController(routineType: .today) // 추가 params 입력을 통해 오늘 or 전체 여부 분기
+                let vc = ManageRoutineViewController(routineType: .today, viewModel: manageRoutineVM) // 추가 params 입력을 통해 오늘 or 전체 여부 분기
                 self.navigationController?.pushViewController(vc, animated: true)
             }).disposed(by: disposeBag)
         headerView.rx.allRoutineCardTapped
             .subscribe(onNext: {
                 print("모든 루틴 탭")
-                let vc = ManageRoutineViewController(routineType: .all)
+                let vc = ManageRoutineViewController(routineType: .all, viewModel: manageRoutineVM)
                 self.navigationController?.pushViewController(vc, animated: true)
             }).disposed(by: disposeBag)
         

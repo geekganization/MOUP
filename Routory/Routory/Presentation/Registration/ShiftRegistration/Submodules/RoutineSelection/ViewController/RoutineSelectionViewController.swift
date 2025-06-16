@@ -16,16 +16,18 @@ import RxSwift
 final class RoutineSelectionViewController: UIViewController {
 
     // MARK: - Properties
+    
+    private let disposeBag = DisposeBag()
 
     var onSelect: (([RoutineInfo]) -> Void)?
     
-    private var routines: [RoutineItem] = [
-        RoutineItem(routineInfo: RoutineInfo(id: "1", routine: Routine(routineName: "오픈", alarmTime: "09:00", tasks: [])), isSelected: false),
-        RoutineItem(routineInfo: RoutineInfo(id: "2", routine: Routine(routineName: "포기", alarmTime: "15:00", tasks: [])), isSelected: false),
-        RoutineItem(routineInfo: RoutineInfo(id: "3", routine: Routine(routineName: "마감", alarmTime: "18:00", tasks: [])), isSelected: false)
-    ]
+//    private var routines: [RoutineItem] = [
+//        RoutineItem(routineInfo: RoutineInfo(id: "1", routine: Routine(routineName: "오픈", alarmTime: "09:00", tasks: [])), isSelected: false),
+//        RoutineItem(routineInfo: RoutineInfo(id: "2", routine: Routine(routineName: "포기", alarmTime: "15:00", tasks: [])), isSelected: false),
+//        RoutineItem(routineInfo: RoutineInfo(id: "3", routine: Routine(routineName: "마감", alarmTime: "18:00", tasks: [])), isSelected: false)
+//    ]
     
-    //private var routines: [RoutineItem] = []
+    private var routines: [RoutineItem] = []
 
     // MARK: - UI Components
 
@@ -53,35 +55,35 @@ final class RoutineSelectionViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        //getRoutines()
+        getRoutines()
         setupUI()
         setupNavigationBar()
         layout()
     }
     
+    private func getRoutines() {
+        let routineUseCase = RoutineUseCase(repository: RoutineRepository(service: RoutineService()))
+        guard let uid = Auth.auth().currentUser?.uid else { return }
 
-//    private func getRoutines() {
-//        let routineUseCase = RoutineUseCase(repository: RoutineRepository(service: RoutineService()))
-//        guard let uid = Auth.auth().currentUser?.uid else { return }
-//
-//        routineUseCase.fetchAllRoutines(uid: uid)
-//            .observe(on: MainScheduler.instance)
-//            .subscribe(onNext: { [weak self] routineInfos in
-//                let items = routineInfos.map {
-//                    RoutineItem(routineInfo: $0, isSelected: false)
-//                }
-//                self?.routines = items
-//
-//                for item in items {
-//                    let info = item.routineInfo
-//                    let routine = info.routine
-//                    print("ID: \(info.id), 이름: \(routine.routineName), 알람: \(routine.alarmTime)")
-//                }
-//            }, onError: { error in
-//                print("루틴 불러오기 실패: \(error.localizedDescription)")
-//            })
-//            .disposed(by: DisposeBag())
-//    }
+        routineUseCase.fetchAllRoutines(uid: uid)
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] routineInfos in
+                let items = routineInfos.map {
+                    RoutineItem(routineInfo: $0, isSelected: false)
+                }
+                self?.routines = items
+                self?.tableView.reloadData()
+
+                for item in items {
+                    let info = item.routineInfo
+                    let routine = info.routine
+                    print("ID: \(info.id), 이름: \(routine.routineName), 알람: \(routine.alarmTime)")
+                }
+            }, onError: { error in
+                print("루틴 불러오기 실패: \(error.localizedDescription)")
+            })
+            .disposed(by: disposeBag)
+    }
 
 
     // MARK: - Setup

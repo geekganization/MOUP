@@ -33,10 +33,10 @@ struct CalendarEvent: Codable {
     let day: Int
 
     /// 연결된 루틴 ID 리스트 (users/{id}/routine/{id})
-    let routineIds: [String]?
+    let routineIds: [String]
     
     /// 반복 요일
-    let repeatDays: [String]?
+    let repeatDays: [String]
     
     /// 메모
     let memo: String

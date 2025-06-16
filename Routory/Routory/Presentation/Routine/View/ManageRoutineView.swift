@@ -6,15 +6,28 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
 final class ManageRoutineView: UIView {
     // MARK: - Properties
+    private let routineTitle: String
+    fileprivate let disposeBag = DisposeBag()
 
     // MARK: - UI Components
+    fileprivate lazy var navigationBar = BaseNavigationBar(title: routineTitle)
+    fileprivate let tableView = UITableView().then {
+        $0.backgroundColor = .clear
+        $0.separatorColor = .gray300
+        $0.separatorInset = .zero
+        $0.register(CommonRoutineCell.self, forCellReuseIdentifier: CommonRoutineCell.identifier)
+        $0.register(TodaysRoutineCell.self, forCellReuseIdentifier: TodaysRoutineCell.identifier)
+    }
 
     // MARK: - Initializer
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(title: String) {
+        self.routineTitle = title
+        super.init(frame: .zero)
 
         configure()
     }
@@ -25,6 +38,11 @@ final class ManageRoutineView: UIView {
     }
 
     // MARK: - Public Methods
+    func update(by routineType: RoutineType) {
+        if case .all = routineType {
+            navigationBar.configureRightButton(icon: .plus, title: nil)
+        }
+    }
 }
 
 private extension ManageRoutineView {
@@ -37,17 +55,85 @@ private extension ManageRoutineView {
 
     // MARK: - setHierarchy
     func setHierarchy() {
-
+        addSubviews(navigationBar, tableView)
     }
 
     // MARK: - setStyles
     func setStyles() {
-
+        self.backgroundColor = .primaryBackground
     }
 
     // MARK: - setConstraints
     func setConstraints() {
+        navigationBar.snp.makeConstraints {
+            $0.top.equalTo(safeAreaLayoutGuide)
+            $0.directionalHorizontalEdges.equalToSuperview()
+            $0.height.equalTo(50)
+        }
 
+        tableView.snp.makeConstraints {
+            $0.top.equalTo(navigationBar.snp.bottom)
+            $0.directionalHorizontalEdges.bottom.equalToSuperview()
+        }
     }
 }
 
+extension Reactive where Base: ManageRoutineView {
+    var backButtonTapped: ControlEvent<Void> {
+        return base.navigationBar.rx.backBtnTapped
+    }
+
+    var rightButtonTapped: ControlEvent<Void> {
+        return base.navigationBar.rx.rightBtnTapped
+    }
+
+    var setDelegate: Binder<UITableViewDelegate> {
+        return Binder(base) { view, delegate in
+            view.tableView.delegate = delegate
+        }
+    }
+
+    var bindAllRoutines: Binder<[RoutineInfo]> {
+        return Binder(base) { view, routines in
+            Observable.just(routines)
+                .bind(to: view.tableView.rx.items) { tableView, index, routineInfo in
+                    let indexPath = IndexPath(row: index, section: 0)
+
+                    guard let cell = tableView.dequeueReusableCell(
+                        withIdentifier: CommonRoutineCell.identifier,
+                        for: indexPath
+                    ) as? CommonRoutineCell else {
+                        return UITableViewCell()
+                    }
+                    cell.update(with: routineInfo.routine)
+
+                    return cell
+                }
+                .disposed(by: view.disposeBag) // 적절한 disposeBag 사용 필요
+        }
+    }
+
+    var bindTodaysRoutines: Binder<[DummyTodaysRoutine]> {
+        return Binder(base) { view, routines in
+            Observable.just(routines)
+                .bind(to: view.tableView.rx.items) { tableView, index, routine in
+                    let indexPath = IndexPath(row: index, section: 0)
+
+                    guard let cell = tableView.dequeueReusableCell(
+                        withIdentifier: TodaysRoutineCell.identifier,
+                        for: indexPath
+                    ) as? TodaysRoutineCell else {
+                        return UITableViewCell()
+                    }
+                    cell.update(with: routine)
+
+
+                    return cell
+                }.disposed(by: view.disposeBag)
+        }
+    }
+
+    var itemSelected: ControlEvent<IndexPath> {
+        return base.tableView.rx.itemSelected
+    }
+}

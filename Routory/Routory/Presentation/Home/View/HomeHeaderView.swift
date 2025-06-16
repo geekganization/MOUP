@@ -94,7 +94,7 @@ final class HomeHeaderView: UITableViewHeaderFooterView {
         $0.text = "나의 근무지" // TODO: - 역할 확인 실패 시 띄워줄 값을 필요로 할지
     }
 
-    private let plusButton = UIButton().then {
+    fileprivate lazy var plusButton = UIButton().then {
         var config = UIButton.Configuration.plain()
         config.image = .plus.withTintColor(.gray900, renderingMode: .alwaysOriginal)
         config.contentInsets = .init(top: 14.5, leading: 14.5, bottom: 14.5, trailing: 14.5)
@@ -293,5 +293,9 @@ extension Reactive where Base: HomeHeaderView {
         base.allRoutineCardView.isUserInteractionEnabled = true
 
         return ControlEvent(events: tapGesture.rx.event.map { _ in })
+    }
+    
+    var addPlusButtonTapped: ControlEvent<Void> {
+        return base.plusButton.rx.tap
     }
 }

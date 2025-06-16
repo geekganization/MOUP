@@ -81,7 +81,7 @@ private extension EditModalViewController {
     
     // MARK: - setStyles
     func setStyles() {
-        view.backgroundColor = .background
+        view.backgroundColor = .modalBackground
     }
     
     // MARK: - setConstraints

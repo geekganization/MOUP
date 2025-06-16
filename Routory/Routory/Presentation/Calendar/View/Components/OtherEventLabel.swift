@@ -19,6 +19,7 @@ final class OtherEventLabel: UILabel {
         self.textColor = .gray500
         self.backgroundColor = .gray200
         self.textAlignment = .left
+        
         self.clipsToBounds = true
         self.layer.cornerRadius = 4
     }

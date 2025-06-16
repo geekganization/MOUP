@@ -41,6 +41,7 @@ final class CalendarDayCell: JTACDayCell {
         $0.textAlignment = .center
         $0.backgroundColor = .clear
         $0.clipsToBounds = true
+        $0.layer.cornerRadius = 11
     }
     
     private let firstEventStackView = CalendarEventVStackView()
@@ -72,11 +73,6 @@ final class CalendarDayCell: JTACDayCell {
     }
     
     // MARK: - Lifecycle
-        
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        dayLabel.layer.cornerRadius = dayLabel.frame.height / 2
-    }
     
     override func prepareForReuse() {
         super.prepareForReuse()

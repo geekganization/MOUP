@@ -36,6 +36,7 @@ final class CalendarEventListView: UIView {
         
         $0.configuration = config
         $0.clipsToBounds = true
+        $0.layer.cornerRadius = 12
     }
     
     // MARK: - Getter
@@ -54,13 +55,6 @@ final class CalendarEventListView: UIView {
     @available(*, unavailable, message: "storyboard is not supported.")
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented.")
-    }
-    
-    // MARK: - Lifecycle
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        assignButton.layer.cornerRadius = 12
     }
 }
 

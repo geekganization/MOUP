@@ -77,6 +77,7 @@ private extension CalendarViewController {
     func setActions() {
         // 네비게이션 바 "오늘" 버튼
         let todayButtonAction = UIAction(handler: { [weak self] _ in
+            self?.deselectCell()
             self?.calendarView.getJTACalendar.scrollToDate(.now, animateScroll: true)
         })
         let todayButton = UIBarButtonItem(title: "오늘", primaryAction: todayButtonAction)
@@ -95,6 +96,8 @@ private extension CalendarViewController {
         
         // 개인/공유 캘린더 토글 스위치
         calendarView.getCalendarHeaderView.getToggleSwitch.addAction(UIAction(handler: { [weak self] action in
+            self?.deselectCell()
+            
             guard let sender = action.sender as? BetterSegmentedControl else { return }
             self?.calendarMode.accept(CalendarMode.allCases[sender.index])
         }), for: .valueChanged)
@@ -118,11 +121,12 @@ private extension CalendarViewController {
 
 @objc private extension CalendarViewController {
     func didCalendarViewTouched(_ sender: UITapGestureRecognizer) {
-        guard let selectedDate else { return }
-        calendarView.getJTACalendar.deselect(dates: [selectedDate])
+        deselectCell()
     }
     
     func didYearMonthLabelTapped(_ sender: UITapGestureRecognizer) {
+        if deselectCell() { return }
+        
         guard let yearMonthText = calendarView.getCalendarHeaderView.getYearMonthLabel.text,
               let currYear = Int(yearMonthText.prefix(4)),
               let currMonth = Int(yearMonthText.suffix(2)) else { return }
@@ -163,6 +167,15 @@ private extension CalendarViewController {
         }
         
         self.tabBarController?.present(modalNC, animated: true)
+    }
+    
+    @discardableResult
+    func deselectCell() -> Bool {
+        if let selectedDate {
+            calendarView.getJTACalendar.deselect(dates: [selectedDate])
+            return true
+        }
+        return false
     }
     
     func didFilterButtonTap() {

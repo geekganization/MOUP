@@ -24,7 +24,7 @@ protocol UserServiceProtocol {
             workplace: Workplace,
             role: Role,
             workerDetail: WorkerDetail?,
-            userId: String
+            uid: String
         ) -> Observable<String>
 }
 
@@ -49,8 +49,7 @@ final class UserService: UserServiceProtocol {
     func createUser(uid: String, user: User) -> Observable<Void> {
         let data: [String: Any] = [
             "userName": user.userName,
-            "role": user.role,
-            "workplaceList": user.workplaceList
+            "role": user.role
         ]
         return Observable.create { observer in
             self.db.collection("users").document(uid).setData(data) { error in
@@ -143,7 +142,7 @@ final class UserService: UserServiceProtocol {
                 
                 // 2. 알바라면 worker 서브컬렉션
                 if role == .worker, let workerDetail = workerDetail {
-                    let workerRef = workplaceRef.collection("worker").document(userId)
+                    let workerRef = workplaceRef.collection("worker").document(uid)
                     let workerData: [String: Any] = [
                         "workerName": workerDetail.workerName,
                         "wage": workerDetail.wage,

@@ -16,6 +16,6 @@ protocol UserRepositoryProtocol {
             workplace: Workplace,
             role: Role,
             workerDetail: WorkerDetail?,
-            userId: String
+            uid: String
         ) -> Observable<String>
 }

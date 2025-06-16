@@ -25,9 +25,9 @@ final class ShiftRegistrationDelegateHandler: NSObject {
 extension ShiftRegistrationDelegateHandler: WorkPlaceSelectionViewDelegate {
     func workPlaceSelectionViewDidTapChevron(_ view: WorkPlaceSelectionView) {
         let workplaces: [Workplace] = [
-            Workplace(id: "1", workplacesName: "맥도날드", category: "패스트푸드", ownerId: "owner1", inviteCode: "...", inviteCodeExpiresAt: "...", isOfficial: true),
-            Workplace(id: "2", workplacesName: "쿠팡 야간", category: "물류", ownerId: "owner2", inviteCode: "...", inviteCodeExpiresAt: "...", isOfficial: false),
-            Workplace(id: "3", workplacesName: "올리브영", category: "뷰티", ownerId: "owner3", inviteCode: "...", inviteCodeExpiresAt: "...", isOfficial: true)
+//            Workplace(id: "1", workplacesName: "맥도날드", category: "패스트푸드", ownerId: "owner1", inviteCode: "...", inviteCodeExpiresAt: "...", isOfficial: true),
+//            Workplace(id: "2", workplacesName: "쿠팡 야간", category: "물류", ownerId: "owner2", inviteCode: "...", inviteCodeExpiresAt: "...", isOfficial: false),
+//            Workplace(id: "3", workplacesName: "올리브영", category: "뷰티", ownerId: "owner3", inviteCode: "...", inviteCodeExpiresAt: "...", isOfficial: true)
         ]
 
         let workplaceItems = workplaces.map {

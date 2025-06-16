@@ -35,7 +35,7 @@ final class UserUseCase: UserUseCaseProtocol {
             workerDetail: WorkerDetail?,
             uid: String
         ) -> Observable<String> {
-            return userService.createWorkplace(
+            return userRepository.createWorkplace(
                 workplace: workplace,
                 role: role,
                 workerDetail: workerDetail,

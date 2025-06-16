@@ -16,6 +16,6 @@ protocol UserUseCaseProtocol {
             workplace: Workplace,
             role: Role,
             workerDetail: WorkerDetail?,
-            userId: String
+            uid: String
         ) -> Observable<String>
 }

@@ -193,9 +193,9 @@ private extension CalendarView {
     }
     
     func populateDataSource() {
-        calendarEventMockList.forEach {
-            calendarEventDataSource[$0.eventDate, default: []].append($0)
-        }
+//        calendarEventMockList.forEach {
+//            calendarEventDataSource[$0.eventDate, default: []].append($0)
+//        }
         
         jtaCalendar.reloadData()
     }

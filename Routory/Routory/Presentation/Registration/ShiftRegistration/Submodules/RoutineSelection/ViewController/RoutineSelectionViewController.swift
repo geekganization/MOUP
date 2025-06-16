@@ -18,9 +18,9 @@ final class RoutineSelectionViewController: UIViewController {
     var onSelect: (([Routine]) -> Void)?
     
     private var routines: [RoutineItem] = [
-        RoutineItem(routine: Routine(id: "1", routineName: "오픈", alarmTime: "09:00", tasks: []), isSelected: true),
-        RoutineItem(routine: Routine(id: "2", routineName: "포기", alarmTime: "15:00", tasks: []), isSelected: false),
-        RoutineItem(routine: Routine(id: "3", routineName: "마감", alarmTime: "18:00", tasks: []), isSelected: false)
+        RoutineItem(routine: Routine(routineName: "오픈", alarmTime: "09:00", tasks: []), isSelected: true),
+        RoutineItem(routine: Routine(routineName: "포기", alarmTime: "15:00", tasks: []), isSelected: false),
+        RoutineItem(routine: Routine(routineName: "마감", alarmTime: "18:00", tasks: []), isSelected: false)
     ]
 
     // MARK: - UI Components

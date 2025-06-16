@@ -218,12 +218,18 @@ final class NewRoutineViewController: UIViewController {
             print("알림시간:", alarmTime)
             print("할 일 리스트:", tasks)
             print(Routine(id: "", routineName: title, alarmTime: alarmTime, tasks: tasks))
-        case .edit(let existingTitle, let existingTime, let existingTasks):
+        case .edit(let existingTitle, _, _):
+            let updatedTitle = (titleTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false)
+                ? titleTextField.text!
+                : existingTitle
+            let updatedTime = alarmField.getLabel()
+            let updatedTasks = tasks
+
             print("기존 루틴 편집")
-            print("제목: ", existingTitle)
-            print("알림시간: ", existingTime)
-            print("할 일 리스트: ", existingTasks)
-            print(Routine(id: "", routineName: existingTitle, alarmTime: existingTime, tasks: existingTasks))
+            print("제목:", updatedTitle)
+            print("알림시간:", updatedTime)
+            print("할 일 리스트:", updatedTasks)
+            print(Routine(id: "", routineName: updatedTitle, alarmTime: updatedTime, tasks: updatedTasks))
         }
     }
 

@@ -65,8 +65,11 @@ extension ShiftRegistrationDelegateHandler: RoutineViewDelegate {
             if routines.count > 1 {
                 let displayCount = "+\(routines.count - 1)"
                 self.contentView?.routineView.updateCounterLabel(displayCount)
+            } else {
+                self.contentView?.routineView.updateCounterLabel("")
             }
             self.contentView?.routineView.updateSelectedRoutine(displayText)
+            self.contentView?.routineView.updateSelectedRoutineData(routines)
         }
         navigationController?.pushViewController(vc, animated: true)
     }

@@ -128,7 +128,7 @@ final class OwnerShiftRegistrationViewController: UIViewController {
             print("근무 시간 - 출근: ",contentView.workTimeView.getstartRowData())
             print("근무 시간 - 퇴근: ",contentView.workTimeView.getendRowData())
             print("근무 시간 - 휴게: ",contentView.workTimeView.getrestRowData())
-            print("루틴: ",contentView.routineView.getTitleData())
+            print("루틴: ",contentView.routineView.getSelectedRoutineIDs())
             print("메모: ",contentView.memoBoxView.getData())
         case .employee:
             print("사장님 새 근무지 등록 데이터 - 알바생")

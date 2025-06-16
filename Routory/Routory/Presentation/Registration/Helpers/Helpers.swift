@@ -52,3 +52,14 @@ func makeTitleAttributedString(from title: String) -> NSAttributedString {
 
     return attributed
 }
+
+func parseDateComponents(from dateString: String) -> (year: Int, month: Int, day: Int)? {
+    let components = dateString.split(separator: ".").map { String($0) }
+    guard components.count == 3,
+          let year = Int(components[0]),
+          let month = Int(components[1]),
+          let day = Int(components[2]) else {
+        return nil
+    }
+    return (year, month, day)
+}

@@ -85,6 +85,7 @@ final class WorkShiftRegistrationViewController: UIViewController {
 //        print("루틴: ",contentView.routineView.getSelectedRoutineIDs())
 //        print("메모: ",contentView.memoBoxView.getData())
         
+        let workPlace = contentView.simpleRowView.getData()
         let eventDate = contentView.workDateView.getdateRowData()
         let startTime = contentView.workTimeView.getstartRowData()
         let endTime = contentView.workTimeView.getendRowData()
@@ -92,6 +93,11 @@ final class WorkShiftRegistrationViewController: UIViewController {
         let routineIDs = contentView.routineView.getSelectedRoutineIDs()
         let repeatDays = contentView.workDateView.getRepeatData()
         let memo = contentView.memoBoxView.getData()
+        
+        guard let dateComponents = parseDateComponents(from: eventDate) else {
+            print("날짜 파싱 실패: \(eventDate)")
+            return
+        }
 
         let event = CalendarEvent(
             title: "",
@@ -99,14 +105,14 @@ final class WorkShiftRegistrationViewController: UIViewController {
             startTime: startTime,
             endTime: endTime,
             createdBy: "",
-            year: 0,
-            month: 0,
-            day: 0,
+            year: dateComponents.year,
+            month: dateComponents.month,
+            day: dateComponents.day,
             routineIds: routineIDs,
             repeatDays: repeatDays,
             memo: memo
         )
 
-        print(event)
+        print(workPlace,event)
     }
 }

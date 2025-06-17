@@ -11,14 +11,14 @@ enum InfoMenu: CaseIterable {
     case termsOfService
     case privacyPolicy
     case openSourceLicense
-    case reviewAndRating
+//    case reviewAndRating
     
     var title: String {
         switch self {
         case .termsOfService: return "이용약관"
         case .privacyPolicy: return "개인정보처리방침"
         case .openSourceLicense: return "오픈소스 라이센스"
-        case .reviewAndRating: return "리뷰 및 별점주기"
+//        case .reviewAndRating: return "리뷰 및 별점주기"
         }
     }
 }
@@ -109,9 +109,8 @@ extension InfoViewController: UITableViewDelegate, UITableViewDataSource {
         let menu = menuItems[indexPath.row]
         
         switch menu {
-        case .reviewAndRating:
-            openAppStoreReviewPage()
-            
+//        case .reviewAndRating:
+//            openAppStoreReviewPage()
         case .termsOfService:
             // TODO: 약관 페이지 푸시
             break
@@ -125,12 +124,6 @@ extension InfoViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func openAppStoreReviewPage() {
-        // 시뮬레이터에서는 테스트 불가합니다. appID는 출시 이후 실제 ID로 넣어야합니다.
-        let appID = "393499958"
-        let urlStr = "itms-apps://itunes.apple.com/app/apple-store/\(appID)"
-        
-        if let url = URL(string: urlStr), UIApplication.shared.canOpenURL(url) {
-            UIApplication.shared.open(url, options: [:], completionHandler: nil)
-        }
+        // TODO: 리뷰 및 별점주기
     }
 }

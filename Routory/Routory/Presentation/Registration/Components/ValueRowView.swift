@@ -48,7 +48,7 @@ final class ValueRowView: UIView {
     }
 
     private let arrow = UIImageView().then {
-        $0.image = UIImage(systemName: "chevron.right")
+        $0.image = UIImage(named: "ChevronRight")
         $0.tintColor = .gray700
         $0.contentMode = .scaleAspectFit
         $0.isUserInteractionEnabled = true
@@ -109,9 +109,18 @@ final class ValueRowView: UIView {
 
     // MARK: - Gesture
 
+//    private func setupGesture() {
+//        let tap = UITapGestureRecognizer(target: self, action: #selector(handleChevronTap))
+//        arrow.addGestureRecognizer(tap)
+//    }
+//
+//    @objc private func handleChevronTap() {
+//        delegate?.valueRowViewDidTapChevron(self)
+//    }
+    
     private func setupGesture() {
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleChevronTap))
-        arrow.addGestureRecognizer(tap)
+        self.addGestureRecognizer(tap)
     }
 
     @objc private func handleChevronTap() {

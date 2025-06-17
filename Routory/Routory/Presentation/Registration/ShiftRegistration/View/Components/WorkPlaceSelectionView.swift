@@ -32,7 +32,7 @@ final class WorkPlaceSelectionView: UIView {
     }
 
     private let chevronImageView = UIImageView().then {
-        $0.image = UIImage(systemName: "chevron.right")
+        $0.image = UIImage(named: "ChevronRight")
         $0.tintColor = .gray700
         $0.contentMode = .scaleAspectFit
         $0.isUserInteractionEnabled = true
@@ -87,7 +87,7 @@ final class WorkPlaceSelectionView: UIView {
 
     private func setupGesture() {
         let tap = UITapGestureRecognizer(target: self, action: #selector(chevronTapped))
-        chevronImageView.addGestureRecognizer(tap)
+        self.addGestureRecognizer(tap)
     }
 
     @objc private func chevronTapped() {

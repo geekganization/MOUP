@@ -36,7 +36,7 @@ final class RoutineCell: UITableViewCell {
         $0.textColor = .gray900
     }
 
-    private let arrow = UIImageView(image: UIImage(systemName: "chevron.right")).then {
+    private let arrow = UIImageView(image: UIImage(named: "ChevronRight")).then {
         $0.tintColor = .systemGray3
         $0.contentMode = .scaleAspectFit
         $0.isUserInteractionEnabled = true

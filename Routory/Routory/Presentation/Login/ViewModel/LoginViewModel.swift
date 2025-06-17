@@ -21,6 +21,7 @@ final class LoginViewModel {
     // MARK: - Input / Output
 
     struct Input {
+        let appleLoginTapped: Observable<Void>
         let googleLoginTapped: Observable<Void>
         let presentingVC: UIViewController
     }
@@ -31,13 +32,15 @@ final class LoginViewModel {
 
     // MARK: - Dependencies
 
+    private let appleAuthService: AppleAuthServiceProtocol
     private let googleAuthService: GoogleAuthServiceProtocol
     private let userService: UserServiceProtocol
     private let disposeBag = DisposeBag()
 
     // MARK: - Init
 
-    init(googleAuthService: GoogleAuthServiceProtocol, userService: UserServiceProtocol) {
+    init(appleAuthService: AppleAuthServiceProtocol, googleAuthService: GoogleAuthServiceProtocol, userService: UserServiceProtocol) {
+        self.appleAuthService = appleAuthService
         self.googleAuthService = googleAuthService
         self.userService = userService
     }

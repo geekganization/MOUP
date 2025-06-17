@@ -10,7 +10,7 @@ import SnapKit
 import Then
 import RxSwift
 
-final class OwnerWorkplaceRegistrationViewController: UIViewController {
+final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestureRecognizerDelegate {
 
     private let scrollView = UIScrollView()
     private let contentView = WorkplaceRegistrationContentView(workplaceTitle: "매장 *")
@@ -26,6 +26,7 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: false)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
 
     override func viewDidLoad() {

@@ -11,7 +11,7 @@ import RxSwift
 
 // MARK: - WorkShiftRegistrationViewController
 
-final class WorkShiftRegistrationViewController: UIViewController {
+final class WorkShiftRegistrationViewController: UIViewController,UIGestureRecognizerDelegate {
     
     weak var delegate: RegistrationVCDelegate?
 
@@ -27,6 +27,7 @@ final class WorkShiftRegistrationViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: false)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
 
     override func viewDidLoad() {

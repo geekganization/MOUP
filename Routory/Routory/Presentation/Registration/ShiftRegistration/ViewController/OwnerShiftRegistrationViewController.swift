@@ -9,7 +9,7 @@ import UIKit
 import SnapKit
 import RxSwift
 
-final class OwnerShiftRegistrationViewController: UIViewController {
+final class OwnerShiftRegistrationViewController: UIViewController,UIGestureRecognizerDelegate {
     
     weak var delegate: RegistrationVCDelegate?
 
@@ -44,6 +44,7 @@ final class OwnerShiftRegistrationViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: false)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
 
     override func viewDidLoad() {

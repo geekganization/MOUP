@@ -18,7 +18,7 @@ enum RoutineFormMode {
     case read(existingTitle: String, existingTime: String, existingTasks: [String])
 }
 
-final class NewRoutineViewController: UIViewController {
+final class NewRoutineViewController: UIViewController,UIGestureRecognizerDelegate {
 
     // MARK: - ViewModel & Rx
 
@@ -98,6 +98,7 @@ final class NewRoutineViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: false)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
 
     override func viewDidLoad() {

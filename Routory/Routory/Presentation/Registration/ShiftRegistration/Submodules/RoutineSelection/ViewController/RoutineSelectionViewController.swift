@@ -12,7 +12,7 @@ import FirebaseAuth
 import RxSwift
 import RxCocoa
 
-final class RoutineSelectionViewController: UIViewController {
+final class RoutineSelectionViewController: UIViewController,UIGestureRecognizerDelegate {
 
     // MARK: - ViewModel & Rx
 
@@ -57,6 +57,7 @@ final class RoutineSelectionViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: false)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
         fetchTrigger.onNext(())
     }
 

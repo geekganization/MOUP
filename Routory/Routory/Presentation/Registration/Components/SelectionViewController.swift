@@ -9,7 +9,7 @@ import UIKit
 import SnapKit
 import RxSwift
 
-final class SelectionViewController<T>: UIViewController,UITableViewDataSource, UITableViewDelegate {
+final class SelectionViewController<T>: UIViewController,UITableViewDataSource, UITableViewDelegate,UIGestureRecognizerDelegate {
 
     struct Item {
         let title: String
@@ -53,6 +53,7 @@ final class SelectionViewController<T>: UIViewController,UITableViewDataSource, 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: false)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
 
     override func viewDidLoad() {

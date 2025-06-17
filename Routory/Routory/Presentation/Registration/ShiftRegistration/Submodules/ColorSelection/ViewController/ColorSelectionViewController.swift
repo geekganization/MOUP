@@ -20,7 +20,7 @@ struct LabelColor {
 
 // MARK: - ViewController
 
-final class ColorSelectionViewController: UIViewController {
+final class ColorSelectionViewController: UIViewController,UIGestureRecognizerDelegate {
 
     // MARK: - Properties
 
@@ -63,6 +63,7 @@ final class ColorSelectionViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: false)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
 
     override func viewDidLoad() {

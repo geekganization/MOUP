@@ -148,7 +148,7 @@ private extension MyPageView {
         menuList.snp.makeConstraints {
             $0.top.equalTo(profileImageFrame.snp.bottom).offset(32)
             $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.height.equalTo(48 * 4)
+            $0.height.equalTo(48 * 3)
         }
         
         logoutButton.snp.makeConstraints {

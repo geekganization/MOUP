@@ -14,14 +14,14 @@ import MessageUI
 
 enum MyPageMenu: CaseIterable {
     case account
-    case notification
+//    case notification
     case contact
     case info
     
     var title: String {
         switch self {
         case .account: return "계정"
-        case .notification: return "알림 설정"
+//        case .notification: return "알림 설정"
         case .contact: return "문의하기"
         case .info: return "정보"
         }
@@ -200,9 +200,9 @@ extension MyPageViewController: UITableViewDelegate, UITableViewDataSource {
         case .account:
             let accountVC = AccountViewController()
             navigationController?.pushViewController(accountVC, animated: true)
-        case .notification:
-            let notificationVC = NotificationSettingsViewController()
-            navigationController?.pushViewController(notificationVC, animated: true)
+//        case .notification:
+//            let notificationVC = NotificationSettingsViewController()
+//            navigationController?.pushViewController(notificationVC, animated: true)
         case .contact:
             presentContactMailComposer()
         case .info:

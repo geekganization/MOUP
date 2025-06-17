@@ -137,6 +137,7 @@ private extension DeleteAccountModalViewController {
             
             let loginVC = LoginViewController(
                 viewModel: LoginViewModel(
+                    appleAuthService: AppleAuthService(),
                     googleAuthService: GoogleAuthService(),
                     userService: UserService()
                 )

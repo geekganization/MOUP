@@ -27,6 +27,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             // 로그인 안 됨 → 로그인 화면
             let loginVC = LoginViewController(
                 viewModel: LoginViewModel(
+                    appleAuthService: AppleAuthService(),
                     googleAuthService: GoogleAuthService(),
                     userService: UserService()
                 )

@@ -26,6 +26,7 @@ protocol UserServiceProtocol {
             workerDetail: WorkerDetail?,
             uid: String
         ) -> Observable<String>
+    func addWorkplaceToUser(uid: String, workplaceId: String) -> Observable<Void>
 }
 
 final class UserService: UserServiceProtocol {
@@ -174,5 +175,21 @@ final class UserService: UserServiceProtocol {
                 return Disposables.create()
             }
         }
+    
+    func addWorkplaceToUser(uid: String, workplaceId: String) -> Observable<Void> {
+        return Observable.create { observer in
+            self.db.collection("users").document(uid)
+                .collection("workplaces").document(workplaceId)
+                .setData([:]) { error in
+                    if let error = error {
+                        observer.onError(error)
+                    } else {
+                        observer.onNext(())
+                        observer.onCompleted()
+                    }
+                }
+            return Disposables.create()
+        }
+    }
 
 }

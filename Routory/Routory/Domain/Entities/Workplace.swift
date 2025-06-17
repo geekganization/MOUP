@@ -33,3 +33,10 @@ struct Workplace: Codable {
         self.isOfficial = isOfficial
     }
 }
+
+struct WorkplaceInfo: Codable {
+    
+    let id: String
+    let workplace: Workplace
+    
+}

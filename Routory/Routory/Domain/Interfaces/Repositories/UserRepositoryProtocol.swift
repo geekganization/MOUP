@@ -18,4 +18,5 @@ protocol UserRepositoryProtocol {
             workerDetail: WorkerDetail?,
             uid: String
         ) -> Observable<String>
+    func addWorkplaceToUser(uid: String, workplaceId: String) -> Observable<Void>
 }

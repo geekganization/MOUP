@@ -42,4 +42,7 @@ final class UserUseCase: UserUseCaseProtocol {
                 uid: uid
             )
         }
+    func addWorkplaceToUser(uid: String, workplaceId: String) -> Observable<Void> {
+        return userRepository.addWorkplaceToUser(uid: uid, workplaceId: workplaceId)
+    }
 }

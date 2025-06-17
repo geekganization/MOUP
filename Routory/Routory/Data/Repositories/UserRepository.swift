@@ -42,4 +42,8 @@ final class UserRepository: UserRepositoryProtocol {
                 uid: uid
             )
         }
+    
+    func addWorkplaceToUser(uid: String, workplaceId: String) -> Observable<Void> {
+        return userService.addWorkplaceToUser(uid: uid, workplaceId: workplaceId)
+    }
 }

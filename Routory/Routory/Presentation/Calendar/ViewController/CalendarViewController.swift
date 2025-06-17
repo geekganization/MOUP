@@ -68,8 +68,7 @@ private extension CalendarViewController {
     func setStyles() {
         self.view.backgroundColor = .primaryBackground
         
-        self.navigationController?.navigationBar.topItem?.title = "캘린더"
-        self.navigationController?.navigationBar.titleTextAttributes = [.font: UIFont.headBold(20), .foregroundColor: UIColor.gray900]
+        self.navigationController?.navigationBar.isHidden = true
     }
     
     func setDelegates() {
@@ -79,6 +78,12 @@ private extension CalendarViewController {
     
     func setActions() {
         // 네비게이션 바 "오늘" 버튼
+        calendarView.getNavigationBar.rx.rightBtnTapped
+            .subscribe(with: self) { owner, _ in
+                owner.deselectCell()
+                owner.calendarView.getJTACalendar.scrollToDate(.now, animateScroll: true)
+            }.disposed(by: disposeBag)
+        
         let todayButtonAction = UIAction(handler: { [weak self] _ in
             self?.deselectCell()
             self?.calendarView.getJTACalendar.scrollToDate(.now, animateScroll: true)

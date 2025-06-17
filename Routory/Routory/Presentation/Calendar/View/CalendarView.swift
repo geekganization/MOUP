@@ -24,6 +24,11 @@ final class CalendarView: UIView {
     
     // MARK: - UI Components
     
+    private let navigationBar = BaseNavigationBar(title: "캘린더").then {
+        $0.configureBackButton(isHidden: true)
+        $0.configureRightButton(icon: nil, title: "오늘")
+    }
+    
     private let calendarHeaderView = CalendarHeaderView()
     
     private let dayOfTheWeekHStack = DayOfTheWeekHStackView()
@@ -32,6 +37,7 @@ final class CalendarView: UIView {
     
     // MARK: - Getter
     
+    var getNavigationBar: BaseNavigationBar { navigationBar }
     var getDateFormatter: DateFormatter { yearMonthDateFormatter }
     var getCalendarHeaderView: CalendarHeaderView { calendarHeaderView }
     var getJTACalendar: JTACMonthView { jtaCalendar }
@@ -58,7 +64,8 @@ private extension CalendarView {
     }
     
     func setHierarchy() {
-        self.addSubviews(calendarHeaderView,
+        self.addSubviews(navigationBar,
+                         calendarHeaderView,
                          dayOfTheWeekHStack,
                          jtaCalendar)
     }
@@ -75,8 +82,14 @@ private extension CalendarView {
     }
     
     func setConstraints() {
-        calendarHeaderView.snp.makeConstraints {
+        navigationBar.snp.makeConstraints {
             $0.top.equalTo(self.safeAreaLayoutGuide)
+            $0.leading.trailing.equalToSuperview()
+            $0.height.equalTo(50)
+        }
+        
+        calendarHeaderView.snp.makeConstraints {
+            $0.top.equalTo(navigationBar.snp.bottom)
             $0.leading.trailing.equalTo(self.safeAreaLayoutGuide)
             $0.height.equalTo(50)
         }

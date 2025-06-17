@@ -6,10 +6,10 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 import SnapKit
 import Then
-
-// MARK: - RoutineFormMode
 
 enum RoutineFormMode {
     case create
@@ -17,13 +17,20 @@ enum RoutineFormMode {
     case read(existingTitle: String, existingTime: String, existingTasks: [String])
 }
 
-// MARK: - NewRoutineViewController
-
 final class NewRoutineViewController: UIViewController {
 
-    // MARK: - Properties
+    // MARK: - ViewModel & Rx
 
-    private var mode: RoutineFormMode
+    private let viewModel = NewRoutineViewModel(
+        useCase: RoutineUseCase(repository: RoutineRepository(service: RoutineService())),
+        uid: "123"
+    )
+    private let saveTrigger = PublishSubject<Routine>()
+    private let disposeBag = DisposeBag()
+
+    // MARK: - Mode & State
+
+    private let mode: RoutineFormMode
     private var tasks: [String] = []
 
     // MARK: - UI Components
@@ -34,14 +41,14 @@ final class NewRoutineViewController: UIViewController {
     private let titleTextField = UITextField().then {
         $0.placeholder = "제목을 입력해 주세요"
         $0.borderStyle = .roundedRect
-        $0.font = .fieldsRegular(16)
+        $0.font = .systemFont(ofSize: 16)
     }
 
     private let alarmField = AlarmTimeFieldView()
 
     private let taskLabel = UILabel().then {
         $0.text = "할 일 리스트"
-        $0.font = .headBold(14)
+        $0.font = .boldSystemFont(ofSize: 14)
     }
 
     private let taskInputField = UITextField().then {
@@ -51,9 +58,8 @@ final class NewRoutineViewController: UIViewController {
     }
 
     private let addTaskButton = UIButton(type: .system).then {
-        let image = UIImage(systemName: "plus")
-        $0.setImage(image, for: .normal)
-        $0.tintColor = .gray700
+        $0.setImage(UIImage(systemName: "plus"), for: .normal)
+        $0.tintColor = .gray
     }
 
     private let tableView = UITableView().then {
@@ -63,7 +69,7 @@ final class NewRoutineViewController: UIViewController {
         $0.register(TaskCell.self, forCellReuseIdentifier: "TaskCell")
     }
 
-    // MARK: - Initializers
+    // MARK: - Init
 
     init(mode: RoutineFormMode) {
         self.mode = mode
@@ -81,20 +87,14 @@ final class NewRoutineViewController: UIViewController {
         setupUI()
         layout()
         applyMode()
-        setupNavigationBar()
+        bindViewModel()
     }
 
-    // MARK: - Setup
-    
-    private func setupNavigationBar() {
-        let backButton = UIBarButtonItem(
-            image: UIImage(systemName: "chevron.left"),
-            style: .plain,
-            target: self,
-            action: #selector(didTapBack)
-        )
-        backButton.tintColor = .gray700
-        navigationItem.leftBarButtonItem = backButton
+    // MARK: - Setup UI
+
+    private func setupUI() {
+        view.backgroundColor = .white
+        title = modeTitle()
 
         if case .read = mode {
             navigationItem.rightBarButtonItem = nil
@@ -105,20 +105,16 @@ final class NewRoutineViewController: UIViewController {
                 target: self,
                 action: #selector(didTapSave)
             )
-            navigationItem.rightBarButtonItem?.tintColor = .gray700
         }
-    }
-
-    private func setupUI() {
-        view.backgroundColor = .white
 
         addTaskButton.addTarget(self, action: #selector(didTapAddTask), for: .touchUpInside)
 
-        tableView.dataSource = self
-        tableView.delegate = self
-
         let tap = UITapGestureRecognizer(target: self, action: #selector(didTapAlarmField))
         alarmField.addGestureRecognizer(tap)
+
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.isEditing = true
 
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
@@ -127,8 +123,6 @@ final class NewRoutineViewController: UIViewController {
             contentView.addSubview($0)
         }
     }
-
-    // MARK: - Layout
 
     private func layout() {
         scrollView.snp.makeConstraints {
@@ -173,77 +167,59 @@ final class NewRoutineViewController: UIViewController {
         tableView.snp.makeConstraints {
             $0.top.equalTo(taskInputField.snp.bottom).offset(12)
             $0.leading.trailing.equalTo(titleTextField)
-            $0.height.equalTo(44 * tasks.count)
+            $0.height.equalTo(44 * max(tasks.count, 1))
             $0.bottom.equalToSuperview().offset(-40)
         }
     }
 
-    // MARK: - Mode Application
+    // MARK: - Bind ViewModel
 
-    private func applyMode() {
-        switch mode {
-        case .create:
-            title = "새 루틴"
-            tableView.isEditing = true
-        case .edit(let existingTitle, let existingTime, let existingTasks):
-            title = "루틴 편집"
-            titleTextField.text = existingTitle
-            alarmField.update(text: existingTime)
-            tasks = existingTasks
-            tableView.isEditing = true
-        case .read(let existingTitle, let existingTime, let existingTasks):
-            title = "루틴 보기"
-            titleTextField.text = existingTitle
-            alarmField.update(text: existingTime)
-            tasks = existingTasks
+    private func bindViewModel() {
+        let input = NewRoutineViewModel.Input(saveTrigger: saveTrigger.asObservable())
+        let output = viewModel.transform(input: input)
 
-            titleTextField.isEnabled = false
-            alarmField.isUserInteractionEnabled = false
-            taskInputField.isEnabled = false
-            addTaskButton.isHidden = true
-            tableView.isEditing = false
-        }
+        output.didCreateRoutine
+            .observe(on: MainScheduler.instance)
+            .bind(onNext: { [weak self] in
+                self?.navigationController?.popViewController(animated: true)
+            })
+            .disposed(by: disposeBag)
 
-        tableView.reloadData()
-        tableView.snp.updateConstraints {
-            $0.height.equalTo(44 * tasks.count)
-        }
+        output.errorMessage
+            .observe(on: MainScheduler.instance)
+            .bind(onNext: { [weak self] message in
+                let alert = UIAlertController(title: "오류", message: message, preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "확인", style: .default))
+                self?.present(alert, animated: true)
+            })
+            .disposed(by: disposeBag)
     }
 
     // MARK: - Actions
-    
-    @objc private func didTapBack() {
-        navigationController?.popViewController(animated: true)
-    }
 
     @objc private func didTapAddTask() {
-        guard let text = taskInputField.text, !text.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        guard let text = taskInputField.text?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else { return }
         tasks.append(text)
         taskInputField.text = nil
         tableView.reloadData()
         tableView.snp.updateConstraints {
-            $0.height.equalTo(44 * tasks.count)
+            $0.height.equalTo(44 * max(tasks.count, 1))
         }
     }
 
     @objc private func didTapSave() {
-        switch mode {
-        case .create:
-            let title = titleTextField.text ?? ""
-            let alarmTime = alarmField.getLabel()
-            dump(Routine(routineName: title, alarmTime: alarmTime, tasks: tasks))
+        let trimmedTitle = titleTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let alarmTime = alarmField.getLabel()
 
-        case .edit(let existingTitle, _, _):
-            let updatedTitle = (titleTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false)
-                ? titleTextField.text!
-                : existingTitle
-            let updatedTime = alarmField.getLabel()
-            let updatedTasks = tasks
-            dump(Routine(routineName: updatedTitle, alarmTime: updatedTime, tasks: updatedTasks))
-
-        case .read:
-            break
+        guard !trimmedTitle.isEmpty else {
+            let alert = UIAlertController(title: nil, message: "제목을 입력해 주세요.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "확인", style: .default))
+            present(alert, animated: true)
+            return
         }
+
+        let routine = Routine(routineName: trimmedTitle, alarmTime: alarmTime, tasks: tasks)
+        saveTrigger.onNext(routine)
     }
 
     @objc private func didTapAlarmField() {
@@ -269,7 +245,6 @@ final class NewRoutineViewController: UIViewController {
         }
 
         alert.addAction(UIAlertAction(title: "취소", style: .cancel))
-
         alert.addAction(UIAlertAction(title: "확인", style: .default, handler: { [weak self] _ in
             let formatter = DateFormatter()
             formatter.dateFormat = "HH:mm"
@@ -279,12 +254,52 @@ final class NewRoutineViewController: UIViewController {
 
         present(alert, animated: true)
     }
+
+    // MARK: - Mode Handling
+
+    private func applyMode() {
+        switch mode {
+        case .create:
+            title = "새 루틴"
+        case .edit(let existingTitle, let existingTime, let existingTasks):
+            title = "루틴 편집"
+            titleTextField.text = existingTitle
+            alarmField.update(text: existingTime)
+            tasks = existingTasks
+            tableView.reloadData()
+            tableView.snp.updateConstraints {
+                $0.height.equalTo(44 * tasks.count)
+            }
+        case .read(let existingTitle, let existingTime, let existingTasks):
+            title = "루틴 보기"
+            titleTextField.text = existingTitle
+            alarmField.update(text: existingTime)
+            tasks = existingTasks
+
+            titleTextField.isEnabled = false
+            alarmField.isUserInteractionEnabled = false
+            taskInputField.isEnabled = false
+            addTaskButton.isHidden = true
+            tableView.isEditing = false
+        }
+
+        tableView.snp.updateConstraints {
+            $0.height.equalTo(44 * max(tasks.count, 1))
+        }
+    }
+
+    private func modeTitle() -> String {
+        switch mode {
+        case .create: return "새 루틴"
+        case .edit: return "루틴 편집"
+        case .read: return "루틴 보기"
+        }
+    }
 }
 
-// MARK: - UITableViewDataSource & UITableViewDelegate
+// MARK: - UITableViewDataSource
 
 extension NewRoutineViewController: UITableViewDataSource, UITableViewDelegate {
-
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         tasks.count
     }
@@ -295,33 +310,5 @@ extension NewRoutineViewController: UITableViewDataSource, UITableViewDelegate {
         }
         cell.configure(text: tasks[indexPath.row])
         return cell
-    }
-
-    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        if case .read = mode {
-            return false
-        }
-        return true
-    }
-
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        guard editingStyle == .delete else { return }
-        tasks.remove(at: indexPath.row)
-        tableView.deleteRows(at: [indexPath], with: .automatic)
-        tableView.snp.updateConstraints {
-            $0.height.equalTo(44 * tasks.count)
-        }
-    }
-
-    func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        if case .read = mode {
-            return false
-        }
-        return true
-    }
-
-    func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        let moved = tasks.remove(at: sourceIndexPath.row)
-        tasks.insert(moved, at: destinationIndexPath.row)
     }
 }

@@ -6,15 +6,33 @@
 //
 
 import UIKit
+import RxSwift
+import RxRelay
 import FirebaseAuth
 
 final class TabbarViewController: UITabBarController {
     
     // MARK: - Properties
-    
-    private let userUseCase = UserUseCase(userRepository: UserRepository(userService: UserService()))
-    private lazy var myPageVM = MyPageViewModel(userUseCase: userUseCase)
-    
+    private let disposeBag = DisposeBag()
+    private let viewDidLoadRelay = PublishRelay<Void>()
+    private let viewModel: TabBarViewModel
+    private let input: TabBarViewModel.Input
+    private let output: TabBarViewModel.Output
+    private lazy var myPageVM = MyPageViewModel(userObservable: output.user)
+
+    // MARK: - Initializer
+    init(viewModel: TabBarViewModel) {
+        self.viewModel = viewModel
+        self.input = TabBarViewModel.Input(viewDidLoad: viewDidLoadRelay.asObservable())
+        self.output = viewModel.tranform(input: input)
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable, message: "storyboard is not supported.")
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented.")
+    }
+
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
@@ -29,6 +47,7 @@ private extension TabbarViewController {
     func configure() {
         setStyles()
         setTabBarItems()
+        setBindings()
     }
     
     func setStyles() {
@@ -62,5 +81,9 @@ private extension TabbarViewController {
         let myPageNav = UINavigationController(rootViewController: myPageVC)
         
         self.setViewControllers([homeNav, calendarNav, myPageNav], animated: false)
+    }
+
+    func setBindings() {
+        viewDidLoadRelay.accept(())
     }
 }

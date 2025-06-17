@@ -164,7 +164,8 @@ private extension HomeViewController {
     }
 
     func makeManageRoutineViewController(type: RoutineType) -> ManageRoutineViewController {
-        let viewModel = ManageRoutineViewModel(userId: "1231412", type: type)
+        let routineUseCase = RoutineUseCase(repository: RoutineRepository(service: RoutineService()))
+        let viewModel = ManageRoutineViewModel(type: type, routineUseCase: routineUseCase)
         return ManageRoutineViewController(routineType: type, viewModel: viewModel)
     }
 }

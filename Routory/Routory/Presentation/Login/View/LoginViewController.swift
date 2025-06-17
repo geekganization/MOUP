@@ -62,7 +62,8 @@ private extension LoginViewController {
                 switch navigation {
                 case .goToMain:
                     print("로그인 성공 - 메인 화면 이동")
-                    let tabbarVC = TabbarViewController()
+                    let tabBarVM = TabBarViewModel()
+                    let tabbarVC = TabbarViewController(viewModel: tabBarVM)
                     
                     guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                           let sceneDelegate = scene.delegate as? SceneDelegate,

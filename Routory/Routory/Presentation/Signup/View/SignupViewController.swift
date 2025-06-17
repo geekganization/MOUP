@@ -69,7 +69,7 @@ private extension SignupViewController {
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] in
                 print("회원가입 성공!")
-                let tabbarVC = TabbarViewController()
+                let tabbarVC = TabbarViewController(viewModel: TabBarViewModel())
                 
                 guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                       let sceneDelegate = scene.delegate as? SceneDelegate,

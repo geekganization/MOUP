@@ -8,6 +8,9 @@
 import UIKit
 import SnapKit
 import Then
+import RxSwift
+import RxCocoa
+import FirebaseAuth
 
 final class WorkerWorkplaceRegistrationViewController: UIViewController {
 
@@ -16,6 +19,15 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController {
 
     private var delegateHandler: WorkplaceRegistrationDelegateHandler?
     private var actionHandler: RegistrationActionHandler?
+    
+    private let viewModel = CreateWorkplaceViewModel(
+        useCase: CreateWorkerWorkplaceUseCase(
+            repository: WorkerWorkplaceRepository(
+                userService: UserService() // 또는 적절한 구현체
+            )
+        )
+    )
+    private let disposeBag = DisposeBag()
     
     // MARK: - Lifecycle
 
@@ -71,45 +83,18 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     
-//    @objc func didTapRegister() {
-//        print("알바생 새 근무지 등록 데이터")
-//        let name = contentView.workplaceInfoView.getName()
-//        let category = contentView.workplaceInfoView.getCategory()
-//        let salaryType = contentView.salaryInfoView.getTypeValue()
-//        let salaryCalc = contentView.salaryInfoView.getCalcValue()
-//        let fixedSalary = contentView.salaryInfoView.getFixedSalaryValue()
-//        let hourlyWage = contentView.salaryInfoView.getHourlyWageValue()
-//        let payWeekday = contentView.salaryInfoView.getPayWeekdayValue()
-//        let payDate = contentView.salaryInfoView.getPayDateValue()
-//        let workConditions = contentView.workConditionView.getSelectedConditions()
-//        let label = contentView.labelView.getColorLabelData()
-//
-//        print("이름:", name)
-//        print("카테고리:", category)
-//        print("급여 유형:", salaryType)
-//        print("급여 계산:", salaryCalc)
-//        print("고정급:", fixedSalary)
-//        print("시급:", hourlyWage)
-//        print("급여일:", payDate)
-//        print("급여일(요일):", payWeekday)
-//        print("근무 조건:", workConditions)
-//        print("라벨:", label)
-//        
-//        print(Workplace(workplacesName: name, category: category, ownerId: "", inviteCode: "", isOfficial: false))
-//    }
-    
     @objc func didTapRegister() {
         let name = contentView.workplaceInfoView.getName()
         let category = contentView.workplaceInfoView.getCategory()
-        let salaryType = contentView.salaryInfoView.getTypeValue() // "매월", "매주", "매일"
+        let salaryType = contentView.salaryInfoView.getTypeValue()
         let salaryCalc = contentView.salaryInfoView.getCalcValue()
         let fixedSalary = contentView.salaryInfoView.getFixedSalaryValue()
         let hourlyWage = contentView.salaryInfoView.getHourlyWageValue()
         let payWeekday = contentView.salaryInfoView.getPayWeekdayValue()
         let payDate = contentView.salaryInfoView.getPayDateValue()
-        let selectedConditions = contentView.workConditionView.getSelectedConditions() // [String]
+        let selectedConditions = contentView.workConditionView.getSelectedConditions()
         let label = contentView.labelView.getColorLabelData()
-        
+
         let (wage, wageCalcMethod): (Int, String) = {
             switch salaryType {
             case "매월":
@@ -130,11 +115,17 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController {
         let nightAllowance = selectedConditions.contains("야간수당*")
 
         let breakTimeMinutes = 0
-        
-        let workPlace = Workplace(workplacesName: name, category: category, ownerId: "", inviteCode: "", isOfficial: false)
 
-        let worker = WorkerDetail(
-            workerName: "",
+        let workplace = Workplace(
+            workplacesName: name,
+            category: category,
+            ownerId: Auth.auth().currentUser?.uid ?? "",
+            inviteCode: UUID().uuidString,
+            isOfficial: false
+        )
+
+        let workerDetail = WorkerDetail(
+            workerName: "알바생 이름",
             wage: wage,
             wageCalcMethod: wageCalcMethod,
             wageType: salaryType,
@@ -151,6 +142,28 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController {
             color: label
         )
 
-        print(workPlace,worker)
+        let input = CreateWorkplaceViewModel.Input(
+            createTrigger: Observable.just(()),
+            workplace: Observable.just(workplace),
+            workerDetail: Observable.just(workerDetail),
+            uid: Observable.just(Auth.auth().currentUser?.uid ?? "") 
+        )
+
+        let output = viewModel.transform(input: input)
+
+        output.workplaceId
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] id in
+                print("등록 완료: \(id)")
+                self?.navigationController?.popViewController(animated: true)
+            })
+            .disposed(by: disposeBag)
+
+        output.error
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { error in
+                print("에러 발생: \(error.localizedDescription)")
+            })
+            .disposed(by: disposeBag)
     }
 }

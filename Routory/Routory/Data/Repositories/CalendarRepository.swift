@@ -14,4 +14,8 @@ final class CalendarRepository: CalendarRepositoryProtocol {
     func addUserToCalendarSharedWith(calendarId: String, uid: String) -> Observable<Void> {
         calendarService.addUserToCalendarSharedWith(calendarId: calendarId, uid: uid)
     }
+    
+    func fetchCalendarIdByWorkplaceId(workplaceId: String) -> Observable<String?> {
+        calendarService.fetchCalendarIdByWorkplaceId(workplaceId: workplaceId)
+    }
 }

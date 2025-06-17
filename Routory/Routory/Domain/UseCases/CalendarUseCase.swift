@@ -14,4 +14,7 @@ final class CalendarUseCase: CalendarUseCaseProtocol {
     func shareCalendarWithUser(calendarId: String, uid: String) -> Observable<Void> {
         repository.addUserToCalendarSharedWith(calendarId: calendarId, uid: uid)
     }
+    func fetchCalendarIdByWorkplaceId(workplaceId: String) -> Observable<String?> {
+        repository.fetchCalendarIdByWorkplaceId(workplaceId: workplaceId)
+    }
 }

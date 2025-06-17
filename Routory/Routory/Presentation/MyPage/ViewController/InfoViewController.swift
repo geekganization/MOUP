@@ -112,14 +112,14 @@ extension InfoViewController: UITableViewDelegate, UITableViewDataSource {
 //        case .reviewAndRating:
 //            openAppStoreReviewPage()
         case .termsOfService:
-            let termsOfServiceVC = PolicyViewController(fileName: "service_terms")
+            let termsOfServiceVC = PolicyViewController(fileName: "service_terms", title: "이용약관")
             navigationController?.pushViewController(termsOfServiceVC, animated: true)
         case .privacyPolicy:
-            let termsOfServiceVC = PolicyViewController(fileName: "privacy_policy")
+            let termsOfServiceVC = PolicyViewController(fileName: "privacy_policy", title: "개인정보처리방침")
             navigationController?.pushViewController(termsOfServiceVC, animated: true)
         case .openSourceLicense:
-            // TODO: 오픈소스 페이지 푸시
-            break
+            let opensourceLicenseVC = OpenSourceViewController()
+            navigationController?.pushViewController(opensourceLicenseVC, animated: true)
         }
     }
     

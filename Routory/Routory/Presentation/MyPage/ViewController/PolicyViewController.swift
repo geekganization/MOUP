@@ -21,10 +21,11 @@ final class PolicyViewController: UIViewController {
     
     private var articles: [TermsArticle] = []
     private let fileName: String
+    private let screenTitle: String
     
     // MARK: - UI Components
     
-    private let navigationBar = MyPageNavigationBar(title: "이용약관")
+    private lazy var navigationBar = MyPageNavigationBar(title: screenTitle)
     
     private let tableView = UITableView(frame: .zero, style: .grouped).then {
         $0.register(UITableViewCell.self, forCellReuseIdentifier: "ContentCell")
@@ -34,8 +35,9 @@ final class PolicyViewController: UIViewController {
     
     // MARK: - Initializer
     
-    init(fileName: String) {
+    init(fileName: String, title: String) {
         self.fileName = fileName
+        self.screenTitle = title
         super.init(nibName: nil, bundle: nil)
     }
 

@@ -41,7 +41,7 @@ final class CalendarDayCell: JTACDayCell {
         $0.textAlignment = .center
         $0.backgroundColor = .clear
         $0.clipsToBounds = true
-        $0.layer.cornerRadius = 11
+        $0.layer.cornerRadius = 10.5
     }
     
     private let firstEventStackView = CalendarEventVStackView()
@@ -165,7 +165,7 @@ private extension CalendarDayCell {
         
         dayLabel.snp.makeConstraints {
             $0.top.equalTo(seperatorView.snp.bottom).offset(4)
-            $0.width.height.equalTo(22)
+            $0.width.height.equalTo(21)
             $0.centerX.equalToSuperview()
         }
         

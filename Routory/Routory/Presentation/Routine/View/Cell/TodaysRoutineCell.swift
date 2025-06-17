@@ -59,6 +59,7 @@ private extension TodaysRoutineCell {
 
     func setStyles() {
         contentView.backgroundColor = .primaryBackground
+        self.selectionStyle = .none
     }
 
     func setConstraints() {

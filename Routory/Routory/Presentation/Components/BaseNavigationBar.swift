@@ -21,6 +21,7 @@ final class BaseNavigationBar: UIView {
 
     fileprivate let backButton = UIButton().then {
         $0.setImage(UIImage.chevronLeft, for: .normal)
+        $0.contentHorizontalAlignment = .right
     }
 
     fileprivate let rightButton = UIButton()
@@ -39,10 +40,11 @@ final class BaseNavigationBar: UIView {
 
     func configureRightButton(icon: UIImage?, title: String?) {
         rightButton.setImage(icon, for: .normal)
+        rightButton.contentHorizontalAlignment = .left
 
         if let title = title, title.count <= 2 {
-            rightButton.setTitle(title, for: .normal)
-            rightButton.titleLabel?.font = .bodyMedium(14)
+            rightButton.setAttributedTitle(NSAttributedString(string: title, attributes: [.font: UIFont.bodyMedium(14), .foregroundColor: UIColor.gray900]), for: .normal)
+            rightButton.setAttributedTitle(NSAttributedString(string: title, attributes: [.font: UIFont.bodyMedium(14), .foregroundColor: UIColor.gray900]), for: .selected)
         }
     }
 
@@ -90,8 +92,13 @@ private extension BaseNavigationBar {
     func setConstraints() {
         backButton.snp.makeConstraints {
             $0.centerY.equalToSuperview()
-            $0.leading.equalToSuperview().inset(16)
-            $0.size.equalTo(24)
+            $0.leading.equalToSuperview()
+            $0.width.greaterThanOrEqualTo(40)
+            $0.height.equalToSuperview()
+        }
+        
+        backButton.imageView?.snp.makeConstraints {
+            $0.width.height.equalTo(24)
         }
 
         titleLabel.snp.makeConstraints {
@@ -99,9 +106,14 @@ private extension BaseNavigationBar {
         }
 
         rightButton.snp.makeConstraints {
-            $0.trailing.equalToSuperview().inset(16)
+            $0.trailing.equalToSuperview().inset(8)
             $0.centerY.equalToSuperview()
-            $0.size.equalTo(24)
+            $0.width.equalTo(32)
+            $0.height.equalToSuperview()
+        }
+        
+        rightButton.imageView?.snp.makeConstraints {
+            $0.width.height.equalTo(24)
         }
     }
 }

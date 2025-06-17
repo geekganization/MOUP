@@ -77,7 +77,6 @@ final class MyPageViewController: UIViewController {
 
             let loginVC = LoginViewController(
                 viewModel: LoginViewModel(
-                    appleAuthService: AppleAuthService(),
                     googleAuthService: GoogleAuthService(),
                     userService: UserService()
                 )

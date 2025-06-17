@@ -19,11 +19,11 @@ final class LoginView: UIView {
     // MARK: - UI Components
     
     private let appleLoginButton = UIButton().then {
-        $0.setImage(.appleLogin, for: .normal)
+        $0.setImage(.appleSignIn, for: .normal)
     }
 
     private let googleLoginButton = UIButton().then {
-        $0.setImage(UIImage(named: "ios_light_sq_SU"), for: .normal)
+        $0.setImage(.googleSignIn, for: .normal)
     }
     
     // MARK: - Init

@@ -102,7 +102,7 @@ final class RoutineSelectionViewController: UIViewController {
             })
             .disposed(by: disposeBag)
         
-        navigationBar.configureRightButton(icon: .add, title: nil)
+        navigationBar.configureRightButton(icon: .plus, title: nil)
         
         navigationBar.rx.rightBtnTapped
             .subscribe(onNext: { [weak self] in

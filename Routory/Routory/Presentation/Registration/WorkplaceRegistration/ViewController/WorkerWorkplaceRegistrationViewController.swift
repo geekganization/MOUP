@@ -12,7 +12,7 @@ import RxSwift
 import RxCocoa
 import FirebaseAuth
 
-final class WorkerWorkplaceRegistrationViewController: UIViewController {
+final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestureRecognizerDelegate {
 
     private let scrollView = UIScrollView()
     private let contentView = WorkplaceRegistrationContentView(workplaceTitle: "근무지 *")
@@ -36,6 +36,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: false)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
     
     override func viewDidLoad() {

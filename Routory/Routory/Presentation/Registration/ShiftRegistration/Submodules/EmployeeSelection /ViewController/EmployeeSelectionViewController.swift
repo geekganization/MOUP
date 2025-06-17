@@ -20,7 +20,7 @@ struct Employee {
 
 // MARK: - EmployeeSelectionViewController
 
-final class EmployeeSelectionViewController: UIViewController {
+final class EmployeeSelectionViewController: UIViewController,UIGestureRecognizerDelegate {
 
     // MARK: - Properties
 
@@ -62,6 +62,7 @@ final class EmployeeSelectionViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: false)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
 
     override func viewDidLoad() {

@@ -10,7 +10,7 @@ import SnapKit
 import Then
 import RxSwift
 
-final class TextInputViewController: UIViewController {
+final class TextInputViewController: UIViewController,UIGestureRecognizerDelegate {
 
     // MARK: - Public Props
 
@@ -59,6 +59,7 @@ final class TextInputViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: false)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
 
     override func viewDidLoad() {

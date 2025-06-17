@@ -12,7 +12,7 @@ import RxSwift
 
 // MARK: - RepeatDaysViewController
 
-final class RepeatDaysViewController: UIViewController {
+final class RepeatDaysViewController: UIViewController,UIGestureRecognizerDelegate {
 
     // MARK: - Properties
 
@@ -52,6 +52,7 @@ final class RepeatDaysViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: false)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
 
     override func viewDidLoad() {

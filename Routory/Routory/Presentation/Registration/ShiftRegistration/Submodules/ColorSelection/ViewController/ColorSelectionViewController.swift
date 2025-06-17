@@ -8,6 +8,8 @@
 import UIKit
 import SnapKit
 import Then
+import RxSwift
+import RxCocoa
 
 // MARK: - Model
 
@@ -31,6 +33,10 @@ final class ColorSelectionViewController: UIViewController {
         LabelColor(name: "보라색", color: UIColor(red: 0.69, green: 0.32, blue: 0.87, alpha: 1)),
         LabelColor(name: "갈색", color: UIColor(red: 0.64, green: 0.52, blue: 0.37, alpha: 1))
     ]
+    
+    // *1
+    fileprivate lazy var navigationBar = BaseNavigationBar(title: "색상 선택") //*2
+    let disposeBag = DisposeBag()
 
     private var selectedIndex: Int = 0
     var onSelect: ((LabelColor) -> Void)?
@@ -52,30 +58,36 @@ final class ColorSelectionViewController: UIViewController {
     }
 
     // MARK: - Lifecycle
+    
+    //*3
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: false)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
+        //*4
         setupNavigationBar()
         layout()
     }
 
     // MARK: - Setup
     
+    //*5
     private func setupNavigationBar() {
-        title = "색상 선택"
-        let backButton = UIBarButtonItem(
-            image: UIImage(systemName: "chevron.left"),
-            style: .plain,
-            target: self,
-            action: #selector(didTapBack)
-        )
-        backButton.tintColor = .gray700
-        navigationItem.leftBarButtonItem = backButton
+        navigationBar.rx.backBtnTapped
+            .subscribe(onNext: { [weak self] in
+                self?.navigationController?.popViewController(animated: true)
+            })
+            .disposed(by: disposeBag)
     }
 
     private func setup() {
         view.backgroundColor = .white
+        //*6
+        view.addSubview(navigationBar)
         view.addSubview(tableView)
         view.addSubview(applyButton)
 
@@ -88,8 +100,16 @@ final class ColorSelectionViewController: UIViewController {
     // MARK: - Layout
 
     private func layout() {
-        tableView.snp.makeConstraints {
+        //*7
+        navigationBar.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.directionalHorizontalEdges.equalToSuperview()
+            $0.height.equalTo(50)
+        }
+        
+        tableView.snp.makeConstraints {
+            //*8
+            $0.top.equalTo(navigationBar.snp.bottom)
             $0.leading.trailing.equalToSuperview()
         }
 
@@ -102,10 +122,6 @@ final class ColorSelectionViewController: UIViewController {
     }
 
     // MARK: - Actions
-    
-    @objc private func didTapBack() {
-        navigationController?.popViewController(animated: true)
-    }
 
     @objc private func didTapApply() {
         let selectedColor = colors[selectedIndex]

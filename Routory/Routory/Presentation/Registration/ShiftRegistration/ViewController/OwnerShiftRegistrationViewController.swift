@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import RxSwift
 
 final class OwnerShiftRegistrationViewController: UIViewController {
     
@@ -36,6 +37,14 @@ final class OwnerShiftRegistrationViewController: UIViewController {
     private var delegateHandler: ShiftRegistrationDelegateHandler?
     private var actionHandler: RegistrationActionHandler?
     private var keyboardHandler: KeyboardInsetHandler?
+    
+    fileprivate lazy var navigationBar = BaseNavigationBar(title: "근무 등록") //*2
+    let disposeBag = DisposeBag()
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: false)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -74,18 +83,18 @@ final class OwnerShiftRegistrationViewController: UIViewController {
     }
 
     private func setupNavigationBar() {
-        configureShiftNavigationBar(
-            for: self,
-            title: "근무 등록",
-            target: actionHandler as Any,
-            action: #selector(RegistrationActionHandler.didTapBack)
-        )
+        navigationBar.rx.backBtnTapped
+            .subscribe(onNext: { [weak self] in
+                self?.navigationController?.popViewController(animated: true)
+            })
+            .disposed(by: disposeBag)
     }
 
     private func setupUI() {
         view.backgroundColor = .white
 
         scrollView.keyboardDismissMode = .interactive
+        view.addSubview(navigationBar)
         view.addSubview(scrollView)
         scrollView.addSubview(stackView)
 
@@ -114,8 +123,17 @@ final class OwnerShiftRegistrationViewController: UIViewController {
     }
 
     private func layout() {
+        
+        navigationBar.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.directionalHorizontalEdges.equalToSuperview()
+            $0.height.equalTo(50)
+        }
+        
         scrollView.snp.makeConstraints {
-            $0.edges.equalTo(view.safeAreaLayoutGuide)
+            $0.top.equalTo(navigationBar.snp.bottom)
+            $0.leading.trailing.equalToSuperview()
+            $0.bottom.equalTo(view.safeAreaLayoutGuide) 
         }
 
         stackView.snp.makeConstraints {

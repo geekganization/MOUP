@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import RxSwift
 
 final class SelectionViewController<T>: UIViewController,UITableViewDataSource, UITableViewDelegate {
 
@@ -22,6 +23,9 @@ final class SelectionViewController<T>: UIViewController,UITableViewDataSource, 
     private var selectedIndex: Int?
 
     var onSelect: ((T) -> Void)?
+    
+    fileprivate lazy var navigationBar = BaseNavigationBar(title: titleText)
+    let disposeBag = DisposeBag()
 
     init(title: String, description: String, items: [Item], selected: T?) {
         self.titleText = title
@@ -45,6 +49,11 @@ final class SelectionViewController<T>: UIViewController,UITableViewDataSource, 
         $0.alpha = 0.5
         $0.addTarget(self, action: #selector(didTapDone), for: .touchUpInside)
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: false)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,15 +64,11 @@ final class SelectionViewController<T>: UIViewController,UITableViewDataSource, 
     }
     
     private func setupNavigationBar() {
-        title = titleText
-        let backButton = UIBarButtonItem(
-            image: UIImage(systemName: "chevron.left"),
-            style: .plain,
-            target: self,
-            action: #selector(didTapBack)
-        )
-        backButton.tintColor = .gray700
-        navigationItem.leftBarButtonItem = backButton
+        navigationBar.rx.backBtnTapped
+            .subscribe(onNext: { [weak self] in
+                self?.navigationController?.popViewController(animated: true)
+            })
+            .disposed(by: disposeBag)
     }
 
     private func setupUI() {
@@ -95,12 +100,19 @@ final class SelectionViewController<T>: UIViewController,UITableViewDataSource, 
             $0.addTarget(self, action: #selector(didTapDone), for: .touchUpInside)
         }
 
+        view.addSubview(navigationBar)
         view.addSubview(descriptionLabel)
         view.addSubview(tableView)
         view.addSubview(doneButton)
+        
+        navigationBar.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.directionalHorizontalEdges.equalToSuperview()
+            $0.height.equalTo(50)
+        }
 
         descriptionLabel.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(16)
+            $0.top.equalTo(navigationBar.snp.bottom).offset(16)
             $0.leading.trailing.equalToSuperview().inset(20)
         }
 

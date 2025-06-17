@@ -10,6 +10,7 @@ import RxSwift
 import RxCocoa
 import SnapKit
 import Then
+import FirebaseAuth
 
 enum RoutineFormMode {
     case create
@@ -23,7 +24,7 @@ final class NewRoutineViewController: UIViewController {
 
     private let viewModel = NewRoutineViewModel(
         useCase: RoutineUseCase(repository: RoutineRepository(service: RoutineService())),
-        uid: "123"
+        uid: Auth.auth().currentUser?.uid ?? ""
     )
     private let saveTrigger = PublishSubject<Routine>()
     private let disposeBag = DisposeBag()

@@ -12,6 +12,7 @@ import RxRelay
 final class ManageRoutineViewModel {
     // MARK: - Properties
     private let userId: String
+    private let routineType: RoutineType
     private let disposeBag = DisposeBag()
     private lazy var todaysRoutineRelay = BehaviorRelay<[DummyTodaysRoutine]>(value: [])
     private lazy var allRoutineRelay = BehaviorRelay<[RoutineInfo]>(value: [])
@@ -35,8 +36,9 @@ final class ManageRoutineViewModel {
     ]
 
     // MARK: - Initializer
-    init(userId: String) {
+    init(userId: String, type: RoutineType) {
         self.userId = userId
+        self.routineType = type
     }
 
     // MARK: - Input, Output
@@ -54,8 +56,12 @@ final class ManageRoutineViewModel {
         input.viewDidLoad
             .subscribe(onNext: { [weak self] in
                 guard let self else { return }
-                self.todaysRoutineRelay.accept(mockTodaysRoutine)
-                self.allRoutineRelay.accept(mockAllRoutine)
+                switch self.routineType {
+                case .today:
+                    self.todaysRoutineRelay.accept(mockTodaysRoutine)
+                case .all:
+                    self.allRoutineRelay.accept(mockAllRoutine)
+                }
             })
             .disposed(by: disposeBag)
 

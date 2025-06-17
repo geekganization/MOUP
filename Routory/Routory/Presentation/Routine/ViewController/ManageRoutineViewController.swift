@@ -114,7 +114,11 @@ private extension ManageRoutineViewController {
                 }
                 .subscribe(onNext: { [weak self] routine in
                     print("\(routine) 루틴 탭")
-                    let vc = NewRoutineViewController(mode: .create)
+                    let vc = NewRoutineViewController(mode: .read(
+                        existingTitle: routine.routine.routineName,
+                        existingTime: routine.routine.alarmTime,
+                        existingTasks: routine.routine.tasks
+                    ))
                     self?.navigationController?.pushViewController(vc, animated: true)
                 })
                 .disposed(by: disposeBag)

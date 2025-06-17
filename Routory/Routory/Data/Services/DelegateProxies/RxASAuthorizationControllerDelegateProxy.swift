@@ -10,7 +10,7 @@ import AuthenticationServices
 import RxCocoa
 import RxSwift
 
-extension ASAuthorizationController: HasDelegate {}
+extension ASAuthorizationController: @retroactive HasDelegate {}
 
 final class RxASAuthorizationControllerDelegateProxy: DelegateProxy<ASAuthorizationController, ASAuthorizationControllerDelegate>, DelegateProxyType, ASAuthorizationControllerDelegate {
     

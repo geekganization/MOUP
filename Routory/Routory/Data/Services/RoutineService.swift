@@ -13,6 +13,7 @@ protocol RoutineServiceProtocol {
     func fetchAllRoutines(uid: String) -> Observable<[RoutineInfo]>
     func createRoutine(uid: String, routine: Routine) -> Observable<Void>
     func deleteRoutine(uid: String, routineId: String) -> Observable<Void>
+    func updateRoutine(uid: String, routineId: String, routine: Routine) -> Observable<Void> 
 }
 
 final class RoutineService: RoutineServiceProtocol {
@@ -80,6 +81,27 @@ final class RoutineService: RoutineServiceProtocol {
         return Observable.create { observer in
             let routineRef = self.db.collection("users").document(uid).collection("routine").document(routineId)
             routineRef.delete { error in
+                if let error = error {
+                    observer.onError(error)
+                } else {
+                    observer.onNext(())
+                    observer.onCompleted()
+                }
+            }
+            return Disposables.create()
+        }
+    }
+    
+    /// 루틴 수정
+    func updateRoutine(uid: String, routineId: String, routine: Routine) -> Observable<Void> {
+        return Observable.create { observer in
+            let routineRef = self.db.collection("users").document(uid).collection("routine").document(routineId)
+            let data: [String: Any] = [
+                "routineName": routine.routineName,
+                "alarmTime": routine.alarmTime,
+                "tasks": routine.tasks
+            ]
+            routineRef.updateData(data) { error in
                 if let error = error {
                     observer.onError(error)
                 } else {

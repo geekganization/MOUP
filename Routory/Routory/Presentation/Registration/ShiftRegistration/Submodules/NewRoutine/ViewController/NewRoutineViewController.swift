@@ -25,7 +25,9 @@ final class NewRoutineViewController: UIViewController {
     private let viewModel: NewRoutineViewModel
     private let saveTrigger = PublishSubject<Routine>()
     private let disposeBag = DisposeBag()
-
+    
+    private lazy var navigationBar = BaseNavigationBar(title: modeTitle())
+    
     // MARK: - Mode & State
 
     private let mode: RoutineFormMode
@@ -92,9 +94,15 @@ final class NewRoutineViewController: UIViewController {
     }
 
     // MARK: - Lifecycle
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: false)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupNavigationBar()
         setupUI()
         layout()
         applyMode()
@@ -102,20 +110,30 @@ final class NewRoutineViewController: UIViewController {
     }
 
     // MARK: - Setup UI
+    
+    private func setupNavigationBar() {
+        navigationBar.rx.backBtnTapped
+            .subscribe(onNext: { [weak self] in
+                self?.navigationController?.popViewController(animated: true)
+            })
+            .disposed(by: disposeBag)
+        
+        navigationBar.rx.rightBtnTapped
+            .subscribe(onNext: { [weak self] in
+                self?.didTapSave()
+            })
+            .disposed(by: disposeBag)
+    }
 
     private func setupUI() {
         view.backgroundColor = .white
         title = modeTitle()
 
         if case .read = mode {
-            navigationItem.rightBarButtonItem = nil
+            navigationBar.configureRightButton(icon: nil, title: nil)
         } else {
-            navigationItem.rightBarButtonItem = UIBarButtonItem(
-                title: "저장",
-                style: .done,
-                target: self,
-                action: #selector(didTapSave)
-            )
+            navigationBar.configureRightButton(icon: nil, title: "저장")
+
         }
 
         addTaskButton.addTarget(self, action: #selector(didTapAddTask), for: .touchUpInside)
@@ -127,6 +145,7 @@ final class NewRoutineViewController: UIViewController {
         tableView.delegate = self
         tableView.isEditing = true
 
+        view.addSubview(navigationBar)
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
 
@@ -136,8 +155,16 @@ final class NewRoutineViewController: UIViewController {
     }
 
     private func layout() {
+        navigationBar.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.directionalHorizontalEdges.equalToSuperview()
+            $0.height.equalTo(50)
+        }
+        
         scrollView.snp.makeConstraints {
-            $0.edges.equalTo(view.safeAreaLayoutGuide)
+            $0.top.equalTo(navigationBar.snp.bottom)
+            $0.leading.trailing.equalToSuperview()
+            $0.bottom.equalTo(view.safeAreaLayoutGuide)
         }
 
         contentView.snp.makeConstraints {

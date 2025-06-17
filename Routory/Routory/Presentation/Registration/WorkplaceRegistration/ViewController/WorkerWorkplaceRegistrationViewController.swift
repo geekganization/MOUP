@@ -20,6 +20,8 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController {
     private var delegateHandler: WorkplaceRegistrationDelegateHandler?
     private var actionHandler: RegistrationActionHandler?
     
+    fileprivate lazy var navigationBar = BaseNavigationBar(title: "새 근무지 등록") //*2
+    
     private let viewModel = CreateWorkplaceViewModel(
         useCase: CreateWorkerWorkplaceUseCase(
             repository: WorkerWorkplaceRepository(
@@ -31,6 +33,11 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController {
     
     // MARK: - Lifecycle
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: false)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -41,16 +48,16 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController {
     // MARK: - Setup
 
     private func setupNavigationBar() {
-        configureShiftNavigationBar(
-            for: self,
-            title: "새 근무지 등록",
-            target: self,
-            action: #selector(didTapBack)
-        )
+        navigationBar.rx.backBtnTapped
+            .subscribe(onNext: { [weak self] in
+                self?.navigationController?.popViewController(animated: true)
+            })
+            .disposed(by: disposeBag)
     }
 
     private func setupUI() {
         view.backgroundColor = .white
+        view.addSubview(navigationBar)
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
 
@@ -67,8 +74,16 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController {
     }
 
     private func layout() {
+        navigationBar.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.directionalHorizontalEdges.equalToSuperview()
+            $0.height.equalTo(50)
+        }
+        
         scrollView.snp.makeConstraints {
-            $0.edges.equalTo(view.safeAreaLayoutGuide)
+            $0.top.equalTo(navigationBar.snp.bottom)
+            $0.leading.trailing.equalToSuperview()
+            $0.bottom.equalTo(view.safeAreaLayoutGuide)
         }
 
         contentView.snp.makeConstraints {
@@ -78,10 +93,6 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController {
     }
 
     // MARK: - Actions
-
-    @objc private func didTapBack() {
-        navigationController?.popViewController(animated: true)
-    }
     
     @objc func didTapRegister() {
         let name = contentView.workplaceInfoView.getName()

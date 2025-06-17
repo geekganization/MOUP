@@ -8,6 +8,7 @@
 import UIKit
 import SnapKit
 import Then
+import RxSwift
 
 // MARK: - Model
 
@@ -30,6 +31,9 @@ final class EmployeeSelectionViewController: UIViewController {
     ]
 
     var onSelect: (([Employee]) -> Void)?
+    
+    fileprivate lazy var navigationBar = BaseNavigationBar(title: "인원 선택") //*2
+    let disposeBag = DisposeBag()
 
     // MARK: - UI Components
 
@@ -54,6 +58,11 @@ final class EmployeeSelectionViewController: UIViewController {
     }
 
     // MARK: - Lifecycle
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: false)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -65,20 +74,17 @@ final class EmployeeSelectionViewController: UIViewController {
     // MARK: - Setup
 
     private func setupNavigationBar() {
-        title = "인원 선택"
-        let backButton = UIBarButtonItem(
-            image: UIImage(systemName: "chevron.left"),
-            style: .plain,
-            target: self,
-            action: #selector(didTapBack)
-        )
-        backButton.tintColor = .gray700
-        navigationItem.leftBarButtonItem = backButton
+        navigationBar.rx.backBtnTapped
+            .subscribe(onNext: { [weak self] in
+                self?.navigationController?.popViewController(animated: true)
+            })
+            .disposed(by: disposeBag)
     }
 
     private func setupUI() {
         view.backgroundColor = .white
 
+        view.addSubview(navigationBar)
         view.addSubview(titleLabel)
         view.addSubview(tableView)
         view.addSubview(applyButton)
@@ -92,8 +98,14 @@ final class EmployeeSelectionViewController: UIViewController {
     // MARK: - Layout
 
     private func layout() {
+        navigationBar.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.directionalHorizontalEdges.equalToSuperview()
+            $0.height.equalTo(50)
+        }
+        
         titleLabel.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(16)
+            $0.top.equalTo(navigationBar.snp.bottom).offset(16)
             $0.leading.trailing.equalToSuperview().inset(20)
         }
 

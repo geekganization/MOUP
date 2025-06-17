@@ -8,6 +8,7 @@
 import UIKit
 import SnapKit
 import Then
+import RxSwift
 
 // MARK: - RepeatDaysViewController
 
@@ -19,6 +20,9 @@ final class RepeatDaysViewController: UIViewController {
     private var selectedDays = Set<Int>()
 
     var onSelectDays: (([String]) -> Void)?
+    
+    fileprivate lazy var navigationBar = BaseNavigationBar(title: "반복") //*2
+    let disposeBag = DisposeBag()
 
     // MARK: - UI Components
 
@@ -44,6 +48,11 @@ final class RepeatDaysViewController: UIViewController {
     }
 
     // MARK: - Lifecycle
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: false)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -58,18 +67,15 @@ final class RepeatDaysViewController: UIViewController {
     // MARK: - Setup
 
     private func setupNavigationBar() {
-        title = "반복"
-        let backButton = UIBarButtonItem(
-            image: UIImage(systemName: "chevron.left"),
-            style: .plain,
-            target: self,
-            action: #selector(didTapBack)
-        )
-        backButton.tintColor = .gray700
-        navigationItem.leftBarButtonItem = backButton
+        navigationBar.rx.backBtnTapped
+            .subscribe(onNext: { [weak self] in
+                self?.navigationController?.popViewController(animated: true)
+            })
+            .disposed(by: disposeBag)
     }
 
     private func setupViews() {
+        view.addSubview(navigationBar)
         view.addSubview(titleLabel)
         view.addSubview(tableView)
         view.addSubview(applyButton)
@@ -78,8 +84,14 @@ final class RepeatDaysViewController: UIViewController {
     }
 
     private func setupConstraints() {
+        navigationBar.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.directionalHorizontalEdges.equalToSuperview()
+            $0.height.equalTo(50)
+        }
+        
         titleLabel.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(20)
+            $0.top.equalTo(navigationBar.snp.bottom).offset(20)
             $0.leading.equalToSuperview().offset(16)
         }
 

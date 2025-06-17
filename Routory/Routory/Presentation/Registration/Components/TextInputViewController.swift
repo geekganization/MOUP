@@ -8,6 +8,7 @@
 import UIKit
 import SnapKit
 import Then
+import RxSwift
 
 final class TextInputViewController: UIViewController {
 
@@ -26,6 +27,9 @@ final class TextInputViewController: UIViewController {
 
     private let textField = UITextField()
     private let doneButton = UIButton(type: .system)
+    
+    fileprivate lazy var navigationBar = BaseNavigationBar(title: titleText) //*2
+    let disposeBag = DisposeBag()
 
     // MARK: - Initializer
 
@@ -51,6 +55,11 @@ final class TextInputViewController: UIViewController {
     }
 
     // MARK: - Lifecycle
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: false)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -60,14 +69,11 @@ final class TextInputViewController: UIViewController {
     }
 
     private func setupNavigationBar() {
-        title = titleText
-        navigationItem.leftBarButtonItem = UIBarButtonItem(
-            image: UIImage(systemName: "chevron.left"),
-            style: .plain,
-            target: self,
-            action: #selector(didTapBack)
-        )
-        navigationItem.leftBarButtonItem?.tintColor = .gray700
+        navigationBar.rx.backBtnTapped
+            .subscribe(onNext: { [weak self] in
+                self?.navigationController?.popViewController(animated: true)
+            })
+            .disposed(by: disposeBag)
     }
 
     private func setupUI() {
@@ -103,12 +109,19 @@ final class TextInputViewController: UIViewController {
             $0.addTarget(self, action: #selector(didTapDone), for: .touchUpInside)
         }
 
+        view.addSubview(navigationBar)
         view.addSubview(guideLabel)
         view.addSubview(textField)
         view.addSubview(doneButton)
+        
+        navigationBar.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.directionalHorizontalEdges.equalToSuperview()
+            $0.height.equalTo(50)
+        }
 
         guideLabel.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(24)
+            $0.top.equalTo(navigationBar.snp.bottom).offset(24)
             $0.leading.trailing.equalToSuperview().inset(20)
         }
 

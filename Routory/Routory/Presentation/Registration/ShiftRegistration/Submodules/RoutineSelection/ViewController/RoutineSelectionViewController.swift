@@ -27,6 +27,8 @@ final class RoutineSelectionViewController: UIViewController {
 
     var onSelect: (([RoutineInfo]) -> Void)?
     private var routines: [RoutineItem] = []
+    
+    fileprivate lazy var navigationBar = BaseNavigationBar(title: "루틴 선택") //*2
 
     // MARK: - UI Components
 
@@ -54,6 +56,7 @@ final class RoutineSelectionViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: false)
         fetchTrigger.onNext(())
     }
 
@@ -91,29 +94,28 @@ final class RoutineSelectionViewController: UIViewController {
     }
 
     // MARK: - Setup
-
+    
     private func setupNavigationBar() {
-        title = "루틴 선택"
-        let backButton = UIBarButtonItem(
-            image: UIImage(systemName: "chevron.left"),
-            style: .plain,
-            target: self,
-            action: #selector(didTapBack)
-        )
-        backButton.tintColor = .gray700
-        navigationItem.rightBarButtonItem?.tintColor = .gray700
-        navigationItem.leftBarButtonItem = backButton
-
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            barButtonSystemItem: .add,
-            target: self,
-            action: #selector(didTapAdd)
-        )
+        navigationBar.rx.backBtnTapped
+            .subscribe(onNext: { [weak self] in
+                self?.navigationController?.popViewController(animated: true)
+            })
+            .disposed(by: disposeBag)
+        
+        navigationBar.configureRightButton(icon: .add, title: nil)
+        
+        navigationBar.rx.rightBtnTapped
+            .subscribe(onNext: { [weak self] in
+                let newRoutineVC = NewRoutineViewController(mode: .create)
+                self?.navigationController?.pushViewController(newRoutineVC, animated: true)
+            })
+            .disposed(by: disposeBag)
     }
 
     private func setupUI() {
         view.backgroundColor = .white
 
+        view.addSubview(navigationBar)
         view.addSubview(routinesLabel)
         view.addSubview(tableView)
         view.addSubview(applyButton)
@@ -127,8 +129,14 @@ final class RoutineSelectionViewController: UIViewController {
     // MARK: - Layout
 
     private func layout() {
+        navigationBar.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.directionalHorizontalEdges.equalToSuperview()
+            $0.height.equalTo(50)
+        }
+        
         routinesLabel.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(16)
+            $0.top.equalTo(navigationBar.snp.bottom).offset(16)
             $0.leading.trailing.equalToSuperview().inset(20)
         }
 
@@ -147,20 +155,11 @@ final class RoutineSelectionViewController: UIViewController {
 
     // MARK: - Actions
 
-    @objc private func didTapBack() {
-        navigationController?.popViewController(animated: true)
-    }
-
     @objc private func didTapApply() {
         let selectedRoutines = routines.filter { $0.isSelected }.map { $0.routineInfo }
         guard !selectedRoutines.isEmpty else { return }
         onSelect?(selectedRoutines)
         navigationController?.popViewController(animated: true)
-    }
-
-    @objc private func didTapAdd() {
-        let newRoutineVC = NewRoutineViewController(mode: .create)
-        navigationController?.pushViewController(newRoutineVC, animated: true)
     }
 }
 

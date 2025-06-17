@@ -300,6 +300,16 @@ final class NewRoutineViewController: UIViewController {
 // MARK: - UITableViewDataSource
 
 extension NewRoutineViewController: UITableViewDataSource, UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+
+    func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        let moved = tasks.remove(at: sourceIndexPath.row)
+        tasks.insert(moved, at: destinationIndexPath.row)
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         tasks.count
     }

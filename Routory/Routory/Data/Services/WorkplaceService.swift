@@ -17,7 +17,11 @@ protocol WorkplaceServiceProtocol {
 final class WorkplaceService: WorkplaceServiceProtocol {
     private let db = Firestore.firestore()
     
-    /// 초대코드로 연동된 근무지 정보 반환
+    /// 초대코드를 통해 근무지 정보를 조회합니다.
+    ///
+    /// - Parameter inviteCode: 조회할 근무지의 초대코드
+    /// - Returns: 조회된 WorkplaceInfo(근무지 ID + 근무지 정보)를 방출하는 Observable, 없으면 nil
+    /// - Firestore 경로: workplaces (inviteCode 검색)
     func fetchWorkplaceByInviteCode(inviteCode: String) -> Observable<WorkplaceInfo?> {
         return Observable.create { observer in
             self.db.collection("workplaces")
@@ -46,6 +50,14 @@ final class WorkplaceService: WorkplaceServiceProtocol {
         }
     }
     
+    /// 근무지의 worker 서브컬렉션에 알바(워커) 정보를 등록합니다.
+    ///
+    /// - Parameters:
+    ///   - workplaceId: 근무지의 Firestore documentID
+    ///   - uid: 등록할 알바(유저) UID
+    ///   - workerDetail: 등록할 WorkerDetail 정보
+    /// - Returns: 성공 시 완료(Void)를 방출하는 Observable
+    /// - Firestore 경로: workplaces/{workplaceId}/worker/{uid}
     func addWorkerToWorkplace(workplaceId: String, uid: String, workerDetail: WorkerDetail) -> Observable<Void> {
         let db = Firestore.firestore()
         return Observable.create { observer in

@@ -14,24 +14,29 @@ enum Role {
     case worker
 }
 
+/// 사용자 정보 및 근무지 연동, 워커 등록 관련 기능을 제공합니다.
 protocol UserServiceProtocol {
     func checkUserExists(uid: String) -> Observable<Bool>
     func createUser(uid: String, user: User) -> Observable<Void>
     func deleteUser(uid: String) -> Observable<Void>
-    func fetchUser(uid: String) -> Observable<(User)>
+    func fetchUser(uid: String) -> Observable<User>
     func updateUserName(uid: String, newUserName: String) -> Observable<Void>
     func createWorkplace(
-            workplace: Workplace,
-            role: Role,
-            workerDetail: WorkerDetail?,
-            uid: String
-        ) -> Observable<String>
+        workplace: Workplace,
+        role: Role,
+        workerDetail: WorkerDetail?,
+        uid: String
+    ) -> Observable<String>
     func addWorkplaceToUser(uid: String, workplaceId: String) -> Observable<Void>
 }
 
 final class UserService: UserServiceProtocol {
     private let db = Firestore.firestore()
     
+    /// 사용자의 존재 여부를 확인합니다.
+    ///
+    /// - Parameter uid: 확인할 사용자 UID.
+    /// - Returns: 사용자가 존재하면 true, 아니면 false를 방출하는 Observable.
     func checkUserExists(uid: String) -> Observable<Bool> {
         return Observable.create { observer in
             self.db.collection("users").document(uid).getDocument { document, error in
@@ -46,7 +51,12 @@ final class UserService: UserServiceProtocol {
         }
     }
     
-    // MARK: - 회원가입
+    /// 새로운 사용자를 생성(회원가입)합니다.
+    ///
+    /// - Parameters:
+    ///   - uid: 사용자 UID.
+    ///   - user: 생성할 사용자 정보.
+    /// - Returns: 성공 시 완료(Void)를 방출하는 Observable.
     func createUser(uid: String, user: User) -> Observable<Void> {
         let data: [String: Any] = [
             "userName": user.userName,
@@ -65,7 +75,10 @@ final class UserService: UserServiceProtocol {
         }
     }
     
-    // MARK: - 회원 탈퇴 (삭제)
+    /// 사용자를 삭제(회원 탈퇴)합니다.
+    ///
+    /// - Parameter uid: 삭제할 사용자 UID.
+    /// - Returns: 성공 시 완료(Void)를 방출하는 Observable.
     func deleteUser(uid: String) -> Observable<Void> {
         return Observable.create { observer in
             self.db.collection("users").document(uid).delete { error in
@@ -76,11 +89,14 @@ final class UserService: UserServiceProtocol {
                     observer.onCompleted()
                 }
             }
-            return Disposables.create() 
+            return Disposables.create()
         }
     }
     
-    // MARK: - 내 정보 조회
+    /// 사용자 정보를 조회합니다.
+    ///
+    /// - Parameter uid: 조회할 사용자 UID.
+    /// - Returns: 조회된 User 모델을 방출하는 Observable.
     func fetchUser(uid: String) -> Observable<User> {
         return Observable.create { observer in
             self.db.collection("users").document(uid).getDocument { document, error in
@@ -103,7 +119,12 @@ final class UserService: UserServiceProtocol {
         }
     }
     
-    // MARK: - 닉네임 변경
+    /// 사용자의 닉네임을 변경합니다.
+    ///
+    /// - Parameters:
+    ///   - uid: 사용자 UID.
+    ///   - newUserName: 변경할 닉네임.
+    /// - Returns: 성공 시 완료(Void)를 방출하는 Observable.
     func updateUserName(uid: String, newUserName: String) -> Observable<Void> {
         return Observable.create { observer in
             self.db.collection("users").document(uid).updateData([
@@ -120,62 +141,75 @@ final class UserService: UserServiceProtocol {
         }
     }
     
-    // MARK: - 근무지 등록 (자동 ID 생성)
-        func createWorkplace(
-            workplace: Workplace,
-            role: Role,
-            workerDetail: WorkerDetail?,
-            uid: String
-        ) -> Observable<String> {
-            let workplaceRef = db.collection("workplaces").document()
-            let workplaceId = workplaceRef.documentID
+    /// 근무지를 생성하고(자동 ID 할당), 역할에 따라 worker 정보까지 함께 등록합니다.
+    ///
+    /// - Parameters:
+    ///   - workplace: 생성할 근무지 정보.
+    ///   - role: 생성자 역할(오너/알바).
+    ///   - workerDetail: 알바(워커) 정보. 역할이 알바일 때만 필요.
+    ///   - uid: 사용자 UID.
+    /// - Returns: 생성된 근무지의 workplaceId를 방출하는 Observable.
+    func createWorkplace(
+        workplace: Workplace,
+        role: Role,
+        workerDetail: WorkerDetail?,
+        uid: String
+    ) -> Observable<String> {
+        let workplaceRef = db.collection("workplaces").document()
+        let workplaceId = workplaceRef.documentID
+        
+        return Observable.create { observer in
+            let batch = self.db.batch()
+            // 1. 근무지 문서
+            batch.setData([
+                "workplacesName": workplace.workplacesName,
+                "category": workplace.category,
+                "ownerId": workplace.ownerId,
+                "inviteCode": workplace.inviteCode,
+                "isOfficial": role == .owner ? true : false
+            ], forDocument: workplaceRef)
             
-            return Observable.create { observer in
-                let batch = self.db.batch()
-                // 1. 근무지 문서
-                batch.setData([
-                    "workplacesName": workplace.workplacesName,
-                    "category": workplace.category,
-                    "ownerId": workplace.ownerId,
-                    "inviteCode": workplace.inviteCode,
-                    "isOfficial": role == .owner ? true : false
-                ], forDocument: workplaceRef)
-                
-                // 2. 알바라면 worker 서브컬렉션
-                if role == .worker, let workerDetail = workerDetail {
-                    let workerRef = workplaceRef.collection("worker").document(uid)
-                    let workerData: [String: Any] = [
-                        "workerName": workerDetail.workerName,
-                        "wage": workerDetail.wage,
-                        "wageCalcMethod": workerDetail.wageCalcMethod,
-                        "wageType": workerDetail.wageType,
-                        "weeklyAllowance": workerDetail.weeklyAllowance,
-                        "payDay": workerDetail.payDay,
-                        "payWeekday": workerDetail.payWeekday,
-                        "breakTimeMinutes": workerDetail.breakTimeMinutes,
-                        "employmentInsurance": workerDetail.employmentInsurance,
-                        "healthInsurance": workerDetail.healthInsurance,
-                        "industrialAccident": workerDetail.industrialAccident,
-                        "nationalPension": workerDetail.nationalPension,
-                        "incomeTax": workerDetail.incomeTax,
-                        "nightAllowance": workerDetail.nightAllowance
-                    ]
-                    batch.setData(workerData, forDocument: workerRef)
-                }
-                
-                // 3. batch 커밋
-                batch.commit { error in
-                    if let error = error {
-                        observer.onError(error)
-                    } else {
-                        observer.onNext(workplaceId)
-                        observer.onCompleted()
-                    }
-                }
-                return Disposables.create()
+            // 2. 알바라면 worker 서브컬렉션
+            if role == .worker, let workerDetail = workerDetail {
+                let workerRef = workplaceRef.collection("worker").document(uid)
+                let workerData: [String: Any] = [
+                    "workerName": workerDetail.workerName,
+                    "wage": workerDetail.wage,
+                    "wageCalcMethod": workerDetail.wageCalcMethod,
+                    "wageType": workerDetail.wageType,
+                    "weeklyAllowance": workerDetail.weeklyAllowance,
+                    "payDay": workerDetail.payDay,
+                    "payWeekday": workerDetail.payWeekday,
+                    "breakTimeMinutes": workerDetail.breakTimeMinutes,
+                    "employmentInsurance": workerDetail.employmentInsurance,
+                    "healthInsurance": workerDetail.healthInsurance,
+                    "industrialAccident": workerDetail.industrialAccident,
+                    "nationalPension": workerDetail.nationalPension,
+                    "incomeTax": workerDetail.incomeTax,
+                    "nightAllowance": workerDetail.nightAllowance
+                ]
+                batch.setData(workerData, forDocument: workerRef)
             }
+            
+            // 3. batch 커밋
+            batch.commit { error in
+                if let error = error {
+                    observer.onError(error)
+                } else {
+                    observer.onNext(workplaceId)
+                    observer.onCompleted()
+                }
+            }
+            return Disposables.create()
         }
+    }
     
+    /// 내 근무지 리스트(users/{userId}/workplaces/{workplaceId})에 빈 문서를 생성합니다.
+    ///
+    /// - Parameters:
+    ///   - uid: 사용자 UID.
+    ///   - workplaceId: 연동할 근무지 ID.
+    /// - Returns: 성공 시 완료(Void)를 방출하는 Observable.
     func addWorkplaceToUser(uid: String, workplaceId: String) -> Observable<Void> {
         return Observable.create { observer in
             self.db.collection("users").document(uid)
@@ -191,5 +225,5 @@ final class UserService: UserServiceProtocol {
             return Disposables.create()
         }
     }
-
 }
+

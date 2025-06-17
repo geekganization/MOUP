@@ -59,7 +59,6 @@ final class OpenSourceViewController: UIViewController {
     private let contentStackView = UIStackView().then {
         $0.axis = .vertical
         $0.spacing = 24
-        $0.alignment = .fill
     }
 
     // MARK: - Lifecycle
@@ -129,8 +128,10 @@ final class OpenSourceViewController: UIViewController {
                 $0.numberOfLines = 0
             }
 
-            contentStackView.addArrangedSubview(titleLabel)
-            contentStackView.addArrangedSubview(bodyLabel)
+            contentStackView.addArrangedSubviews(
+                titleLabel,
+                bodyLabel
+            )
         }
     }
 }

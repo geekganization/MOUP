@@ -71,7 +71,7 @@ final class OpenSourceViewController: UIViewController {
         loadData()
     }
     
-    func loadData() {
+    private func loadData() {
         guard let url = Bundle.main.url(forResource: "opensource_license", withExtension: "json") else {
             print("JSON 파일을 찾을 수 없습니다.")
             return
@@ -85,6 +85,52 @@ final class OpenSourceViewController: UIViewController {
             render()
         } catch {
             print("디코딩 실패:", error)
+        }
+    }
+
+    private func render() {
+        for lib in libraries {
+            let label = UILabel().then {
+                $0.text = """
+                \(lib.name)
+                \(lib.copyright)
+                \(lib.license)
+                \(lib.url)
+                """
+                $0.font = .bodyMedium(12)
+                $0.setLineSpacing(.bodyMedium)
+                $0.textColor = .gray900
+                $0.numberOfLines = 0
+            }
+            contentStackView.addArrangedSubview(label)
+        }
+
+        if !licenses.isEmpty {
+            let divider = UIView().then {
+                $0.backgroundColor = .separator
+            }
+            divider.snp.makeConstraints { $0.height.equalTo(1) }
+            contentStackView.addArrangedSubview(divider)
+        }
+
+        for (licenseName, content) in licenses {
+            let titleLabel = UILabel().then {
+                $0.text = "\(licenseName)"
+                $0.font = .bodyMedium(14)
+                $0.setLineSpacing(.bodyMedium)
+                $0.textColor = .gray900
+            }
+
+            let bodyLabel = UILabel().then {
+                $0.text = content.fullText
+                $0.font = .bodyMedium(12)
+                $0.setLineSpacing(.bodyMedium)
+                $0.textColor = .gray900
+                $0.numberOfLines = 0
+            }
+
+            contentStackView.addArrangedSubview(titleLabel)
+            contentStackView.addArrangedSubview(bodyLabel)
         }
     }
 }
@@ -141,51 +187,5 @@ private extension OpenSourceViewController {
     
     @objc func backButtonDidTap() {
         navigationController?.popViewController(animated: true)
-    }
-
-    func render() {
-        for lib in libraries {
-            let label = UILabel().then {
-                $0.text = """
-                \(lib.name)
-                \(lib.copyright)
-                \(lib.license)
-                \(lib.url)
-                """
-                $0.font = .bodyMedium(12)
-                $0.setLineSpacing(.bodyMedium)
-                $0.textColor = .gray900
-                $0.numberOfLines = 0
-            }
-            contentStackView.addArrangedSubview(label)
-        }
-
-        if !licenses.isEmpty {
-            let divider = UIView().then {
-                $0.backgroundColor = .separator
-            }
-            divider.snp.makeConstraints { $0.height.equalTo(1) }
-            contentStackView.addArrangedSubview(divider)
-        }
-
-        for (licenseName, content) in licenses {
-            let titleLabel = UILabel().then {
-                $0.text = "\(licenseName)"
-                $0.font = .bodyMedium(14)
-                $0.setLineSpacing(.bodyMedium)
-                $0.textColor = .gray900
-            }
-
-            let bodyLabel = UILabel().then {
-                $0.text = content.fullText
-                $0.font = .bodyMedium(12)
-                $0.setLineSpacing(.bodyMedium)
-                $0.textColor = .gray900
-                $0.numberOfLines = 0
-            }
-
-            contentStackView.addArrangedSubview(titleLabel)
-            contentStackView.addArrangedSubview(bodyLabel)
-        }
     }
 }

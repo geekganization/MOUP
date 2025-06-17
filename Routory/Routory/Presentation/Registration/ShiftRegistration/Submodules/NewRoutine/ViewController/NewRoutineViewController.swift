@@ -184,13 +184,13 @@ final class NewRoutineViewController: UIViewController {
         switch mode {
         case .create:
             title = "새 루틴"
-
+            tableView.isEditing = true
         case .edit(let existingTitle, let existingTime, let existingTasks):
             title = "루틴 편집"
             titleTextField.text = existingTitle
             alarmField.update(text: existingTime)
             tasks = existingTasks
-
+            tableView.isEditing = true
         case .read(let existingTitle, let existingTime, let existingTasks):
             title = "루틴 보기"
             titleTextField.text = existingTitle

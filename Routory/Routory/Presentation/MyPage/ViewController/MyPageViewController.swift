@@ -201,7 +201,8 @@ extension MyPageViewController: UITableViewDelegate, UITableViewDataSource {
             let accountVC = AccountViewController()
             navigationController?.pushViewController(accountVC, animated: true)
         case .notification:
-            print("알림 설정 메뉴 클릭")
+            let notificationVC = NotificationSettingsViewController()
+            navigationController?.pushViewController(notificationVC, animated: true)
         case .contact:
             presentContactMailComposer()
         case .info:

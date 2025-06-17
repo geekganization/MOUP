@@ -14,7 +14,7 @@ import FirebaseAuth
 
 enum RoutineFormMode {
     case create
-    case edit(existingTitle: String, existingTime: String, existingTasks: [String])
+    case edit(routineId: String, existingTitle: String, existingTime: String, existingTasks: [String])
     case read(existingTitle: String, existingTime: String, existingTasks: [String])
 }
 
@@ -22,10 +22,7 @@ final class NewRoutineViewController: UIViewController {
 
     // MARK: - ViewModel & Rx
 
-    private let viewModel = NewRoutineViewModel(
-        useCase: RoutineUseCase(repository: RoutineRepository(service: RoutineService())),
-        uid: Auth.auth().currentUser?.uid ?? ""
-    )
+    private let viewModel: NewRoutineViewModel
     private let saveTrigger = PublishSubject<Routine>()
     private let disposeBag = DisposeBag()
 
@@ -74,6 +71,19 @@ final class NewRoutineViewController: UIViewController {
 
     init(mode: RoutineFormMode) {
         self.mode = mode
+
+        let useCase = RoutineUseCase(repository: RoutineRepository(service: RoutineService()))
+        let uid = Auth.auth().currentUser?.uid ?? ""
+        
+        switch mode {
+        case .create:
+            self.viewModel = NewRoutineViewModel(useCase: useCase, uid: uid, mode: .create)
+        case .edit(let routineId, _, _, _):
+            self.viewModel = NewRoutineViewModel(useCase: useCase, uid: uid, mode: .edit(routineId: routineId))
+        case .read:
+            self.viewModel = NewRoutineViewModel(useCase: useCase, uid: uid, mode: .read)
+        }
+
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -179,7 +189,7 @@ final class NewRoutineViewController: UIViewController {
         let input = NewRoutineViewModel.Input(saveTrigger: saveTrigger.asObservable())
         let output = viewModel.transform(input: input)
 
-        output.didCreateRoutine
+        output.didSaveRoutine
             .observe(on: MainScheduler.instance)
             .bind(onNext: { [weak self] in
                 self?.navigationController?.popViewController(animated: true)
@@ -262,7 +272,7 @@ final class NewRoutineViewController: UIViewController {
         switch mode {
         case .create:
             title = "새 루틴"
-        case .edit(let existingTitle, let existingTime, let existingTasks):
+        case .edit(let routineId,let existingTitle, let existingTime, let existingTasks):
             title = "루틴 편집"
             titleTextField.text = existingTitle
             alarmField.update(text: existingTime)

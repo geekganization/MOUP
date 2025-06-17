@@ -44,7 +44,7 @@ class ManageRoutineViewController: UIViewController {
         self.routineType = routineType
         self.viewModel = viewModel
 
-        self.input = ManageRoutineViewModel.Input(viewDidLoad: viewDidLoadRelay)
+        self.input = ManageRoutineViewModel.Input(viewDidLoad: viewDidLoadRelay.asObservable())
         self.output = viewModel.transform(input: input)
         super.init(nibName: nil, bundle: nil)
     }
@@ -73,17 +73,6 @@ private extension ManageRoutineViewController {
     }
 
     func setBindings() {
-        viewDidLoadRelay.accept(())
-
-        manageRoutineView.rx.backButtonTapped
-            .subscribe(onNext: { [weak self] in
-                self?.navigationController?.popViewController(animated: true)
-            })
-            .disposed(by: disposeBag)
-
-        manageRoutineView.rx.setDelegate
-            .onNext(self)
-
         switch routineType {
         case .today:
             // 오늘의 루틴: 매장별 루틴 개수 표시
@@ -124,7 +113,16 @@ private extension ManageRoutineViewController {
                 .disposed(by: disposeBag)
         }
 
+        viewDidLoadRelay.accept(()) // Output이 Observable들로 구성되어 있어서 미리 연결을 해두어야 함.
 
+        manageRoutineView.rx.backButtonTapped
+            .subscribe(onNext: { [weak self] in
+                self?.navigationController?.popViewController(animated: true)
+            })
+            .disposed(by: disposeBag)
+
+        manageRoutineView.rx.setDelegate
+            .onNext(self)
     }
 }
 

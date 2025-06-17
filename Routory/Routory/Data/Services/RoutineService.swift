@@ -19,6 +19,11 @@ protocol RoutineServiceProtocol {
 final class RoutineService: RoutineServiceProtocol {
     private let db = Firestore.firestore()
     
+    /// 지정된 사용자의 모든 루틴을 조회합니다.
+    ///
+    /// - Parameter uid: 루틴을 조회할 사용자 UID
+    /// - Returns: RoutineInfo(루틴ID+루틴정보) 배열을 방출하는 Observable
+    /// - Firestore 경로: users/{userId}/routine
     func fetchAllRoutines(uid: String) -> Observable<[RoutineInfo]> {
         return Observable.create { observer in
             self.db.collection("users").document(uid).collection("routine")
@@ -51,7 +56,13 @@ final class RoutineService: RoutineServiceProtocol {
         }
     }
     
-    /// 루틴 등록 (루틴 ID 자동 생성, 성공 시 해당 ID 반환)
+    /// 사용자의 루틴을 새로 등록합니다.
+    ///
+    /// - Parameters:
+    ///   - uid: 루틴을 등록할 사용자 UID
+    ///   - routine: 등록할 Routine 모델
+    /// - Returns: 성공 시 완료(Void)를 방출하는 Observable
+    /// - Firestore 경로: users/{userId}/routine/{autoId}
     func createRoutine(uid: String, routine: Routine) -> Observable<Void> {
         return Observable.create { observer in
             
@@ -76,7 +87,13 @@ final class RoutineService: RoutineServiceProtocol {
         }
     }
     
-    /// 루틴 삭제
+    /// 사용자의 특정 루틴을 삭제합니다.
+    ///
+    /// - Parameters:
+    ///   - uid: 루틴을 삭제할 사용자 UID
+    ///   - routineId: 삭제할 루틴의 ID
+    /// - Returns: 성공 시 완료(Void)를 방출하는 Observable
+    /// - Firestore 경로: users/{userId}/routine/{routineId}
     func deleteRoutine(uid: String, routineId: String) -> Observable<Void> {
         return Observable.create { observer in
             let routineRef = self.db.collection("users").document(uid).collection("routine").document(routineId)
@@ -92,7 +109,14 @@ final class RoutineService: RoutineServiceProtocol {
         }
     }
     
-    /// 루틴 수정
+    /// 사용자의 특정 루틴 정보를 수정합니다.
+    ///
+    /// - Parameters:
+    ///   - uid: 루틴을 수정할 사용자 UID
+    ///   - routineId: 수정할 루틴의 ID
+    ///   - routine: 수정할 Routine 모델
+    /// - Returns: 성공 시 완료(Void)를 방출하는 Observable
+    /// - Firestore 경로: users/{userId}/routine/{routineId}
     func updateRoutine(uid: String, routineId: String, routine: Routine) -> Observable<Void> {
         return Observable.create { observer in
             let routineRef = self.db.collection("users").document(uid).collection("routine").document(routineId)

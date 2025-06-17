@@ -196,6 +196,7 @@ extension RoutineSelectionViewController: UITableViewDataSource, UITableViewDele
             let routineInfo = item.routineInfo
             let editVC = NewRoutineViewController(
                 mode: .edit(
+                    routineId: routineInfo.id,
                     existingTitle: routineInfo.routine.routineName,
                     existingTime: routineInfo.routine.alarmTime,
                     existingTasks: routineInfo.routine.tasks

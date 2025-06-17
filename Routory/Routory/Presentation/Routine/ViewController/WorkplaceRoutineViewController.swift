@@ -83,7 +83,7 @@ private extension WorkplaceRoutineViewController {
                 return routines[indexPath.row]
             }
             .subscribe(onNext: { [weak self] routine in
-                let vc = NewRoutineViewController(mode: .edit(existingTitle: routine.routine.routineName, existingTime: routine.routine.alarmTime, existingTasks: routine.routine.tasks))
+                let vc = NewRoutineViewController(mode: .edit(routineId: routine.id,existingTitle: routine.routine.routineName, existingTime: routine.routine.alarmTime, existingTasks: routine.routine.tasks))
                 self?.navigationController?.pushViewController(vc, animated: true)
             })
             .disposed(by: disposeBag)

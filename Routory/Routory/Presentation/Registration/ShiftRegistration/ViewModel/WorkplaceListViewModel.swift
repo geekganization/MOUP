@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 import FirebaseAuth
 
-final class ShiftRegistrationViewModel {
+final class WorkplaceListViewModel {
 
     private let workplaceUseCase: WorkplaceUseCase
     private let disposeBag = DisposeBag()

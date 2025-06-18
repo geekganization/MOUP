@@ -13,9 +13,9 @@ final class ShiftRegistrationDelegateHandler: NSObject {
 
     weak var contentView: ShiftRegistrationContentView?
     weak var navigationController: UINavigationController?
-    private let viewModel: ShiftRegistrationViewModel
+    private let viewModel: WorkplaceListViewModel
 
-    init(contentView: ShiftRegistrationContentView, navigationController: UINavigationController?, viewModel: ShiftRegistrationViewModel) {
+    init(contentView: ShiftRegistrationContentView, navigationController: UINavigationController?, viewModel: WorkplaceListViewModel) {
         self.contentView = contentView
         self.navigationController = navigationController
         self.viewModel = viewModel
@@ -43,7 +43,7 @@ extension ShiftRegistrationDelegateHandler: WorkPlaceSelectionViewDelegate {
         )
 
         vc.onSelect = { [weak self] workplaceInfo in
-            print("workplaceInfoID:",workplaceInfo.id)
+            self?.contentView?.simpleRowView.updateID(workplaceInfo.id)
             self?.contentView?.simpleRowView.updateTitle(workplaceInfo.workplace.workplacesName)
         }
 

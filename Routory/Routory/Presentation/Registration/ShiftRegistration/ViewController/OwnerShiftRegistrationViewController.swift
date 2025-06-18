@@ -41,7 +41,7 @@ final class OwnerShiftRegistrationViewController: UIViewController,UIGestureReco
     fileprivate lazy var navigationBar = BaseNavigationBar(title: "근무 등록") //*2
     let disposeBag = DisposeBag()
     
-    private let viewModel = ShiftRegistrationViewModel(workplaceUseCase: WorkplaceUseCase(repository: WorkplaceRepository(service: WorkplaceService())))
+    private let viewModel = WorkplaceListViewModel(workplaceUseCase: WorkplaceUseCase(repository: WorkplaceRepository(service: WorkplaceService())))
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -161,6 +161,7 @@ final class OwnerShiftRegistrationViewController: UIViewController,UIGestureReco
     
     @objc func didTapRegister() {
         let workPlace = contentView.simpleRowView.getData()
+        let workPlaceID = contentView.simpleRowView.getID()
         let eventDate = contentView.workDateView.getdateRowData()
         let startTime = contentView.workTimeView.getstartRowData()
         let endTime = contentView.workTimeView.getendRowData()
@@ -200,7 +201,7 @@ final class OwnerShiftRegistrationViewController: UIViewController,UIGestureReco
                 repeatDays: repeatDays,
                 memo: memo
             )
-            print(workPlace,event)
+            print(workPlaceID,event)
 
         case .employee:
             print("사장님 새 근무 등록 데이터 - 알바생")
@@ -227,7 +228,7 @@ final class OwnerShiftRegistrationViewController: UIViewController,UIGestureReco
                 repeatDays: repeatDays,
                 memo: memo
             )
-            print(workPlace,event)
+            print(workPlaceID,event)
         }
     }
     

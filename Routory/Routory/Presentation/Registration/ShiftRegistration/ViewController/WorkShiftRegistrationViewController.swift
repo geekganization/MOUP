@@ -24,7 +24,7 @@ final class WorkShiftRegistrationViewController: UIViewController,UIGestureRecog
     fileprivate lazy var navigationBar = BaseNavigationBar(title: "근무 등록") //*2
     let disposeBag = DisposeBag()
     
-    private let viewModel = ShiftRegistrationViewModel(workplaceUseCase: WorkplaceUseCase(repository: WorkplaceRepository(service: WorkplaceService())))
+    private let viewModel = WorkplaceListViewModel(workplaceUseCase: WorkplaceUseCase(repository: WorkplaceRepository(service: WorkplaceService())))
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -134,6 +134,7 @@ final class WorkShiftRegistrationViewController: UIViewController,UIGestureRecog
 //        print("메모: ",contentView.memoBoxView.getData())
         
         let workPlace = contentView.simpleRowView.getData()
+        let workPlaceID = contentView.simpleRowView.getID()
         let eventDate = contentView.workDateView.getdateRowData()
         let startTime = contentView.workTimeView.getstartRowData()
         let endTime = contentView.workTimeView.getendRowData()
@@ -161,6 +162,6 @@ final class WorkShiftRegistrationViewController: UIViewController,UIGestureRecog
             memo: memo
         )
 
-        print(workPlace,event)
+        print(workPlaceID,event)
     }
 }

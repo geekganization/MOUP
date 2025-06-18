@@ -208,7 +208,6 @@ extension HomeViewController: UITableViewDelegate {
         
         headerView.rx.plusButtonTapped
             .subscribe(onNext: {
-                print("근무지 추가")
                 let workplaceAddModalVC = WorkplaceAddModalViewController()
                 let nav = UINavigationController(rootViewController: workplaceAddModalVC)
                 nav.modalPresentationStyle = .overFullScreen

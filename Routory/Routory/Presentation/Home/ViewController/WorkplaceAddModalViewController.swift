@@ -84,7 +84,7 @@ private extension WorkplaceAddModalViewController {
     }
     
     @objc func manualInputButtonDidTap() {
-        let vc = WorkerWorkplaceRegistrationViewController()
+        let vc = WorkerWorkplaceRegistrationViewController(mode: .fullRegistration)
         navigationController?.pushViewController(vc, animated: true)
     }
 }

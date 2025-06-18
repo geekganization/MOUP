@@ -174,4 +174,10 @@ final class ValueRowView: UIView {
     func getColorData() -> UIColor {
         return dotView.backgroundColor ?? .white
     }
+    
+    /// 화살표(> 아이콘)의 표시 여부를 설정합니다.
+    /// - Parameter hidden: true일 경우 화살표를 숨기고, false일 경우 표시합니다.
+    func updateArrowHidden(_ hidden: Bool) {
+        arrow.isHidden = hidden
+    }
 }

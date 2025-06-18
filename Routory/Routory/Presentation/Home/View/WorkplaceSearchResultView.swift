@@ -16,12 +16,14 @@ final class WorkplaceSearchResultView: UIView {
     private let workplaceNameLabel = UILabel().then {
         $0.text = "GS25 분당이매역점"
         $0.font = .headBold(18)
+        $0.setLineSpacing(.headBold)
         $0.textColor = .gray900
     }
     
     private let workplaceCategoryLabel = UILabel().then {
         $0.text = "편의점"
         $0.font = .bodyMedium(16)
+        $0.setLineSpacing(.bodyMedium)
         $0.textColor = .gray900
     }
     
@@ -30,7 +32,7 @@ final class WorkplaceSearchResultView: UIView {
     }
     
     private let selectWorkplaceLabel = UILabel().then {
-        $0.text = "연동할 근무지 설정"
+        $0.text = "근무지 정보 등록하기"
         $0.font = .bodyMedium(16)
         $0.textColor = .gray900
     }
@@ -57,6 +59,11 @@ final class WorkplaceSearchResultView: UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func update(name: String, category: String) {
+        workplaceNameLabel.text = name
+        workplaceCategoryLabel.text = category
     }
 }
 

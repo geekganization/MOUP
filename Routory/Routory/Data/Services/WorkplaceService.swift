@@ -195,7 +195,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
         let workplaceRef = db.collection("workplaces").document()
         let workplaceId = workplaceRef.documentID
         let calendarRef = db.collection("calendars").document()
-        let userWorkplaceRef = db.collection("users").document(uid).collection("workplace").document(workplaceId)
+        let userWorkplaceRef = db.collection("users").document(uid).collection("workplaces").document(workplaceId)
         
         return Observable.create { observer in
             let batch = self.db.batch()

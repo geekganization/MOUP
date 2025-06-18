@@ -22,7 +22,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         if Auth.auth().currentUser != nil {
             // 로그인된 상태 → 메인(TabBar)으로
-            rootVC = TabbarViewController()
+            rootVC = TabbarViewController(viewModel: TabBarViewModel())
         } else {
             // 로그인 안 됨 → 로그인 화면
             let loginVC = LoginViewController(

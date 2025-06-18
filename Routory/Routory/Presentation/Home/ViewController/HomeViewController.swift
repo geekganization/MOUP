@@ -162,6 +162,12 @@ private extension HomeViewController {
 
         return [editAction, deleteAction, sendInvitationCode]
     }
+
+    func makeManageRoutineViewController(type: RoutineType) -> ManageRoutineViewController {
+        let routineUseCase = RoutineUseCase(repository: RoutineRepository(service: RoutineService()))
+        let viewModel = ManageRoutineViewModel(type: type, routineUseCase: routineUseCase)
+        return ManageRoutineViewController(routineType: type, viewModel: viewModel)
+    }
 }
 
 extension HomeViewController: UITableViewDelegate {
@@ -176,18 +182,17 @@ extension HomeViewController: UITableViewDelegate {
             })
             .disposed(by: disposeBag)
 
-        let manageRoutineVM = ManageRoutineViewModel(userId: "123132")
         // headerView 내 액션 정의
         headerView.rx.todaysRoutineCardTapped
-            .subscribe(onNext: {
-                print("오늘의 루틴 탭")
-                let vc = ManageRoutineViewController(routineType: .today, viewModel: manageRoutineVM) // 추가 params 입력을 통해 오늘 or 전체 여부 분기
+            .subscribe(onNext: { [weak self] in
+                guard let self else { return }
+                let vc = self.makeManageRoutineViewController(type: .today) // 추가 params 입력을 통해 오늘 or 전체 여부 분기
                 self.navigationController?.pushViewController(vc, animated: true)
             }).disposed(by: disposeBag)
         headerView.rx.allRoutineCardTapped
-            .subscribe(onNext: {
-                print("모든 루틴 탭")
-                let vc = ManageRoutineViewController(routineType: .all, viewModel: manageRoutineVM)
+            .subscribe(onNext: { [weak self] in
+                guard let self else { return }
+                let vc = self.makeManageRoutineViewController(type: .all)
                 self.navigationController?.pushViewController(vc, animated: true)
             }).disposed(by: disposeBag)
         

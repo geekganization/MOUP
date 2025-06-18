@@ -17,8 +17,8 @@
 		5B6E9F652DF6B686006B061E /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E9F642DF6B686006B061E /* FirebaseAuth */; };
 		5B6E9F672DF6B686006B061E /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E9F662DF6B686006B061E /* FirebaseCore */; };
 		5B6E9F692DF6B686006B061E /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E9F682DF6B686006B061E /* FirebaseFirestore */; };
-		9505F61A2DF9977F008CC731 /* Differentiator in Frameworks */ = {isa = PBXBuildFile; productRef = 9505F6192DF9977F008CC731 /* Differentiator */; };
-		9505F61C2DF9977F008CC731 /* RxDataSources in Frameworks */ = {isa = PBXBuildFile; productRef = 9505F61B2DF9977F008CC731 /* RxDataSources */; };
+		956B263A2E01B64800E2A0A3 /* Differentiator in Frameworks */ = {isa = PBXBuildFile; productRef = 9505F6192DF9977F008CC731 /* Differentiator */; };
+		956B263B2E01B64800E2A0A3 /* RxDataSources in Frameworks */ = {isa = PBXBuildFile; productRef = 9505F61B2DF9977F008CC731 /* RxDataSources */; };
 		E861509C2DF8029D005CE9A7 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = E861509B2DF8029D005CE9A7 /* GoogleSignIn */; };
 		E861509E2DF8029D005CE9A7 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = E861509D2DF8029D005CE9A7 /* GoogleSignInSwift */; };
 /* End PBXBuildFile section */
@@ -56,6 +56,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				956B263B2E01B64800E2A0A3 /* RxDataSources in Frameworks */,
+				956B263A2E01B64800E2A0A3 /* Differentiator in Frameworks */,
 				5B6E8F912DF17C8F006B061E /* RxSwift in Frameworks */,
 				5B6E8F8F2DF17C8F006B061E /* RxRelay in Frameworks */,
 				5B6E8F8D2DF17C8F006B061E /* RxCocoa in Frameworks */,

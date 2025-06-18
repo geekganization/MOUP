@@ -11,10 +11,12 @@ import RxRelay
 
 final class ManageRoutineViewModel {
     // MARK: - Properties
-    private let userId: String
+    private var userId: String? {
+        return UserManager.shared.firebaseUid
+    }
+    private let routineType: RoutineType
     private let disposeBag = DisposeBag()
-    private lazy var todaysRoutineRelay = BehaviorRelay<[DummyTodaysRoutine]>(value: [])
-    private lazy var allRoutineRelay = BehaviorRelay<[RoutineInfo]>(value: [])
+    private let routineUseCase: RoutineUseCaseProtocol
 
     // MARK: - Mock Data
     private let mockTodaysRoutine = [
@@ -35,13 +37,14 @@ final class ManageRoutineViewModel {
     ]
 
     // MARK: - Initializer
-    init(userId: String) {
-        self.userId = userId
+    init(type: RoutineType, routineUseCase: RoutineUseCaseProtocol) {
+        self.routineType = type
+        self.routineUseCase = routineUseCase
     }
 
     // MARK: - Input, Output
     struct Input {
-        let viewDidLoad: PublishRelay<Void>
+        let viewDidLoad: Observable<Void>
     }
 
     struct Output {
@@ -51,18 +54,51 @@ final class ManageRoutineViewModel {
 
     func transform(input: Input) -> Output {
         print("transform - ManageVC")
-        input.viewDidLoad
-            .subscribe(onNext: { [weak self] in
-                guard let self else { return }
-                self.todaysRoutineRelay.accept(mockTodaysRoutine)
-                self.allRoutineRelay.accept(mockAllRoutine)
-            })
-            .disposed(by: disposeBag)
+        print("현재 루틴 타입 - \(routineType)")
+        switch routineType {
+        case .today:
+            print("오늘의 루틴 호출 시도")
+            let todayRoutines = input.viewDidLoad
+                .flatMapLatest { [weak self] _ -> Observable<[DummyTodaysRoutine]> in
+                    print("flatMapLatest 진입")
+                    guard let self else { print("self가 nil"); return .empty() }
+                    return self.fetchTodayRoutines()
+                }
+                .share(replay: 1, scope: .whileConnected)
 
-        return Output(
-            todaysRoutine: todaysRoutineRelay.asObservable(),
-            allRoutine: allRoutineRelay.asObservable()
-        )
+            return Output(
+                todaysRoutine: todayRoutines,
+                allRoutine: .just([])
+            )
+        case .all:
+            let allRoutines = input.viewDidLoad
+                .flatMapLatest { [weak self] _ -> Observable<[RoutineInfo]> in
+                    print("flatMapLatest 진입")
+                    guard let self else { print("self가 nil"); return .empty() }
+                    return self.fetchAllRoutines()
+                }
+                .catch { error -> Observable<[RoutineInfo]> in
+                    print("루틴 로드 실패: \(error)")
+                    return .just([])
+                }
+                .share(replay: 1, scope: .whileConnected)
+
+            return Output(
+                todaysRoutine: .just([]),
+                allRoutine: allRoutines
+            )
+        }
+    }
+}
+
+private extension ManageRoutineViewModel {
+    func fetchAllRoutines() -> Observable<[RoutineInfo]> {
+        guard let userId else { return .empty() }
+        return routineUseCase.fetchAllRoutines(uid: userId)
     }
 
+    func fetchTodayRoutines() -> Observable<[DummyTodaysRoutine]> {
+        guard let userId else { return .empty() }
+        return .just(mockTodaysRoutine) // TODO: - API 호출 로직으로 수정 필요
+    }
 }

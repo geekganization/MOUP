@@ -159,10 +159,7 @@ private extension MyPageViewController {
     
     // MARK: - setBindings
     func setBindings() {
-        let input = MyPageViewModel.Input(uid: Observable.just(uid))
-        let output = viewModel.transform(input: input)
-        
-        output.user
+        viewModel.userObservable
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] user in
                 self?.myPageView.update(user: user)

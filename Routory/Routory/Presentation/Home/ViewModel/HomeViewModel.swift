@@ -11,7 +11,9 @@ import RxRelay
 
 final class HomeViewModel {
     private let disposeBag = DisposeBag()
-    private let userId = ""
+    private var userId: String? {
+        return UserManager.shared.firebaseUid
+    }
 
     // MARK: - Mock Data
     let dummyWorkplace = DummyWorkplaceInfo(
@@ -60,7 +62,7 @@ final class HomeViewModel {
             .subscribe(onNext: {
                 print("viewDidLoad - 데이터 로드")
                 // TODO: - userId, headerInfo, cellInfo 저장
-
+                
             }).disposed(by: disposeBag)
 
         input.refreshBtnTapped
@@ -101,8 +103,9 @@ final class HomeViewModel {
             headerData: workerHomeHeaderInfoRelay.asObservable()
         )
     }
+}
 
-    func getUserId() -> String {
-        return userId
-    }
+// MARK: - fetch Logic
+private extension HomeViewModel {
+
 }

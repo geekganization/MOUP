@@ -57,8 +57,15 @@ final class GoogleAuthService: GoogleAuthServiceProtocol {
                 let accessToken = user.accessToken.tokenString
                 let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
                 let username = user.profile?.name ?? "닉네임없음"
-                observer.onNext((username, credential))
-                observer.onCompleted()
+                
+                Auth.auth().signIn(with: credential) { authResult, error in
+                    if let error = error {
+                        observer.onError(error)
+                        return
+                    }
+                    observer.onNext((username, credential))
+                    observer.onCompleted()
+                }
             }
             return Disposables.create()
         }

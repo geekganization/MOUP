@@ -101,8 +101,15 @@ final class AppleAuthService: NSObject, AppleAuthServiceProtocol {
                         // Initialize a Firebase credential, including the user's full name.
                         let credential = OAuthProvider.appleCredential(withIDToken: idTokenString, rawNonce: nonce, fullName: appleIDCredential.fullName)
                         let username = appleIDCredential.fullName?.formatted() ?? "닉네임 없음"
-                        observer.onNext((username, credential))
-                        observer.onCompleted()
+                        
+                        Auth.auth().signIn(with: credential) { authResult, error in
+                            if let error = error {
+                                observer.onError(error)
+                                return
+                            }
+                            observer.onNext((username, credential))
+                            observer.onCompleted()
+                        }
                     }
                 }.disposed(by: disposeBag)
             

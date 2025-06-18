@@ -58,16 +58,25 @@ final class InviteCodeViewModel {
                 guard let self = self else { return .empty() }
 
                 return self.useCase.getWorkplaceInfoByInviteCode(inviteCode: code)
-                    // nil 결과는 제거
-                    .compactMap { $0 }
+                    .flatMap { info -> Observable<WorkplaceInfo> in
+                        if let info = info {
+                            return .just(info)
+                        } else {
+                            // 수동으로 에러를 생성해 errorSubject로 방출
+                            let error = NSError(
+                                domain: "InviteCode",
+                                code: 404,
+                                userInfo: [NSLocalizedDescriptionKey: "해당 초대코드에 대한 근무지를 찾을 수 없습니다."]
+                            )
+                            errorSubject.onNext(error)
+                            return .empty()
+                        }
+                    }
                     .catch { error in
-                        // 에러 스트림으로 전달
                         errorSubject.onNext(error)
-                        // 오류 시 빈 스트림 반환
                         return .empty()
                     }
             }
-            // 중복 구독 방지
             .share()
 
         return Output(

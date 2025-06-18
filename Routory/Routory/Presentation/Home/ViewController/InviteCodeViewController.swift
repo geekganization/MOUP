@@ -185,9 +185,12 @@ private extension InviteCodeViewController {
 
         output.error
             .observe(on: MainScheduler.instance)
-            .subscribe(onNext: { error in
-                // 조회 실패 시 에러 로그 출력 (추후 UI 피드백으로 확장 가능)
-                print("에러: \(error.localizedDescription)")
+            .subscribe(onNext: { [weak self] error in
+                print("에러 발생: \(error)")
+                let modal = InviteCodeEmptyModalViewController()
+                modal.modalPresentationStyle = .overFullScreen
+                modal.modalTransitionStyle = .crossDissolve
+                self?.present(modal, animated: true)
             })
             .disposed(by: disposeBag)
     }

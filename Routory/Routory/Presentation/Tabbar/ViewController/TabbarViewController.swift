@@ -63,7 +63,7 @@ private extension TabbarViewController {
     }
     
     func setTabBarItems() {
-        let homeVC = HomeViewController(homeViewModel: HomeViewModel())
+        let homeVC = HomeViewController(homeViewModel: HomeViewModel(userUseCase: UserUseCase(userRepository: UserRepository(userService: UserService()))))
         let calendarVC = CalendarViewController()
         
         guard let userId = Auth.auth().currentUser?.uid else {
@@ -84,6 +84,12 @@ private extension TabbarViewController {
     }
 
     func setBindings() {
+        output.user
+            .subscribe(onNext: { user in
+                print("유저 데이터 받음: \(user)")
+            })
+            .disposed(by: disposeBag)
+
         viewDidLoadRelay.accept(())
     }
 }

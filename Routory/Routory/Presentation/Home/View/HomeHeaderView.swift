@@ -119,19 +119,12 @@ final class HomeHeaderView: UITableViewHeaderFooterView {
     }
 
     // MARK: - Public Methods
-    func update(with headerData: DummyHomeHeaderInfo) {
-        // firstSectionLabel, totalMonthly~는 역할 데이터가 있어야 하므로 임시 보류
-        monthlyAmountTitleLabel.text = "\(headerData.monthlyTitle)" // 역할 별로 다르게 분기
-        monthlyAmountLabel.text = "\(headerData.monthlyAmount.withComma)원"
-        monthlyChangeCommentLabel.text = {
-            if headerData.amountDifference >= 0 {
-                "지난 달 오늘 대비 \(headerData.amountDifference.withComma)원 더 벌었어요!"
-            } else {
-                "지난 달 오늘 대비 \(abs(headerData.amountDifference).withComma)원 덜 벌었어요"
-            }
-
-        }()
+    func update(with headerData: DummyHomeHeaderInfo, userType: UserType) {
         todaysRoutineNoticeLabel.attributedText = createRoutineNoticeText(count: headerData.todayRoutineCount)
+        // 타입 별 UI 처리 분기
+        monthlyAmount(headerData.monthlyAmount)
+        monthlyAmountTitle(userType, headerData.currentMonth)
+        monthlyChangeComment(userType, headerData.amountDifference)
     }
 }
 
@@ -276,6 +269,40 @@ private extension HomeHeaderView {
 
         return attributedString
     }
+
+    // MARK: - 유저 타입에 따른 각 컴포넌트 분기
+
+    // 고정 요소들
+    func monthlyAmountTitle(_ userType: UserType, _ month: Int) {
+        switch userType {
+        case .worker:
+            monthlyAmountTitleLabel.text = "\(month)월 총 급여"
+        case .owner:
+            monthlyAmountTitleLabel.text = "\(month)월 총 인건비"
+        }
+    }
+
+    func monthlyAmount(_ amount: Int) {
+        monthlyAmountLabel.text = "\(amount.withComma)원"
+    }
+
+    func monthlyChangeComment(_ userType: UserType, _ difference: Int) {
+        let diff = difference / 10000
+        let displayAmount = abs(diff)
+        let isWorker = userType == .worker
+
+        switch diff {
+        case 1...:
+            monthlyChangeCommentLabel.text = isWorker ? "지난 달 대비 \(displayAmount)만원 더 벌었어요!" : "지난 달 대비 \(displayAmount)만원 더 나갔어요!"
+        case 0:
+            monthlyChangeCommentLabel.text = "지난달과 동일해요"
+        case ..<0:
+            monthlyChangeCommentLabel.text = isWorker ? "지난 달 대비\(displayAmount)만원 덜 벌었어요" : "지난 달 대비 \(displayAmount)만원 덜 나갔어요"
+        default:
+            monthlyChangeCommentLabel.text = "지난 달 급여에 대한 정보가 없어요"
+        }
+    }
+
 }
 
 extension Reactive where Base: HomeHeaderView {

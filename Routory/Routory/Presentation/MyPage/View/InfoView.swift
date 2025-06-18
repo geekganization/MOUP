@@ -98,13 +98,13 @@ private extension InfoView {
         navigationBar.snp.makeConstraints {
             $0.top.equalTo(safeAreaLayoutGuide)
             $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(44)
+            $0.height.equalTo(50)
         }
         
         menuList.snp.makeConstraints {
             $0.top.equalTo(navigationBar.snp.bottom).offset(32)
             $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.height.equalTo(48 * 4)
+            $0.height.equalTo(48 * 3)
         }
         
         appVersionTitleLabel.snp.makeConstraints {

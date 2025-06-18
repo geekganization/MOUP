@@ -89,6 +89,10 @@ final class MyPageView: UIView {
         roleLabel.text = user.role == "worker" ? "알바생" : "사장님"
         profileImageView.image = user.role == "worker" ? UIImage.alba : UIImage.owner
     }
+    
+    func updateNickname(_ nickname: String) {
+        nameLabel.text = nickname
+    }
 }
 
 private extension MyPageView {    
@@ -144,7 +148,7 @@ private extension MyPageView {
         menuList.snp.makeConstraints {
             $0.top.equalTo(profileImageFrame.snp.bottom).offset(32)
             $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.height.equalTo(48 * 4)
+            $0.height.equalTo(48 * 3)
         }
         
         logoutButton.snp.makeConstraints {

@@ -10,17 +10,18 @@ import RxSwift
 import SnapKit
 import Then
 import FirebaseAuth
+import MessageUI
 
 enum MyPageMenu: CaseIterable {
     case account
-    case notification
+//    case notification
     case contact
     case info
     
     var title: String {
         switch self {
         case .account: return "계정"
-        case .notification: return "알림 설정"
+//        case .notification: return "알림 설정"
         case .contact: return "문의하기"
         case .info: return "정보"
         }
@@ -34,9 +35,6 @@ final class MyPageViewController: UIViewController {
     private let uid: String
     private let viewModel: MyPageViewModel
     private let disposeBag = DisposeBag()
-    
-    private let uidSubject = BehaviorSubject<String>(value: "")
-    
     private let menuItems = MyPageMenu.allCases
     
     // MARK: - UI Components
@@ -145,8 +143,14 @@ private extension MyPageViewController {
         )
         
         myPageView.onEditButtonTapped = { [weak self] in
+            guard let uid = self?.uid else { return }
             let userUseCase = UserUseCase(userRepository: UserRepository(userService: UserService()))
-            let editModelVC = EditModalViewController(viewModel: EditModalViewModel(userUseCase: userUseCase))
+            let editModelVC = EditModalViewController(viewModel: EditModalViewModel(uid: uid, userUseCase: userUseCase))
+            
+            editModelVC.onNicknameSaved = { [weak self] newNickname in
+                self?.myPageView.updateNickname(newNickname)
+            }
+            
             editModelVC.modalPresentationStyle = .overFullScreen
             editModelVC.modalTransitionStyle = .crossDissolve
             self?.present(editModelVC, animated: true, completion: nil)
@@ -196,13 +200,59 @@ extension MyPageViewController: UITableViewDelegate, UITableViewDataSource {
         case .account:
             let accountVC = AccountViewController()
             navigationController?.pushViewController(accountVC, animated: true)
-        case .notification:
-            print("알림 설정 메뉴 클릭")
+//        case .notification:
+//            let notificationVC = NotificationSettingsViewController()
+//            navigationController?.pushViewController(notificationVC, animated: true)
         case .contact:
-            print("문의하기 메뉴 클릭")
+            presentContactMailComposer()
         case .info:
             let infoVC = InfoViewController()
             navigationController?.pushViewController(infoVC, animated: true)
         }
+    }
+}
+
+extension MyPageViewController: MFMailComposeViewControllerDelegate {
+    func mailComposeController(
+        _ controller: MFMailComposeViewController,
+        didFinishWith result: MFMailComposeResult,
+        error: Error?
+    ) {
+        controller.dismiss(animated: true)
+    }
+}
+
+private extension MyPageViewController {
+    func presentContactMailComposer() {
+        guard MFMailComposeViewController.canSendMail() else {
+            let alert = UIAlertController(
+                title: "메일 앱을 사용할 수 없습니다",
+                message: "기기의 메일 설정을 확인해주세요.",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "확인", style: .default))
+            present(alert, animated: true)
+            return
+        }
+        
+        let mailComposer = MFMailComposeViewController()
+        mailComposer.mailComposeDelegate = self
+        mailComposer.setToRecipients(["ksyq12@daum.net"])
+        mailComposer.setSubject("MOUP 문의하기")
+        mailComposer.setMessageBody(
+            """
+            
+            문의 내용:
+            
+            --------------------------
+            UID: \(uid)
+            iOS Version: \(UIDevice.current.systemVersion)
+            App Version: \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown")
+            --------------------------
+            """,
+            isHTML: false
+        )
+        
+        present(mailComposer, animated: true)
     }
 }

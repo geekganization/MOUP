@@ -20,7 +20,7 @@ final class EditModalViewModel {
     // MARK: - Output
     
     struct Output {
-//        let saveCompleted: Observable<String>
+        let saveCompleted: Observable<String>
         let validationError: Observable<String>
     }
     
@@ -29,11 +29,14 @@ final class EditModalViewModel {
     private let userUseCase: UserUseCaseProtocol
     private let disposeBag = DisposeBag()
     private let validationErrorSubject = PublishSubject<String>()
+    private let saveCompletedSubject = PublishSubject<String>()
     private let latestNickname = BehaviorRelay<String>(value: "")
+    private let uid: String
     
     // MARK: - Initializer
-    
-    init(userUseCase: UserUseCaseProtocol) {
+
+    init(uid: String, userUseCase: UserUseCaseProtocol) {
+        self.uid = uid
         self.userUseCase = userUseCase
     }
     
@@ -54,31 +57,31 @@ final class EditModalViewModel {
             .subscribe()
             .disposed(by: disposeBag)
         
-        // 추후 usecase 완성되면 연결
-//        input.saveButtonDidTap
-//            .withLatestFrom(latestNickname.asObservable())
-//            .flatMapLatest { [weak self] nickname -> Observable<String> in
-//                guard let self = self else { return .empty() }
-//        
-//                if let errorMessage = self.validateNickname(nickname) {
-//                    self.validationErrorSubject.onNext(errorMessage)
-//                    return .empty()
-//                }
-//
-//                return self.userUseCase.updateUser(nickname)
-//                    .andThen(Observable.just(nickname))
-//                    .do(onNext: { [weak self] newNickname in
-//                        self?.saveCompletedSubject.onNext(newNickname)
-//                    })
-//                    .catch { error in
-//                        print("닉네임 저장 실패: \(error)")
-//                    }
-//            }
-//            .subscribe()
-//            .disposed(by: disposeBag)
+        input.saveButtonDidTap
+            .withLatestFrom(latestNickname.asObservable())
+            .flatMapLatest { [weak self] nickname -> Observable<String> in
+                guard let self = self else { return .empty() }
+        
+                if let errorMessage = self.validateNickname(nickname) {
+                    self.validationErrorSubject.onNext(errorMessage)
+                    return .empty()
+                }
+
+                return self.userUseCase.updateUserName(uid: uid, newUserName: nickname)
+                    .map { _ in nickname }
+                    .do(onNext: { [weak self] newNickname in
+                        self?.saveCompletedSubject.onNext(newNickname)
+                    })
+                    .catch { [weak self] error in
+                        self?.validationErrorSubject.onNext("닉네임 저장 실패.")
+                        return .empty()
+                    }
+            }
+            .subscribe()
+            .disposed(by: disposeBag)
         
         return Output(
-//            saveCompleted: saveCompletedSubject.asObservable(),
+            saveCompleted: saveCompletedSubject.asObservable(),
             validationError: validationErrorSubject.asObservable()
         )
     }

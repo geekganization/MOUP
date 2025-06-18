@@ -17,6 +17,7 @@ final class EditModalViewController: UIViewController {
     private var bottomConstraint: Constraint?
     private let saveButtonDidTapSubject = PublishSubject<Void>()
     private let viewModel: EditModalViewModel
+    var onNicknameSaved: ((String) -> Void)?
     private let disposeBag = DisposeBag()
     
     // MARK: - UI Components
@@ -168,13 +169,13 @@ private extension EditModalViewController {
 
         let output = viewModel.transform(input: input)
 
-//        output.saveCompleted
-//            .observe(on: MainScheduler.instance)
-//            .subscribe(onNext: { [weak self] newNickname in
-//                self?.onNicknameSaved?(newNickname)
-//                self?.dismiss(animated: true)
-//            })
-//            .disposed(by: disposeBag)
+        output.saveCompleted
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] newNickname in
+                self?.onNicknameSaved?(newNickname)
+                self?.dismiss(animated: true)
+            })
+            .disposed(by: disposeBag)
 
         output.validationError
             .observe(on: MainScheduler.instance)

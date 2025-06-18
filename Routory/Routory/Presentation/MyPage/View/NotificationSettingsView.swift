@@ -1,37 +1,33 @@
 //
-//  AccountView.swift
+//  NotificationSettingsView.swift
 //  Routory
 //
-//  Created by shinyoungkim on 6/11/25.
+//  Created by shinyoungkim on 6/17/25.
 //
 
 import UIKit
-import Then
 import SnapKit
+import Then
 
-final class AccountView: UIView {
-    
-    // MARK: - Properties
-    
-    var onDeleteAccountTapped: (() -> Void)?
+final class NotificationSettingsView: UIView {
     
     // MARK: - UI Components
     
-    private let navigationBar = MyPageNavigationBar(title: "계정")
+    private let navigationBar = MyPageNavigationBar(title: "알림 설정")
     
-    private let deleteAccountLabel = UILabel().then {
+    private let notificationLabel = UILabel().then {
         $0.font = .bodyMedium(16)
         $0.setLineSpacing(.bodyMedium)
-        $0.textColor = .primary500
-        $0.text = "탈퇴하기"
+        $0.textColor = .gray900
+        $0.text = "푸시 알림"
     }
     
-    private let rightArrow = UIImageView().then {
-        $0.image = UIImage.chevronRight
-        $0.contentMode = .scaleAspectFit
+    private let notificationSwitch = UISwitch().then {
+        $0.isOn = false
+        $0.onTintColor = .primary500
     }
     
-    private let deleteAccountView = UIView().then {
+    private let notificationView = UIView().then {
         $0.layer.cornerRadius = 12
         $0.layer.masksToBounds = true
         $0.layer.borderWidth = 1
@@ -56,29 +52,29 @@ final class AccountView: UIView {
     }
 }
 
-private extension AccountView {
+private extension NotificationSettingsView {
     // MARK: - configure
     func configure() {
         setHierarchy()
         setStyles()
         setConstraints()
-        setActions()
     }
     
+    // MARK: - setHierarchy
     func setHierarchy() {
-        deleteAccountView.addSubviews(
-            deleteAccountLabel,
-            rightArrow
+        notificationView.addSubviews(
+            notificationLabel,
+            notificationSwitch
         )
         addSubviews(
             navigationBar,
-            deleteAccountView
+            notificationView
         )
     }
     
     // MARK: - setStyles
     func setStyles() {
-        backgroundColor = .systemBackground
+        backgroundColor = .white
     }
     
     // MARK: - setConstraints
@@ -89,30 +85,20 @@ private extension AccountView {
             $0.height.equalTo(50)
         }
         
-        deleteAccountLabel.snp.makeConstraints {
+        notificationLabel.snp.makeConstraints {
             $0.leading.equalToSuperview().offset(16)
             $0.centerY.equalToSuperview()
         }
         
-        rightArrow.snp.makeConstraints {
+        notificationSwitch.snp.makeConstraints {
             $0.trailing.equalToSuperview().inset(16)
             $0.centerY.equalToSuperview()
         }
         
-        deleteAccountView.snp.makeConstraints {
+        notificationView.snp.makeConstraints {
             $0.top.equalTo(navigationBar.snp.bottom).offset(32)
             $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.height.equalTo(48)
+            $0.height.equalTo(55)
         }
-    }
-    
-    func setActions() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(deleteAccountTapped))
-        deleteAccountView.isUserInteractionEnabled = true
-        deleteAccountView.addGestureRecognizer(tapGesture)
-    }
-
-    @objc func deleteAccountTapped() {
-        onDeleteAccountTapped?()
     }
 }

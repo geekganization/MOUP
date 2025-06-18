@@ -11,14 +11,14 @@ enum InfoMenu: CaseIterable {
     case termsOfService
     case privacyPolicy
     case openSourceLicense
-    case reviewAndRating
+//    case reviewAndRating
     
     var title: String {
         switch self {
         case .termsOfService: return "이용약관"
         case .privacyPolicy: return "개인정보처리방침"
         case .openSourceLicense: return "오픈소스 라이센스"
-        case .reviewAndRating: return "리뷰 및 별점주기"
+//        case .reviewAndRating: return "리뷰 및 별점주기"
         }
     }
 }
@@ -102,5 +102,28 @@ extension InfoViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 48
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        let menu = menuItems[indexPath.row]
+        
+        switch menu {
+//        case .reviewAndRating:
+//            openAppStoreReviewPage()
+        case .termsOfService:
+            let termsOfServiceVC = PolicyViewController(fileName: "service_terms", title: "이용약관")
+            navigationController?.pushViewController(termsOfServiceVC, animated: true)
+        case .privacyPolicy:
+            let termsOfServiceVC = PolicyViewController(fileName: "privacy_policy", title: "개인정보처리방침")
+            navigationController?.pushViewController(termsOfServiceVC, animated: true)
+        case .openSourceLicense:
+            let opensourceLicenseVC = OpenSourceViewController()
+            navigationController?.pushViewController(opensourceLicenseVC, animated: true)
+        }
+    }
+    
+    func openAppStoreReviewPage() {
+        // TODO: 리뷰 및 별점주기
     }
 }

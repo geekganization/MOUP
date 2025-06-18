@@ -8,6 +8,7 @@
 import UIKit
 import RxSwift
 import RxCocoa
+import FirebaseAuth
 
 /// 초대코드 화면의 상태를 나타내는 열거형입니다.
 enum InviteCodeViewState {
@@ -26,20 +27,27 @@ final class InviteCodeViewController: UIViewController {
     
     /// 초대코드 플로우에서 사용자가 입력한 근무지 정보를 저장합니다.
     /// 이후 최종 등록 시 서버에 전달됩니다.
-    private var selectedWorkplace: Workplace?
+    private var selectedWorkplace: WorkplaceInfo?
 
     /// 초대코드 플로우에서 사용자가 입력한 알바생 상세 정보를 저장합니다.
     /// 이후 최종 등록 시 서버에 전달됩니다.
     private var selectedWorkerDetail: WorkerDetail?
     
     /// 초대코드 기반 근무지 조회 로직을 담당하는 ViewModel
-    private let viewModel = InviteCodeViewModel(useCase: WorkplaceUseCase(repository: WorkplaceRepository(service: WorkplaceService())))
+    private let viewModel = InviteCodeViewModel(
+        workplaceUseCase: WorkplaceUseCase(repository: WorkplaceRepository(service: WorkplaceService())),
+        userUseCase: UserUseCase(userRepository: UserRepository(userService: UserService())),
+        calendarUseCase: CalendarUseCase(repository: CalendarRepository(calendarService: CalendarService()))
+    )
 
     /// 텍스트 필드에 입력된 초대코드를 실시간으로 반영하는 스트림
     private let inviteCodeSubject = BehaviorRelay<String>(value: "")
 
     /// "조회하기" 버튼이 눌렸을 때 발생하는 트리거 스트림
     private let searchTrigger = PublishSubject<Void>()
+    
+    private let registerTrigger = PublishSubject<(WorkplaceInfo, WorkerDetail)>()
+    private let userIDRelay = BehaviorRelay<String>(value: "")
     private let disposeBag = DisposeBag()
     
     // MARK: - UI Components
@@ -104,8 +112,8 @@ private extension InviteCodeViewController {
     @objc func workplaceSelectViewDidTap() {
         let workerWorkplaceRegistraitionVC = WorkerWorkplaceRegistrationViewController(
             mode: .inputOnly,
-            presetWorkplaceName: selectedWorkplace?.workplacesName,
-            presetCategory: selectedWorkplace?.category
+            presetWorkplaceName: selectedWorkplace?.workplace.workplacesName,
+            presetCategory: selectedWorkplace?.workplace.category
         )
         
         workerWorkplaceRegistraitionVC.onWorkplaceInfoPrepared = { [weak self] workerDetail in
@@ -144,26 +152,29 @@ private extension InviteCodeViewController {
                 guard let self else { return }
                 switch self.currentState {
                 case .input:
-                    // 사용자가 "조회하기" 버튼을 눌렀을 때 ViewModel로 검색 트리거 이벤트를 전달
                     searchTrigger.onNext(())
                 case .result:
-                    // 하위 VC에서 입력한 근무지 및 알바생 정보를 확인
-                    guard let workplace = selectedWorkplace,
+                    guard let workplaceInfo = selectedWorkplace,
                           let workerDetail = selectedWorkerDetail else {
                         return
                     }
 
-                    // TODO: ViewModel 또는 UseCase를 통해 서버에 등록 요청을 보냅니다
-                    // 현재는 임시로 로그만 출력하고 화면을 종료함
-                    print("등록하기: \(workplace), \(workerDetail)")
-                    navigationController?.popViewController(animated: true)
+                    guard let user = Auth.auth().currentUser else {
+                        print("로그인이 필요합니다.")
+                        return
+                    }
+
+                    userIDRelay.accept(user.uid)
+                    registerTrigger.onNext((workplaceInfo, workerDetail))
                 }
             })
             .disposed(by: disposeBag)
         
         let input = InviteCodeViewModel.Input(
             inviteCode: inviteCodeSubject.asObservable(),
-            searchTrigger: searchTrigger.asObservable()
+            searchTrigger: searchTrigger.asObservable(),
+            registerTrigger: registerTrigger.asObservable(),
+            userId: userIDRelay.asObservable()
         )
 
         let output = viewModel.transform(input: input)
@@ -177,7 +188,7 @@ private extension InviteCodeViewController {
                     category: info.workplace.category
                 )
                 // 근무지 정보 저장
-                self?.selectedWorkplace = info.workplace
+                self?.selectedWorkplace = info
                 // 상태를 `.result`로 전환
                 self?.updateState(to: .result)
             })
@@ -191,6 +202,18 @@ private extension InviteCodeViewController {
                 modal.modalPresentationStyle = .overFullScreen
                 modal.modalTransitionStyle = .crossDissolve
                 self?.present(modal, animated: true)
+            })
+            .disposed(by: disposeBag)
+        
+        output.registrationSuccess
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] success in
+                if success {
+                    print("등록 완료")
+                    self?.navigationController?.popViewController(animated: true)
+                } else {
+                    print("등록 실패")
+                }
             })
             .disposed(by: disposeBag)
     }

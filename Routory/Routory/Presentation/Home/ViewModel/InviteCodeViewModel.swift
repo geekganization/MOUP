@@ -17,6 +17,9 @@ final class InviteCodeViewModel {
         
         /// "조회하기" 버튼이 눌렸을 때의 트리거 이벤트 스트림
         let searchTrigger: Observable<Void>
+        
+        let registerTrigger: Observable<(WorkplaceInfo, WorkerDetail)>
+        let userId: Observable<String>
     }
 
     // MARK: - Output
@@ -27,19 +30,31 @@ final class InviteCodeViewModel {
         
         /// 조회 실패 시 발생하는 에러 스트림
         let error: Observable<Error>
+        
+        let registrationSuccess: Observable<Bool>
     }
     
     // MARK: - Properties
 
     /// 초대코드를 통해 근무지 정보를 조회하는 유즈케이스
-    private let useCase: WorkplaceUseCaseProtocol
+    private let workplaceUseCase: WorkplaceUseCaseProtocol
+    private let userUseCase: UserUseCaseProtocol
+    private let calendarUseCase: CalendarUseCaseProtocol
+    
+    private let disposeBag = DisposeBag()
     
     // MARK: - Initializer
 
     /// 의존성 주입을 통해 유즈케이스를 설정하는 이니셜라이저입니다.
     /// - Parameter useCase: 초대코드 기반 근무지 조회를 담당하는 유즈케이스
-    init(useCase: WorkplaceUseCaseProtocol) {
-        self.useCase = useCase
+    init(
+        workplaceUseCase: WorkplaceUseCaseProtocol,
+        userUseCase: UserUseCaseProtocol,
+        calendarUseCase: CalendarUseCaseProtocol
+    ) {
+        self.workplaceUseCase = workplaceUseCase
+        self.userUseCase = userUseCase
+        self.calendarUseCase = calendarUseCase
     }
     
     // MARK: - Transform
@@ -49,7 +64,45 @@ final class InviteCodeViewModel {
     /// - Returns: 근무지 정보 또는 에러를 방출하는 Output 스트림
     func transform(input: Input) -> Output {
         let errorSubject = PublishSubject<Error>()
+        let registrationSubject = PublishSubject<Bool>()
+        
+        input.registerTrigger
+            .withLatestFrom(input.userId) { registerData, userId in
+                let (workplaceInfo, detail) = registerData
+                return (workplaceInfo, detail, userId)
+            }
+            .flatMapLatest { [weak self] (workplaceInfo: WorkplaceInfo, detail: WorkerDetail, userId: String) -> Observable<Bool> in
+                guard let self else {
+                    registrationSubject.onNext(false)
+                    return .empty()
+                }
 
+                let workplaceId = workplaceInfo.id
+
+                return self.workplaceUseCase
+                    .registerWorkerToWorkplace(workplaceId: workplaceId, uid: userId, workerDetail: detail)
+                    .flatMap {
+                        self.calendarUseCase
+                            .fetchCalendarIdByWorkplaceId(workplaceId: workplaceId)
+                    }
+                    .flatMap { calendarIdOptional -> Observable<Void> in
+                        guard let calendarId = calendarIdOptional else {
+                            return .error(NSError(domain: "CalendarError", code: -1, userInfo: [NSLocalizedDescriptionKey: "캘린더 ID를 찾을 수 없습니다."]))
+                        }
+                        return self.calendarUseCase.shareCalendarWithUser(calendarId: calendarId, uid: userId)
+                    }
+                    .map { _ in true }
+                    .catch { error in
+                        errorSubject.onNext(error)
+                        registrationSubject.onNext(false)
+                        return .just(false)
+                    }
+            }
+            .subscribe(onNext: { success in
+                registrationSubject.onNext(success)
+            })
+            .disposed(by: disposeBag)
+        
         let result = input.searchTrigger
             // 최신 초대코드 값과 함께 "조회하기" 트리거를 감지
             .withLatestFrom(input.inviteCode)
@@ -57,7 +110,7 @@ final class InviteCodeViewModel {
             .flatMapLatest { [weak self] code -> Observable<WorkplaceInfo> in
                 guard let self = self else { return .empty() }
 
-                return self.useCase.getWorkplaceInfoByInviteCode(inviteCode: code)
+                return self.workplaceUseCase.getWorkplaceInfoByInviteCode(inviteCode: code)
                     .flatMap { info -> Observable<WorkplaceInfo> in
                         if let info = info {
                             return .just(info)
@@ -81,7 +134,8 @@ final class InviteCodeViewModel {
 
         return Output(
             workplace: result,
-            error: errorSubject.asObservable()
+            error: errorSubject.asObservable(),
+            registrationSuccess: registrationSubject.asObservable()
         )
     }
 }

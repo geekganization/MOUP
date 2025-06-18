@@ -9,8 +9,12 @@ import UIKit
 import RxSwift
 import RxCocoa
 
+/// 초대코드 화면의 상태를 나타내는 열거형입니다.
 enum InviteCodeViewState {
+    /// 사용자가 초대코드를 입력하는 초기 상태입니다.
     case input
+    
+    /// 초대코드로 근무지 조회가 완료된 후, 결과를 확인하고 정보를 입력하는 상태입니다.
     case result
 }
 
@@ -76,46 +80,12 @@ private extension InviteCodeViewController {
     
     // MARK: - setActions
     func setActions() {
-        inviteCodeView.navigationBarView.backButtonView.addTarget(
-            self,
-            action: #selector(backButtonDidTap),
-            for: .touchUpInside
-        )
-        
-        inviteCodeView.codeTextFieldView.addTarget(
-            self,
-            action: #selector(textFieldDidChange(_:)),
-            for: .editingChanged
-        )
-        
         inviteCodeView.workplaceSearchResultView.workplaceSelectView.addGestureRecognizer(
             UITapGestureRecognizer(
                 target: self,
                 action: #selector(workplaceSelectViewDidTap)
             )
         )
-        
-        inviteCodeView.searchButtonView.addTarget(
-            self,
-            action: #selector(searchButtonDidTap),
-            for: .touchUpInside
-        )
-    }
-    
-    @objc func backButtonDidTap() {
-        navigationController?.popViewController(animated: true)
-    }
-    
-    /// 초대코드 입력 필드의 값이 변경될 때 호출됩니다.
-    /// - 텍스트를 `inviteCodeSubject`에 전달하여 ViewModel로 전파하고,
-    /// - 입력 여부에 따라 조회 버튼의 활성화 상태를 갱신합니다.
-    /// - Parameter textField: 텍스트 입력 필드
-    @objc func textFieldDidChange(_ textField: UITextField) {
-        let text = textField.text ?? ""
-        inviteCodeSubject.accept(text)
-
-        let isEmpty = text.isEmpty
-        updateSearchButtonStyle(enabled: !isEmpty)
     }
     
     func updateSearchButtonStyle(enabled: Bool) {
@@ -147,32 +117,51 @@ private extension InviteCodeViewController {
         navigationController?.pushViewController(workerWorkplaceRegistraitionVC, animated: true)
     }
     
-    @objc func searchButtonDidTap() {
-        switch currentState {
-        case .input:
-            // 사용자가 "조회하기" 버튼을 눌렀을 때 ViewModel로 검색 트리거 이벤트를 전달
-            searchTrigger.onNext(())
-        case .result:
-            // 하위 VC에서 입력한 근무지 및 알바생 정보를 확인
-            guard let workplace = selectedWorkplace,
-                  let workerDetail = selectedWorkerDetail else {
-                return
-            }
-
-            // TODO: ViewModel 또는 UseCase를 통해 서버에 등록 요청을 보냅니다
-            // 현재는 임시로 로그만 출력하고 화면을 종료함
-            print("등록하기: \(workplace), \(workerDetail)")
-            navigationController?.popViewController(animated: true)
-        }
-    }
-    
     // MARK: - setBindings
     
-    /// ViewModel의 Input과 Output을 바인딩합니다.
-    /// - inviteCodeSubject: 사용자가 입력한 초대코드 스트림
-    /// - searchTrigger: "조회하기" 버튼 클릭 시 발생하는 트리거
-    /// ViewModel에서 근무지 정보를 받아 상태를 `.result`로 전환하고, 에러 발생 시 콘솔에 출력합니다.
     func setBindings() {
+        // 네비게이션 바의 뒤로가기 버튼이 탭되었을 때 현재 화면을 pop하여 이전 화면으로 돌아갑니다.
+        inviteCodeView.navigationBarView.backButtonView.rx.tap
+            .bind { [weak self] in
+                self?.navigationController?.popViewController(animated: true)
+            }
+            .disposed(by: disposeBag)
+        
+        // 텍스트 필드에 입력된 초대코드를 실시간으로 inviteCodeSubject에 바인딩하여 ViewModel에 전달합니다.
+        inviteCodeView.codeTextFieldView.rx.text.orEmpty
+            .bind(to: inviteCodeSubject)
+            .disposed(by: disposeBag)
+        
+        // 텍스트 필드의 입력 여부에 따라 "조회하기" 버튼의 스타일(활성/비활성)을 업데이트합니다.
+        inviteCodeView.codeTextFieldView.rx.text.orEmpty
+            .map { !$0.isEmpty }
+            .subscribe(onNext: { [weak self] isEnabled in
+                self?.updateSearchButtonStyle(enabled: isEnabled)
+            })
+            .disposed(by: disposeBag)
+        
+        inviteCodeView.searchButtonView.rx.tap
+            .subscribe(onNext: { [weak self] in
+                guard let self else { return }
+                switch self.currentState {
+                case .input:
+                    // 사용자가 "조회하기" 버튼을 눌렀을 때 ViewModel로 검색 트리거 이벤트를 전달
+                    searchTrigger.onNext(())
+                case .result:
+                    // 하위 VC에서 입력한 근무지 및 알바생 정보를 확인
+                    guard let workplace = selectedWorkplace,
+                          let workerDetail = selectedWorkerDetail else {
+                        return
+                    }
+
+                    // TODO: ViewModel 또는 UseCase를 통해 서버에 등록 요청을 보냅니다
+                    // 현재는 임시로 로그만 출력하고 화면을 종료함
+                    print("등록하기: \(workplace), \(workerDetail)")
+                    navigationController?.popViewController(animated: true)
+                }
+            })
+            .disposed(by: disposeBag)
+        
         let input = InviteCodeViewModel.Input(
             inviteCode: inviteCodeSubject.asObservable(),
             searchTrigger: searchTrigger.asObservable()

@@ -65,4 +65,14 @@ final class WorkplaceRegistrationContentView: UIView {
             $0.edges.equalToSuperview()
         }
     }
+    
+    /// 상위 VC에서 전달받은 근무지 이름과 카테고리를 설정하고, 편집을 비활성화합니다.
+    /// - Parameters:
+    ///   - name: 설정할 근무지 이름
+    ///   - category: 설정할 근무지 카테고리
+    func setPresetWorkplaceInfo(name: String, category: String) {
+        workplaceInfoView.updateName(name)
+        workplaceInfoView.updateCategory(category)
+        workplaceInfoView.disableEditing()
+    }
 }

@@ -18,6 +18,14 @@ final class InviteCodeViewController: UIViewController {
     
     private var currentState: InviteCodeViewState = .input
     
+    /// 초대코드 플로우에서 사용자가 입력한 근무지 정보를 저장합니다.
+    /// 이후 최종 등록 시 서버에 전달됩니다.
+    private var selectedWorkplace: Workplace?
+
+    /// 초대코드 플로우에서 사용자가 입력한 알바생 상세 정보를 저장합니다.
+    /// 이후 최종 등록 시 서버에 전달됩니다.
+    private var selectedWorkerDetail: WorkerDetail?
+    
     // MARK: - UI Components
     
     private let inviteCodeView = InviteCodeView()
@@ -100,9 +108,23 @@ private extension InviteCodeViewController {
         button.configuration = config
     }
     
+    /// 근무지 선택 뷰가 탭되었을 때 호출됩니다.
+    /// preset된 이름/카테고리를 전달하여 `WorkerWorkplaceRegistrationViewController`를 `.inputOnly` 모드로 push합니다.
+    /// 사용자가 추가 정보를 입력하고 돌아오면 클로저를 통해 `Workplace`와 `WorkerDetail`을 전달받아 상태를 `.result`로 업데이트합니다.
     @objc func workplaceSelectViewDidTap() {
-        let workplaceListVC = WorkplaceListViewController()
-        navigationController?.pushViewController(workplaceListVC, animated: true)
+        let workerWorkplaceRegistraitionVC = WorkerWorkplaceRegistrationViewController(
+            mode: .inputOnly,
+            presetWorkplaceName: "GS편의점 서울역점",
+            presetCategory: "편의점"
+        )
+        
+        workerWorkplaceRegistraitionVC.onWorkplaceInfoPrepared = { [weak self] workplace, workerDetail in
+            self?.selectedWorkplace = workplace
+            self?.selectedWorkerDetail = workerDetail
+            self?.updateState(to: .result)
+        }
+        
+        navigationController?.pushViewController(workerWorkplaceRegistraitionVC, animated: true)
     }
     
     @objc func searchButtonDidTap() {
@@ -113,8 +135,15 @@ private extension InviteCodeViewController {
             updateState(to: .result)
             
         case .result:
-            // TODO: 등록 동작
-            print("등록하기")
+            // 하위 VC에서 입력한 근무지 및 알바생 정보를 확인
+            guard let workplace = selectedWorkplace,
+                  let workerDetail = selectedWorkerDetail else {
+                return
+            }
+
+            // TODO: ViewModel 또는 UseCase를 통해 서버에 등록 요청을 보냅니다
+            // 현재는 임시로 로그만 출력하고 화면을 종료함
+            print("등록하기: \(workplace), \(workerDetail)")
             navigationController?.popViewController(animated: true)
         }
     }

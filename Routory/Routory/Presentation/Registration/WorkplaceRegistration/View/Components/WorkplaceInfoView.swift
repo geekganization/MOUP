@@ -77,4 +77,13 @@ final class WorkplaceInfoView: UIView, ValueRowViewDelegate {
     func getCategory() -> String {
         return categoryRow.getValueData()
     }
+    
+    /// 이름 및 카테고리 항목을 비활성화하여 사용자 입력을 막습니다.
+    /// - 텍스트 영역을 터치할 수 없도록 하고, 우측 화살표 아이콘도 숨깁니다.
+    func disableEditing() {
+        nameRow.isUserInteractionEnabled = false
+        nameRow.updateArrowHidden(true)
+        categoryRow.isUserInteractionEnabled = false
+        categoryRow.updateArrowHidden(true)
+    }
 }

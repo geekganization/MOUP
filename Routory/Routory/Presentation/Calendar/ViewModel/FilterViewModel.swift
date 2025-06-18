@@ -20,7 +20,6 @@ final class FilterViewModel {
     private let disposeBag = DisposeBag()
     
     private let workplaceUseCase: WorkplaceUseCaseProtocol
-    private let calendarUseCase: CalendarUseCaseProtocol
     
     // MARK: - Input (ViewController ➡️ ViewModel)
     
@@ -44,11 +43,12 @@ final class FilterViewModel {
                 guard let uid = UserManager.shared.firebaseUid else { return }
                 owner.workplaceUseCase.fetchAllWorkplacesForUser(uid: uid)
                     .subscribe(with: self) { owner, workplaceInfoList in
+//                        let sorted = workplaceInfoList.sorted(by: { $0.workplace.workplacesName < $1.workplace.workplacesName })
                         workplaceInfoListRelay.accept(workplaceInfoList)
                     } onError: { owner, error in
                         owner.logger.error("\(error.localizedDescription)")
                     }.disposed(by: owner.disposeBag)
-
+                
             }.disposed(by: disposeBag)
         
         return Output(workplaceInfoListRelay: workplaceInfoListRelay)
@@ -56,8 +56,7 @@ final class FilterViewModel {
     
     // MARK: - Initializer
     
-    init(workplaceUseCase: WorkplaceUseCaseProtocol, calendarUseCase: CalendarUseCaseProtocol) {
+    init(workplaceUseCase: WorkplaceUseCaseProtocol) {
         self.workplaceUseCase = workplaceUseCase
-        self.calendarUseCase = calendarUseCase
     }
 }

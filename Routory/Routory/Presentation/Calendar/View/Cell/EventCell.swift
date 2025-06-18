@@ -65,7 +65,7 @@ final class EventCell: UITableViewCell {
     
     // MARK: - Methods
     
-    func update(workplace: String, startTime: String, endTime: String, dailyWage: String) {
+    func update(workplace: String, startTime: String, endTime: String, dailyWage: String, isShared: Bool) {
         workplaceLabel.text = workplace
         let workHour = DateFormatter.hourDiffDecimal(from: startTime, to: endTime)
         
@@ -77,6 +77,8 @@ final class EventCell: UITableViewCell {
                 workHourLabel.text = "\(startTime) ~ \(endTime) (\(hour)시간 \(min)분)"
             }
         }
+        
+        dailyWageLabel.isHidden = isShared
         // TODO: dailyWage 계산 필요
     }
 }

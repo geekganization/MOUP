@@ -14,9 +14,13 @@ final class FilterViewController: UIViewController {
     
     // MARK: - Properties
     
+    weak var delegate: FilterVCDelegate?
+    
     private let viewModel: FilterViewModel
     
     private let disposeBag = DisposeBag()
+    
+    private var selectedIndexPath = IndexPath()
     
     // MARK: UI Components
     
@@ -44,12 +48,6 @@ final class FilterViewController: UIViewController {
         super.viewDidLoad()
         configure()
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        filterView.getWorkplaceTableView.selectRow(at: IndexPath(row: 0, section: 0), animated: false, scrollPosition: .none)
-    }
 }
 
 // MARK: - UI Methods
@@ -57,28 +55,30 @@ final class FilterViewController: UIViewController {
 private extension FilterViewController {
     func configure() {
         setStyles()
-        setDelegates()
         setActions()
         setBinding()
     }
     
     func setStyles() {
         self.view.backgroundColor = .primaryBackground
-    }
-    
-    func setDelegates() {
         
+        filterView.getWorkplaceTableView.selectRow(at: IndexPath(row: 0, section: 0), animated: false, scrollPosition: .none)
     }
     
     func setActions() {
         filterView.getApplyButton.rx.tap
             .subscribe(with: self) { owner, _ in
-                // TODO: 선택된 근무지/매장 전달
+                owner.delegate?.didApplyButtonTap()
                 owner.dismiss(animated: true)
             }.disposed(by: disposeBag)
     }
     
     func setBinding() {
+        filterView.getWorkplaceTableView.rx.itemSelected
+            .subscribe(with: self) { owner, indexPath in
+                owner.selectedIndexPath = indexPath
+            }.disposed(by: disposeBag)
+        
         let input = FilterViewModel.Input(viewDidLoad: Observable.just(()))
         
         let output = viewModel.tranform(input: input)

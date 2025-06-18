@@ -142,7 +142,7 @@ private extension CalendarViewController {
         output.calendarEventListRelay
             .asDriver(onErrorJustReturn: ([], []))
             .drive(with: self) { owner, calendarEventList in
-                dump(calendarEventList)
+//                dump(calendarEventList)
                 owner.populateDataSource(calendarEvents: calendarEventList)
             }.disposed(by: disposeBag)
     }
@@ -209,12 +209,9 @@ private extension CalendarViewController {
     
     func didFilterButtonTap() {
         let workplaceService = WorkplaceService()
-        let calendarService = CalendarService()
         let workplaceRepository = WorkplaceRepository(service: workplaceService)
-        let calendarRepository = CalendarRepository(calendarService: calendarService)
         let workplaceUseCase = WorkplaceUseCase(repository: workplaceRepository)
-        let CalendarUseCase = CalendarUseCase(repository: calendarRepository)
-        let filterVM = FilterViewModel(workplaceUseCase: workplaceUseCase, calendarUseCase: CalendarUseCase)
+        let filterVM = FilterViewModel(workplaceUseCase: workplaceUseCase)
         let filterModalVC = FilterViewController(viewModel: filterVM)
         
         if let sheet = filterModalVC.sheetPresentationController {
@@ -266,9 +263,9 @@ extension CalendarViewController: JTACMonthViewDelegate {
     func calendar(_ calendar: JTAppleCalendar.JTACMonthView, willDisplay cell: JTAppleCalendar.JTACDayCell, forItemAt date: Date, cellState: JTAppleCalendar.CellState, indexPath: IndexPath) {
         switch calendarMode.value {
         case .personal:
-            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarEventList: personalEventDataSource[date] ?? [])
+            calendarView.configureCell(cell: cell, date: date, cellState: cellState, isShared: calendarMode.value == .shared, calendarEventList: personalEventDataSource[date] ?? [])
         case .shared:
-            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarEventList: sharedEventDataSource[date] ?? [])
+            calendarView.configureCell(cell: cell, date: date, cellState: cellState, isShared: calendarMode.value == .shared, calendarEventList: sharedEventDataSource[date] ?? [])
         }
     }
     
@@ -302,10 +299,10 @@ extension CalendarViewController: JTACMonthViewDelegate {
         let day = Calendar.current.component(.day, from: date)
         switch calendarMode.value {
         case .personal:
-            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarEventList: personalEventDataSource[date] ?? [])
+            calendarView.configureCell(cell: cell, date: date, cellState: cellState, isShared: calendarMode.value == .shared, calendarEventList: personalEventDataSource[date] ?? [])
             didSelectCell(day: day, eventList: personalEventDataSource[date] ?? [])
         case .shared:
-            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarEventList: sharedEventDataSource[date] ?? [])
+            calendarView.configureCell(cell: cell, date: date, cellState: cellState, isShared: calendarMode.value == .shared, calendarEventList: sharedEventDataSource[date] ?? [])
             didSelectCell(day: day, eventList: sharedEventDataSource[date] ?? [])
         }
     }
@@ -315,9 +312,9 @@ extension CalendarViewController: JTACMonthViewDelegate {
         
         switch calendarMode.value {
         case .personal:
-            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarEventList: personalEventDataSource[date] ?? [])
+            calendarView.configureCell(cell: cell, date: date, cellState: cellState, isShared: calendarMode.value == .shared, calendarEventList: personalEventDataSource[date] ?? [])
         case .shared:
-            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarEventList: sharedEventDataSource[date] ?? [])
+            calendarView.configureCell(cell: cell, date: date, cellState: cellState, isShared: calendarMode.value == .shared, calendarEventList: sharedEventDataSource[date] ?? [])
         }
         self.dismiss(animated: true)
     }

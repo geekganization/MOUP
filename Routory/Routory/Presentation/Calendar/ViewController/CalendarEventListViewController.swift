@@ -90,7 +90,7 @@ private extension CalendarEventListViewController {
         output.eventListRelay.asDriver(onErrorJustReturn: [])
             .drive(calendarEventListView.getEventTableView.rx.items( 
                 cellIdentifier: EventCell.identifier, cellType: EventCell.self)) { _, model, cell in
-                    cell.update(workplace: model.title, startTime: model.startTime, endTime: model.endTime, dailyWage: "")
+                    cell.update(workplace: model.title, startTime: model.startTime, endTime: model.endTime, dailyWage: "", isShared: false)
                 }.disposed(by: disposeBag)
     }
 }

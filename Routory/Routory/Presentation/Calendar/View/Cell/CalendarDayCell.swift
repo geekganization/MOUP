@@ -8,6 +8,7 @@
 import UIKit
 
 import JTAppleCalendar
+import RxSwift
 import SnapKit
 import Then
 
@@ -16,6 +17,8 @@ final class CalendarDayCell: JTACDayCell {
     // MARK: - Properties
     
     static let identifier = String(describing: CalendarDayCell.self)
+    
+    
     
     // MARK: - UI Components
     
@@ -109,6 +112,7 @@ final class CalendarDayCell: JTACDayCell {
                         
                         let workHour = DateFormatter.hourDiffDecimal(from: event.startTime, to: event.endTime)
                         // TODO: dailyWage 계산 필요
+                        // TODO: isShared == true일 때 이름 표시
                         eventView.update(workHourOrName: "\(workHour?.hours ?? 0)", dailyWage: "100,000", isShared: isShared, color: "red")
                         eventView.isHidden = false
                     }

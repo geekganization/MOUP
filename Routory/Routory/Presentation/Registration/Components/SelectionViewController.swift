@@ -47,7 +47,6 @@ final class SelectionViewController<T>: UIViewController,UITableViewDataSource, 
         $0.layer.cornerRadius = 12
         $0.isEnabled = false
         $0.alpha = 0.5
-        $0.addTarget(self, action: #selector(didTapDone), for: .touchUpInside)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -73,7 +72,7 @@ final class SelectionViewController<T>: UIViewController,UITableViewDataSource, 
     }
 
     private func setupUI() {
-
+        print("✅ setupUI 호출됨")
         let descriptionLabel = UILabel().then {
             $0.text = descriptionText
             $0.font = .bodyMedium(16)
@@ -134,10 +133,6 @@ final class SelectionViewController<T>: UIViewController,UITableViewDataSource, 
         let isSelected = selectedIndex != nil
         doneButton.isEnabled = isSelected
         doneButton.alpha = isSelected ? 1.0 : 0.5
-    }
-    
-    @objc private func didTapBack() {
-        navigationController?.popViewController(animated: true)
     }
 
     @objc private func didTapDone() {

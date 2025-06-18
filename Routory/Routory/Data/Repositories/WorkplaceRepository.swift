@@ -12,10 +12,10 @@ final class WorkplaceRepository: WorkplaceRepositoryProtocol {
         self.service = service
     }
     func fetchWorkplaceByInviteCode(inviteCode: String) -> Observable<WorkplaceInfo?> {
-        service.fetchWorkplaceByInviteCode(inviteCode: inviteCode)
+        return service.fetchWorkplaceByInviteCode(inviteCode: inviteCode)
     }
     func addWorkerToWorkplace(workplaceId: String, uid: String, workerDetail: WorkerDetail) -> Observable<Void> {
-        service.addWorkerToWorkplace(workplaceId: workplaceId, uid: uid, workerDetail: workerDetail)
+        return service.addWorkerToWorkplace(workplaceId: workplaceId, uid: uid, workerDetail: workerDetail)
     }
     func fetchAllWorkplacesForUser(uid: String) -> Observable<[WorkplaceInfo]> {
         return service.fetchAllWorkplacesForUser(uid: uid)

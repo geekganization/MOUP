@@ -44,6 +44,7 @@ final class HomeView: UIView {
     // MARK: - Initializer
     override init(frame: CGRect) {
         super.init(frame: frame)
+
         configure()
     }
 
@@ -139,5 +140,4 @@ extension Reactive where Base: HomeView {
     var refreshButtonTapped: ControlEvent<Void> {
         return base.refreshButton.rx.tap
     }
-
 }

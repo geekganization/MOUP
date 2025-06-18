@@ -11,6 +11,7 @@ import RxRelay
 
 final class HomeViewModel {
     private let disposeBag = DisposeBag()
+    private let userUseCase: UserUseCaseProtocol
     private var userId: String? {
         return UserManager.shared.firebaseUid
     }
@@ -41,7 +42,11 @@ final class HomeViewModel {
 
     private lazy var firstSectionData = BehaviorRelay<[HomeTableViewFirstSection]>(value: [HomeTableViewFirstSection(header: "나의 근무지", items: [.workplace(dummyWorkplace), .workplace(dummyWorkplace2)])])
     private let expandedIndexPathRelay = BehaviorRelay<Set<IndexPath>>(value: [])
-    private lazy var workerHomeHeaderInfoRelay = BehaviorRelay<DummyHomeHeaderInfo>(value: dummyWorkerHeaderInfo)
+
+    // MARK: - Initializer
+    init(userUseCase: UserUseCaseProtocol) {
+        self.userUseCase = userUseCase
+    }
 
     // MARK: - Input, Output
     struct Input {
@@ -54,15 +59,27 @@ final class HomeViewModel {
         let sectionData: Observable<[HomeTableViewFirstSection]>
         let expandedIndexPath: Observable<Set<IndexPath>>
         let headerData: Observable<DummyHomeHeaderInfo>
+        let userType: Observable<UserType>
     }
 
     func transform(input: Input) -> Output {
-        input.viewDidLoad
-            .subscribe(onNext: {
-                print("viewDidLoad - 데이터 로드")
-                // TODO: - userId, headerInfo, cellInfo 저장
-                
-            }).disposed(by: disposeBag)
+        let user = input.viewDidLoad
+            .flatMapLatest { [weak self] _ -> Observable<User> in
+                print("transform - user triggered")
+                guard let self, let userId = self.userId else { return .empty() }
+                return self.userUseCase.fetchUser(uid: userId)
+            }.share(replay: 1)
+
+        let userType = user.map {
+            UserType(role: $0.role)
+        }.distinctUntilChanged()
+
+        let headerData = input.viewDidLoad
+            .flatMapLatest { [weak self] _ -> Observable<DummyHomeHeaderInfo> in
+                print("transform - headerData triggered")
+                guard let self else { return .empty() }
+                return Observable.just(dummyWorkerHeaderInfo)
+            }.share(replay: 1)
 
         input.refreshBtnTapped
             .subscribe(onNext: { [weak self] in
@@ -88,7 +105,8 @@ final class HomeViewModel {
         return Output(
             sectionData: firstSectionData.asObservable(),
             expandedIndexPath: expandedIndexPathRelay.asObservable(),
-            headerData: workerHomeHeaderInfoRelay.asObservable()
+            headerData: headerData,
+            userType: userType
         )
     }
 }

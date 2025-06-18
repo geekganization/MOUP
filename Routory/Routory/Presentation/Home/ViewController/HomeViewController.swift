@@ -13,6 +13,19 @@ import RxDataSources
 import SnapKit
 import Then
 
+enum UserType {
+    case worker
+    case owner
+
+    init(role: String) {
+        switch role {
+        case "worker": self = .worker
+        case "owner": self = .owner
+        default: self = .worker
+        }
+    }
+}
+
 final class HomeViewController: UIViewController {
     // MARK: - Properties
     private let homeView = HomeView()
@@ -93,6 +106,10 @@ private extension HomeViewController {
     }
 
     func setBindings() {
+        output.sectionData.subscribe().disposed(by: disposeBag)
+        output.headerData.subscribe().disposed(by: disposeBag)
+        output.userType.subscribe().disposed(by: disposeBag) // 구독 전에 방출하면 의미가 없으므로 미리 인위적으로 구독 처리
+
         homeView.rx.setDelegate
             .onNext(self)
         homeView.rx.bindItems
@@ -126,6 +143,7 @@ private extension HomeViewController {
             })
             .disposed(by: disposeBag)
 
+        viewDidLoadRelay.accept(())
     }
 
     // MARK: - 셀 내 메뉴에 대한 Action 정의
@@ -166,10 +184,11 @@ extension HomeViewController: UITableViewDelegate {
         guard let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: HomeHeaderView.identifier) as? HomeHeaderView else {
             return UIView()
         }
-        output.headerData
+        Observable.combineLatest(output.headerData, output.userType)
             .observe(on: MainScheduler.instance)
-            .subscribe(onNext: { headerData in
-                headerView.update(with: headerData)
+            .subscribe(onNext: { headerData, userType in
+                print("headerData: \(headerData)")
+                headerView.update(with: headerData, userType: userType)
             })
             .disposed(by: disposeBag)
 

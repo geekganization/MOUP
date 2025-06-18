@@ -13,26 +13,26 @@ import RxCocoa
 import FirebaseAuth
 
 final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestureRecognizerDelegate {
-
+    
     private let scrollView = UIScrollView()
     private let contentView = WorkplaceRegistrationContentView(workplaceTitle: "근무지 *")
-
+    
     private var delegateHandler: WorkplaceRegistrationDelegateHandler?
     private var actionHandler: RegistrationActionHandler?
     
     fileprivate lazy var navigationBar = BaseNavigationBar(title: "새 근무지 등록") //*2
     
     private let viewModel = CreateWorkplaceViewModel(
-        useCase: CreateWorkerWorkplaceUseCase(
-            repository: WorkerWorkplaceRepository(
-                userService: UserService() // 또는 적절한 구현체
+        useCase: WorkplaceUseCase(
+            repository: WorkplaceRepository(
+                service: WorkplaceService()
             )
         )
     )
     private let disposeBag = DisposeBag()
     
     // MARK: - Lifecycle
-
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: false)
@@ -45,9 +45,9 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
         setupNavigationBar()
         layout()
     }
-
+    
     // MARK: - Setup
-
+    
     private func setupNavigationBar() {
         navigationBar.rx.backBtnTapped
             .subscribe(onNext: { [weak self] in
@@ -55,25 +55,25 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
             })
             .disposed(by: disposeBag)
     }
-
+    
     private func setupUI() {
         view.backgroundColor = .white
         view.addSubview(navigationBar)
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
-
+        
         delegateHandler = WorkplaceRegistrationDelegateHandler(contentView: contentView, navigationController: navigationController)
         actionHandler = RegistrationActionHandler(contentView: contentView, navigationController: navigationController)
-
+        
         contentView.salaryInfoView.delegate = delegateHandler
         contentView.workplaceInfoView.delegate = delegateHandler
         contentView.labelView.delegate = delegateHandler
-
+        
         contentView.registerButton.addTarget(self, action: #selector(didTapRegister), for: .touchUpInside)
         contentView.registerButton.addTarget(actionHandler, action: #selector(RegistrationActionHandler.buttonTouchDown(_:)), for: .touchDown)
         contentView.registerButton.addTarget(actionHandler, action: #selector(RegistrationActionHandler.buttonTouchUp(_:)), for: [.touchUpInside, .touchUpOutside, .touchCancel])
     }
-
+    
     private func layout() {
         navigationBar.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide)
@@ -86,13 +86,13 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
             $0.leading.trailing.equalToSuperview()
             $0.bottom.equalTo(view.safeAreaLayoutGuide)
         }
-
+        
         contentView.snp.makeConstraints {
             $0.edges.equalTo(scrollView.contentLayoutGuide).inset(16)
             $0.width.equalTo(scrollView.frameLayoutGuide).inset(16)
         }
     }
-
+    
     // MARK: - Actions
     
     @objc func didTapRegister() {
@@ -106,7 +106,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
         let payDate = contentView.salaryInfoView.getPayDateValue()
         let selectedConditions = contentView.workConditionView.getSelectedConditions()
         let label = contentView.labelView.getColorLabelData()
-
+        
         let (wage, wageCalcMethod): (Int, String) = {
             switch salaryType {
             case "매월":
@@ -117,7 +117,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
                 return (0, "hourly")
             }
         }()
-
+        
         let employmentInsurance = selectedConditions.contains("고용보험")
         let healthInsurance = selectedConditions.contains("건강보험")
         let industrialAccident = selectedConditions.contains("산재보험")
@@ -125,9 +125,9 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
         let incomeTax = selectedConditions.contains("소득세")
         let weeklyAllowance = selectedConditions.contains("주휴수당")
         let nightAllowance = selectedConditions.contains("야간수당*")
-
+        
         let breakTimeMinutes = 0
-
+        
         let workplace = Workplace(
             workplacesName: name,
             category: category,
@@ -135,7 +135,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
             inviteCode: UUID().uuidString,
             isOfficial: false
         )
-
+        
         let workerDetail = WorkerDetail(
             workerName: "알바생 이름",
             wage: wage,
@@ -153,16 +153,23 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
             nightAllowance: nightAllowance,
             color: label
         )
-
+        
+        guard let uid = Auth.auth().currentUser?.uid, !uid.isEmpty else {
+            print("유저 UID가 존재하지 않음")
+            return
+        }
+        
         let input = CreateWorkplaceViewModel.Input(
             createTrigger: Observable.just(()),
             workplace: Observable.just(workplace),
             workerDetail: Observable.just(workerDetail),
-            uid: Observable.just(Auth.auth().currentUser?.uid ?? "") 
+            uid: Observable.just(uid),
+            color: Observable.just(label),
+            role: Observable.just(Role.worker),
         )
-
+        
         let output = viewModel.transform(input: input)
-
+        
         output.workplaceId
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] id in
@@ -170,7 +177,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
                 self?.navigationController?.popViewController(animated: true)
             })
             .disposed(by: disposeBag)
-
+        
         output.error
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { error in

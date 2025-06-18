@@ -182,12 +182,12 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
             workplacesName: name,
             category: category,
             ownerId: Auth.auth().currentUser?.uid ?? "",
-            inviteCode: UUID().uuidString,
+            inviteCode: "", // 초대 코드 생성 못하게 빈문자열 전달
             isOfficial: false
         )
         
         let workerDetail = WorkerDetail(
-            workerName: "알바생 이름",
+            workerName: "알바생 이름", // 이름 수정 필요
             wage: wage,
             wageCalcMethod: wageCalcMethod,
             wageType: salaryType,

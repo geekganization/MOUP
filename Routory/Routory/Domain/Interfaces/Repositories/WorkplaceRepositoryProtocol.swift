@@ -9,4 +9,5 @@ import RxSwift
 protocol WorkplaceRepositoryProtocol {
     func fetchWorkplaceByInviteCode(inviteCode: String) -> Observable<WorkplaceInfo?>
     func addWorkerToWorkplace(workplaceId: String, uid: String, workerDetail: WorkerDetail) -> Observable<Void>
+    func fetchAllWorkplacesForUser(uid: String) -> Observable<[WorkplaceInfo]>
 }

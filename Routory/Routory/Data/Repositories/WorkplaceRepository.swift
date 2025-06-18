@@ -17,4 +17,7 @@ final class WorkplaceRepository: WorkplaceRepositoryProtocol {
     func addWorkerToWorkplace(workplaceId: String, uid: String, workerDetail: WorkerDetail) -> Observable<Void> {
         service.addWorkerToWorkplace(workplaceId: workplaceId, uid: uid, workerDetail: workerDetail)
     }
+    func fetchAllWorkplacesForUser(uid: String) -> Observable<[WorkplaceInfo]> {
+        return service.fetchAllWorkplacesForUser(uid: uid)
+    }
 }

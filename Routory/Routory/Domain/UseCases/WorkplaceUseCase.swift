@@ -17,4 +17,7 @@ final class WorkplaceUseCase: WorkplaceUseCaseProtocol {
     func registerWorkerToWorkplace(workplaceId: String, uid: String, workerDetail: WorkerDetail) -> Observable<Void> {
         repository.addWorkerToWorkplace(workplaceId: workplaceId, uid: uid, workerDetail: workerDetail)
     }
+    func fetchAllWorkplacesForUser(uid: String) -> Observable<[WorkplaceInfo]> {
+        return repository.fetchAllWorkplacesForUser(uid: uid)
+    }
 }

@@ -11,6 +11,7 @@ import RxSwift
 protocol WorkplaceServiceProtocol {
     func fetchWorkplaceByInviteCode(inviteCode: String) -> Observable<WorkplaceInfo?>
     func addWorkerToWorkplace(workplaceId: String, uid: String, workerDetail: WorkerDetail) -> Observable<Void>
+    func fetchAllWorkplacesForUser(uid: String) -> Observable<[WorkplaceInfo]>
 }
 
 
@@ -75,6 +76,53 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                     }
             } catch {
                 observer.onError(error)
+            }
+            return Disposables.create()
+        }
+    }
+    
+    /// 해당 사용자가 소속된 모든 근무지 정보를 조회합니다.
+    /// - Parameter uid: 유저의 UID
+    /// - Returns: WorkplaceInfo 배열
+    /// - Firestore 경로: users/{uid}/workplaces → workplaces/{workplaceId}
+    func fetchAllWorkplacesForUser(uid: String) -> Observable<[WorkplaceInfo]> {
+        let userWorkplaceRef = db.collection("users").document(uid).collection("workplaces")
+        return Observable.create { observer in
+            userWorkplaceRef.getDocuments { snapshot, error in
+                if let error = error {
+                    observer.onError(error)
+                    return
+                }
+                let ids = snapshot?.documents.map { $0.documentID } ?? []
+                // 각 workplaceId로 workplaces 컬렉션에서 상세 조회 Observable 만들기
+                let observables: [Observable<WorkplaceInfo>] = ids.map { workplaceId in
+                    Observable<WorkplaceInfo>.create { detailObserver in
+                        self.db.collection("workplaces").document(workplaceId).getDocument { doc, error in
+                            if let doc = doc, let data = doc.data() {
+                                do {
+                                    let jsonData = try JSONSerialization.data(withJSONObject: data)
+                                    let workplace = try JSONDecoder().decode(Workplace.self, from: jsonData)
+                                    detailObserver.onNext(WorkplaceInfo(id: workplaceId, workplace: workplace))
+                                    detailObserver.onCompleted()
+                                } catch {
+                                    detailObserver.onError(error)
+                                }
+                            } else {
+                                detailObserver.onCompleted()
+                            }
+                        }
+                        return Disposables.create()
+                    }
+                }
+                // 모든 workplace 조회 결과를 [WorkplaceInfo]로 묶어서 반환
+                Observable.zip(observables)
+                    .subscribe(onNext: { workplaces in
+                        observer.onNext(workplaces)
+                        observer.onCompleted()
+                    }, onError: { error in
+                        observer.onError(error)
+                    })
+                    .disposed(by: DisposeBag())
             }
             return Disposables.create()
         }

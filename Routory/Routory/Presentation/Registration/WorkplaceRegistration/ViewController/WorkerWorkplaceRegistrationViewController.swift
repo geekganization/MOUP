@@ -51,8 +51,8 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
     private let presetCategory: String?
     
     /// `.inputOnly` 모드에서 사용자 입력이 완료되었을 때 호출되는 콜백입니다.
-    /// 상위 VC로 `Workplace`와 `WorkerDetail` 정보를 전달합니다.
-    var onWorkplaceInfoPrepared: ((Workplace, WorkerDetail) -> Void)?
+    /// 상위 VC로 `WorkerDetail` 정보를 전달합니다.
+    var onWorkplaceInfoPrepared: ((WorkerDetail) -> Void)?
     
     // MARK: - Lifecycle
     
@@ -239,7 +239,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
         case .inputOnly:
             // 초대코드 플로우:
             // 입력된 정보를 상위 VC로 전달하고 현재 화면을 닫습니다.
-            onWorkplaceInfoPrepared?(workplace, workerDetail)
+            onWorkplaceInfoPrepared?(workerDetail)
             navigationController?.popViewController(animated: true)
         }
     }

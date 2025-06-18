@@ -104,12 +104,11 @@ private extension InviteCodeViewController {
     @objc func workplaceSelectViewDidTap() {
         let workerWorkplaceRegistraitionVC = WorkerWorkplaceRegistrationViewController(
             mode: .inputOnly,
-            presetWorkplaceName: "GS편의점 서울역점",
-            presetCategory: "편의점"
+            presetWorkplaceName: selectedWorkplace?.workplacesName,
+            presetCategory: selectedWorkplace?.category
         )
         
-        workerWorkplaceRegistraitionVC.onWorkplaceInfoPrepared = { [weak self] workplace, workerDetail in
-            self?.selectedWorkplace = workplace
+        workerWorkplaceRegistraitionVC.onWorkplaceInfoPrepared = { [weak self] workerDetail in
             self?.selectedWorkerDetail = workerDetail
             self?.updateState(to: .result)
         }
@@ -172,9 +171,15 @@ private extension InviteCodeViewController {
         output.workplace
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] info in
-                // 조회 성공 시 상태를 `.result`로 전환
+                // 조회 성공 시 근무지 결과 뷰 업데이트
+                self?.inviteCodeView.workplaceSearchResultView.update(
+                    name: info.workplace.workplacesName,
+                    category: info.workplace.category
+                )
+                // 근무지 정보 저장
+                self?.selectedWorkplace = info.workplace
+                // 상태를 `.result`로 전환
                 self?.updateState(to: .result)
-                print(info)
             })
             .disposed(by: disposeBag)
 

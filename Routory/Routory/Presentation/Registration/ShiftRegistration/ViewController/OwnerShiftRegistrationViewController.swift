@@ -86,6 +86,7 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
                 switch result {
                 case .success:
                     print("근무 등록 성공")
+                    self.navigationController?.popViewController(animated: true)
                 case .failure(let error):
                     print("근무 등록 실패: \(error)")
                 }

@@ -9,7 +9,7 @@ import UIKit
 import SnapKit
 import RxSwift
 
-final class OwnerShiftRegistrationViewController: UIViewController,UIGestureRecognizerDelegate {
+final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRecognizerDelegate {
     
     weak var delegate: RegistrationVCDelegate?
 
@@ -32,15 +32,30 @@ final class OwnerShiftRegistrationViewController: UIViewController,UIGestureReco
         $0.layer.borderColor = UIColor.white.cgColor
         $0.layer.borderWidth = 1.0
     }
+
     private var registrationMode: ShiftRegistrationMode = .owner
     private let contentView = ShiftRegistrationContentView()
     private var delegateHandler: ShiftRegistrationDelegateHandler?
     private var actionHandler: RegistrationActionHandler?
     private var keyboardHandler: KeyboardInsetHandler?
-    
-    fileprivate lazy var navigationBar = BaseNavigationBar(title: "근무 등록") //*2
-    let disposeBag = DisposeBag()
-    
+
+    fileprivate lazy var navigationBar = BaseNavigationBar(title: "근무 등록")
+    private let disposeBag = DisposeBag()
+
+    private let viewModel = WorkplaceListViewModel(
+        workplaceUseCase: WorkplaceUseCase(
+            repository: WorkplaceRepository(service: WorkplaceService())
+        )
+    )
+
+    private let registrationViewModel = OwnerSelfShiftRegistrationViewModel(
+        calendarUseCase: CalendarUseCase(
+            repository: CalendarRepository(calendarService: CalendarService())
+        )
+    )
+
+    private let submitTrigger = PublishSubject<(String, CalendarEvent)>()
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: false)
@@ -49,25 +64,36 @@ final class OwnerShiftRegistrationViewController: UIViewController,UIGestureReco
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
-        setupNavigationBar()
-        layout()
-        setupSegment()
-        setupKeyboardHandler()
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        
-        if self.isMovingFromParent {
-            delegate?.registrationVCIsMovingFromParent()
+
+        viewModel.fetchWorkplaces { [weak self] in
+            guard let self else { return }
+
+            self.setupUI()
+            self.setupNavigationBar()
+            self.layout()
+            self.setupSegment()
+            self.setupKeyboardHandler()
+            self.bindViewModel()
         }
     }
 
-    deinit {
-        keyboardHandler?.stopObserving()
+    private func bindViewModel() {
+        let input = OwnerSelfShiftRegistrationViewModel.Input(submitTrigger: submitTrigger)
+        let output = registrationViewModel.transform(input: input)
+
+        output.submissionResult
+            .subscribe(onNext: { result in
+                switch result {
+                case .success:
+                    print("근무 등록 성공")
+                    self.navigationController?.popViewController(animated: true)
+                case .failure(let error):
+                    print("근무 등록 실패: \(error)")
+                }
+            })
+            .disposed(by: disposeBag)
     }
-    
+
     private func setupKeyboardHandler() {
         keyboardHandler = KeyboardInsetHandler(
             scrollView: scrollView,
@@ -76,7 +102,7 @@ final class OwnerShiftRegistrationViewController: UIViewController,UIGestureReco
         )
         keyboardHandler?.startObserving()
     }
-    
+
     private func setupSegment() {
         headerSegment.selectedSegmentIndex = 0
         headerSegment.addTarget(self, action: #selector(didChangeSegment(_:)), for: .valueChanged)
@@ -103,13 +129,19 @@ final class OwnerShiftRegistrationViewController: UIViewController,UIGestureReco
         stackView.spacing = 16
         stackView.addArrangedSubview(headerSegment)
         stackView.addArrangedSubview(contentView)
-        
         stackView.setCustomSpacing(24, after: headerSegment)
 
         contentView.simpleRowView.isHidden = true
 
-        delegateHandler = ShiftRegistrationDelegateHandler(contentView: contentView, navigationController: navigationController)
-        actionHandler = RegistrationActionHandler(contentView: contentView, navigationController: navigationController)
+        delegateHandler = ShiftRegistrationDelegateHandler(
+            contentView: contentView,
+            navigationController: navigationController,
+            viewModel: viewModel
+        )
+        actionHandler = RegistrationActionHandler(
+            contentView: contentView,
+            navigationController: navigationController
+        )
 
         contentView.simpleRowView.delegate = delegateHandler
         contentView.routineView.delegate = delegateHandler
@@ -124,57 +156,46 @@ final class OwnerShiftRegistrationViewController: UIViewController,UIGestureReco
     }
 
     private func layout() {
-        
         navigationBar.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide)
             $0.directionalHorizontalEdges.equalToSuperview()
             $0.height.equalTo(50)
         }
-        
+
         scrollView.snp.makeConstraints {
             $0.top.equalTo(navigationBar.snp.bottom)
             $0.leading.trailing.equalToSuperview()
-            $0.bottom.equalTo(view.safeAreaLayoutGuide) 
+            $0.bottom.equalTo(view.safeAreaLayoutGuide)
         }
 
         stackView.snp.makeConstraints {
             $0.edges.equalTo(scrollView.contentLayoutGuide).inset(16)
             $0.width.equalTo(scrollView.frameLayoutGuide).inset(16)
         }
-        
+
         headerSegment.snp.makeConstraints {
             $0.height.equalTo(48)
         }
     }
-    
-    @objc func didTapRegister() {
-        let workPlace = contentView.simpleRowView.getData()
+
+    @objc private func didTapRegister() {
+        let workPlaceID = contentView.simpleRowView.getID()
         let eventDate = contentView.workDateView.getdateRowData()
         let startTime = contentView.workTimeView.getstartRowData()
         let endTime = contentView.workTimeView.getendRowData()
         let breakTime = contentView.workTimeView.getrestRowData()
         let repeatDays = contentView.workDateView.getRepeatData()
         let memo = contentView.memoBoxView.getData()
-        
+
         guard let dateComponents = parseDateComponents(from: eventDate) else {
             print("날짜 파싱 실패: \(eventDate)")
             return
         }
-        
+
         switch registrationMode {
         case .owner:
-            print("사장님 새 근무 등록 데이터 - 사장님")
-            print("근무지: ", workPlace)
-            print("근무 날짜 - 날짜: ", eventDate)
-            print("근무 날짜 - 반복: ", repeatDays)
-            print("근무 시간 - 출근: ", startTime)
-            print("근무 시간 - 퇴근: ", endTime)
-            print("근무 시간 - 휴게: ", breakTime)
-            
             let routineIDs = contentView.routineView.getSelectedRoutineIDs()
-            print("루틴: ", routineIDs)
-            print("메모: ", memo)
-            
+
             let event = CalendarEvent(
                 title: "",
                 eventDate: eventDate,
@@ -188,12 +209,16 @@ final class OwnerShiftRegistrationViewController: UIViewController,UIGestureReco
                 repeatDays: repeatDays,
                 memo: memo
             )
-            print(workPlace,event)
+
+            submitTrigger.onNext((workPlaceID, event))
 
         case .employee:
+            // 기존 로직 유지
+            let workPlace = contentView.simpleRowView.getData()
+            let worker = contentView.workerSelectionView.getSelectedWorkerData()
+
             print("사장님 새 근무 등록 데이터 - 알바생")
             print("근무지: ", workPlace)
-            let worker = contentView.workerSelectionView.getSelectedWorkerData()
             print("근무자: ", worker)
             print("근무 날짜 - 날짜: ", eventDate)
             print("근무 날짜 - 반복: ", repeatDays)
@@ -201,7 +226,7 @@ final class OwnerShiftRegistrationViewController: UIViewController,UIGestureReco
             print("근무 시간 - 퇴근: ", endTime)
             print("근무 시간 - 휴게: ", breakTime)
             print("메모: ", memo)
-            
+
             let event = CalendarEvent(
                 title: "",
                 eventDate: eventDate,
@@ -215,10 +240,11 @@ final class OwnerShiftRegistrationViewController: UIViewController,UIGestureReco
                 repeatDays: repeatDays,
                 memo: memo
             )
-            print(workPlace,event)
+
+            print(workPlaceID, event)
         }
     }
-    
+
     @objc private func didChangeSegment(_ sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
         case 0:
@@ -226,6 +252,7 @@ final class OwnerShiftRegistrationViewController: UIViewController,UIGestureReco
             contentView.simpleRowView.isHidden = false
             contentView.workerSelectionView.isHidden = true
             contentView.labelView.isHidden = true
+            contentView.routineView.isHidden = false
         case 1:
             registrationMode = .employee
             contentView.simpleRowView.isHidden = false

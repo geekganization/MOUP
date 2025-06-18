@@ -18,6 +18,7 @@ protocol WorkplaceServiceProtocol {
             color: String
         ) -> Observable<String>
     func fetchAllWorkplacesForUser(uid: String) -> Observable<[WorkplaceInfo]>
+    func fetchAllWorkplacesForUser2(uid: String) -> Observable<[WorkplaceInfo]>
     func addWorkerToWorkplace(workplaceId: String, uid: String, workerDetail: WorkerDetail) -> Observable<Void>
 }
 
@@ -94,6 +95,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
     /// - Firestore 경로: users/{uid}/workplaces → workplaces/{workplaceId}
     func fetchAllWorkplacesForUser(uid: String) -> Observable<[WorkplaceInfo]> {
         let userWorkplaceRef = db.collection("users").document(uid).collection("workplaces")
+        print("userWorkplaceRef:",userWorkplaceRef)
         return Observable.create { observer in
             userWorkplaceRef.getDocuments { snapshot, error in
                 if let error = error {
@@ -131,6 +133,40 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                     })
                     .disposed(by: DisposeBag())
             }
+            return Disposables.create()
+        }
+    }
+    
+    func fetchAllWorkplacesForUser2(uid: String) -> Observable<[WorkplaceInfo]> {
+        let workplacesRef = db.collection("workplaces")
+        return Observable.create { observer in
+            workplacesRef
+                .whereField("ownerId", isEqualTo: uid)
+                .getDocuments { snapshot, error in
+                    if let error = error {
+                        observer.onError(error)
+                        return
+                    }
+
+                    let documents = snapshot?.documents ?? []
+                    print("📦 ownerId = \(uid) 기준 workplaces 문서 수:", documents.count)
+
+                    let infos: [WorkplaceInfo] = documents.compactMap { doc in
+                        let data = doc.data()
+                        do {
+                            let jsonData = try JSONSerialization.data(withJSONObject: data)
+                            let workplace = try JSONDecoder().decode(Workplace.self, from: jsonData)
+                            return WorkplaceInfo(id: doc.documentID, workplace: workplace)
+                        } catch {
+                            print("❌ workplace 디코딩 실패:", error)
+                            return nil
+                        }
+                    }
+
+                    observer.onNext(infos)
+                    observer.onCompleted()
+                }
+
             return Disposables.create()
         }
     }

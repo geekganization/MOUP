@@ -24,6 +24,8 @@ final class WorkPlaceSelectionView: UIView {
     weak var delegate: WorkPlaceSelectionViewDelegate?
 
     // MARK: - UI Components
+    
+    private var workplaceID: String = ""
 
     private let titleLabel = UILabel().then {
         $0.font = .headBold(18)
@@ -102,5 +104,13 @@ final class WorkPlaceSelectionView: UIView {
 
     func getData() -> String {
         return titleLabel.text ?? ""
+    }
+    
+    func updateID(_ id: String) {
+        self.workplaceID = id
+    }
+    
+    func getID() -> String {
+        return self.workplaceID
     }
 }

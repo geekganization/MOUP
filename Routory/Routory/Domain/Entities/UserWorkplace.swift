@@ -12,12 +12,7 @@ struct UserWorkplace: Codable {
     
     /// 사용자가 설정한 근무지/매장 색상
     let color: String
-    
-    /// 메모
-    let memo: String
-    
     init(color: String, memo: String) {
         self.color = color
-        self.memo = memo
     }
 }

@@ -20,4 +20,19 @@ final class WorkplaceUseCase: WorkplaceUseCaseProtocol {
     func fetchAllWorkplacesForUser(uid: String) -> Observable<[WorkplaceInfo]> {
         return repository.fetchAllWorkplacesForUser(uid: uid)
     }
+    func createWorkplaceWithCalendarAndMaybeWorker(
+        uid: String,
+        role: Role,
+        workplace: Workplace,
+        workerDetail: WorkerDetail?,
+        color: String
+    ) -> Observable<String> {
+        return repository.createWorkplaceWithCalendarAndMaybeWorker(
+            uid: uid,
+            role: role,
+            workplace: workplace,
+            workerDetail: workerDetail,
+            color: color
+        )
+    }
 }

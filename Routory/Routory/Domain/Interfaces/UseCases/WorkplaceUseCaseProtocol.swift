@@ -10,4 +10,11 @@ protocol WorkplaceUseCaseProtocol {
     func getWorkplaceInfoByInviteCode(inviteCode: String) -> Observable<WorkplaceInfo?>
     func registerWorkerToWorkplace(workplaceId: String, uid: String, workerDetail: WorkerDetail) -> Observable<Void>
     func fetchAllWorkplacesForUser(uid: String) -> Observable<[WorkplaceInfo]>
+    func createWorkplaceWithCalendarAndMaybeWorker(
+            uid: String,
+            role: Role,
+            workplace: Workplace,
+            workerDetail: WorkerDetail?,
+            color: String
+        ) -> Observable<String>
 }

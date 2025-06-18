@@ -17,10 +17,6 @@ final class RegistrationActionHandler: NSObject {
         self.navigationController = navigationController
     }
 
-    @objc func didTapBack() {
-        navigationController?.popViewController(animated: true)
-    }
-
     @objc func buttonTouchDown(_ sender: UIButton) {
         UIView.animate(withDuration: 0.1) {
             sender.alpha = 0.6

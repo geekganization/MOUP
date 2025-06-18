@@ -46,8 +46,8 @@ extension WorkplaceRegistrationDelegateHandler: WorkplaceInfoViewDelegate {
             selected: "음식점"
         )
 
-        vc.onSelect = { selected in
-            self.contentView?.workplaceInfoView.updateCategory(selected)
+        vc.onSelect = { [weak self] selected in
+            self?.contentView?.workplaceInfoView.updateCategory(selected)
         }
         navigationController?.pushViewController(vc, animated: true)
     }
@@ -68,8 +68,8 @@ extension WorkplaceRegistrationDelegateHandler: SalaryInfoViewDelegate {
             selected: "매월"
         )
 
-        vc.onSelect = { selected in
-            self.contentView?.salaryInfoView.updateTypeValue(selected)
+        vc.onSelect = { [weak self] selected in
+            self?.contentView?.salaryInfoView.updateTypeValue(selected)
         }
 
         navigationController?.pushViewController(vc, animated: true)
@@ -88,9 +88,9 @@ extension WorkplaceRegistrationDelegateHandler: SalaryInfoViewDelegate {
             selected: "고정"
         )
 
-        vc.onSelect = { selected in
+        vc.onSelect = { [weak self] selected in
             print("선택된 계산 방법:", selected)
-            self.contentView?.salaryInfoView.updateCalcValue(selected)
+            self?.contentView?.salaryInfoView.updateCalcValue(selected)
         }
 
         navigationController?.pushViewController(vc, animated: true)

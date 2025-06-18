@@ -170,8 +170,4 @@ final class TextInputViewController: UIViewController,UIGestureRecognizerDelegat
         onComplete?(text)
         navigationController?.popViewController(animated: true)
     }
-
-    @objc private func didTapBack() {
-        navigationController?.popViewController(animated: true)
-    }
 }

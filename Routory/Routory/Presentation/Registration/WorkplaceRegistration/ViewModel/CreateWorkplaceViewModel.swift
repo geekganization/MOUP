@@ -15,6 +15,8 @@ final class CreateWorkplaceViewModel {
         let workplace: Observable<Workplace>
         let workerDetail: Observable<WorkerDetail>
         let uid: Observable<String>
+        let color: Observable<String>
+        let role: Observable<Role>
     }
     
     struct Output {
@@ -22,10 +24,10 @@ final class CreateWorkplaceViewModel {
         let error: Observable<Error>
     }
     
-    private let useCase: CreateWorkerWorkplaceUseCaseProtocol
+    private let useCase: WorkplaceUseCaseProtocol
     private let disposeBag = DisposeBag()
     
-    init(useCase: CreateWorkerWorkplaceUseCaseProtocol) {
+    init(useCase: WorkplaceUseCaseProtocol) {
         self.useCase = useCase
     }
     
@@ -34,14 +36,14 @@ final class CreateWorkplaceViewModel {
         let workplaceIdSubject = PublishSubject<String>()
 
         let combinedInput = Observable
-            .combineLatest(input.workplace, input.workerDetail, input.uid)
-
+            .combineLatest(input.workplace, input.workerDetail, input.uid, input.color, input.role)
+        
         input.createTrigger
             .withLatestFrom(combinedInput)
-            .flatMapLatest { [weak self] (workplace, workerDetail, uid) -> Observable<String> in
+            .flatMapLatest { [weak self] (workplace, workerDetail, uid, color, role) -> Observable<String> in
                 guard let self = self else { return .empty() }
                 return self.useCase
-                    .execute(workplace: workplace, workerDetail: workerDetail, uid: uid)
+                    .createWorkplaceWithCalendarAndMaybeWorker(uid: uid, role: role, workplace: workplace, workerDetail: workerDetail, color: color)
                     .catch { error in
                         errorSubject.onNext(error)
                         return .empty()

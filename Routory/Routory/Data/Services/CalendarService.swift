@@ -11,6 +11,7 @@ import FirebaseFirestore
 protocol CalendarServiceProtocol {
     func addUserToCalendarSharedWith(calendarId: String, uid: String) -> Observable<Void>
     func fetchCalendarIdByWorkplaceId(workplaceId: String) -> Observable<String?>
+    func addEventToCalendar(calendarId: String, event: CalendarEvent) -> Observable<Void>
 }
 
 final class CalendarService: CalendarServiceProtocol {
@@ -60,4 +61,32 @@ final class CalendarService: CalendarServiceProtocol {
             return Disposables.create()
         }
     }
+    
+    func addEventToCalendar(calendarId: String, event: CalendarEvent) -> Observable<Void> {
+            let eventRef = db.collection("calendars").document(calendarId).collection("events").document()
+            let data: [String: Any] = [
+                "title": event.title,
+                "eventDate": event.eventDate,
+                "startTime": event.startTime,
+                "endTime": event.endTime,
+                "createdBy": event.createdBy,
+                "year": event.year,
+                "month": event.month,
+                "day": event.day,
+                "routineIds": event.routineIds,
+                "repeatDays": event.repeatDays,
+                "memo": event.memo
+            ]
+            return Observable.create { observer in
+                eventRef.setData(data) { error in
+                    if let error = error {
+                        observer.onError(error)
+                    } else {
+                        observer.onNext(())
+                        observer.onCompleted()
+                    }
+                }
+                return Disposables.create()
+            }
+        }
 }

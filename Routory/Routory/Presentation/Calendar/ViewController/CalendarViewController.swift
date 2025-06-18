@@ -36,6 +36,7 @@ final class CalendarViewController: UIViewController {
     private var personalEventDataSource: [Date: [CalendarEvent]] = [:]
     private var sharedEventDataSource: [Date: [CalendarEvent]] = [:]
     
+    private let visibleYearMonth = BehaviorRelay<(year: Int, month: Int)>(value: (year: Calendar.current.component(.year, from: .now), month: Calendar.current.component(.month, from: .now)))
     private var selectedDate: Date?
     
     // MARK: - UI Components
@@ -63,7 +64,6 @@ final class CalendarViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configure()
-        populateDataSource()
     }
 }
 
@@ -121,19 +121,30 @@ private extension CalendarViewController {
             guard let sender = action.sender as? BetterSegmentedControl else { return }
             self?.calendarMode.accept(CalendarMode.allCases[sender.index])
         }), for: .valueChanged)
+    }
+    
+    func setBinding() {
+        calendarMode
+            .subscribe(with: self) { owner, mode in
+                owner.calendarView.getJTACalendar.reloadData()
+            }.disposed(by: disposeBag)
         
         // 근무지/매장 필터 버튼
         calendarView.getCalendarHeaderView.getFilterButton.rx.tap
             .subscribe(with: self) { owner, _ in
                 owner.didFilterButtonTap()
             }.disposed(by: disposeBag)
-    }
-    
-    func setBinding() {
-//        let input = CalendarViewModel.Input(viewDidLoad: Infallible.just(()),
-//                                            calendarMode: calendarMode)
         
-//        let output = viewModel.tranform(input: input)
+        let input = CalendarViewModel.Input(loadMonthEvent: visibleYearMonth.asObservable())
+        
+        let output = viewModel.tranform(input: input)
+        
+        output.calendarEventList
+            .asDriver(onErrorJustReturn: ([], []))
+            .drive(with: self) { owner, calendarEventTuple in
+                dump(calendarEventTuple)
+                owner.populateDataSource(calendarEvents: calendarEventTuple)
+            }.disposed(by: disposeBag)
     }
 }
 
@@ -208,11 +219,16 @@ private extension CalendarViewController {
         self.present(filterModalVC, animated: true)
     }
     
-    func populateDataSource() {
-//        for event in calendarEventMockList {
-//            guard let eventDate = dataSourceDateFormatter.date(from: event.eventDate) else { continue }
-//            personalEventDataSource[eventDate, default: []].append(event)
-//        }
+    func populateDataSource(calendarEvents: (personal: [CalendarEvent], shared: [CalendarEvent])) {
+        for event in calendarEvents.personal {
+            guard let eventDate = dataSourceDateFormatter.date(from: event.eventDate) else { continue }
+            personalEventDataSource[eventDate, default: []].append(event)
+        }
+        
+        for event in calendarEvents.shared {
+            guard let eventDate = dataSourceDateFormatter.date(from: event.eventDate) else { continue }
+            sharedEventDataSource[eventDate, default: []].append(event)
+        }
     }
 }
 
@@ -236,7 +252,12 @@ extension CalendarViewController: JTACMonthViewDataSource {
 
 extension CalendarViewController: JTACMonthViewDelegate {
     func calendar(_ calendar: JTAppleCalendar.JTACMonthView, willDisplay cell: JTAppleCalendar.JTACDayCell, forItemAt date: Date, cellState: JTAppleCalendar.CellState, indexPath: IndexPath) {
-        calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarEventList: personalEventDataSource[date] ?? [])
+        switch calendarMode.value {
+        case .personal:
+            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarEventList: personalEventDataSource[date] ?? [])
+        case .shared:
+            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarEventList: sharedEventDataSource[date] ?? [])
+        }
     }
     
     func calendar(_ calendar: JTAppleCalendar.JTACMonthView, cellForItemAt date: Date, cellState: JTAppleCalendar.CellState, indexPath: IndexPath) -> JTAppleCalendar.JTACDayCell {
@@ -250,6 +271,8 @@ extension CalendarViewController: JTACMonthViewDelegate {
     func calendar(_ calendar: JTACMonthView, didScrollToDateSegmentWith visibleDates: DateSegmentInfo) {
         guard let date = visibleDates.monthDates.first?.date else { return }
         calendarView.setMonthLabel(date: date)
+        visibleYearMonth.accept((year: Calendar.current.component(.year, from: date),
+                                 month: Calendar.current.component(.month, from: date)))
     }
     
     // 이미 선택된 셀인 경우 ➡️ 선택 해제
@@ -262,21 +285,29 @@ extension CalendarViewController: JTACMonthViewDelegate {
     }
     
     func calendar(_ calendar: JTACMonthView, didSelectDate date: Date, cell: JTACDayCell?, cellState: CellState, indexPath: IndexPath) {
-        calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarEventList: personalEventDataSource[date] ?? [])
-        let day = Calendar.current.component(.day, from: date)
         selectedDate = date
+        
+        let day = Calendar.current.component(.day, from: date)
         switch calendarMode.value {
         case .personal:
+            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarEventList: personalEventDataSource[date] ?? [])
             didSelectCell(day: day, eventList: personalEventDataSource[date] ?? [])
         case .shared:
+            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarEventList: sharedEventDataSource[date] ?? [])
             didSelectCell(day: day, eventList: sharedEventDataSource[date] ?? [])
         }
     }
     
     func calendar(_ calendar: JTACMonthView, didDeselectDate date: Date, cell: JTACDayCell?, cellState: CellState, indexPath: IndexPath) {
-        calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarEventList: personalEventDataSource[date] ?? [])
         selectedDate = nil
-        self.presentedViewController?.dismiss(animated: true)
+        
+        switch calendarMode.value {
+        case .personal:
+            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarEventList: personalEventDataSource[date] ?? [])
+        case .shared:
+            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarEventList: sharedEventDataSource[date] ?? [])
+        }
+        self.dismiss(animated: true)
     }
 }
 

@@ -220,6 +220,9 @@ private extension CalendarViewController {
     }
     
     func populateDataSource(calendarEvents: (personal: [CalendarEvent], shared: [CalendarEvent])) {
+        // TODO: 수신한 데이터 지우지 않는 방향으로 수정
+        personalEventDataSource.removeAll()
+        sharedEventDataSource.removeAll()
         for event in calendarEvents.personal {
             guard let eventDate = dataSourceDateFormatter.date(from: event.eventDate) else { continue }
             personalEventDataSource[eventDate, default: []].append(event)
@@ -385,6 +388,8 @@ extension CalendarViewController: YearMonthPickerVCDelegate {
         calendarView.getJTACalendar.scrollToDate(date)
     }
 }
+
+// MARK: - RegistrationVCDelegate
 
 extension CalendarViewController: RegistrationVCDelegate {
     func registrationVCIsMovingFromParent() {

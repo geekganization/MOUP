@@ -24,31 +24,59 @@ final class ShiftRegistrationDelegateHandler: NSObject {
 
 extension ShiftRegistrationDelegateHandler: WorkPlaceSelectionViewDelegate {
     func workPlaceSelectionViewDidTapChevron(_ view: WorkPlaceSelectionView) {
-        let workplaces: [Workplace] = [
-//            Workplace(id: "1", workplacesName: "맥도날드", category: "패스트푸드", ownerId: "owner1", inviteCode: "...", inviteCodeExpiresAt: "...", isOfficial: true),
-//            Workplace(id: "2", workplacesName: "쿠팡 야간", category: "물류", ownerId: "owner2", inviteCode: "...", inviteCodeExpiresAt: "...", isOfficial: false),
-//            Workplace(id: "3", workplacesName: "올리브영", category: "뷰티", ownerId: "owner3", inviteCode: "...", inviteCodeExpiresAt: "...", isOfficial: true)
+        let workplaceInfos: [WorkplaceInfo] = [
+            WorkplaceInfo(
+                id: "1",
+                workplace: Workplace(
+                    workplacesName: "맥도날드 강남점",
+                    category: "패스트푸드",
+                    ownerId: "owner123",
+                    inviteCode: "MAC123",
+                    isOfficial: true
+                )
+            ),
+            WorkplaceInfo(
+                id: "2",
+                workplace: Workplace(
+                    workplacesName: "올리브영 홍대점",
+                    category: "드럭스토어",
+                    ownerId: "owner456",
+                    inviteCode: "OLIVE456",
+                    isOfficial: false
+                )
+            ),
+            WorkplaceInfo(
+                id: "3",
+                workplace: Workplace(
+                    workplacesName: "GS25 서울역점",
+                    category: "편의점",
+                    ownerId: "owner789",
+                    inviteCode: "GS789",
+                    isOfficial: false
+                )
+            )
         ]
 
-        let workplaceItems = workplaces.map {
-            SelectionViewController<Workplace>.Item(
-                title: $0.workplacesName,
+        let workplaceItems = workplaceInfos.map {
+            SelectionViewController<WorkplaceInfo>.Item(
+                title: $0.workplace.workplacesName,
                 icon: nil,
                 value: $0
             )
         }
-        
-        let vc = SelectionViewController<Workplace>(
+
+        let vc = SelectionViewController<WorkplaceInfo>(
             title: "근무지 선택",
             description: "등록할 근무지를 선택해 주세요",
             items: workplaceItems,
             selected: nil
         )
-        
-        vc.onSelect = { [weak self] workplace in
-            self?.contentView?.simpleRowView.updateTitle(workplace.workplacesName)
+
+        vc.onSelect = { [weak self] workplaceInfo in
+            print("workplaceInfoID:",workplaceInfo.id)
+            self?.contentView?.simpleRowView.updateTitle(workplaceInfo.workplace.workplacesName)
         }
-        
+
         navigationController?.pushViewController(vc, animated: true)
     }
 }

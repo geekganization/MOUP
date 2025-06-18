@@ -96,10 +96,9 @@ final class WorkplaceService: WorkplaceServiceProtocol {
     /// - Firestore 경로: users/{uid}/workplaces → workplaces/{workplaceId}
     func fetchAllWorkplacesForUser(uid: String) -> Observable<[WorkplaceInfo]> {
         let userWorkplaceRef = db.collection("users").document(uid).collection("workplaces")
-        let calendarRef = db.collection("calendars")
+        let workplaceRef = db.collection("workplaces")
         
         return Observable.create { observer in
-            // 1. 내 소유(직접 등록) 근무지
             userWorkplaceRef.getDocuments { snapshot, error in
                 if let error = error {
                     observer.onError(error)
@@ -107,48 +106,65 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                 }
                 let ownedIds = snapshot?.documents.map { $0.documentID } ?? []
                 
-                // 2. sharedWith 포함된 캘린더에서 workplaceId 조회
-                calendarRef.whereField("sharedWith", arrayContains: uid).getDocuments { calSnap, calError in
-                    if let calError = calError {
-                        observer.onError(calError)
+                workplaceRef.getDocuments { allSnap, allError in
+                    if let allError = allError {
+                        observer.onError(allError)
                         return
                     }
-                    let sharedWorkplaceIds = calSnap?.documents.compactMap { $0.data()["workplaceId"] as? String } ?? []
+                    let workplaces = allSnap?.documents ?? []
                     
-                    // 3. 두 배열 합치고, 중복 제거
-                    let allWorkplaceIds = Array(Set(ownedIds + sharedWorkplaceIds))
-                    
-                    // 4. 없으면 빈 배열 반환
-                    if allWorkplaceIds.isEmpty {
-                        observer.onNext([])
-                        observer.onCompleted()
-                        return
-                    }
-                    
-                    // 5. workplaceId로 workplaces 상세 조회
-                    let observables: [Observable<WorkplaceInfo>] = allWorkplaceIds.map { workplaceId in
-                        Observable<WorkplaceInfo>.create { detailObserver in
-                            self.db.collection("workplaces").document(workplaceId).getDocument { doc, error in
-                                if let doc = doc, let data = doc.data() {
-                                    do {
-                                        let jsonData = try JSONSerialization.data(withJSONObject: data)
-                                        let workplace = try JSONDecoder().decode(Workplace.self, from: jsonData)
-                                        detailObserver.onNext(WorkplaceInfo(id: workplaceId, workplace: workplace))
-                                        detailObserver.onCompleted()
-                                    } catch {
-                                        detailObserver.onError(error)
-                                    }
+                    let workerChecks: [Observable<String?>] = workplaces.map { doc in
+                        Observable<String?>.create { checkObserver in
+                            let workerRef = workplaceRef.document(doc.documentID).collection("worker").document(uid)
+                            workerRef.getDocument { workerDoc, _ in
+                                if let workerDoc = workerDoc, workerDoc.exists {
+                                    checkObserver.onNext(doc.documentID)
                                 } else {
-                                    detailObserver.onCompleted()
+                                    checkObserver.onNext(nil)
                                 }
+                                checkObserver.onCompleted()
                             }
                             return Disposables.create()
                         }
                     }
-                    Observable.zip(observables)
-                        .subscribe(onNext: { workplaces in
-                            observer.onNext(workplaces)
-                            observer.onCompleted()
+                    
+                    Observable.zip(workerChecks)
+                        .subscribe(onNext: { workerIds in
+                            let workerIncludedIds = workerIds.compactMap { $0 }
+                            let allIds = Array(Set(ownedIds + workerIncludedIds))
+                            
+                            if allIds.isEmpty {
+                                observer.onNext([])
+                                observer.onCompleted()
+                                return
+                            }
+                            let detailFetches: [Observable<WorkplaceInfo>] = allIds.map { workplaceId in
+                                Observable<WorkplaceInfo>.create { detailObserver in
+                                    workplaceRef.document(workplaceId).getDocument { doc, error in
+                                        if let doc = doc, let data = doc.data() {
+                                            do {
+                                                let jsonData = try JSONSerialization.data(withJSONObject: data)
+                                                let workplace = try JSONDecoder().decode(Workplace.self, from: jsonData)
+                                                detailObserver.onNext(WorkplaceInfo(id: workplaceId, workplace: workplace))
+                                                detailObserver.onCompleted()
+                                            } catch {
+                                                detailObserver.onError(error)
+                                            }
+                                        } else {
+                                            detailObserver.onCompleted()
+                                        }
+                                    }
+                                    return Disposables.create()
+                                }
+                            }
+                            Observable.zip(detailFetches)
+                                .subscribe(onNext: { workplaces in
+                                    observer.onNext(workplaces)
+                                    observer.onCompleted()
+                                }, onError: { error in
+                                    observer.onError(error)
+                                })
+                                .disposed(by: DisposeBag())
                         }, onError: { error in
                             observer.onError(error)
                         })
@@ -158,6 +174,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
             return Disposables.create()
         }
     }
+
 
 
     

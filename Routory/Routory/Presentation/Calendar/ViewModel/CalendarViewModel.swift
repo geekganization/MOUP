@@ -16,6 +16,8 @@ final class CalendarViewModel {
     
     private let disposeBag = DisposeBag()
     
+    private let eventUseCase: EventUseCaseProtocol
+    
     // MARK: - Input (ViewController ➡️ ViewModel)
     struct Input {
         let viewDidLoad: Infallible<Void>
@@ -36,6 +38,7 @@ final class CalendarViewModel {
         input.viewDidLoad
             .subscribe(with: self) { owner, _ in
                 // TODO: 로그인된 userId의 모든 WorkCalendar, 공유 캘린더 데이터 불러오기 (직전달, 이번달, 다음달 3개월 or 모든 달?)
+                
             }.disposed(by: disposeBag)
         
         // TODO: isShared == true인 WorkCalendar 불러오기
@@ -45,7 +48,7 @@ final class CalendarViewModel {
     
     // MARK: - Initializer
     
-    init() {
-        // TODO: UseCase 주입
+    init(eventUseCase: EventUseCaseProtocol) {
+        self.eventUseCase = eventUseCase
     }
 }

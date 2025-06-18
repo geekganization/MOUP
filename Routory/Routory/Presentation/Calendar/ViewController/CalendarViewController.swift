@@ -17,7 +17,7 @@ final class CalendarViewController: UIViewController {
     
     // MARK: - Properties
     
-    private let viewModel = CalendarViewModel()
+    private let viewModel: CalendarViewModel
     
     private let disposeBag = DisposeBag()
     
@@ -41,6 +41,18 @@ final class CalendarViewController: UIViewController {
     // MARK: - UI Components
     
     private let calendarView = CalendarView()
+    
+    // MARK: - Initializer
+    
+    init(viewModel: CalendarViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    @available(*, unavailable, message: "storyboard is not supported.")
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented.")
+    }
     
     // MARK: - Lifecycle
     
@@ -174,7 +186,7 @@ private extension CalendarViewController {
             sheet.largestUndimmedDetentIdentifier = .medium
         }
         
-        self.tabBarController?.present(modalNC, animated: true)
+        self.present(modalNC, animated: true)
     }
     
     func deselectCell() {

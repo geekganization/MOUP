@@ -11,15 +11,16 @@ import RxSwift
 protocol WorkplaceServiceProtocol {
     func fetchWorkplaceByInviteCode(inviteCode: String) -> Observable<WorkplaceInfo?>
     func createWorkplaceWithCalendarAndMaybeWorker(
-            uid: String,
-            role: Role,
-            workplace: Workplace,
-            workerDetail: WorkerDetail?,
-            color: String
-        ) -> Observable<String>
+        uid: String,
+        role: Role,
+        workplace: Workplace,
+        workerDetail: WorkerDetail?,
+        color: String
+    ) -> Observable<String>
     func fetchAllWorkplacesForUser(uid: String) -> Observable<[WorkplaceInfo]>
     func fetchAllWorkplacesForUser2(uid: String) -> Observable<[WorkplaceInfo]>
     func addWorkerToWorkplace(workplaceId: String, uid: String, workerDetail: WorkerDetail) -> Observable<Void>
+    func fetchWorkerListForWorkplace(workplaceId: String) -> Observable<[WorkerDetailInfo]>
 }
 
 
@@ -95,47 +96,70 @@ final class WorkplaceService: WorkplaceServiceProtocol {
     /// - Firestore 경로: users/{uid}/workplaces → workplaces/{workplaceId}
     func fetchAllWorkplacesForUser(uid: String) -> Observable<[WorkplaceInfo]> {
         let userWorkplaceRef = db.collection("users").document(uid).collection("workplaces")
-        print("userWorkplaceRef:",userWorkplaceRef)
+        let calendarRef = db.collection("calendars")
+        
         return Observable.create { observer in
+            // 1. 내 소유(직접 등록) 근무지
             userWorkplaceRef.getDocuments { snapshot, error in
                 if let error = error {
                     observer.onError(error)
                     return
                 }
-                let ids = snapshot?.documents.map { $0.documentID } ?? []
-                // 각 workplaceId로 workplaces 컬렉션에서 상세 조회 Observable 만들기
-                let observables: [Observable<WorkplaceInfo>] = ids.map { workplaceId in
-                    Observable<WorkplaceInfo>.create { detailObserver in
-                        self.db.collection("workplaces").document(workplaceId).getDocument { doc, error in
-                            if let doc = doc, let data = doc.data() {
-                                do {
-                                    let jsonData = try JSONSerialization.data(withJSONObject: data)
-                                    let workplace = try JSONDecoder().decode(Workplace.self, from: jsonData)
-                                    detailObserver.onNext(WorkplaceInfo(id: workplaceId, workplace: workplace))
-                                    detailObserver.onCompleted()
-                                } catch {
-                                    detailObserver.onError(error)
-                                }
-                            } else {
-                                detailObserver.onCompleted()
-                            }
-                        }
-                        return Disposables.create()
+                let ownedIds = snapshot?.documents.map { $0.documentID } ?? []
+                
+                // 2. sharedWith 포함된 캘린더에서 workplaceId 조회
+                calendarRef.whereField("sharedWith", arrayContains: uid).getDocuments { calSnap, calError in
+                    if let calError = calError {
+                        observer.onError(calError)
+                        return
                     }
-                }
-                // 모든 workplace 조회 결과를 [WorkplaceInfo]로 묶어서 반환
-                Observable.zip(observables)
-                    .subscribe(onNext: { workplaces in
-                        observer.onNext(workplaces)
+                    let sharedWorkplaceIds = calSnap?.documents.compactMap { $0.data()["workplaceId"] as? String } ?? []
+                    
+                    // 3. 두 배열 합치고, 중복 제거
+                    let allWorkplaceIds = Array(Set(ownedIds + sharedWorkplaceIds))
+                    
+                    // 4. 없으면 빈 배열 반환
+                    if allWorkplaceIds.isEmpty {
+                        observer.onNext([])
                         observer.onCompleted()
-                    }, onError: { error in
-                        observer.onError(error)
-                    })
-                    .disposed(by: DisposeBag())
+                        return
+                    }
+                    
+                    // 5. workplaceId로 workplaces 상세 조회
+                    let observables: [Observable<WorkplaceInfo>] = allWorkplaceIds.map { workplaceId in
+                        Observable<WorkplaceInfo>.create { detailObserver in
+                            self.db.collection("workplaces").document(workplaceId).getDocument { doc, error in
+                                if let doc = doc, let data = doc.data() {
+                                    do {
+                                        let jsonData = try JSONSerialization.data(withJSONObject: data)
+                                        let workplace = try JSONDecoder().decode(Workplace.self, from: jsonData)
+                                        detailObserver.onNext(WorkplaceInfo(id: workplaceId, workplace: workplace))
+                                        detailObserver.onCompleted()
+                                    } catch {
+                                        detailObserver.onError(error)
+                                    }
+                                } else {
+                                    detailObserver.onCompleted()
+                                }
+                            }
+                            return Disposables.create()
+                        }
+                    }
+                    Observable.zip(observables)
+                        .subscribe(onNext: { workplaces in
+                            observer.onNext(workplaces)
+                            observer.onCompleted()
+                        }, onError: { error in
+                            observer.onError(error)
+                        })
+                        .disposed(by: DisposeBag())
+                }
             }
             return Disposables.create()
         }
     }
+
+
     
     func fetchAllWorkplacesForUser2(uid: String) -> Observable<[WorkplaceInfo]> {
         let workplacesRef = db.collection("workplaces")
@@ -242,6 +266,33 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                     observer.onNext(workplaceId)
                     observer.onCompleted()
                 }
+            }
+            return Disposables.create()
+        }
+    }
+    
+    /// 근무지의 worker 서브컬렉션에서 모든 알바(워커) 정보를 조회합니다.
+    ///
+    /// - Parameter workplaceId: 조회할 근무지의 Firestore documentID
+    /// - Returns: WorkerDetailInfo 배열 (각 워커의 UID와 워커 상세 정보)
+    /// - Firestore 경로: workplaces/{workplaceId}/worker
+    func fetchWorkerListForWorkplace(workplaceId: String) -> Observable<[WorkerDetailInfo]> {
+        let workerRef = db.collection("workplaces").document(workplaceId).collection("worker")
+        return Observable.create { observer in
+            workerRef.getDocuments { snapshot, error in
+                if let error = error {
+                    observer.onError(error)
+                    return
+                }
+                let workers: [WorkerDetailInfo] = snapshot?.documents.compactMap { doc in
+                    guard let jsonData = try? JSONSerialization.data(withJSONObject: doc.data()),
+                          let detail = try? JSONDecoder().decode(WorkerDetail.self, from: jsonData) else {
+                        return nil
+                    }
+                    return WorkerDetailInfo(id: doc.documentID, detail: detail)
+                } ?? []
+                observer.onNext(workers)
+                observer.onCompleted()
             }
             return Disposables.create()
         }

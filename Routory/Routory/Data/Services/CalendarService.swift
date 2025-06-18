@@ -62,6 +62,12 @@ final class CalendarService: CalendarServiceProtocol {
         }
     }
     
+    /// 특정 캘린더에 근무(이벤트)를 추가합니다.
+    ///
+    /// - Parameters:
+    ///   - calendarId: 캘린더 문서 ID
+    ///   - event: 추가할 CalendarEvent 모델
+    /// - Returns: 성공 시 Void, 실패 시 에러 Observable
     func addEventToCalendar(calendarId: String, event: CalendarEvent) -> Observable<Void> {
             let eventRef = db.collection("calendars").document(calendarId).collection("events").document()
             let data: [String: Any] = [

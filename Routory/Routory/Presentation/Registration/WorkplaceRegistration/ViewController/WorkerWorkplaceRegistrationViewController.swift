@@ -217,7 +217,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
                 workerDetail: Observable.just(workerDetail),
                 uid: Observable.just(uid),
                 color: Observable.just(label),
-                role: Observable.just(Role.worker),
+                role: Observable.just(Role.worker)
             )
             
             let output = viewModel.transform(input: input)

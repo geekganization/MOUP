@@ -36,4 +36,8 @@ final class WorkplaceUseCase: WorkplaceUseCaseProtocol {
             color: color
         )
     }
+    func fetchWorkerListForWorkplace(workplaceId: String) -> Observable<[WorkerDetailInfo]> {
+        return repository.fetchWorkerListForWorkplace(workplaceId: workplaceId)
+    }
+    
 }

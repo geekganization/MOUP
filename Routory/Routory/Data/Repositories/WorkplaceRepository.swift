@@ -7,6 +7,7 @@
 import RxSwift
 
 final class WorkplaceRepository: WorkplaceRepositoryProtocol {
+    
     private let service: WorkplaceServiceProtocol
     init(service: WorkplaceServiceProtocol) {
         self.service = service
@@ -34,6 +35,10 @@ final class WorkplaceRepository: WorkplaceRepositoryProtocol {
     }
     func addWorkerToWorkplace(workplaceId: String, uid: String, workerDetail: WorkerDetail) -> Observable<Void> {
         return service.addWorkerToWorkplace(workplaceId: workplaceId, uid: uid, workerDetail: workerDetail)
+    }
+    
+    func fetchWorkerListForWorkplace(workplaceId: String) -> Observable<[WorkerDetailInfo]> {
+        return service.fetchWorkerListForWorkplace(workplaceId: workplaceId)
     }
 
 }

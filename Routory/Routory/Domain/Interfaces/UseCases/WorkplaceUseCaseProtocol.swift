@@ -17,4 +17,5 @@ protocol WorkplaceUseCaseProtocol {
             workerDetail: WorkerDetail?,
             color: String
         ) -> Observable<String>
+    func fetchWorkerListForWorkplace(workplaceId: String) -> Observable<[WorkerDetailInfo]>
 }

@@ -17,4 +17,5 @@ protocol WorkplaceRepositoryProtocol {
         ) -> Observable<String>
     func fetchAllWorkplacesForUser(uid: String) -> Observable<[WorkplaceInfo]>
     func addWorkerToWorkplace(workplaceId: String, uid: String, workerDetail: WorkerDetail) -> Observable<Void>
+    func fetchWorkerListForWorkplace(workplaceId: String) -> Observable<[WorkerDetailInfo]>
 }

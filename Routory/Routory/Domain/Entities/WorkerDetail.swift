@@ -71,3 +71,8 @@ struct WorkerDetail: Codable {
     }
 }
 
+struct WorkerDetailInfo {
+    
+    let id: String
+    let detail: WorkerDetail
+}

@@ -36,6 +36,7 @@ final class WorkplaceUseCase: WorkplaceUseCaseProtocol {
             color: color
         )
     }
+    // workplaceId를 이용해 [WorkerDetailInfo]를 받아온다
     func fetchWorkerListForWorkplace(workplaceId: String) -> Observable<[WorkerDetailInfo]> {
         return repository.fetchWorkerListForWorkplace(workplaceId: workplaceId)
     }

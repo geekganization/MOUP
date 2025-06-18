@@ -9,6 +9,7 @@ import UIKit
 import SnapKit
 import Then
 import RxSwift
+import RxCocoa
 
 // MARK: - Model
 
@@ -20,22 +21,27 @@ struct Employee {
 
 // MARK: - EmployeeSelectionViewController
 
-final class EmployeeSelectionViewController: UIViewController,UIGestureRecognizerDelegate {
+final class EmployeeSelectionViewController: UIViewController, UIGestureRecognizerDelegate {
 
     // MARK: - Properties
 
-    private var employees: [Employee] = [
-        Employee(id: "1", name: "이알바", isSelected: true),
-        Employee(id: "2", name: "김알바", isSelected: false),
-        Employee(id: "3", name: "최알바", isSelected: false)
-    ]
+    private var employees: [Employee] = []
 
     var onSelect: (([Employee]) -> Void)?
-    
-    fileprivate lazy var navigationBar = BaseNavigationBar(title: "인원 선택") //*2
-    let disposeBag = DisposeBag()
+
+    private let disposeBag = DisposeBag()
+    private let viewDidLoadSubject = PublishSubject<Void>()
+    private let workplaceIdSubject = BehaviorSubject<String>(value: "")
+    private var viewModel: EmployeeSelectionViewModel = EmployeeSelectionViewModel(workplaceUseCase: WorkplaceUseCase(repository: WorkplaceRepository(service: WorkplaceService())))
+
+    // workplaceId 설정 메서드
+    func setWorkplaceId(_ id: String) {
+        workplaceIdSubject.onNext(id)
+    }
 
     // MARK: - UI Components
+
+    fileprivate lazy var navigationBar = BaseNavigationBar(title: "인원 선택")
 
     private let titleLabel = UILabel().then {
         $0.text = "근무할 알바생을 선택해 주세요"
@@ -58,7 +64,7 @@ final class EmployeeSelectionViewController: UIViewController,UIGestureRecognize
     }
 
     // MARK: - Lifecycle
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: false)
@@ -70,6 +76,8 @@ final class EmployeeSelectionViewController: UIViewController,UIGestureRecognize
         setupUI()
         setupNavigationBar()
         layout()
+        bindViewModelIfReady()
+        viewDidLoadSubject.onNext(())
     }
 
     // MARK: - Setup
@@ -96,6 +104,36 @@ final class EmployeeSelectionViewController: UIViewController,UIGestureRecognize
         applyButton.addTarget(self, action: #selector(didTapApply), for: .touchUpInside)
     }
 
+    private func bindViewModelIfReady() {
+        let input = EmployeeSelectionViewModel.Input(
+            viewDidLoad: viewDidLoadSubject.asObservable(),
+            workplaceId: workplaceIdSubject.asObservable()
+        )
+
+        let output = viewModel.transform(input: input)
+
+        output.workerList
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] workerList in
+                self?.employees = workerList.map {
+                    Employee(
+                        id: $0.id,
+                        name: $0.detail.workerName,
+                        isSelected: false
+                    )
+                }
+                self?.tableView.reloadData()
+            })
+            .disposed(by: disposeBag)
+
+        output.error
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { error in
+                print("Error: \(error.localizedDescription)")
+            })
+            .disposed(by: disposeBag)
+    }
+
     // MARK: - Layout
 
     private func layout() {
@@ -104,7 +142,7 @@ final class EmployeeSelectionViewController: UIViewController,UIGestureRecognize
             $0.directionalHorizontalEdges.equalToSuperview()
             $0.height.equalTo(50)
         }
-        
+
         titleLabel.snp.makeConstraints {
             $0.top.equalTo(navigationBar.snp.bottom).offset(16)
             $0.leading.trailing.equalToSuperview().inset(20)
@@ -124,10 +162,6 @@ final class EmployeeSelectionViewController: UIViewController,UIGestureRecognize
     }
 
     // MARK: - Actions
-
-    @objc private func didTapBack() {
-        navigationController?.popViewController(animated: true)
-    }
 
     @objc private func didTapApply() {
         let selected = employees.filter { $0.isSelected }

@@ -213,19 +213,11 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
             submitTrigger.onNext((workPlaceID, event))
 
         case .employee:
-            // 기존 로직 유지
-            let workPlace = contentView.simpleRowView.getData()
+            let workPlaceID = contentView.simpleRowView.getID()
             let worker = contentView.workerSelectionView.getSelectedWorkerData()
-
-            print("사장님 새 근무 등록 데이터 - 알바생")
-            print("근무지: ", workPlace)
-            print("근무자: ", worker)
-            print("근무 날짜 - 날짜: ", eventDate)
-            print("근무 날짜 - 반복: ", repeatDays)
-            print("근무 시간 - 출근: ", startTime)
-            print("근무 시간 - 퇴근: ", endTime)
-            print("근무 시간 - 휴게: ", breakTime)
-            print("메모: ", memo)
+            
+            print("workPlaceID:",workPlaceID)
+            print("worker:",worker)
 
             let event = CalendarEvent(
                 title: "",

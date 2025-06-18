@@ -23,6 +23,9 @@ final class CalendarViewController: UIViewController {
     
     private let calendarMode = BehaviorRelay<CalendarMode>(value: .personal)
     
+    // 임시 UserService
+    private let userService = UserService()
+    
     /// `calendarView`에서 `dataSource` 관련 데이터의 연/월 형식을 만들기 위한 `DateFormatter`
     private let dataSourceDateFormatter = DateFormatter().then {
         $0.dateFormat = "yyyy.MM.dd"
@@ -269,22 +272,58 @@ extension CalendarViewController: CalendarEventListVCDelegate {
     
     func didTapEventCell() {
         // TODO: 존재하는 근무 표시
-        let workShiftRegisterVC = WorkShiftRegistrationViewController()
-        workShiftRegisterVC.hidesBottomBarWhenPushed = true
-        workShiftRegisterVC.delegate = self
+        guard let uid = UserManager.shared.firebaseUid else { return }
         
-        self.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
-        self.tabBarController?.presentedViewController?.dismiss(animated: true)
+        userService.fetchUser(uid: uid)
+            .observe(on: MainScheduler.instance)
+            .subscribe(with: self) { owner, user in
+                switch user.role {
+                case UserRole.worker.rawValue:
+                    let workShiftRegisterVC = WorkShiftRegistrationViewController()
+                    workShiftRegisterVC.hidesBottomBarWhenPushed = true
+                    workShiftRegisterVC.delegate = self
+                    
+                    self.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
+                    self.tabBarController?.presentedViewController?.dismiss(animated: true)
+                case UserRole.owner.rawValue:
+                    let ownerShiftRegisterVC = OwnerShiftRegistrationViewController()
+                    ownerShiftRegisterVC.hidesBottomBarWhenPushed = true
+                    ownerShiftRegisterVC.delegate = self
+                    
+                    self.navigationController?.pushViewController(ownerShiftRegisterVC, animated: true)
+                    self.tabBarController?.presentedViewController?.dismiss(animated: true)
+                default:
+                    return
+                }
+            }.disposed(by: disposeBag)
     }
     
     func didTapAssignButton() {
         // TODO: 새로운 근무 작성
-        let workShiftRegisterVC = WorkShiftRegistrationViewController()
-        workShiftRegisterVC.hidesBottomBarWhenPushed = true
-        workShiftRegisterVC.delegate = self
+        guard let uid = UserManager.shared.firebaseUid else { return }
         
-        self.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
-        self.tabBarController?.presentedViewController?.dismiss(animated: true)
+        userService.fetchUser(uid: uid)
+            .observe(on: MainScheduler.instance)
+            .subscribe(with: self) { owner, user in
+                switch user.role {
+                case UserRole.worker.rawValue:
+                    let workShiftRegisterVC = WorkShiftRegistrationViewController()
+                    workShiftRegisterVC.hidesBottomBarWhenPushed = true
+                    workShiftRegisterVC.delegate = self
+                    
+                    self.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
+                    self.tabBarController?.presentedViewController?.dismiss(animated: true)
+                case UserRole.owner.rawValue:
+                    let ownerShiftRegisterVC = OwnerShiftRegistrationViewController()
+                    ownerShiftRegisterVC.hidesBottomBarWhenPushed = true
+                    ownerShiftRegisterVC.delegate = self
+                    
+                    self.navigationController?.pushViewController(ownerShiftRegisterVC, animated: true)
+                    self.tabBarController?.presentedViewController?.dismiss(animated: true)
+                default:
+                    return
+                }
+            }.disposed(by: disposeBag)
     }
 }
 

@@ -45,10 +45,9 @@ final class HomeViewModel {
 
     // MARK: - Input, Output
     struct Input {
-        let viewDidLoad: PublishRelay<Void>
-        let refreshBtnTapped: PublishRelay<Void>
+        let viewDidLoad: Observable<Void>
+        let refreshBtnTapped: Observable<Void>
         let cellTapped: Observable<IndexPath>
-        let menuBtnTapped: Observable<IndexPath>
     }
 
     struct Output {
@@ -78,23 +77,12 @@ final class HomeViewModel {
                 var newExpanded = expanded
                 if newExpanded.contains(indexPath) {
                     newExpanded.remove(indexPath)
-                    print("셀 접기: \(indexPath)")
                 } else {
                     newExpanded.insert(indexPath)
-                    print("셀 펼치기: \(indexPath)")
                 }
-                print("새로운 expanded: \(newExpanded)")
                 return newExpanded
             }
             .bind(to: expandedIndexPathRelay)
-            .disposed(by: disposeBag)
-
-        // 메뉴 버튼 탭 처리
-        input.menuBtnTapped
-            .subscribe(onNext: { indexPath in
-                print("ViewModel - 메뉴 버튼 탭됨: \(indexPath)")
-                // TODO: 메뉴 관련 비즈니스 로직
-            })
             .disposed(by: disposeBag)
 
         return Output(

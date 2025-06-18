@@ -22,14 +22,12 @@ final class HomeViewController: UIViewController {
     private let refreshBtnTappedRelay = PublishRelay<Void>()
     private let cellTappedRelay = PublishRelay<IndexPath>()
     private let expandedIndexPathRelay = BehaviorRelay<Set<IndexPath>>(value: []) // 확장된 셀 인덱스 관리
-    private let menuBtnTappedRelay = PublishRelay<IndexPath>()
     private let navigationRequestRelay = PublishRelay<Void>()
 
     private lazy var input = HomeViewModel.Input(
-        viewDidLoad: viewDidLoadRelay,
-        refreshBtnTapped: refreshBtnTappedRelay,
-        cellTapped: cellTappedRelay.asObservable(),
-        menuBtnTapped: menuBtnTappedRelay.asObservable()
+        viewDidLoad: viewDidLoadRelay.asObservable(),
+        refreshBtnTapped: refreshBtnTappedRelay.asObservable(),
+        cellTapped: cellTappedRelay.asObservable()
     )
     private lazy var output = homeViewModel.transform(input: input)
 
@@ -113,13 +111,6 @@ private extension HomeViewController {
         // HomeView 버튼 이벤트 바인딩
         homeView.rx.refreshButtonTapped
             .bind(to: refreshBtnTappedRelay)
-            .disposed(by: disposeBag)
-        
-        homeView.rx.notificationButtonTapped
-            .subscribe(onNext: {
-                let vc = NotificationViewController()
-                self.navigationController?.pushViewController(vc, animated: true)
-            })
             .disposed(by: disposeBag)
 
         // ViewModel의 Output을 ViewController의 상태에 반영

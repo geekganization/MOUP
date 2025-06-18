@@ -83,7 +83,6 @@ extension Reactive where Base: WorkplaceRoutineView {
                     cellIdentifier: CommonRoutineCell.identifier,
                     cellType: CommonRoutineCell.self
                 )) { index, routineInfo, cell in
-                    print("routines 개수 : \(routines.count)")
                     cell.update(with: routineInfo.routine)
                 }
                 .disposed(by: base.disposeBag)

@@ -63,6 +63,10 @@ final class BaseNavigationBar: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    override var intrinsicContentSize: CGSize {
+        return CGSize(width: UIView.noIntrinsicMetric, height: 50)
+    }
 }
 
 private extension BaseNavigationBar {
@@ -90,6 +94,10 @@ private extension BaseNavigationBar {
 
     // MARK: - setConstraints
     func setConstraints() {
+        self.snp.makeConstraints {
+            $0.height.equalTo(50)
+        }
+
         backButton.snp.makeConstraints {
             $0.centerY.equalToSuperview()
             $0.leading.equalToSuperview()

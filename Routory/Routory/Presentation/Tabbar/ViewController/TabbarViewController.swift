@@ -89,7 +89,7 @@ private extension TabbarViewController {
                 print("유저 데이터 받음: \(user)")
             })
             .disposed(by: disposeBag)
-
+        
         viewDidLoadRelay.accept(())
     }
 }

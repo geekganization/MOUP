@@ -10,8 +10,15 @@ import RxSwift
 
 protocol WorkplaceServiceProtocol {
     func fetchWorkplaceByInviteCode(inviteCode: String) -> Observable<WorkplaceInfo?>
-    func addWorkerToWorkplace(workplaceId: String, uid: String, workerDetail: WorkerDetail) -> Observable<Void>
+    func createWorkplaceWithCalendarAndMaybeWorker(
+            uid: String,
+            role: Role,
+            workplace: Workplace,
+            workerDetail: WorkerDetail?,
+            color: String
+        ) -> Observable<String>
     func fetchAllWorkplacesForUser(uid: String) -> Observable<[WorkplaceInfo]>
+    func addWorkerToWorkplace(workplaceId: String, uid: String, workerDetail: WorkerDetail) -> Observable<Void>
 }
 
 
@@ -123,6 +130,82 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                         observer.onError(error)
                     })
                     .disposed(by: DisposeBag())
+            }
+            return Disposables.create()
+        }
+    }
+    
+    /// 근무지, 캘린더를 동시에 생성(필요시 워커 등록)합니다.
+    ///
+    /// - Parameters:
+    ///   - uid: 현재 유저의 UID (owner/worker)
+    ///   - role: 사용자 역할(.owner 또는 .worker)
+    ///   - workplace: 생성할 근무지 정보(Workplace)
+    ///   - workerDetail: 알바(워커)라면 워커 정보, 아니면 nil
+    ///   - color: 유저가 선택한 근무지 색상값
+    /// - Returns: 생성된 workplaceId를 방출하는 Observable
+    /// - Firestore 경로:
+    ///     - workplaces/{workplaceId}
+    ///     - calendars/{calendarId}
+    ///     - users/{uid}/workplace/{workplaceId}
+    ///     - workplaces/{workplaceId}/worker/{uid} (알바만)
+    func createWorkplaceWithCalendarAndMaybeWorker(
+        uid: String,
+        role: Role,
+        workplace: Workplace,
+        workerDetail: WorkerDetail?,
+        color: String
+    ) -> Observable<String> {
+        let workplaceRef = db.collection("workplaces").document()
+        let workplaceId = workplaceRef.documentID
+        let calendarRef = db.collection("calendars").document()
+        let userWorkplaceRef = db.collection("users").document(uid).collection("workplace").document(workplaceId)
+        
+        return Observable.create { observer in
+            let batch = self.db.batch()
+            
+            // 1. 근무지 저장
+            batch.setData([
+                "workplacesName": workplace.workplacesName,
+                "category": workplace.category,
+                "ownerId": workplace.ownerId,
+                "inviteCode": workplace.inviteCode,
+                "isOfficial": (role == .owner)
+            ], forDocument: workplaceRef)
+            
+            // 2. 캘린더 저장 (조건에 맞게 필드 세팅)
+            batch.setData([
+                "calendarName": workplace.workplacesName,
+                "isShared": (role == .owner),
+                "ownerId": uid,
+                "sharedWith": [],
+                "workplaceId": workplaceId
+            ], forDocument: calendarRef)
+            
+            // 3. 알바일 때 워커 서브컬렉션 등록
+            if role == .worker, let workerDetail {
+                let workerRef = workplaceRef.collection("worker").document(uid)
+                do {
+                    let workerData = try Firestore.Encoder().encode(workerDetail)
+                    batch.setData(workerData, forDocument: workerRef)
+                } catch {
+                    observer.onError(error)
+                    return Disposables.create()
+                }
+            }
+            
+            // 4. 사장이든 알바든 users/{uid}/workplace/{workplaceId}에 color 저장
+            batch.setData([
+                "color": color
+            ], forDocument: userWorkplaceRef)
+            
+            batch.commit { error in
+                if let error = error {
+                    observer.onError(error)
+                } else {
+                    observer.onNext(workplaceId)
+                    observer.onCompleted()
+                }
             }
             return Disposables.create()
         }

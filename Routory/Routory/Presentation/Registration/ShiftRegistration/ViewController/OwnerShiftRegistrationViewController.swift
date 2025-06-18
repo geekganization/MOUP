@@ -41,6 +41,8 @@ final class OwnerShiftRegistrationViewController: UIViewController,UIGestureReco
     fileprivate lazy var navigationBar = BaseNavigationBar(title: "근무 등록") //*2
     let disposeBag = DisposeBag()
     
+    private let viewModel = ShiftRegistrationViewModel(workplaceUseCase: WorkplaceUseCase(repository: WorkplaceRepository(service: WorkplaceService())))
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: false)
@@ -49,11 +51,16 @@ final class OwnerShiftRegistrationViewController: UIViewController,UIGestureReco
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
-        setupNavigationBar()
-        layout()
-        setupSegment()
-        setupKeyboardHandler()
+
+        viewModel.fetchWorkplaces { [weak self] in
+            guard let self = self else { return }
+
+            self.setupUI()
+            self.setupNavigationBar()
+            self.layout()
+            self.setupSegment()
+            self.setupKeyboardHandler()
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -108,8 +115,13 @@ final class OwnerShiftRegistrationViewController: UIViewController,UIGestureReco
 
         contentView.simpleRowView.isHidden = true
 
-        delegateHandler = ShiftRegistrationDelegateHandler(contentView: contentView, navigationController: navigationController)
+        delegateHandler = ShiftRegistrationDelegateHandler(
+            contentView: contentView,
+            navigationController: navigationController,
+            viewModel: viewModel
+        )
         actionHandler = RegistrationActionHandler(contentView: contentView, navigationController: navigationController)
+
 
         contentView.simpleRowView.delegate = delegateHandler
         contentView.routineView.delegate = delegateHandler

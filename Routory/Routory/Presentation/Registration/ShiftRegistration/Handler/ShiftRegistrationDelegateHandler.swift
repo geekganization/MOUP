@@ -13,10 +13,12 @@ final class ShiftRegistrationDelegateHandler: NSObject {
 
     weak var contentView: ShiftRegistrationContentView?
     weak var navigationController: UINavigationController?
+    private let viewModel: ShiftRegistrationViewModel
 
-    init(contentView: ShiftRegistrationContentView, navigationController: UINavigationController?) {
+    init(contentView: ShiftRegistrationContentView, navigationController: UINavigationController?, viewModel: ShiftRegistrationViewModel) {
         self.contentView = contentView
         self.navigationController = navigationController
+        self.viewModel = viewModel
     }
 }
 
@@ -24,40 +26,8 @@ final class ShiftRegistrationDelegateHandler: NSObject {
 
 extension ShiftRegistrationDelegateHandler: WorkPlaceSelectionViewDelegate {
     func workPlaceSelectionViewDidTapChevron(_ view: WorkPlaceSelectionView) {
-        let workplaceInfos: [WorkplaceInfo] = [
-            WorkplaceInfo(
-                id: "1",
-                workplace: Workplace(
-                    workplacesName: "맥도날드 강남점",
-                    category: "패스트푸드",
-                    ownerId: "owner123",
-                    inviteCode: "MAC123",
-                    isOfficial: true
-                )
-            ),
-            WorkplaceInfo(
-                id: "2",
-                workplace: Workplace(
-                    workplacesName: "올리브영 홍대점",
-                    category: "드럭스토어",
-                    ownerId: "owner456",
-                    inviteCode: "OLIVE456",
-                    isOfficial: false
-                )
-            ),
-            WorkplaceInfo(
-                id: "3",
-                workplace: Workplace(
-                    workplacesName: "GS25 서울역점",
-                    category: "편의점",
-                    ownerId: "owner789",
-                    inviteCode: "GS789",
-                    isOfficial: false
-                )
-            )
-        ]
 
-        let workplaceItems = workplaceInfos.map {
+        let workplaceItems = viewModel.workplaceInfos.map {
             SelectionViewController<WorkplaceInfo>.Item(
                 title: $0.workplace.workplacesName,
                 icon: nil,

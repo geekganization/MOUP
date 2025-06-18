@@ -24,6 +24,8 @@ final class WorkShiftRegistrationViewController: UIViewController,UIGestureRecog
     fileprivate lazy var navigationBar = BaseNavigationBar(title: "근무 등록") //*2
     let disposeBag = DisposeBag()
     
+    private let viewModel = ShiftRegistrationViewModel(workplaceUseCase: WorkplaceUseCase(repository: WorkplaceRepository(service: WorkplaceService())))
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: false)
@@ -32,12 +34,22 @@ final class WorkShiftRegistrationViewController: UIViewController,UIGestureRecog
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
-        setupNavigationBar()
-        layout()
+        viewModel.fetchWorkplaces { [weak self] in
+            guard let self = self else {
+                return
+            }
 
-        keyboardHandler = KeyboardInsetHandler(scrollView: scrollView, containerView: view,targetView: contentView.memoBoxView)
-        keyboardHandler?.startObserving()
+            self.setupUI()
+            self.setupNavigationBar()
+            self.layout()
+
+            self.keyboardHandler = KeyboardInsetHandler(
+                scrollView: self.scrollView,
+                containerView: self.view,
+                targetView: self.contentView.memoBoxView
+            )
+            self.keyboardHandler?.startObserving()
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -66,8 +78,15 @@ final class WorkShiftRegistrationViewController: UIViewController,UIGestureRecog
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
 
-        delegateHandler = ShiftRegistrationDelegateHandler(contentView: contentView, navigationController: navigationController)
-        actionHandler = RegistrationActionHandler(contentView: contentView, navigationController: navigationController)
+        delegateHandler = ShiftRegistrationDelegateHandler(
+             contentView: contentView,
+             navigationController: navigationController,
+             viewModel: viewModel
+         )
+         actionHandler = RegistrationActionHandler(
+             contentView: contentView,
+             navigationController: navigationController
+         )
 
         contentView.simpleRowView.delegate = delegateHandler
         contentView.routineView.delegate = delegateHandler

@@ -15,7 +15,7 @@ final class WorkplaceRepository: WorkplaceRepositoryProtocol {
         return service.fetchWorkplaceByInviteCode(inviteCode: inviteCode)
     }
     func fetchAllWorkplacesForUser(uid: String) -> Observable<[WorkplaceInfo]> {
-        return service.fetchAllWorkplacesForUser(uid: uid)
+        return service.fetchAllWorkplacesForUser2(uid: uid)
     }
     func createWorkplaceWithCalendarAndMaybeWorker(
         uid: String,

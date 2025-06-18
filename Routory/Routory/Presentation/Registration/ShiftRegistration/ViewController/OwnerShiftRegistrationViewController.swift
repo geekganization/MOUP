@@ -8,6 +8,7 @@
 import UIKit
 import SnapKit
 import RxSwift
+import FirebaseAuth
 
 final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRecognizerDelegate {
     
@@ -48,7 +49,7 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
         )
     )
 
-    private let registrationViewModel = OwnerSelfShiftRegistrationViewModel(
+    private let registrationViewModel = ShiftRegistrationViewModel(
         calendarUseCase: CalendarUseCase(
             repository: CalendarRepository(calendarService: CalendarService())
         )
@@ -78,7 +79,7 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
     }
 
     private func bindViewModel() {
-        let input = OwnerSelfShiftRegistrationViewModel.Input(submitTrigger: submitTrigger)
+        let input = ShiftRegistrationViewModel.Input(submitTrigger: submitTrigger)
         let output = registrationViewModel.transform(input: input)
 
         output.submissionResult
@@ -201,7 +202,7 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
                 eventDate: eventDate,
                 startTime: startTime,
                 endTime: endTime,
-                createdBy: "owner",
+                createdBy: String(describing: Auth.auth().currentUser),
                 year: dateComponents.year,
                 month: dateComponents.month,
                 day: dateComponents.day,
@@ -215,25 +216,23 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
         case .employee:
             let workPlaceID = contentView.simpleRowView.getID()
             let worker = contentView.workerSelectionView.getSelectedWorkerData()
+            let routineIDs = contentView.routineView.getSelectedRoutineIDs()
             
-            print("workPlaceID:",workPlaceID)
-            print("worker:",worker)
-
             let event = CalendarEvent(
                 title: "",
                 eventDate: eventDate,
                 startTime: startTime,
                 endTime: endTime,
-                createdBy: "",
+                createdBy: worker.first?.id ?? "", // 여러 알바 선택할수 있는데 어떤걸 넣어야 할지
                 year: dateComponents.year,
                 month: dateComponents.month,
                 day: dateComponents.day,
-                routineIds: [],
+                routineIds: routineIDs,
                 repeatDays: repeatDays,
                 memo: memo
             )
 
-            print(workPlaceID, event)
+            submitTrigger.onNext((workPlaceID, event))
         }
     }
 

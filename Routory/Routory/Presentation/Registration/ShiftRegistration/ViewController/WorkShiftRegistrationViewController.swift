@@ -8,6 +8,7 @@
 import UIKit
 import SnapKit
 import RxSwift
+import FirebaseAuth
 
 final class WorkShiftRegistrationViewController: UIViewController, UIGestureRecognizerDelegate {
 
@@ -28,7 +29,7 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
         )
     )
 
-    private let registrationViewModel = WorkShiftRegistrationViewModel(calendarUseCase: CalendarUseCase(repository: CalendarRepository(calendarService: CalendarService())))
+    private let registrationViewModel = ShiftRegistrationViewModel(calendarUseCase: CalendarUseCase(repository: CalendarRepository(calendarService: CalendarService())))
 
     private let submitTrigger = PublishSubject<(String, CalendarEvent)>()
 
@@ -59,7 +60,7 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
     }
 
     private func bindViewModel() {
-        let input = WorkShiftRegistrationViewModel.Input(submitTrigger: submitTrigger)
+        let input = ShiftRegistrationViewModel.Input(submitTrigger: submitTrigger)
         let output = registrationViewModel.transform(input: input)
 
         output.submissionResult
@@ -155,7 +156,7 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
             eventDate: eventDate,
             startTime: startTime,
             endTime: endTime,
-            createdBy: "",
+            createdBy: String(describing: Auth.auth().currentUser),
             year: dateComponents.year,
             month: dateComponents.month,
             day: dateComponents.day,

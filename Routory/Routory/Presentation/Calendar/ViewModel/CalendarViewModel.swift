@@ -30,29 +30,30 @@ final class CalendarViewModel {
     // MARK: - Output (ViewModel ➡️ ViewController)
     
     struct Output {
-        let calendarEventList: Observable<(personal: [CalendarEvent], shared: [CalendarEvent])>
+        let calendarEventListRelay: PublishRelay<(personal: [CalendarEvent], shared: [CalendarEvent])>
     }
     
     // MARK: - Transform (Input ➡️ Output)
     
     func tranform(input: Input) -> Output {
-        let calendarEventList = input.loadMonthEvent
-            .withUnretained(self)
-            .flatMapLatest ({ owner, yearMonth -> Observable<(personal: [CalendarEvent], shared: [CalendarEvent])> in
+        let calendarEventListRelay = PublishRelay<(personal: [CalendarEvent], shared: [CalendarEvent])>()
+        
+        input.loadMonthEvent
+            .subscribe(with: self, onNext: { owner, yearMonth in
                 // TODO: 로그인된 userId의 모든 WorkCalendar, 공유 캘린더 데이터 불러오기 (직전달, 이번달, 다음달 3개월 or 모든 달?)
-                guard let uid = UserManager.shared.firebaseUid else { return .empty() }
+                guard let uid = UserManager.shared.firebaseUid else { return }
                 dump(yearMonth)
                 let (year, month) = yearMonth
-                return owner.eventUseCase.fetchAllEventsForUserInMonthSeparated(uid: uid, year: year, month: month)
-                    
-            }).catch { [weak self] error in
-                self?.logger.error("\(error.localizedDescription)")
-                return .just(([], []))
-            }.share(replay: 1, scope: .whileConnected)
+                
+                owner.eventUseCase.fetchAllEventsForUserInMonthSeparated(uid: uid, year: year, month: month)
+                    .subscribe(with: self) { owner, calendarEventList in
+                        calendarEventListRelay.accept(calendarEventList)
+                    } onError: { owner, error in
+                        owner.logger.error("\(error.localizedDescription)")
+                    }.disposed(by: owner.disposeBag)
+            }).disposed(by: disposeBag)
         
-        // TODO: isShared == true인 WorkCalendar 불러오기
-        
-        return Output(calendarEventList: calendarEventList)
+        return Output(calendarEventListRelay: calendarEventListRelay)
     }
     
     // MARK: - Initializer

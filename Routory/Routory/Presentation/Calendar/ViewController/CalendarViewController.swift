@@ -139,11 +139,11 @@ private extension CalendarViewController {
         
         let output = viewModel.tranform(input: input)
         
-        output.calendarEventList
+        output.calendarEventListRelay
             .asDriver(onErrorJustReturn: ([], []))
-            .drive(with: self) { owner, calendarEventTuple in
-                dump(calendarEventTuple)
-                owner.populateDataSource(calendarEvents: calendarEventTuple)
+            .drive(with: self) { owner, calendarEventList in
+                dump(calendarEventList)
+                owner.populateDataSource(calendarEvents: calendarEventList)
             }.disposed(by: disposeBag)
     }
 }
@@ -224,11 +224,12 @@ private extension CalendarViewController {
             guard let eventDate = dataSourceDateFormatter.date(from: event.eventDate) else { continue }
             personalEventDataSource[eventDate, default: []].append(event)
         }
-        
         for event in calendarEvents.shared {
             guard let eventDate = dataSourceDateFormatter.date(from: event.eventDate) else { continue }
             sharedEventDataSource[eventDate, default: []].append(event)
         }
+        
+        calendarView.getJTACalendar.reloadData()
     }
 }
 

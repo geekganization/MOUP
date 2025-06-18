@@ -58,6 +58,14 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
             self.keyboardHandler?.startObserving()
         }
     }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        if self.isMovingFromParent {
+            delegate?.registrationVCIsMovingFromParent()
+        }
+    }
 
     private func bindViewModel() {
         let input = ShiftRegistrationViewModel.Input(submitTrigger: submitTrigger)

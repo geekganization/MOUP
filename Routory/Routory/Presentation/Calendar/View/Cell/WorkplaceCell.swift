@@ -58,6 +58,12 @@ final class WorkplaceCell: UITableViewCell {
         workplaceLabel.textColor = selected ? .primary600 : .gray500
         checkImageView.isHidden = !selected
     }
+    
+    // MARK: - Methods
+    
+    func update(workplace: String) {
+        workplaceLabel.text = workplace
+    }
 }
 
 // MARK: - UI Methods

@@ -22,6 +22,7 @@ final class CalendarViewModel {
     private let eventUseCase: EventUseCaseProtocol
     
     // MARK: - Input (ViewController ➡️ ViewModel)
+    
     struct Input {
         /// 직전달, 이번달, 다음달 3개월치 불러옴
         let loadMonthEvent: Observable<(year: Int, month: Int)>

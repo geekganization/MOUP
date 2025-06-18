@@ -19,13 +19,11 @@ final class EventCell: UITableViewCell {
     // MARK: - UI Components
     
     private let workplaceLabel = UILabel().then {
-        $0.text = "맥도날드"
         $0.textColor = .gray900
         $0.font = .bodyMedium(16)
     }
     
     private let workHourLabel = UILabel().then {
-        $0.text = "09:00 ~ 19:00 (10시간)"
         $0.textColor = .gray900
         $0.font = .bodyMedium(16)
     }

@@ -208,7 +208,14 @@ private extension CalendarViewController {
     }
     
     func didFilterButtonTap() {
-        let filterModalVC = FilterViewController()
+        let workplaceService = WorkplaceService()
+        let calendarService = CalendarService()
+        let workplaceRepository = WorkplaceRepository(service: workplaceService)
+        let calendarRepository = CalendarRepository(calendarService: calendarService)
+        let workplaceUseCase = WorkplaceUseCase(repository: workplaceRepository)
+        let CalendarUseCase = CalendarUseCase(repository: calendarRepository)
+        let filterVM = FilterViewModel(workplaceUseCase: workplaceUseCase, calendarUseCase: CalendarUseCase)
+        let filterModalVC = FilterViewController(viewModel: filterVM)
         
         if let sheet = filterModalVC.sheetPresentationController {
             sheet.detents = [.medium()]

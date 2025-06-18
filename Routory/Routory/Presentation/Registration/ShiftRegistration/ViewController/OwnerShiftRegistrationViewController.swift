@@ -77,6 +77,14 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
             self.bindViewModel()
         }
     }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        if self.isMovingFromParent {
+            delegate?.registrationVCIsMovingFromParent()
+        }
+    }
 
     private func bindViewModel() {
         let input = ShiftRegistrationViewModel.Input(submitTrigger: submitTrigger)

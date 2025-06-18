@@ -14,11 +14,25 @@ final class FilterViewController: UIViewController {
     
     // MARK: - Properties
     
+    private let viewModel: FilterViewModel
+    
     private let disposeBag = DisposeBag()
     
     // MARK: UI Components
     
     private let filterView = FilterView()
+    
+    // MARK: - Initializer
+    
+    init(viewModel: FilterViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    @available(*, unavailable, message: "storyboard is not supported.")
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented.")
+    }
     
     // MARK: - Lifecycle
     
@@ -53,8 +67,7 @@ private extension FilterViewController {
     }
     
     func setDelegates() {
-        filterView.getWorkplaceTableView.dataSource = self
-        filterView.getWorkplaceTableView.delegate = self
+        
     }
     
     func setActions() {
@@ -66,24 +79,15 @@ private extension FilterViewController {
     }
     
     func setBinding() {
+        let input = FilterViewModel.Input(viewDidLoad: Observable.just(()))
         
-    }
-}
-
-// MARK: - 테스트용 DataSource, Delegate
-
-extension FilterViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 2
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: WorkplaceCell.identifier, for: indexPath) as? WorkplaceCell else { return UITableViewCell() }
+        let output = viewModel.tranform(input: input)
         
-        return cell
+        output.workplaceInfoListRelay
+            .asDriver()
+            .drive(filterView.getWorkplaceTableView.rx.items(
+                cellIdentifier: WorkplaceCell.identifier, cellType: WorkplaceCell.self)) { _, model, cell in
+                    cell.update(workplace: model.workplace.workplacesName)
+                }.disposed(by: disposeBag)
     }
-}
-
-extension FilterViewController: UITableViewDelegate {
-
 }

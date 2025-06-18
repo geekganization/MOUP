@@ -68,7 +68,18 @@ final class EventCell: UITableViewCell {
     // MARK: - Methods
     
     func update(workplace: String, startTime: String, endTime: String, dailyWage: String) {
+        workplaceLabel.text = workplace
+        let workHour = DateFormatter.hourDiffDecimal(from: startTime, to: endTime)
         
+        if let hour = workHour?.hours,
+           let min = workHour?.minutes {
+            if min == 0 {
+                workHourLabel.text = "\(startTime) ~ \(endTime) (\(hour)시간)"
+            } else {
+                workHourLabel.text = "\(startTime) ~ \(endTime) (\(hour)시간 \(min)분)"
+            }
+        }
+        // TODO: dailyWage 계산 필요
     }
 }
 

@@ -17,6 +17,8 @@ final class CalendarEventListViewController: UIViewController {
     
     weak var delegate: CalendarEventListVCDelegate?
     
+    private let viewModel: CalendarEventListViewModel
+    
     private let disposeBag = DisposeBag()
     
     private let day: Int
@@ -27,7 +29,8 @@ final class CalendarEventListViewController: UIViewController {
     
     // MARK: - Initializer
     
-    init(day: Int) {
+    init(viewModel: CalendarEventListViewModel, day: Int) {
+        self.viewModel = viewModel
         self.day = day
         super.init(nibName: nil, bundle: nil)
     }
@@ -66,41 +69,34 @@ private extension CalendarEventListViewController {
     
     func setDelegates() {
         self.navigationController?.presentationController?.delegate = self
-        
-        calendarEventListView.getEventTableView.dataSource = self
     }
     
     func setBinding() {
         calendarEventListView.getEventTableView.rx.itemSelected
             .subscribe(with: self) { owner, indexPath in
-                // TODO: 사장님 근무 VC에 데이터 연결
+                
                 owner.delegate?.didTapEventCell()
             }.disposed(by: disposeBag)
         
         calendarEventListView.getAssignButton.rx.tap
             .subscribe(with: self) { owner, _ in
-                // TODO: 사장님 근무 VC에 데이터 연결
                 owner.delegate?.didTapAssignButton()
             }.disposed(by: disposeBag)
+        
+        let input = CalendarEventListViewModel.Input(viewDidLoad: Observable.just(()))
+        
+        let output = viewModel.tranform(input: input)
+        
+        output.eventListRelay.asDriver(onErrorJustReturn: [])
+            .drive(calendarEventListView.getEventTableView.rx.items( 
+                cellIdentifier: EventCell.identifier, cellType: EventCell.self)) { _, model, cell in
+                    cell.update(workplace: model.title, startTime: model.startTime, endTime: model.endTime, dailyWage: "")
+                }.disposed(by: disposeBag)
     }
 }
 
 extension CalendarEventListViewController: UIAdaptivePresentationControllerDelegate {
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
         delegate?.presentationControllerDidDismiss()
-    }
-}
-
-// MARK: - 테스트용 DataSource, Delegate
-
-extension CalendarEventListViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 2
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: EventCell.identifier, for: indexPath) as? EventCell else { return UITableViewCell() }
-        
-        return cell
     }
 }

@@ -184,7 +184,8 @@ private extension CalendarViewController {
     ///   - day: 탭한 셀의 일
     ///   - eventList: 탭한 셀의 일에 해당하는 `CalendarEvent` 배열
     func didSelectCell(day: Int, eventList: [CalendarEvent]) {
-        let calendarEventListVC = CalendarEventListViewController(day: day)
+        let calendarEventListVM = CalendarEventListViewModel(eventList: eventList)
+        let calendarEventListVC = CalendarEventListViewController(viewModel: calendarEventListVM, day: day)
         calendarEventListVC.delegate = self
         
         let modalNC = UINavigationController(rootViewController: calendarEventListVC)

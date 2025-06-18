@@ -16,8 +16,8 @@ final class LoginViewController: UIViewController {
     private let viewModel: LoginViewModel
     private let loginView = LoginView()
     private let disposeBag = DisposeBag()
-
-    // MARK: - Init
+    
+    // MARK: - Initializer
 
     init(viewModel: LoginViewModel) {
         self.viewModel = viewModel
@@ -50,6 +50,7 @@ private extension LoginViewController {
 
     func setBinding() {
         let input = LoginViewModel.Input(
+            appleLoginTapped: loginView.getAppleLoginButton.rx.tap.asObservable(),
             googleLoginTapped: loginView.getGoogleLoginButton.rx.tap.asObservable(),
             presentingVC: self
         )

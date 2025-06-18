@@ -6,6 +6,9 @@
 //
 
 import Foundation
+import AuthenticationServices
+import CryptoKit
+import OSLog
 import RxSwift
 import RxCocoa
 import UIKit
@@ -16,11 +19,12 @@ enum Navigation {
     case goToSignup(username: String, credential: AuthCredential)
 }
 
-final class LoginViewModel {
-
+final class LoginViewModel: NSObject {
+    
     // MARK: - Input / Output
-
+    
     struct Input {
+        let appleLoginTapped: Observable<Void>
         let googleLoginTapped: Observable<Void>
         let presentingVC: UIViewController
     }
@@ -28,38 +32,59 @@ final class LoginViewModel {
     struct Output {
         let navigation: Observable<Navigation>
     }
-
+    
     // MARK: - Dependencies
-
+    
+    private lazy var logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: String(describing: self))
+    
     private let googleAuthService: GoogleAuthServiceProtocol
+    private let appleAuthService: AppleAuthServiceProtocol
     private let userService: UserServiceProtocol
     private let disposeBag = DisposeBag()
-
+    
+    private var currentNonce: String?
+    
     // MARK: - Init
-
-    init(googleAuthService: GoogleAuthServiceProtocol, userService: UserServiceProtocol) {
+    
+    init(appleAuthService: AppleAuthService, googleAuthService: GoogleAuthServiceProtocol, userService: UserServiceProtocol) {
+        self.appleAuthService = appleAuthService
         self.googleAuthService = googleAuthService
         self.userService = userService
     }
-
+    
     // MARK: - Transform
-
+    
     func transform(input: Input) -> Output {
-            let navigation = input.googleLoginTapped
-                .flatMapLatest { [weak self] _ -> Observable<Navigation> in
-                    guard let self = self else { return .empty() }
-                    // 구글 OAuth → credential, nickname
-                    return self.googleAuthService.getGoogleCredential(presentingViewController: input.presentingVC)
-                        .flatMapLatest { (username, credential) in
-                            return Observable.just(.goToSignup(username: username, credential: credential))
-                        }
-                        .catch { error in
-                            print("구글 로그인 에러: \(error)")
-                            return Observable.empty()
-                        }
-                }
-                .share()
-            
-            return Output(navigation: navigation)
-        }
+        let appleSignInNav = input.appleLoginTapped
+            .withUnretained(self)
+            .flatMapLatest({ owner, _ -> Observable<Navigation> in
+                return owner.appleAuthService.getAppleCredential()
+                    .flatMapLatest { (username, credential) in
+                        return Observable.just(.goToSignup(username: username, credential: credential))
+                    }
+                    .catch { error in
+                        owner.logger.error("애플 로그인 에러: \(error.localizedDescription)")
+                        return Observable.empty()
+                    }
+            }).share()
+        
+        let googleSignInNav = input.googleLoginTapped
+            .flatMapLatest { [weak self] _ -> Observable<Navigation> in
+                guard let self = self else { return .empty() }
+                // 구글 OAuth → credential, nickname
+                return self.googleAuthService.getGoogleCredential(presentingViewController: input.presentingVC)
+                    .flatMapLatest { (username, credential) in
+                        return Observable.just(.goToSignup(username: username, credential: credential))
+                    }
+                    .catch { error in
+                        print("구글 로그인 에러: \(error)")
+                        return Observable.empty()
+                    }
+            }
+            .share()
+        
+        let navigation = Observable.merge(appleSignInNav, googleSignInNav)
+        
+        return Output(navigation: navigation)
+    }
 }

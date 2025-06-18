@@ -14,11 +14,16 @@ final class LoginView: UIView {
     // MARK: - Properties
     
     var getGoogleLoginButton: UIButton { googleLoginButton }
+    var getAppleLoginButton: UIButton { appleLoginButton }
 
     // MARK: - UI Components
+    
+    private let appleLoginButton = UIButton().then {
+        $0.setImage(.appleSignIn, for: .normal)
+    }
 
     private let googleLoginButton = UIButton().then {
-        $0.setImage(UIImage(named: "ios_light_sq_SU"), for: .normal)
+        $0.setImage(.googleSignIn, for: .normal)
     }
     
     // MARK: - Init
@@ -44,13 +49,20 @@ private extension LoginView {
     }
 
     func setHierarchy() {
-        addSubview(googleLoginButton)
+        addSubviews(appleLoginButton,
+                    googleLoginButton)
     }
 
     func setConstraints() {
-        googleLoginButton.snp.makeConstraints {
-            $0.center.equalToSuperview()
+        appleLoginButton.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(16)
+            $0.bottom.equalTo(googleLoginButton.snp.top).offset(-24)
+            $0.height.equalTo(44)
+        }
+        
+        googleLoginButton.snp.makeConstraints {
+            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.bottom.equalTo(self.safeAreaLayoutGuide).inset(96)
         }
     }
 

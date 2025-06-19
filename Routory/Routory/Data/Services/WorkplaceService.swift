@@ -134,23 +134,15 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                                     let workplace = try JSONDecoder().decode(Workplace.self, from: jsonData)
                                     detailObserver.onNext(WorkplaceInfo(id: workplaceId, workplace: workplace))
                                     detailObserver.onCompleted()
+                                } catch {
+                                    detailObserver.onError(error)
                                 }
+                            } else {
+                                detailObserver.onCompleted()
                             }
-                            return Disposables.create()
                         }
+                        return Disposables.create()
                     }
-                    
-                    Observable.zip(detailObservables)
-                        .subscribe(
-                            onNext: { workplaces in
-                                dump(workplaces)
-                                observer.onNext(workplaces)
-                                observer.onCompleted()
-                            },
-                            onError: { error in
-                                observer.onError(error)
-                            }
-                        )
                 }
 
                 Observable.zip(observables)
@@ -162,7 +154,9 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                     })
                     .disposed(by: DisposeBag())
             }
+            return Disposables.create()
         }
+    }
 
 
     func fetchAllWorkplacesForUser2(uid: String) -> Observable<[WorkplaceInfo]> {

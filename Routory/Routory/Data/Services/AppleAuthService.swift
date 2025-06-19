@@ -102,14 +102,8 @@ final class AppleAuthService: NSObject, AppleAuthServiceProtocol {
                         let credential = OAuthProvider.appleCredential(withIDToken: idTokenString, rawNonce: nonce, fullName: appleIDCredential.fullName)
                         let username = appleIDCredential.fullName?.formatted() ?? "닉네임 없음"
                         
-                        Auth.auth().signIn(with: credential) { authResult, error in
-                            if let error = error {
-                                observer.onError(error)
-                                return
-                            }
-                            observer.onNext((username, credential))
-                            observer.onCompleted()
-                        }
+                        observer.onNext((username, credential))
+                        observer.onCompleted()
                     }
                 }.disposed(by: disposeBag)
             

@@ -5,6 +5,7 @@
 //  Created by 양원식 on 6/13/25.
 //
 import RxSwift
+import Foundation
 
 final class RoutineRepository: RoutineRepositoryProtocol {
     private let service: RoutineServiceProtocol
@@ -28,6 +29,10 @@ final class RoutineRepository: RoutineRepositoryProtocol {
     
     func deleteRoutine(uid: String, routineId: String) -> Observable<Void> {
         return service.deleteRoutine(uid: uid, routineId: routineId)
+    }
+    
+    func fetchTodayRoutineEventsGroupedByWorkplace(uid: String, date: Date) -> Observable<[String: [CalendarEvent]]> {
+        return service.fetchTodayRoutineEventsGroupedByWorkplace(uid: uid, date: date)
     }
     
 }

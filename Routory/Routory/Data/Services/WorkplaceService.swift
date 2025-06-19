@@ -21,6 +21,16 @@ protocol WorkplaceServiceProtocol {
     func fetchAllWorkplacesForUser2(uid: String) -> Observable<[WorkplaceInfo]>
     func addWorkerToWorkplace(workplaceId: String, uid: String, workerDetail: WorkerDetail) -> Observable<Void>
     func fetchWorkerListForWorkplace(workplaceId: String) -> Observable<[WorkerDetailInfo]>
+    func fetchMonthlyWorkSummary(
+        uid: String,
+        year: Int,
+        month: Int
+    ) -> Observable<[WorkplaceWorkSummary]>
+    func fetchDailyWorkSummary(
+        uid: String,
+        year: Int,
+        month: Int
+    ) -> Observable<[WorkplaceWorkSummaryDaily]>
 }
 
 
@@ -159,10 +169,10 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                         observer.onError(error)
                         return
                     }
-
+                    
                     let documents = snapshot?.documents ?? []
                     print("📦 ownerId = \(uid) 기준 workplaces 문서 수:", documents.count)
-
+                    
                     let infos: [WorkplaceInfo] = documents.compactMap { doc in
                         let data = doc.data()
                         do {
@@ -174,11 +184,11 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                             return nil
                         }
                     }
-
+                    
                     observer.onNext(infos)
                     observer.onCompleted()
                 }
-
+            
             return Disposables.create()
         }
     }
@@ -284,5 +294,139 @@ final class WorkplaceService: WorkplaceServiceProtocol {
             }
             return Disposables.create()
         }
+    }
+    
+    /// 월간 내 근무 이벤트 및 시급, 총 급여 반환
+    /// - Parameters:
+    ///   - uid: 유저 UID
+    ///   - year: 연도
+    ///   - month: 월
+    /// - Returns: [WorkplaceWorkSummary] (근무지별 요약)
+    func fetchMonthlyWorkSummary(
+        uid: String,
+        year: Int,
+        month: Int
+    ) -> Observable<[WorkplaceWorkSummary]> {
+        let userWorkplaceRef = db.collection("users").document(uid).collection("workplaces")
+        return Observable.create { observer in
+            userWorkplaceRef.getDocuments { snap, err in
+                if let err = err {
+                    observer.onError(err)
+                    return
+                }
+                let ids = snap?.documents.map { $0.documentID } ?? []
+                if ids.isEmpty {
+                    observer.onNext([])
+                    observer.onCompleted()
+                    return
+                }
+                
+                let perWorkplaceObservables = ids.map { workplaceId -> Observable<WorkplaceWorkSummary?> in
+                    Observable<WorkplaceWorkSummary?>.create { o in
+                        let workplaceDoc = self.db.collection("workplaces").document(workplaceId)
+                        workplaceDoc.getDocument { doc, _ in
+                            guard let doc, let wData = doc.data(),
+                                  let workplaceName = wData["workplacesName"] as? String else {
+                                o.onNext(nil)
+                                o.onCompleted()
+                                return
+                            }
+                            // 내 워커 정보(시급)
+                            workplaceDoc.collection("worker").document(uid).getDocument { workerDoc, _ in
+                                guard let workerDoc, let wDetail = workerDoc.data(),
+                                      let wage = wDetail["wage"] as? Int else {
+                                    o.onNext(nil)
+                                    o.onCompleted()
+                                    return
+                                }
+                                // 캘린더 아이디
+                                self.db.collection("calendars").whereField("workplaceId", isEqualTo: workplaceId).getDocuments { calSnap, _ in
+                                    guard let calId = calSnap?.documents.first?.documentID else {
+                                        o.onNext(nil)
+                                        o.onCompleted()
+                                        return
+                                    }
+                                    // 월간 이벤트 모두 조회
+                                    self.db.collection("calendars").document(calId)
+                                        .collection("events")
+                                        .whereField("year", isEqualTo: year)
+                                        .whereField("month", isEqualTo: month)
+                                        .getDocuments { evtSnap, _ in
+                                            let events: [CalendarEvent] = evtSnap?.documents.compactMap { doc in
+                                                do {
+                                                    let data = try JSONSerialization.data(withJSONObject: doc.data())
+                                                    let event = try JSONDecoder().decode(CalendarEvent.self, from: data)
+                                                    return event.createdBy == uid ? event : nil
+                                                } catch { return nil }
+                                            } ?? []
+                                            
+                                            let totalHours = events.reduce(0.0) { sum, event in
+                                                sum + Self.calculateWorkedHours(start: event.startTime, end: event.endTime)
+                                            }
+                                            let totalWage = Int(Double(wage) * totalHours)
+                                            o.onNext(WorkplaceWorkSummary(
+                                                workplaceId: workplaceId,
+                                                workplaceName: workplaceName,
+                                                wage: wage,
+                                                events: events,
+                                                totalWage: totalWage
+                                            ))
+                                            o.onCompleted()
+                                        }
+                                }
+                            }
+                        }
+                        return Disposables.create()
+                    }
+                }
+                
+                // disposeBag 사용 금지 (subscribe만)
+                Observable.zip(perWorkplaceObservables)
+                    .map { $0.compactMap { $0 } }
+                    .subscribe(onNext: { summaries in
+                        observer.onNext(summaries)
+                        observer.onCompleted()
+                    }, onError: { error in
+                        observer.onError(error)
+                    })
+                // 외부에서 disposeBag으로 관리
+            }
+            return Disposables.create()
+        }
+    }
+    
+    /// 일간 단위로 근무지별 근무 집계
+    func fetchDailyWorkSummary(
+        uid: String,
+        year: Int,
+        month: Int
+    ) -> Observable<[WorkplaceWorkSummaryDaily]> {
+        fetchMonthlyWorkSummary(uid: uid, year: year, month: month)
+            .map { monthlySummaries in
+                monthlySummaries.map { summary in
+                    // 날짜별로 그룹화
+                    let groupedByDay = Dictionary(grouping: summary.events) { $0.eventDate }
+                    let dailySummary: [String: (events: [CalendarEvent], totalHours: Double, totalWage: Int)] = groupedByDay.mapValues { events in
+                        let totalHours = events.reduce(0.0) { $0 + Self.calculateWorkedHours(start: $1.startTime, end: $1.endTime) }
+                        let totalWage = Int(Double(summary.wage) * totalHours)
+                        return (events, totalHours, totalWage)
+                    }
+                    return WorkplaceWorkSummaryDaily(
+                        workplaceId: summary.workplaceId,
+                        workplaceName: summary.workplaceName,
+                        wage: summary.wage,
+                        dailySummary: dailySummary
+                    )
+                }
+            }
+    }
+    /// "09:00", "18:30" → Double(시간)
+    private static func calculateWorkedHours(start: String, end: String) -> Double {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        guard let s = formatter.date(from: start),
+              let e = formatter.date(from: end) else { return 0 }
+        let diff = e.timeIntervalSince(s) / 3600
+        return max(0, diff)
     }
 }

@@ -13,7 +13,8 @@ protocol RoutineServiceProtocol {
     func fetchAllRoutines(uid: String) -> Observable<[RoutineInfo]>
     func createRoutine(uid: String, routine: Routine) -> Observable<Void>
     func deleteRoutine(uid: String, routineId: String) -> Observable<Void>
-    func updateRoutine(uid: String, routineId: String, routine: Routine) -> Observable<Void> 
+    func updateRoutine(uid: String, routineId: String, routine: Routine) -> Observable<Void>
+    func fetchTodayRoutineEventsGroupedByWorkplace(uid: String, date: Date) -> Observable<[String: [CalendarEvent]]>
 }
 
 final class RoutineService: RoutineServiceProtocol {
@@ -136,4 +137,92 @@ final class RoutineService: RoutineServiceProtocol {
             return Disposables.create()
         }
     }
+    
+    func fetchTodayRoutineEventsGroupedByWorkplace(uid: String, date: Date) -> Observable<[String: [CalendarEvent]]> {
+            let calendar = Calendar.current
+            let year = calendar.component(.year, from: date)
+            let month = calendar.component(.month, from: date)
+            let day = calendar.component(.day, from: date)
+            
+            // 1. 내 근무지 ID + 이름 조회
+            let userWorkplaceRef = db.collection("users").document(uid).collection("workplaces")
+            
+            return Observable.create { observer in
+                userWorkplaceRef.getDocuments { snapshot, error in
+                    if let error = error {
+                        observer.onError(error)
+                        return
+                    }
+                    let workplaceIds = snapshot?.documents.map { $0.documentID } ?? []
+                    if workplaceIds.isEmpty {
+                        observer.onNext([:])
+                        observer.onCompleted()
+                        return
+                    }
+                    
+                    // 1-2. 이름까지 받아오기
+                    let workplacesObs = Observable.zip(workplaceIds.map { workplaceId in
+                        Observable<(id: String, name: String)>.create { nameObs in
+                            self.db.collection("workplaces").document(workplaceId).getDocument { doc, _ in
+                                if let doc = doc, let data = doc.data(),
+                                   let name = data["workplacesName"] as? String {
+                                    nameObs.onNext((id: workplaceId, name: name))
+                                }
+                                nameObs.onCompleted()
+                            }
+                            return Disposables.create()
+                        }
+                    })
+                    
+                    workplacesObs.flatMap { workplaces -> Observable<[(name: String, events: [CalendarEvent])]> in
+                        // 2. 각 근무지의 캘린더ID 찾고 오늘 이벤트 조회
+                        let eventQueries = workplaces.map { (id, name) in
+                            Observable<[CalendarEvent]>.create { eventObs in
+                                self.db.collection("calendars")
+                                    .whereField("workplaceId", isEqualTo: id)
+                                    .getDocuments { calSnap, _ in
+                                        guard let calendarId = calSnap?.documents.first?.documentID else {
+                                            eventObs.onNext([])
+                                            eventObs.onCompleted()
+                                            return
+                                        }
+                                        // 3. 오늘 이벤트 조회
+                                        self.db.collection("calendars").document(calendarId)
+                                            .collection("events")
+                                            .whereField("year", isEqualTo: year)
+                                            .whereField("month", isEqualTo: month)
+                                            .whereField("day", isEqualTo: day)
+                                            .getDocuments { evtSnap, _ in
+                                                let events = evtSnap?.documents.compactMap { doc -> CalendarEvent? in
+                                                    do {
+                                                        let jsonData = try JSONSerialization.data(withJSONObject: doc.data())
+                                                        return try JSONDecoder().decode(CalendarEvent.self, from: jsonData)
+                                                    } catch {
+                                                        return nil
+                                                    }
+                                                } ?? []
+                                                // 4. 루틴 연결된 이벤트만 필터
+                                                let routineEvents = events.filter { !$0.routineIds.isEmpty }
+                                                eventObs.onNext(routineEvents)
+                                                eventObs.onCompleted()
+                                            }
+                                    }
+                                return Disposables.create()
+                            }.map { (name: name, events: $0) }
+                        }
+                        return Observable.zip(eventQueries)
+                    }
+                    .subscribe(onNext: { namedEventList in
+                        // 5. [근무지이름: [이벤트]] 형태로 반환
+                        let grouped = Dictionary(uniqueKeysWithValues: namedEventList.map { ($0.name, $0.events) })
+                        observer.onNext(grouped)
+                        observer.onCompleted()
+                    }, onError: { error in
+                        observer.onError(error)
+                    })
+                    .disposed(by: DisposeBag())
+                }
+                return Disposables.create()
+            }
+        }
 }

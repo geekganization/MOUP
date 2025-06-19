@@ -5,6 +5,7 @@
 //  Created by 양원식 on 6/13/25.
 //
 import RxSwift
+import Foundation
 
 final class RoutineUseCase: RoutineUseCaseProtocol {
     private let repository: RoutineRepositoryProtocol
@@ -28,6 +29,10 @@ final class RoutineUseCase: RoutineUseCaseProtocol {
     
     func deleteRoutine(uid: String, routineId: String) -> Observable<Void> {
         return repository.deleteRoutine(uid: uid, routineId: routineId)
+    }
+    
+    func fetchTodayRoutineEventsGroupedByWorkplace(uid: String, date: Date) -> Observable<[String: [CalendarEvent]]> {
+        return repository.fetchTodayRoutineEventsGroupedByWorkplace(uid: uid, date: date)
     }
     
 }

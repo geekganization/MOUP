@@ -41,6 +41,13 @@ final class FilterView: UIView {
         $0.sectionHeaderTopPadding = 0.0
     }
     
+    private let emptyNotiLabel = UILabel().then {
+        $0.text = "등록된 공유 캘린더가 없어요"
+        $0.textColor = .gray500
+        $0.font = .bodyMedium(16)
+        $0.textAlignment = .center
+    }
+    
     private let applyButton = UIButton().then {
         var config = UIButton.Configuration.filled()
         config.attributedTitle = AttributedString("적용하기", attributes: .init([.font: UIFont.buttonSemibold(18), .foregroundColor: UIColor.white]))
@@ -86,6 +93,7 @@ private extension FilterView {
                          titleLabel,
                          separatorView,
                          headerLabel,
+                         emptyNotiLabel,
                          workplaceTableView,
                          applyButton)
     }
@@ -116,6 +124,10 @@ private extension FilterView {
         headerLabel.snp.makeConstraints {
             $0.top.equalTo(separatorView.snp.bottom).offset(12)
             $0.leading.equalTo(self.safeAreaLayoutGuide).inset(16)
+        }
+        
+        emptyNotiLabel.snp.makeConstraints {
+            $0.center.equalTo(workplaceTableView)
         }
         
         workplaceTableView.snp.makeConstraints {

@@ -16,7 +16,7 @@ class WorkplaceRoutineView: UIView {
 
     // MARK: - UI Components
     fileprivate lazy var navigationBar = BaseNavigationBar(title: workplaceTitle)
-    fileprivate let tableView = UITableView().then {
+    let tableView = UITableView().then {
         $0.backgroundColor = .clear
         $0.separatorColor = .gray300
         $0.separatorInset = .zero

@@ -28,7 +28,7 @@ class ManageRoutineViewController: UIViewController {
     private let viewModel: ManageRoutineViewModel
     private let routineType: RoutineType
     private let disposeBag = DisposeBag()
-    private let viewDidLoadRelay = PublishRelay<Void>()
+    private let refreshTriggeredRelay = PublishRelay<Void>()
 
     private let input: ManageRoutineViewModel.Input
     private let output: ManageRoutineViewModel.Output
@@ -44,7 +44,7 @@ class ManageRoutineViewController: UIViewController {
         self.routineType = routineType
         self.viewModel = viewModel
 
-        self.input = ManageRoutineViewModel.Input(viewDidLoad: viewDidLoadRelay.asObservable())
+        self.input = ManageRoutineViewModel.Input(refreshTriggered: refreshTriggeredRelay.asObservable())
         self.output = viewModel.transform(input: input)
         super.init(nibName: nil, bundle: nil)
     }
@@ -60,6 +60,12 @@ class ManageRoutineViewController: UIViewController {
         configure()
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        refreshTriggeredRelay.accept(())
+    }
+
 }
 
 private extension ManageRoutineViewController {
@@ -73,20 +79,24 @@ private extension ManageRoutineViewController {
     }
 
     func setBindings() {
+        manageRoutineView.tableView.delegate = self
+
         manageRoutineView.rx.backButtonTapped
             .subscribe(onNext: { [weak self] in
                 self?.navigationController?.popViewController(animated: true)
             })
             .disposed(by: disposeBag)
 
-        manageRoutineView.rx.setDelegate
-            .onNext(self)
-
         switch routineType {
         case .today:
             // 오늘의 루틴: 매장별 루틴 개수 표시
             output.todaysRoutine
-                .bind(to: manageRoutineView.rx.bindTodaysRoutines)
+                .bind(to: manageRoutineView.tableView.rx.items(
+                    cellIdentifier: TodaysRoutineCell.identifier,
+                    cellType: TodaysRoutineCell.self
+                )) { index, routine, cell in
+                    cell.update(with: routine)
+                }
                 .disposed(by: disposeBag)
 
             manageRoutineView.rx.itemSelected
@@ -103,7 +113,12 @@ private extension ManageRoutineViewController {
         case .all:
             // 전체 루틴: 등록한 모든 루틴 표시
             output.allRoutine
-                .bind(to: manageRoutineView.rx.bindAllRoutines)
+                .bind(to: manageRoutineView.tableView.rx.items(
+                    cellIdentifier: CommonRoutineCell.identifier,
+                    cellType: CommonRoutineCell.self
+                )) { index, routine, cell in
+                    cell.update(with: routine.routine)
+                }
                 .disposed(by: disposeBag)
 
             manageRoutineView.rx.itemSelected
@@ -130,7 +145,7 @@ private extension ManageRoutineViewController {
                 .disposed(by: disposeBag)
         }
 
-        viewDidLoadRelay.accept(()) // Output이 Observable들로 구성되어 있어서 미리 연결을 해두어야 함.
+        refreshTriggeredRelay.accept(()) // Output이 Observable들로 구성되어 있어서 미리 연결을 해두어야 함.
 
 
     }

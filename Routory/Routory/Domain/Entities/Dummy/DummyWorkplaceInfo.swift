@@ -8,6 +8,9 @@
 import Foundation
 
 struct DummyWorkplaceInfo {
+    // 공유 여부
+    let isOfficial: Bool
+
     // 상단 고정 요소
     let storeName: String
     let daysUntilPayday: Int

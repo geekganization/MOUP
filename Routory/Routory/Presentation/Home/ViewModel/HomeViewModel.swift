@@ -12,6 +12,7 @@ import RxRelay
 final class HomeViewModel {
     private let disposeBag = DisposeBag()
     private let userUseCase: UserUseCaseProtocol
+    private let workplaceUseCase: WorkplaceUseCaseProtocol
     private var userId: String? {
         return UserManager.shared.firebaseUid
     }
@@ -38,14 +39,19 @@ final class HomeViewModel {
         taxDeduction: 3_528
     )
     private lazy var dummyWorkplace2 = dummyWorkplace
+    private lazy var dummyWorkplace3 = dummyWorkplace
     private lazy var dummyWorkerHeaderInfo = DummyHomeHeaderInfo(currentMonth: 6, monthlyAmount: 516000, amountDifference: 32000, todayRoutineCount: 4)
 
     private lazy var firstSectionData = BehaviorRelay<[HomeTableViewFirstSection]>(value: [HomeTableViewFirstSection(header: "나의 근무지", items: [.workplace(dummyWorkplace), .workplace(dummyWorkplace2)])])
     private let expandedIndexPathRelay = BehaviorRelay<Set<IndexPath>>(value: [])
 
     // MARK: - Initializer
-    init(userUseCase: UserUseCaseProtocol) {
+    init(
+        userUseCase: UserUseCaseProtocol,
+        workplaceUseCase: WorkplaceUseCaseProtocol
+    ) {
         self.userUseCase = userUseCase
+        self.workplaceUseCase = workplaceUseCase
     }
 
     // MARK: - Input, Output
@@ -100,6 +106,40 @@ final class HomeViewModel {
                 return newExpanded
             }
             .bind(to: expandedIndexPathRelay)
+            .disposed(by: disposeBag)
+
+        workplaceUseCase.fetchAllWorkplacesForUser(uid: userId!)
+            .subscribe(onNext: { [weak self] workplaces in
+                guard let self else { return }
+                let workplacesArray = workplaces.map { // TODO: - role에 따라 다른 enum type의 데이터 생성
+                    let workplace = HomeSectionItem.workplace(
+                        DummyWorkplaceInfo(
+                            isOfficial: true, 
+                            storeName: $0.workplace.workplacesName,
+                            daysUntilPayday: 18,
+                            totalEarned: 252000,
+                            totalWorkTime: "25시간 07분",
+                            totalWorkPay: 252000,
+                            normalWorkTime: "20시간 00분",
+                            normalWorkPay: 200600,
+                            nightWorkTime: "",
+                            nightWorkPay: 0,
+                            substituteWorkTime: "05시간 07분",
+                            substituteWorkPay: 51344,
+                            substituteNormalWorkTime: "05시간 07분",
+                            substituteNormalWorkPay: 51344,
+                            substituteNightWorkTime: "",
+                            substituteNightWorkPay: 0,
+                            weeklyAllowancePay: 0,
+                            insuranceDeduction: 24_947,
+                            taxDeduction: 3_528
+                        )
+                    )
+                    return workplace
+                }
+                let homeFirstSectionItem = HomeTableViewFirstSection(header: "나의 근무지", items: workplacesArray)
+                firstSectionData.accept([homeFirstSectionItem])
+            })
             .disposed(by: disposeBag)
 
         return Output(

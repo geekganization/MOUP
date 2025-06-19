@@ -63,7 +63,20 @@ private extension TabbarViewController {
     }
     
     func setTabBarItems() {
-        let homeVC = HomeViewController(homeViewModel: HomeViewModel(userUseCase: UserUseCase(userRepository: UserRepository(userService: UserService()))))
+        let userService = UserService()
+        let userRepository = UserRepository(userService: userService)
+        let userUseCase = UserUseCase(userRepository: userRepository)
+        let workplaceService = WorkplaceService()
+        let workplaceRepository = WorkplaceRepository(service: workplaceService)
+        let workplaceUseCase = WorkplaceUseCase(repository: workplaceRepository)
+
+        let homeVC = HomeViewController(
+            homeViewModel: HomeViewModel(
+                userUseCase: userUseCase,
+                workplaceUseCase: workplaceUseCase
+            )
+        )
+
         let calendarVC = CalendarViewController()
         
         guard let userId = Auth.auth().currentUser?.uid else {

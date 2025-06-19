@@ -8,6 +8,7 @@
 import UIKit
 import SnapKit
 import RxSwift
+import FirebaseAuth
 
 final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRecognizerDelegate {
     
@@ -48,7 +49,7 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
         )
     )
 
-    private let registrationViewModel = OwnerSelfShiftRegistrationViewModel(
+    private let registrationViewModel = ShiftRegistrationViewModel(
         calendarUseCase: CalendarUseCase(
             repository: CalendarRepository(calendarService: CalendarService())
         )
@@ -78,7 +79,7 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
     }
 
     private func bindViewModel() {
-        let input = OwnerSelfShiftRegistrationViewModel.Input(submitTrigger: submitTrigger)
+        let input = ShiftRegistrationViewModel.Input(submitTrigger: submitTrigger)
         let output = registrationViewModel.transform(input: input)
 
         output.submissionResult
@@ -201,7 +202,7 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
                 eventDate: eventDate,
                 startTime: startTime,
                 endTime: endTime,
-                createdBy: "owner",
+                createdBy: String(describing: Auth.auth().currentUser),
                 year: dateComponents.year,
                 month: dateComponents.month,
                 day: dateComponents.day,
@@ -213,35 +214,25 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
             submitTrigger.onNext((workPlaceID, event))
 
         case .employee:
-            // 기존 로직 유지
-            let workPlace = contentView.simpleRowView.getData()
+            let workPlaceID = contentView.simpleRowView.getID()
             let worker = contentView.workerSelectionView.getSelectedWorkerData()
-
-            print("사장님 새 근무 등록 데이터 - 알바생")
-            print("근무지: ", workPlace)
-            print("근무자: ", worker)
-            print("근무 날짜 - 날짜: ", eventDate)
-            print("근무 날짜 - 반복: ", repeatDays)
-            print("근무 시간 - 출근: ", startTime)
-            print("근무 시간 - 퇴근: ", endTime)
-            print("근무 시간 - 휴게: ", breakTime)
-            print("메모: ", memo)
-
+            let routineIDs = contentView.routineView.getSelectedRoutineIDs()
+            
             let event = CalendarEvent(
                 title: "",
                 eventDate: eventDate,
                 startTime: startTime,
                 endTime: endTime,
-                createdBy: "",
+                createdBy: worker.first?.id ?? "", // 여러 알바 선택할수 있는데 어떤걸 넣어야 할지
                 year: dateComponents.year,
                 month: dateComponents.month,
                 day: dateComponents.day,
-                routineIds: [],
+                routineIds: routineIDs,
                 repeatDays: repeatDays,
                 memo: memo
             )
 
-            print(workPlaceID, event)
+            submitTrigger.onNext((workPlaceID, event))
         }
     }
 

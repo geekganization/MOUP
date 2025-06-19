@@ -180,6 +180,14 @@ extension ShiftRegistrationDelegateHandler: WorkTimeViewDelegate {
 extension ShiftRegistrationDelegateHandler: WorkerSelectionViewDelegate {
     func workerSelectionViewDidTap() {
         let employeeVC = EmployeeSelectionViewController()
+        
+        guard let workPlaceID = contentView?.simpleRowView.getID(), !workPlaceID.isEmpty else {
+            print("workPlaceID가 비어있습니다.")
+            return
+        }
+        
+        employeeVC.setWorkplaceId(workPlaceID)
+        
         employeeVC.onSelect = { [weak self] selectedEmployees in
             guard let self = self,
                   let firstName = selectedEmployees.first?.name else { return }

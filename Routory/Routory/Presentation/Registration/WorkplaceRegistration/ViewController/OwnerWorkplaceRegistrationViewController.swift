@@ -115,7 +115,7 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
         )
         
         let workerDetail = WorkerDetail(
-            workerName: "사장님",
+            workerName: "사장님", // 이름 수정 필요
             wage: 0,
             wageCalcMethod: "monthly",
             wageType: "",

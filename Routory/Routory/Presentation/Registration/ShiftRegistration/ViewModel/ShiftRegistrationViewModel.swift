@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-final class WorkShiftRegistrationViewModel {
+final class ShiftRegistrationViewModel {
 
     struct Input {
         let submitTrigger: Observable<(String, CalendarEvent)>

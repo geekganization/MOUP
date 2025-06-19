@@ -31,6 +31,8 @@ class MyWorkSpaceCell: UITableViewCell {
         $0.textAlignment = .left
     }
 
+    private let officialChip = ChipLabel(title: "연동", color: .primary100, titleColor: .primary600)
+
     fileprivate let menuButton = UIButton().then {
         var config = UIButton.Configuration.plain()
         config.image = .ellipsis.withTintColor(.gray700, renderingMode: .alwaysOriginal)
@@ -101,6 +103,7 @@ class MyWorkSpaceCell: UITableViewCell {
     func update(with workplaceInfo: DummyWorkplaceInfo, isExpanded: Bool, menuActions: [UIAction]) {
         print("셀 업데이트: \(workplaceInfo.storeName), isExpanded: \(isExpanded)")
         storeNameLabel.text = workplaceInfo.storeName
+        officialChip.isHidden = !workplaceInfo.isOfficial
         daysUntilPaydayLabel.text = "급여일까지 D-\(workplaceInfo.daysUntilPayday)"
         totalEarnedLabel.text = "현재까지 \(workplaceInfo.totalEarned.withComma)원"
 
@@ -141,6 +144,7 @@ private extension MyWorkSpaceCell {
         )
         headerView.addSubviews(
             storeNameLabel,
+            officialChip,
             menuButton,
             daysUntilPaydayLabel,
             totalEarnedLabel
@@ -177,6 +181,11 @@ private extension MyWorkSpaceCell {
         storeNameLabel.snp.makeConstraints {
             $0.top.equalToSuperview().inset(12)
             $0.leading.equalToSuperview().inset(16)
+        }
+
+        officialChip.snp.makeConstraints {
+            $0.leading.equalTo(storeNameLabel.snp.trailing).offset(4)
+            $0.centerY.equalTo(storeNameLabel)
         }
 
         daysUntilPaydayLabel.snp.makeConstraints {

@@ -107,20 +107,20 @@ class MyWorkSpaceCell: UITableViewCell {
         daysUntilPaydayLabel.text = "급여일까지 D-\(workplaceInfo.daysUntilPayday)"
         totalEarnedLabel.text = "현재까지 \(workplaceInfo.totalEarned.withComma)원"
 
-        totalWorkRow.update(title: "총 근무", time: workplaceInfo.totalWorkTime, amount: workplaceInfo.totalWorkPay, isLabelBold: true, showBottomLine: true, useDarkBottomLine: true)
-
-        normalWorkRow.update(title: "주간", time: workplaceInfo.normalWorkTime, amount: workplaceInfo.normalWorkPay)
-        nightWorkRow.update(title: "야간", time: workplaceInfo.nightWorkTime, amount: workplaceInfo.nightWorkPay,
-                            showBottomLine: true)
-
-        substituteWorkRow.update(title: "대타 근무", time: workplaceInfo.substituteWorkTime, amount: workplaceInfo.substituteWorkPay, isLabelBold: true)
-        substituteNormalWorkRow.update(title: "주간", time: workplaceInfo.substituteNormalWorkTime, amount: workplaceInfo.substituteNormalWorkPay)
-        substituteNightWorkRow.update(title: "야간", time: workplaceInfo.substituteNightWorkTime, amount: workplaceInfo.substituteNightWorkPay, showBottomLine: true)
-
-        weeklyAllowancePayRow.update(title: "주휴 수당", time: nil, amount: workplaceInfo.weeklyAllowancePay, isLabelBold: true, showTimeLabel: false, showBottomLine: true)
-
-        insuranceDeductionRow.update(title: "4대 보험", time: nil, amount: workplaceInfo.insuranceDeduction, isLabelBold: true, showTimeLabel: false)
-        taxDeductionRow.update(title: "소득세", time: nil, amount: workplaceInfo.taxDeduction, isLabelBold: true, showTimeLabel: false)
+//        totalWorkRow.update(title: "총 근무", time: workplaceInfo.totalWorkTime, amount: workplaceInfo.totalWorkPay, isLabelBold: true, showBottomLine: true, useDarkBottomLine: true)
+//
+//        normalWorkRow.update(title: "주간", time: workplaceInfo.normalWorkTime, amount: workplaceInfo.normalWorkPay)
+//        nightWorkRow.update(title: "야간", time: workplaceInfo.nightWorkTime, amount: workplaceInfo.nightWorkPay,
+//                            showBottomLine: true)
+//
+//        substituteWorkRow.update(title: "대타 근무", time: workplaceInfo.substituteWorkTime, amount: workplaceInfo.substituteWorkPay, isLabelBold: true)
+//        substituteNormalWorkRow.update(title: "주간", time: workplaceInfo.substituteNormalWorkTime, amount: workplaceInfo.substituteNormalWorkPay)
+//        substituteNightWorkRow.update(title: "야간", time: workplaceInfo.substituteNightWorkTime, amount: workplaceInfo.substituteNightWorkPay, showBottomLine: true)
+//
+//        weeklyAllowancePayRow.update(title: "주휴 수당", time: nil, amount: workplaceInfo.weeklyAllowancePay, isLabelBold: true, showTimeLabel: false, showBottomLine: true)
+//
+//        insuranceDeductionRow.update(title: "4대 보험", time: nil, amount: workplaceInfo.insuranceDeduction, isLabelBold: true, showTimeLabel: false)
+//        taxDeductionRow.update(title: "소득세", time: nil, amount: workplaceInfo.taxDeduction, isLabelBold: true, showTimeLabel: false)
 
         toggleDetailView(isExpanded: isExpanded)
         setupButtonMenu(with: menuActions)

@@ -100,12 +100,12 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
         let name = contentView.workplaceInfoView.getName()
         let category = contentView.workplaceInfoView.getCategory()
         let label = contentView.labelView.getColorLabelData()
-        
+
         guard let uid = Auth.auth().currentUser?.uid, !uid.isEmpty else {
             print("유저 UID가 존재하지 않음")
             return
         }
-        
+
         let workplace = Workplace(
             workplacesName: name,
             category: category,
@@ -113,49 +113,60 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
             inviteCode: UUID().uuidString,
             isOfficial: true
         )
-        
-        let workerDetail = WorkerDetail(
-            workerName: "사장님", // 이름 수정 필요
-            wage: 0,
-            wageCalcMethod: "monthly",
-            wageType: "",
-            weeklyAllowance: false,
-            payDay: 0,
-            payWeekday: "",
-            breakTimeMinutes: 0,
-            employmentInsurance: false,
-            healthInsurance: false,
-            industrialAccident: false,
-            nationalPension: false,
-            incomeTax: false,
-            nightAllowance: false,
-            color: label
-        )
-        
-        let input = CreateWorkplaceViewModel.Input(
-            createTrigger: Observable.just(()),
-            workplace: Observable.just(workplace),
-            workerDetail: Observable.just(workerDetail),
-            uid: Observable.just(uid),
-            color: Observable.just(label),
-            role: Observable.just(Role.owner)
-        )
-        
-        let output = viewModel.transform(input: input)
-        
-        output.workplaceId
-            .observe(on: MainScheduler.instance)
-            .subscribe(onNext: { [weak self] id in
-                print("매장 등록 완료: \(id)")
-                self?.navigationController?.popViewController(animated: true)
-            })
-            .disposed(by: disposeBag)
-        
-        output.error
-            .observe(on: MainScheduler.instance)
-            .subscribe(onNext: { error in
-                print("에러 발생: \(error.localizedDescription)")
-            })
-            .disposed(by: disposeBag)
+
+        // getUserName의 결과를 받은 후 처리하도록 클로저 내부로 이동
+        UserManager.shared.getUserName { [weak self] result in
+            switch result {
+            case .success(let userName):
+                let workerDetail = WorkerDetail(
+                    workerName: userName,
+                    wage: 0,
+                    wageCalcMethod: "monthly",
+                    wageType: "",
+                    weeklyAllowance: false,
+                    payDay: 0,
+                    payWeekday: "",
+                    breakTimeMinutes: 0,
+                    employmentInsurance: false,
+                    healthInsurance: false,
+                    industrialAccident: false,
+                    nationalPension: false,
+                    incomeTax: false,
+                    nightAllowance: false,
+                    color: label
+                )
+
+                guard let self = self else { return }
+
+                let input = CreateWorkplaceViewModel.Input(
+                    createTrigger: Observable.just(()),
+                    workplace: Observable.just(workplace),
+                    workerDetail: Observable.just(workerDetail),
+                    uid: Observable.just(uid),
+                    color: Observable.just(label),
+                    role: Observable.just(Role.owner)
+                )
+
+                let output = self.viewModel.transform(input: input)
+
+                output.workplaceId
+                    .observe(on: MainScheduler.instance)
+                    .subscribe(onNext: { [weak self] id in
+                        print("매장 등록 완료: \(id)")
+                        self?.navigationController?.popViewController(animated: true)
+                    })
+                    .disposed(by: self.disposeBag)
+
+                output.error
+                    .observe(on: MainScheduler.instance)
+                    .subscribe(onNext: { error in
+                        print("에러 발생: \(error.localizedDescription)")
+                    })
+                    .disposed(by: self.disposeBag)
+
+            case .failure(let error):
+                print("사용자 이름 가져오기 실패: \(error.localizedDescription)")
+            }
+        }
     }
 }

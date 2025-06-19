@@ -160,7 +160,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
         let payDate = contentView.salaryInfoView.getPayDateValue()
         let selectedConditions = contentView.workConditionView.getSelectedConditions()
         let label = contentView.labelView.getColorLabelData()
-        
+
         let (wage, wageCalcMethod): (Int, String) = {
             switch salaryType {
             case "매월":
@@ -171,7 +171,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
                 return (0, "hourly")
             }
         }()
-        
+
         let employmentInsurance = selectedConditions.contains("고용보험")
         let healthInsurance = selectedConditions.contains("건강보험")
         let industrialAccident = selectedConditions.contains("산재보험")
@@ -179,72 +179,81 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
         let incomeTax = selectedConditions.contains("소득세")
         let weeklyAllowance = selectedConditions.contains("주휴수당")
         let nightAllowance = selectedConditions.contains("야간수당*")
-        
         let breakTimeMinutes = 0
-        
+
         let workplace = Workplace(
             workplacesName: name,
             category: category,
             ownerId: Auth.auth().currentUser?.uid ?? "",
-            inviteCode: "", // 초대 코드 생성 못하게 빈문자열 전달
+            inviteCode: "",
             isOfficial: false
         )
-        
-        let workerDetail = WorkerDetail(
-            workerName: "알바생 이름", // 이름 수정 필요
-            wage: wage,
-            wageCalcMethod: wageCalcMethod,
-            wageType: salaryType,
-            weeklyAllowance: weeklyAllowance,
-            payDay: parseDateStringToInt(payDate),
-            payWeekday: payWeekday,
-            breakTimeMinutes: breakTimeMinutes,
-            employmentInsurance: employmentInsurance,
-            healthInsurance: healthInsurance,
-            industrialAccident: industrialAccident,
-            nationalPension: nationalPension,
-            incomeTax: incomeTax,
-            nightAllowance: nightAllowance,
-            color: label
-        )
-        
+
         guard let uid = Auth.auth().currentUser?.uid, !uid.isEmpty else {
             print("유저 UID가 존재하지 않음")
             return
         }
-        
-        switch mode {
-        case .fullRegistration:
-            let input = CreateWorkplaceViewModel.Input(
-                createTrigger: Observable.just(()),
-                workplace: Observable.just(workplace),
-                workerDetail: Observable.just(workerDetail),
-                uid: Observable.just(uid),
-                color: Observable.just(label),
-                role: Observable.just(Role.worker)
-            )
-            
-            let output = viewModel.transform(input: input)
-            
-            output.workplaceId
-                .observe(on: MainScheduler.instance)
-                .subscribe(onNext: { [weak self] id in
-                    print("등록 완료: \(id)")
-                    self?.navigationController?.popViewController(animated: true)
-                })
-                .disposed(by: disposeBag)
-            
-            output.error
-                .observe(on: MainScheduler.instance)
-                .subscribe(onNext: { error in
-                    print("에러 발생: \(error.localizedDescription)")
-                })
-                .disposed(by: disposeBag)
-        case .inputOnly:
-            // 초대코드 플로우:
-            // 입력된 정보를 상위 VC로 전달하고 현재 화면을 닫습니다.
-            onWorkplaceInfoPrepared?(workerDetail)
-            navigationController?.popViewController(animated: true)
+
+        // 비동기 처리 위치: 여기서 workerDetail을 만들어야 함
+        UserManager.shared.getUserName { [weak self] result in
+            switch result {
+            case .success(let userName):
+                let workerDetail = WorkerDetail(
+                    workerName: userName,
+                    wage: wage,
+                    wageCalcMethod: wageCalcMethod,
+                    wageType: salaryType,
+                    weeklyAllowance: weeklyAllowance,
+                    payDay: parseDateStringToInt(payDate),
+                    payWeekday: payWeekday,
+                    breakTimeMinutes: breakTimeMinutes,
+                    employmentInsurance: employmentInsurance,
+                    healthInsurance: healthInsurance,
+                    industrialAccident: industrialAccident,
+                    nationalPension: nationalPension,
+                    incomeTax: incomeTax,
+                    nightAllowance: nightAllowance,
+                    color: label
+                )
+
+                guard let self = self else { return }
+
+                switch self.mode {
+                case .fullRegistration:
+                    let input = CreateWorkplaceViewModel.Input(
+                        createTrigger: Observable.just(()),
+                        workplace: Observable.just(workplace),
+                        workerDetail: Observable.just(workerDetail),
+                        uid: Observable.just(uid),
+                        color: Observable.just(label),
+                        role: Observable.just(Role.worker)
+                    )
+
+                    let output = self.viewModel.transform(input: input)
+
+                    output.workplaceId
+                        .observe(on: MainScheduler.instance)
+                        .subscribe(onNext: { [weak self] id in
+                            print("등록 완료: \(id)")
+                            self?.navigationController?.popViewController(animated: true)
+                        })
+                        .disposed(by: self.disposeBag)
+
+                    output.error
+                        .observe(on: MainScheduler.instance)
+                        .subscribe(onNext: { error in
+                            print("에러 발생: \(error.localizedDescription)")
+                        })
+                        .disposed(by: self.disposeBag)
+
+                case .inputOnly:
+                    self.onWorkplaceInfoPrepared?(workerDetail)
+                    self.navigationController?.popViewController(animated: true)
+                }
+
+            case .failure(let error):
+                print("사용자 이름 가져오기 실패: \(error.localizedDescription)")
+            }
         }
     }
 }

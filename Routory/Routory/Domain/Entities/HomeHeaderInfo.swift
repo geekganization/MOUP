@@ -8,7 +8,6 @@
 import Foundation
 
 struct HomeHeaderInfo {
-    let currentMonth: Int
     let monthlyAmount: Int          // 공통 금액 필드
     let amountDifference: Int
     let todayRoutineCount: Int

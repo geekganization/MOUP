@@ -120,10 +120,11 @@ final class HomeHeaderView: UITableViewHeaderFooterView {
 
     // MARK: - Public Methods
     func update(with headerData: HomeHeaderInfo, userType: UserType) {
+        print("headerData: \(headerData)")
         todaysRoutineNoticeLabel.attributedText = createRoutineNoticeText(count: headerData.todayRoutineCount)
         // 타입 별 UI 처리 분기
         monthlyAmount(headerData.monthlyAmount)
-        monthlyAmountTitle(userType, headerData.currentMonth)
+        monthlyAmountTitle(userType)
         monthlyChangeComment(userType, headerData.amountDifference)
     }
 }
@@ -273,12 +274,16 @@ private extension HomeHeaderView {
     // MARK: - 유저 타입에 따른 각 컴포넌트 분기
 
     // 고정 요소들
-    func monthlyAmountTitle(_ userType: UserType, _ month: Int) {
+    func monthlyAmountTitle(_ userType: UserType) {
+        let components = Calendar.current.dateComponents([.year, .month], from: Date())
+        guard let month = components.month else {
+            return
+        }
         switch userType {
         case .worker:
-            monthlyAmountTitleLabel.text = "\(month)월 총 급여"
+            monthlyAmountTitleLabel.text = "\(String(describing: month))월 총 급여"
         case .owner:
-            monthlyAmountTitleLabel.text = "\(month)월 총 인건비"
+            monthlyAmountTitleLabel.text = "\(String(describing: month))월 총 인건비"
         }
     }
 

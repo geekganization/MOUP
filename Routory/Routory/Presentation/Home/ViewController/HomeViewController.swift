@@ -106,7 +106,7 @@ private extension HomeViewController {
         self.navigationController?.navigationBar.isHidden = true
     }
 
-    func setBindings() {
+    func setBindings() { 
         output.sectionData.subscribe().disposed(by: disposeBag)
         output.headerData.subscribe().disposed(by: disposeBag)
         output.userType.subscribe().disposed(by: disposeBag) // 구독 전에 방출하면 의미가 없으므로 미리 인위적으로 구독 처리

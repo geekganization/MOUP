@@ -20,30 +20,6 @@ final class HomeViewModel {
     }
 
     // MARK: - Mock Data
-    let dummyWorkplace = DummyWorkplaceInfo(
-        isOfficial: false,
-        storeName: "맥도날드 강북 수유점",
-        daysUntilPayday: 18,
-        totalEarned: 252000,
-        totalWorkTime: "25시간 07분",
-        totalWorkPay: 252000,
-        normalWorkTime: "20시간 00분",
-        normalWorkPay: 200600,
-        nightWorkTime: "",
-        nightWorkPay: 0,
-        substituteWorkTime: "05시간 07분",
-        substituteWorkPay: 51344,
-        substituteNormalWorkTime: "05시간 07분",
-        substituteNormalWorkPay: 51344,
-        substituteNightWorkTime: "",
-        substituteNightWorkPay: 0,
-        weeklyAllowancePay: 0,
-        insuranceDeduction: 24_947,
-        taxDeduction: 3_528
-    )
-    private lazy var dummyWorkplace2 = dummyWorkplace
-    private lazy var dummyWorkplace3 = dummyWorkplace
-    private lazy var dummyWorkerHeaderInfo = HomeHeaderInfo(currentMonth: 6, monthlyAmount: 516000, amountDifference: 32000, todayRoutineCount: 4)
 
     private let dummyStore = DummyStoreInfo(isOfficial: true, storeName: "롯데리아 강북 수유점", daysUntilPayday: 13, totalLaborCost: 255300)
     private let dummyStore1 = DummyStoreInfo(isOfficial: false, storeName: "롯데리아 강북 문익점", daysUntilPayday: 11, totalLaborCost: 490000)
@@ -139,18 +115,37 @@ final class HomeViewModel {
             currentMonthSummary,
             previousMonthSummary,
             todaysRoutine
-        ) { workplace, currentSummary, previousSummary, todaysRoutine in
+        ) { workplace, currentSummaries, previousSummaries, todaysRoutine in
+            print("homeHeaderData 합침")
+            let monthlyAmount = {
+                var amount = 0
+                currentSummaries.forEach {
+                    amount += $0.totalWage
+                }
+                return amount
+            }()
+
+            let previousMonthlyAmount = {
+                var amount = 0
+                previousSummaries.forEach {
+                    amount += $0.totalWage
+                }
+                return amount
+            }()
+
+            let todayRoutineCount = todaysRoutine.count
+
             let homeHeaderData = HomeHeaderInfo(
-                currentMonth: <#T##Int#>,
-                monthlyAmount: <#T##Int#>,
-                amountDifference: <#T##Int#>,
-                todayRoutineCount: <#T##Int#>
+                monthlyAmount: monthlyAmount,
+                amountDifference: monthlyAmount - previousMonthlyAmount,
+                todayRoutineCount: todayRoutineCount
             )
+            print("homeHeaderData - \(homeHeaderData)")
+            return homeHeaderData
         }
+            .share(replay: 1)
 
-
-
-
+        print("홈 헤더 데이터 : \(homeHeaderData)")
 
         input.refreshBtnTapped
             .subscribe(onNext: { [weak self] in
@@ -200,10 +195,16 @@ final class HomeViewModel {
             })
             .disposed(by: disposeBag)
 
+        routineUseCase.fetchTodayRoutineEventsGroupedByWorkplace(uid: userId, date: .now)
+            .subscribe(onNext: { calendarEvents in
+                print("오늘 루틴들: \(calendarEvents)")
+            })
+            .disposed(by: disposeBag)
+
         return Output(
             sectionData: firstSectionData.asObservable(),
             expandedIndexPath: expandedIndexPathRelay.asObservable(),
-            headerData: headerData,
+            headerData: homeHeaderData,
             userType: userType
         )
     }

@@ -123,7 +123,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
             contentView.setPresetWorkplaceInfo(name: presetWorkplaceName ?? "", category: presetCategory ?? "")
         }
         
-        // 숨김 처리 - 기능 완성되면 나중에 지워야 함 
+        // 숨김 처리 - 기능 완성되면 나중에 지워야 함
         contentView.workConditionView.isHidden = true
         contentView.labelView.isHidden = true
     }
@@ -161,17 +161,17 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
         let selectedConditions = contentView.workConditionView.getSelectedConditions()
         let label = contentView.labelView.getColorLabelData()
 
-        let (wage, wageCalcMethod): (Int, String) = {
-            switch salaryType {
-            case "매월":
-                return (parseCurrencyStringToInt(fixedSalary), "monthly")
-            case "매주", "매일":
-                return (parseCurrencyStringToInt(hourlyWage), "hourly")
+        let wage: Int = {
+            switch salaryCalc {
+            case "시급":
+                return (parseCurrencyStringToInt(hourlyWage))
+            case "고정":
+                return (parseCurrencyStringToInt(fixedSalary))
             default:
-                return (0, "hourly")
+                return (0)
             }
         }()
-
+        
         let employmentInsurance = selectedConditions.contains("고용보험")
         let healthInsurance = selectedConditions.contains("건강보험")
         let industrialAccident = selectedConditions.contains("산재보험")
@@ -201,8 +201,8 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
                 let workerDetail = WorkerDetail(
                     workerName: user.userName,
                     wage: wage,
-                    wageCalcMethod: wageCalcMethod,
-                    wageType: salaryType,
+                    wageCalcMethod: salaryType,
+                    wageType: salaryCalc,
                     weeklyAllowance: weeklyAllowance,
                     payDay: parseDateStringToInt(payDate),
                     payWeekday: payWeekday,

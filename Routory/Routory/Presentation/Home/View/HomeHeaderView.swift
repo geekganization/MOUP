@@ -119,7 +119,7 @@ final class HomeHeaderView: UITableViewHeaderFooterView {
     }
 
     // MARK: - Public Methods
-    func update(with headerData: DummyHomeHeaderInfo, userType: UserType) {
+    func update(with headerData: HomeHeaderInfo, userType: UserType) {
         todaysRoutineNoticeLabel.attributedText = createRoutineNoticeText(count: headerData.todayRoutineCount)
         // 타입 별 UI 처리 분기
         monthlyAmount(headerData.monthlyAmount)

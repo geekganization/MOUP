@@ -171,8 +171,15 @@ final class EventService: EventServiceProtocol {
                             }
                         }
                         // 5. 쿼리 결과 zip & flatMap
-                        let personalEventsObs = Observable.zip(fetchEvents(personalIds)).map { $0.flatMap { $0 } }
-                        let sharedEventsObs = Observable.zip(fetchEvents(sharedIds)).map { $0.flatMap { $0 } }
+                        // 보완된 분기 처리
+                        let personalEventsObs: Observable<[CalendarEvent]> =
+                            personalIds.isEmpty
+                            ? .just([])
+                            : Observable.zip(fetchEvents(personalIds)).map { $0.flatMap { $0 } }
+                        let sharedEventsObs: Observable<[CalendarEvent]> =
+                            sharedIds.isEmpty
+                            ? .just([])
+                            : Observable.zip(fetchEvents(sharedIds)).map { $0.flatMap { $0 } }
                         return Observable.zip(personalEventsObs, sharedEventsObs)
                     }
                 // 6. Rx 최종 반환

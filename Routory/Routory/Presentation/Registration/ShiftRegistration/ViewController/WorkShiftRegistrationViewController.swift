@@ -58,6 +58,14 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
             self.keyboardHandler?.startObserving()
         }
     }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        if self.isMovingFromParent {
+            delegate?.registrationVCIsMovingFromParent()
+        }
+    }
 
     private func bindViewModel() {
         let input = ShiftRegistrationViewModel.Input(submitTrigger: submitTrigger)
@@ -139,6 +147,7 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
 
     @objc func didTapRegister() {
         let workPlaceID = contentView.simpleRowView.getID()
+        let workPlace = contentView.simpleRowView.getData()
         let eventDate = contentView.workDateView.getdateRowData()
         let startTime = contentView.workTimeView.getstartRowData()
         let endTime = contentView.workTimeView.getendRowData()
@@ -157,7 +166,7 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
             }
 
         let event = CalendarEvent(
-            title: "",
+            title: workPlace,
             eventDate: eventDate,
             startTime: startTime,
             endTime: endTime,

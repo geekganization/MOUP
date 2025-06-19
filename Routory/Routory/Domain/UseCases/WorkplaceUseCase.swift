@@ -19,7 +19,10 @@ final class WorkplaceUseCase: WorkplaceUseCaseProtocol {
     }
     // 사용자 uid를 기반으로 모든 근무지를 조회해서 WorkplaceInfo 배열을 받아온다
     func fetchAllWorkplacesForUser(uid: String) -> Observable<[WorkplaceInfo]> {
-        return repository.fetchAllWorkplacesForUser(uid: uid)
+        return repository.fetchAllWorkplacesForUser1(uid: uid)
+    }
+    func fetchAllWorkplacesForUser2(uid: String) -> Observable<[WorkplaceInfo]> {
+        return repository.fetchAllWorkplacesForUser2(uid: uid)
     }
     func createWorkplaceWithCalendarAndMaybeWorker(
         uid: String,

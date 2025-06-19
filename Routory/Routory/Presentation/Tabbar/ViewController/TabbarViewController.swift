@@ -80,8 +80,12 @@ private extension TabbarViewController {
                 routineUseCase: routineUseCase
             )
         )
-
-        let calendarVC = CalendarViewController()
+        
+        let eventService = EventService()
+        let eventRepository = EventRepository(eventService: eventService)
+        let eventUseCase = EventUseCase(repository: eventRepository)
+        let calendarVM = CalendarViewModel(eventUseCase: eventUseCase)
+        let calendarVC = CalendarViewController(viewModel: calendarVM)
         
         guard let userId = Auth.auth().currentUser?.uid else {
             print("유저 ID를 찾을 수 없습니다.")

@@ -19,13 +19,11 @@ final class EventCell: UITableViewCell {
     // MARK: - UI Components
     
     private let workplaceLabel = UILabel().then {
-        $0.text = "맥도날드"
         $0.textColor = .gray900
         $0.font = .bodyMedium(16)
     }
     
     private let workHourLabel = UILabel().then {
-        $0.text = "09:00 ~ 19:00 (10시간)"
         $0.textColor = .gray900
         $0.font = .bodyMedium(16)
     }
@@ -60,15 +58,26 @@ final class EventCell: UITableViewCell {
         super.layoutSubviews()
         self.contentView.frame = self.contentView.frame.inset(by: UIEdgeInsets(top: 6, left: 16, bottom: 6, right: 16))
         
-        self.backgroundView = ColorBorderView(frame: self.contentView.bounds, borderColor: .red)
+        self.backgroundView = ColorBorderView(frame: self.contentView.bounds, borderColor: .primary600)
         self.backgroundView?.frame = self.contentView.frame
     }
     
-    
     // MARK: - Methods
     
-    func update(workplace: String, startTime: String, endTime: String, dailyWage: String) {
+    func update(workplace: String, startTime: String, endTime: String, dailyWage: String, calendarMode: CalendarMode) {
+        workplaceLabel.text = workplace
+        let workHour = DateFormatter.hourDiffDecimal(from: startTime, to: endTime)
         
+        if let hour = workHour?.hours,
+           let min = workHour?.minutes {
+            if min == 0 {
+                workHourLabel.text = "\(startTime) ~ \(endTime) (\(hour)시간)"
+            } else {
+                workHourLabel.text = "\(startTime) ~ \(endTime) (\(hour)시간 \(min)분)"
+            }
+        }
+        dailyWageLabel.isHidden = (calendarMode == .shared)
+        // TODO: dailyWage 계산 필요
     }
 }
 

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import OSLog
 
 import RxRelay
 import RxSwift
@@ -14,38 +15,59 @@ final class CalendarViewModel {
     
     // MARK: - Properties
     
+    private lazy var logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: String(describing: self))
+    
     private let disposeBag = DisposeBag()
     
+    private let eventUseCase: EventUseCaseProtocol
+    
     // MARK: - Input (ViewController ➡️ ViewModel)
+    
     struct Input {
-        let viewDidLoad: Infallible<Void>
-        let calendarMode: BehaviorRelay<CalendarMode>
+        /// 직전달, 이번달, 다음달 3개월치 불러옴
+        let loadMonthEvent: Observable<(year: Int, month: Int)>
+        let filterWorkplace: Observable<String>
     }
     
     // MARK: - Output (ViewModel ➡️ ViewController)
     
     struct Output {
-        let calendarEventList: PublishRelay<[CalendarEvent]>
+        let calendarEventListRelay: PublishRelay<(personal: [CalendarEvent], shared: [CalendarEvent])>
     }
     
     // MARK: - Transform (Input ➡️ Output)
     
     func tranform(input: Input) -> Output {
-        let calendarEvent = PublishRelay<[CalendarEvent]>()
+        let calendarEventListRelay = PublishRelay<(personal: [CalendarEvent], shared: [CalendarEvent])>()
         
-        input.viewDidLoad
-            .subscribe(with: self) { owner, _ in
-                // TODO: 로그인된 userId의 모든 WorkCalendar, 공유 캘린더 데이터 불러오기 (직전달, 이번달, 다음달 3개월 or 모든 달?)
-            }.disposed(by: disposeBag)
+        Observable.combineLatest(input.loadMonthEvent, input.filterWorkplace)
+            .subscribe(with: self, onNext: { owner, combined in
+                let ((year, month), workplace) = combined
+                
+                // TODO: 직전달, 이번달, 다음달 3개월씩 불러오기
+                guard let uid = UserManager.shared.firebaseUid else { return }
+                
+                owner.eventUseCase.fetchAllEventsForUserInMonthSeparated(uid: uid, year: year, month: month)
+                    .subscribe(with: self) { owner, calendarEventList in
+                        if workplace == "전체 보기" {
+                            calendarEventListRelay.accept(calendarEventList)
+                        } else {
+                            let filteredPersonal = calendarEventList.personal.filter { $0.title == workplace }
+                            let filteredShared = calendarEventList.shared.filter { $0.title == workplace }
+                            let filteredEventList = (personal: filteredPersonal, shared: filteredShared)
+                            calendarEventListRelay.accept(filteredEventList)
+                        }
+                    } onError: { owner, error in
+                        owner.logger.error("\(error.localizedDescription)")
+                    }.disposed(by: owner.disposeBag)
+            }).disposed(by: disposeBag)
         
-        // TODO: isShared == true인 WorkCalendar 불러오기
-        
-        return Output(calendarEventList: calendarEvent)
+        return Output(calendarEventListRelay: calendarEventListRelay)
     }
     
     // MARK: - Initializer
     
-    init() {
-        // TODO: UseCase 주입
+    init(eventUseCase: EventUseCaseProtocol) {
+        self.eventUseCase = eventUseCase
     }
 }

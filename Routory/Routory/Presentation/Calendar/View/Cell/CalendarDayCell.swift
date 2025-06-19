@@ -8,6 +8,7 @@
 import UIKit
 
 import JTAppleCalendar
+import RxSwift
 import SnapKit
 import Then
 
@@ -17,12 +18,7 @@ final class CalendarDayCell: JTACDayCell {
     
     static let identifier = String(describing: CalendarDayCell.self)
     
-    /// 근무 시간 계산용 `DateFormatter`
-    private let dateFormatter = DateFormatter().then {
-        $0.dateFormat = "HH:mm"
-        $0.locale = Locale(identifier: "ko_KR")
-        $0.timeZone = TimeZone(identifier: "Asia/Seoul")
-    }
+    
     
     // MARK: - UI Components
     
@@ -41,7 +37,7 @@ final class CalendarDayCell: JTACDayCell {
         $0.textAlignment = .center
         $0.backgroundColor = .clear
         $0.clipsToBounds = true
-        $0.layer.cornerRadius = 11
+        $0.layer.cornerRadius = 10.5
     }
     
     private let firstEventStackView = CalendarEventVStackView()
@@ -81,7 +77,7 @@ final class CalendarDayCell: JTACDayCell {
     
     // MARK: - Methods
     
-    func update(date: String, isSaturday: Bool, isSunday: Bool, isToday: Bool, isShared: Bool, eventList: [CalendarEvent]?) {
+    func update(date: String, isSaturday: Bool, isSunday: Bool, isToday: Bool, calendarMode: CalendarMode, eventList: [CalendarEvent]?) {
         dayLabel.text = date
         dayLabel.textColor = isSunday ? .sundayText : .gray900
         
@@ -104,19 +100,21 @@ final class CalendarDayCell: JTACDayCell {
             } else {
                 eventVStackView.isHidden = false
                 
-                if isShared && eventList.count > 3 {
+                if (calendarMode == .shared) && eventList.count > 3 {
                     otherEventLabel.text = "+\(eventList.count - 3)"
                     otherEventLabel.isHidden = false
                 }
                 for (index, event) in eventList.enumerated() {
-                    if index > (isShared ? 2 : 1) {
+                    if index > ((calendarMode == .shared) ? 2 : 1) {
                         break
                     } else {
                         guard let eventView = eventVStackView.subviews[index] as? CalendarEventVStackView else { continue }
-                        // TODO: 캘린더가 isShared인지 확인 필요
-                        let workHour = hourDiffDecimal(from: event.startTime, to: event.endTime)
+                        
+                        let workHour = DateFormatter.hourDiffDecimal(from: event.startTime, to: event.endTime)
                         // TODO: dailyWage 계산 필요
-                        eventView.update(workHourOrName: "\(workHour?.hours ?? 0)", dailyWage: "100,000", isShared: isShared, color: "red")
+                        // TODO: isShared == true일 때 이름 표시
+                        // TODO: color 표시
+                        eventView.update(workHourOrName: "\(workHour?.hours ?? 0)", dailyWage: "100,000", calendarMode: calendarMode, color: "red")
                         eventView.isHidden = false
                     }
                 }
@@ -136,9 +134,9 @@ private extension CalendarDayCell {
     
     func setHierarchy() {
         self.contentView.addSubviews(seperatorView,
-                         selectedView,
-                         dayLabel,
-                         eventVStackView)
+                                     selectedView,
+                                     dayLabel,
+                                     eventVStackView)
         
         eventVStackView.addArrangedSubviews(firstEventStackView,
                                             secondEventStackView,
@@ -165,7 +163,7 @@ private extension CalendarDayCell {
         
         dayLabel.snp.makeConstraints {
             $0.top.equalTo(seperatorView.snp.bottom).offset(4)
-            $0.width.height.equalTo(22)
+            $0.width.height.equalTo(21)
             $0.centerX.equalToSuperview()
         }
         
@@ -173,24 +171,5 @@ private extension CalendarDayCell {
             $0.top.equalTo(dayLabel.snp.bottom)
             $0.leading.trailing.equalToSuperview().inset(2)
         }
-    }
-}
-
-// MARK: - Private Methods
-
-private extension CalendarDayCell {
-    func hourDiffDecimal(from start: String, to end: String) -> (hours: Int, minutes: Int, decimal: Double)? {
-        guard let startDate = dateFormatter.date(from: start),
-              let endDate = dateFormatter.date(from: end) else { return nil }
-        
-        let todayOverEnd = endDate < startDate ? Calendar.current.date(byAdding: .day, value: 1, to: endDate) ?? endDate : endDate
-        
-        let components = Calendar.current.dateComponents([.hour, .minute], from: startDate, to: todayOverEnd)
-        
-        let h = components.hour ?? 0
-        let m = components.minute ?? 0
-        let decimalHours = Double(h) + Double(m) / 60.0
-        
-        return (h, m, decimalHours)
     }
 }

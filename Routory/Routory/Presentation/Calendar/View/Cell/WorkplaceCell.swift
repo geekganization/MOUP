@@ -31,6 +31,10 @@ final class WorkplaceCell: UITableViewCell {
         $0.isHidden = true
     }
     
+    // MARK: - Getter
+    
+    var getWorkplaceLabel: UILabel { workplaceLabel }
+    
     // MARK: - Initializer
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -57,6 +61,12 @@ final class WorkplaceCell: UITableViewCell {
         self.contentView.layer.borderColor = selected ? UIColor.primary500.cgColor : UIColor.gray400.cgColor
         workplaceLabel.textColor = selected ? .primary600 : .gray500
         checkImageView.isHidden = !selected
+    }
+    
+    // MARK: - Methods
+    
+    func update(workplace: String) {
+        workplaceLabel.text = workplace
     }
 }
 

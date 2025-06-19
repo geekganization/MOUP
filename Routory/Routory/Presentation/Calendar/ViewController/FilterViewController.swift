@@ -21,7 +21,6 @@ final class FilterViewController: UIViewController {
     private let disposeBag = DisposeBag()
     
     private let calendarMode: CalendarMode
-    private var selectedIndexPath = IndexPath()
     
     // MARK: UI Components
     
@@ -68,17 +67,15 @@ private extension FilterViewController {
     func setActions() {
         filterView.getApplyButton.rx.tap
             .subscribe(with: self) { owner, _ in
-                owner.delegate?.didApplyButtonTap()
+                guard let selectedIndexPath = owner.filterView.getWorkplaceTableView.indexPathForSelectedRow,
+                      let selectedCell = owner.filterView.getWorkplaceTableView.cellForRow(at: selectedIndexPath) as? WorkplaceCell else { return }
+                
+                owner.delegate?.didApplyButtonTap(workplaceText: selectedCell.getWorkplaceLabel.text ?? "전체 보기")
                 owner.dismiss(animated: true)
             }.disposed(by: disposeBag)
     }
     
     func setBinding() {
-        filterView.getWorkplaceTableView.rx.itemSelected
-            .subscribe(with: self) { owner, indexPath in
-                owner.selectedIndexPath = indexPath
-            }.disposed(by: disposeBag)
-        
         let input = FilterViewModel.Input(calendarMode: Observable.just((calendarMode)))
         
         let output = viewModel.tranform(input: input)

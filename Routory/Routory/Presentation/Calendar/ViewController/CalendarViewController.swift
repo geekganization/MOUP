@@ -26,8 +26,7 @@ final class CalendarViewController: UIViewController {
     
     private let calendarMode = BehaviorRelay<CalendarMode>(value: .personal)
     
-    // 임시 UserService
-    private let userService = UserService()
+    private let filterWorkplace = BehaviorRelay<String>(value: "전체 보기")
     
     /// `calendarView`에서 `dataSource` 관련 데이터의 연/월 형식을 만들기 위한 `DateFormatter`
     private let dataSourceDateFormatter = DateFormatter().then {
@@ -138,14 +137,14 @@ private extension CalendarViewController {
                 owner.didFilterButtonTap()
             }.disposed(by: disposeBag)
         
-        let input = CalendarViewModel.Input(loadMonthEvent: visibleYearMonth.asObservable())
+        let input = CalendarViewModel.Input(loadMonthEvent: visibleYearMonth.asObservable(),
+                                            filterWorkplace: filterWorkplace.asObservable())
         
         let output = viewModel.tranform(input: input)
         
         output.calendarEventListRelay
             .asDriver(onErrorJustReturn: ([], []))
             .drive(with: self) { owner, calendarEventList in
-//                dump(calendarEventList)
                 owner.populateDataSource(calendarEvents: calendarEventList)
             }.disposed(by: disposeBag)
     }
@@ -216,6 +215,7 @@ private extension CalendarViewController {
         let workplaceUseCase = WorkplaceUseCase(repository: workplaceRepository)
         let filterVM = FilterViewModel(workplaceUseCase: workplaceUseCase)
         let filterModalVC = FilterViewController(viewModel: filterVM, calendarMode: calendarMode.value)
+        filterModalVC.delegate = self
         
         if let sheet = filterModalVC.sheetPresentationController {
             sheet.detents = [.medium()]
@@ -332,30 +332,28 @@ extension CalendarViewController: CalendarEventListVCDelegate {
     
     func didTapEventCell() {
         // TODO: 존재하는 근무 표시
-        guard let uid = UserManager.shared.firebaseUid else { return }
-        
-        userService.fetchUser(uid: uid)
-            .observe(on: MainScheduler.instance)
-            .subscribe(with: self) { owner, user in
-                switch user.role {
-                case UserRole.worker.rawValue:
+        UserManager.shared.getUser { [weak self] result in
+            switch result {
+            case .success(let user):
+                if user.role == UserRole.worker.rawValue {
                     let workShiftRegisterVC = WorkShiftRegistrationViewController()
                     workShiftRegisterVC.hidesBottomBarWhenPushed = true
                     workShiftRegisterVC.delegate = self
                     
-                    self.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
-                    self.tabBarController?.presentedViewController?.dismiss(animated: true)
-                case UserRole.owner.rawValue:
+                    self?.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
+                    self?.tabBarController?.presentedViewController?.dismiss(animated: true)
+                } else if user.role == UserRole.owner.rawValue {
                     let ownerShiftRegisterVC = OwnerShiftRegistrationViewController()
                     ownerShiftRegisterVC.hidesBottomBarWhenPushed = true
                     ownerShiftRegisterVC.delegate = self
                     
-                    self.navigationController?.pushViewController(ownerShiftRegisterVC, animated: true)
-                    self.tabBarController?.presentedViewController?.dismiss(animated: true)
-                default:
-                    return
+                    self?.navigationController?.pushViewController(ownerShiftRegisterVC, animated: true)
+                    self?.tabBarController?.presentedViewController?.dismiss(animated: true)
                 }
-            }.disposed(by: disposeBag)
+            case .failure(let error):
+                self?.logger.error("\(error.localizedDescription)")
+            }
+        }
     }
     
     func didTapAssignButton() {
@@ -391,6 +389,14 @@ extension CalendarViewController: YearMonthPickerVCDelegate {
         let yearMonthText = "\(year). \(month)"
         guard let date = calendarView.getDateFormatter.date(from: yearMonthText) else { return }
         calendarView.getJTACalendar.scrollToDate(date)
+    }
+}
+
+// MARK: -
+
+extension CalendarViewController: FilterVCDelegate {
+    func didApplyButtonTap(workplaceText: String) {
+        filterWorkplace.accept(workplaceText)
     }
 }
 

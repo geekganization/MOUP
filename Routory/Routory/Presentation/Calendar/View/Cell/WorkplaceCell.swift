@@ -31,6 +31,10 @@ final class WorkplaceCell: UITableViewCell {
         $0.isHidden = true
     }
     
+    // MARK: - Getter
+    
+    var getWorkplaceLabel: UILabel { workplaceLabel }
+    
     // MARK: - Initializer
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {

@@ -26,6 +26,7 @@ final class CalendarViewModel {
     struct Input {
         /// 직전달, 이번달, 다음달 3개월치 불러옴
         let loadMonthEvent: Observable<(year: Int, month: Int)>
+        let filterWorkplace: Observable<String>
     }
     
     // MARK: - Output (ViewModel ➡️ ViewController)
@@ -39,16 +40,23 @@ final class CalendarViewModel {
     func tranform(input: Input) -> Output {
         let calendarEventListRelay = PublishRelay<(personal: [CalendarEvent], shared: [CalendarEvent])>()
         
-        input.loadMonthEvent
-            .subscribe(with: self, onNext: { owner, yearMonth in
+        Observable.combineLatest(input.loadMonthEvent, input.filterWorkplace)
+            .subscribe(with: self, onNext: { owner, combined in
+                let ((year, month), workplace) = combined
+                
                 // TODO: 로그인된 userId의 모든 WorkCalendar, 공유 캘린더 데이터 불러오기 (직전달, 이번달, 다음달 3개월 or 모든 달?)
                 guard let uid = UserManager.shared.firebaseUid else { return }
-                dump(yearMonth)
-                let (year, month) = yearMonth
                 
                 owner.eventUseCase.fetchAllEventsForUserInMonthSeparated(uid: uid, year: year, month: month)
                     .subscribe(with: self) { owner, calendarEventList in
-                        calendarEventListRelay.accept(calendarEventList)
+                        if workplace == "전체 보기" {
+                            calendarEventListRelay.accept(calendarEventList)
+                        } else {
+                            let filteredPersonal = calendarEventList.personal.filter { $0.title == workplace }
+                            let filteredShared = calendarEventList.shared.filter { $0.title == workplace }
+                            let filteredEventList = (personal: filteredPersonal, shared: filteredShared)
+                            calendarEventListRelay.accept(filteredEventList)
+                        }
                     } onError: { owner, error in
                         owner.logger.error("\(error.localizedDescription)")
                     }.disposed(by: owner.disposeBag)

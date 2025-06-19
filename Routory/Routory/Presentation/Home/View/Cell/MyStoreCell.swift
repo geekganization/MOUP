@@ -45,7 +45,7 @@ class MyStoreCell: UITableViewCell {
         $0.textAlignment = .left
     }
 
-    private let totalEarnedLabel = UILabel().then {
+    private let totalLaborCostLabel = UILabel().then {
         $0.textColor = .gray900
         $0.font = .bodyMedium(14)
         $0.numberOfLines = 1
@@ -55,6 +55,7 @@ class MyStoreCell: UITableViewCell {
     // MARK: - Initializer
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        configure()
     }
 
     @available(*, unavailable, message: "storyboard is not been implemented.")
@@ -62,15 +63,22 @@ class MyStoreCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented.")
     }
 
-    // MARK: - Public Methods
-    func update(menuActions: [UIAction]) {
-        let storeName: String = "맥도날드 강북 수유점"
-        let daysUntilPayday: Int = 18
-        let totalEarned: Int = 252000
+    // MARK: - PrepareForReuse
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        disposeBag = DisposeBag()
 
-        storeNameLabel.text = storeName
-        daysUntilPaydayLabel.text = "급여일까지 D-\(daysUntilPayday)"
-        totalEarnedLabel.text = "\(totalEarned.withComma)원"
+        storeNameLabel.text = nil
+        daysUntilPaydayLabel.text = nil
+        totalLaborCostLabel.text = nil;
+        menuButton.menu = nil
+    }
+
+    // MARK: - Public Methods
+    func update(with storeInfo: DummyStoreInfo, menuActions: [UIAction]) {
+        storeNameLabel.text = storeInfo.storeName
+        daysUntilPaydayLabel.text = "급여일까지 D-\(storeInfo.daysUntilPayday)"
+        totalLaborCostLabel.text = "\(storeInfo.totalLaborCost.withComma)원"
 
         setupButtonMenu(with: menuActions)
     }
@@ -94,7 +102,7 @@ private extension MyStoreCell {
             officialChip,
             menuButton,
             daysUntilPaydayLabel,
-            totalEarnedLabel
+            totalLaborCostLabel
         )
     }
 
@@ -112,6 +120,7 @@ private extension MyStoreCell {
         headerView.snp.makeConstraints {
             $0.top.equalToSuperview()
             $0.directionalHorizontalEdges.equalToSuperview()
+            $0.bottom.equalToSuperview()
         }
 
         storeNameLabel.snp.makeConstraints {
@@ -135,7 +144,7 @@ private extension MyStoreCell {
             $0.size.equalTo(44)
         }
 
-        totalEarnedLabel.snp.makeConstraints {
+        totalLaborCostLabel.snp.makeConstraints {
             $0.top.equalTo(daysUntilPaydayLabel.snp.bottom).offset(8)
             $0.trailing.equalToSuperview().inset(16)
             $0.bottom.equalToSuperview().inset(12)

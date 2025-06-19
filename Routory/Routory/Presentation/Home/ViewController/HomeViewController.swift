@@ -65,7 +65,7 @@ final class HomeViewController: UIViewController {
                 ) as? MyStoreCell else {
                     return UITableViewCell()
                 }
-                cell.update(menuActions: self?.createStoreMenuActions() ?? []) // TODO: - 실제 데이터 바인딩
+                cell.update(with: dummy, menuActions: self?.createStoreMenuActions() ?? []) // TODO: - 실제 데이터 바인딩
                 return cell
             }
         }
@@ -153,21 +153,21 @@ private extension HomeViewController {
 
     // MARK: - 셀 내 메뉴에 대한 Action 정의
     func createWorkspaceMenuActions() -> [UIAction] { // TODO: - 실제 수정 삭제가 이뤄질 시 과정에 필요한 데이터 입력
-        let editAction = UIAction(title: "수정하기") { _ in
-            print("근무지 수정")
-        }
+//        let editAction = UIAction(title: "수정하기") { _ in
+//            print("근무지 수정")
+//        }
         let deleteAction = UIAction(title: "삭제하기", attributes: .destructive) { _ in
             print("근무지 삭제")
         }
 
-        return [editAction, deleteAction]
+        return [deleteAction]
     }
 
     func createStoreMenuActions() -> [UIAction] { // TODO: - 실제 수정 삭제가 이뤄질 시 과정에 필요한 데이터 입력
-        let editAction = UIAction(title: "수정하기") { _ in
-            print("매장 수정")
-            
-        }
+//        let editAction = UIAction(title: "수정하기") { _ in
+//            print("매장 수정")
+//            
+//        }
         let deleteAction = UIAction(title: "삭제하기", attributes: .destructive) { _ in
             print("매장 삭제")
         }
@@ -175,7 +175,7 @@ private extension HomeViewController {
             print("초대 코드 복사하기")
         }
 
-        return [editAction, deleteAction, copyInviteCode]
+        return [deleteAction, copyInviteCode]
     }
 
     func makeManageRoutineViewController(type: RoutineType) -> ManageRoutineViewController {

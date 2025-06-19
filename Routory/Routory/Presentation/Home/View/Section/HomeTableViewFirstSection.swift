@@ -10,7 +10,7 @@ import RxDataSources
 
 enum HomeSectionItem {
     case workplace(DummyWorkplaceInfo) // 후에 WorkplaceModel로
-    case store(String) // 후에 StoreModel로
+    case store(DummyStoreInfo) // 후에 StoreModel로
 }
 
 struct HomeTableViewFirstSection {

@@ -43,7 +43,11 @@ final class HomeViewModel {
     private lazy var dummyWorkplace3 = dummyWorkplace
     private lazy var dummyWorkerHeaderInfo = DummyHomeHeaderInfo(currentMonth: 6, monthlyAmount: 516000, amountDifference: 32000, todayRoutineCount: 4)
 
-    private lazy var firstSectionData = BehaviorRelay<[HomeTableViewFirstSection]>(value: [HomeTableViewFirstSection(header: "나의 근무지", items: [.workplace(dummyWorkplace), .workplace(dummyWorkplace2)])])
+    private let dummyStore = DummyStoreInfo(isOfficial: true, storeName: "롯데리아 강북 수유점", daysUntilPayday: 13, totalLaborCost: 255300)
+    private let dummyStore1 = DummyStoreInfo(isOfficial: false, storeName: "롯데리아 강북 문익점", daysUntilPayday: 11, totalLaborCost: 490000)
+
+//    private lazy var firstSectionData = BehaviorRelay<[HomeTableViewFirstSection]>(value: [HomeTableViewFirstSection(header: "나의 근무지", items: [.workplace(dummyWorkplace), .workplace(dummyWorkplace2)])])
+    private lazy var firstSectionData = BehaviorRelay<[HomeTableViewFirstSection]>(value: [HomeTableViewFirstSection(header: "나의 근무지", items: [.store(dummyStore), .store(dummyStore1)])])
     private let expandedIndexPathRelay = BehaviorRelay<Set<IndexPath>>(value: [])
 
     // MARK: - Initializer
@@ -111,31 +115,38 @@ final class HomeViewModel {
             .disposed(by: disposeBag)
 
         workplaceUseCase.fetchAllWorkplacesForUser(uid: userId!)
-            .subscribe(onNext: { [weak self] workplaces in
-                guard let self else { return }
-                let workplacesArray = workplaces.map { // TODO: - role에 따라 다른 enum type의 데이터 생성
-                    let workplace = HomeSectionItem.workplace(
-                        DummyWorkplaceInfo(
-                            isOfficial: true, 
-                            storeName: $0.workplace.workplacesName,
-                            daysUntilPayday: 18,
-                            totalEarned: 252000,
-                            totalWorkTime: "25시간 07분",
-                            totalWorkPay: 252000,
-                            normalWorkTime: "20시간 00분",
-                            normalWorkPay: 200600,
-                            nightWorkTime: "",
-                            nightWorkPay: 0,
-                            substituteWorkTime: "05시간 07분",
-                            substituteWorkPay: 51344,
-                            substituteNormalWorkTime: "05시간 07분",
-                            substituteNormalWorkPay: 51344,
-                            substituteNightWorkTime: "",
-                            substituteNightWorkPay: 0,
-                            weeklyAllowancePay: 0,
-                            insuranceDeduction: 24_947,
-                            taxDeduction: 3_528
-                        )
+            .subscribe(
+                onNext: { [weak self] workplaces in
+                    guard let self else { return }
+                    let workplacesArray = workplaces.map { // TODO: - role에 따라 다른 enum type의 데이터 생성
+                        let workplace = HomeSectionItem.store(
+//                                                    DummyWorkplaceInfo(
+//                                                        isOfficial: $0.workplace.isOfficial, 
+//                                                        storeName: $0.workplace.workplacesName,
+//                                                        daysUntilPayday: 18,
+//                                                        totalEarned: 252000,
+//                                                        totalWorkTime: "25시간 07분",
+//                                                        totalWorkPay: 252000,
+//                                                        normalWorkTime: "20시간 00분",
+//                                                        normalWorkPay: 200600,
+//                                                        nightWorkTime: "",
+//                                                        nightWorkPay: 0,
+//                                                        substituteWorkTime: "05시간 07분",
+//                                                        substituteWorkPay: 51344,
+//                                                        substituteNormalWorkTime: "05시간 07분",
+//                                                        substituteNormalWorkPay: 51344,
+//                                                        substituteNightWorkTime: "",
+//                                                        substituteNightWorkPay: 0,
+//                                                        weeklyAllowancePay: 0,
+//                                                        insuranceDeduction: 24_947,
+//                                                        taxDeduction: 3_528
+//                                                    )
+                            DummyStoreInfo(
+                                isOfficial: $0.workplace.isOfficial,
+                                storeName: $0.workplace.workplacesName,
+                                daysUntilPayday: 18,
+                                totalLaborCost: 252000
+                            )
                     )
                     return workplace
                 }

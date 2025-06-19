@@ -172,10 +172,10 @@ private extension HomeViewController {
             print("매장 삭제")
         }
         let copyInviteCode = UIAction(title: "초대 코드 보내기") { _ in
-            let shareInviteCodeVC = ShareInviteCodeViewController()
-            shareInviteCodeVC.modalPresentationStyle = .overFullScreen
-            shareInviteCodeVC.modalTransitionStyle = .crossDissolve
-            self.present(shareInviteCodeVC, animated: true, completion: nil)
+//            let shareInviteCodeVC = ShareInviteCodeViewController()
+//            shareInviteCodeVC.modalPresentationStyle = .overFullScreen
+//            shareInviteCodeVC.modalTransitionStyle = .crossDissolve
+//            self.present(shareInviteCodeVC, animated: true, completion: nil)
         }
 
         return [deleteAction, copyInviteCode]

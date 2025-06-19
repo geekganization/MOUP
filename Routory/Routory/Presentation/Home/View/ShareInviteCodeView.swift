@@ -62,10 +62,7 @@ final class ShareInviteCodeView: UIView {
     
     // MARK: - Getter
     
-    func getInviteCode() -> String {
-        guard let text = inviteCodeLabel.text else { return "" }
-        return text
-    }
+    var copyInviteCodeButtonView: UIButton { copyInviteCodeButton }
     
     // MARK: - Initializer
     
@@ -78,6 +75,10 @@ final class ShareInviteCodeView: UIView {
     @available(*, unavailable, message: "storyboard is not supported.")
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func update(inviteCode: String) {
+        inviteCodeLabel.text = inviteCode
     }
 }
 
@@ -138,8 +139,13 @@ private extension ShareInviteCodeView {
         
         inviteCodeLabel.snp.makeConstraints {
             $0.top.equalTo(titleView.snp.bottom).offset(32)
-            $0.directionalHorizontalEdges.equalToSuperview().inset(16)
+            $0.centerX.equalToSuperview()
+        }
+        
+        copyInviteCodeButton.snp.makeConstraints {
             $0.height.equalTo(45)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.bottom.equalToSuperview().inset(34)
         }
     }
     

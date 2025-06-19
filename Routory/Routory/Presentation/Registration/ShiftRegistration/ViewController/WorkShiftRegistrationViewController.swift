@@ -150,13 +150,18 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
             print("날짜 파싱 실패: \(eventDate)")
             return
         }
+        
+        guard let userId = Auth.auth().currentUser?.uid else {
+              print("유저 ID를 찾을 수 없습니다.")
+              return
+            }
 
         let event = CalendarEvent(
             title: "",
             eventDate: eventDate,
             startTime: startTime,
             endTime: endTime,
-            createdBy: String(describing: Auth.auth().currentUser),
+            createdBy: userId,
             year: dateComponents.year,
             month: dateComponents.month,
             day: dateComponents.day,

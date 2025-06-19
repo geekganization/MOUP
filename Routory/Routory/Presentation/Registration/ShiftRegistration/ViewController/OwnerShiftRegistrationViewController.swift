@@ -192,6 +192,11 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
             print("날짜 파싱 실패: \(eventDate)")
             return
         }
+        
+        guard let userId = Auth.auth().currentUser?.uid else {
+              print("유저 ID를 찾을 수 없습니다.")
+              return
+        }
 
         switch registrationMode {
         case .owner:
@@ -202,7 +207,7 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
                 eventDate: eventDate,
                 startTime: startTime,
                 endTime: endTime,
-                createdBy: String(describing: Auth.auth().currentUser),
+                createdBy: userId,
                 year: dateComponents.year,
                 month: dateComponents.month,
                 day: dateComponents.day,
@@ -215,24 +220,26 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
 
         case .employee:
             let workPlaceID = contentView.simpleRowView.getID()
-            let worker = contentView.workerSelectionView.getSelectedWorkerData()
+            let workers = contentView.workerSelectionView.getSelectedWorkerData()
             let routineIDs = contentView.routineView.getSelectedRoutineIDs()
             
-            let event = CalendarEvent(
-                title: "",
-                eventDate: eventDate,
-                startTime: startTime,
-                endTime: endTime,
-                createdBy: worker.first?.id ?? "", // 여러 알바 선택할수 있는데 어떤걸 넣어야 할지
-                year: dateComponents.year,
-                month: dateComponents.month,
-                day: dateComponents.day,
-                routineIds: routineIDs,
-                repeatDays: repeatDays,
-                memo: memo
-            )
-
-            submitTrigger.onNext((workPlaceID, event))
+            workers.forEach { worker in
+                let event = CalendarEvent(
+                    title: "",
+                    eventDate: eventDate,
+                    startTime: startTime,
+                    endTime: endTime,
+                    createdBy: worker.id,
+                    year: dateComponents.year,
+                    month: dateComponents.month,
+                    day: dateComponents.day,
+                    routineIds: routineIDs,
+                    repeatDays: repeatDays,
+                    memo: memo
+                )
+                
+                submitTrigger.onNext((workPlaceID, event))
+            }
         }
     }
 

@@ -15,4 +15,6 @@ struct DummyStoreInfo {
     let storeName: String
     let daysUntilPayday: Int
     let totalLaborCost: Int
+    
+    let inviteCode: String
 }

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		078D4DBA8E91D815B9025C38 /* libPods-Routory.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D48057F4EBD6C7F554C8391 /* libPods-Routory.a */; };
+		2841146C2E039D6700FA475D /* BigInt in Frameworks */ = {isa = PBXBuildFile; productRef = 2841146B2E039D6700FA475D /* BigInt */; };
 		5B6E8F8D2DF17C8F006B061E /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E8F8C2DF17C8F006B061E /* RxCocoa */; };
 		5B6E8F8F2DF17C8F006B061E /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E8F8E2DF17C8F006B061E /* RxRelay */; };
 		5B6E8F912DF17C8F006B061E /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 5B6E8F902DF17C8F006B061E /* RxSwift */; };
@@ -56,6 +57,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2841146C2E039D6700FA475D /* BigInt in Frameworks */,
 				956B263B2E01B64800E2A0A3 /* RxDataSources in Frameworks */,
 				956B263A2E01B64800E2A0A3 /* Differentiator in Frameworks */,
 				5B6E8F912DF17C8F006B061E /* RxSwift in Frameworks */,
@@ -145,6 +147,7 @@
 				E861509D2DF8029D005CE9A7 /* GoogleSignInSwift */,
 				9505F6192DF9977F008CC731 /* Differentiator */,
 				9505F61B2DF9977F008CC731 /* RxDataSources */,
+				2841146B2E039D6700FA475D /* BigInt */,
 			);
 			productName = Routory;
 			productReference = 5B6E8D172DF17A34006B061E /* Routory.app */;
@@ -182,6 +185,7 @@
 				5B6E9F632DF6B686006B061E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				E861509A2DF8029D005CE9A7 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				9505F6182DF9977F008CC731 /* XCRemoteSwiftPackageReference "RxDataSources" */,
+				2841146A2E039D6700FA475D /* XCRemoteSwiftPackageReference "BigInt" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5B6E8D182DF17A34006B061E /* Products */;
@@ -458,6 +462,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		2841146A2E039D6700FA475D /* XCRemoteSwiftPackageReference "BigInt" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/attaswift/BigInt";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.1.0;
+			};
+		};
 		5B6E8F8B2DF17C8E006B061E /* XCRemoteSwiftPackageReference "RxSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ReactiveX/RxSwift";
@@ -517,6 +529,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		2841146B2E039D6700FA475D /* BigInt */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2841146A2E039D6700FA475D /* XCRemoteSwiftPackageReference "BigInt" */;
+			productName = BigInt;
+		};
 		5B6E8F8C2DF17C8F006B061E /* RxCocoa */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 5B6E8F8B2DF17C8E006B061E /* XCRemoteSwiftPackageReference "RxSwift" */;

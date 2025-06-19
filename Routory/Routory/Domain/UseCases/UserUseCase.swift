@@ -45,4 +45,7 @@ final class UserUseCase: UserUseCaseProtocol {
     func addWorkplaceToUser(uid: String, workplaceId: String) -> Observable<Void> {
         return userRepository.addWorkplaceToUser(uid: uid, workplaceId: workplaceId)
     }
+    func fetchUserNotRx(uid: String, completion: @escaping (Result<User, Error>) -> Void) {
+        return userRepository.fetchUserNotRx(uid: uid, completion: completion)
+    }
 }

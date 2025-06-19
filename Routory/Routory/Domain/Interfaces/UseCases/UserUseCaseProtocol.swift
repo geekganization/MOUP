@@ -19,4 +19,5 @@ protocol UserUseCaseProtocol {
             uid: String
         ) -> Observable<String>
     func addWorkplaceToUser(uid: String, workplaceId: String) -> Observable<Void>
+    func fetchUserNotRx(uid: String, completion: @escaping (Result<User, Error>) -> Void)
 }

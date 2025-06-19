@@ -28,6 +28,7 @@ protocol UserServiceProtocol {
         uid: String
     ) -> Observable<String>
     func addWorkplaceToUser(uid: String, workplaceId: String) -> Observable<Void>
+    func fetchUserNotRx(uid: String, completion: @escaping (Result<User, Error>) -> Void)
 }
 
 final class UserService: UserServiceProtocol {
@@ -116,6 +117,25 @@ final class UserService: UserServiceProtocol {
                 }
             }
             return Disposables.create()
+        }
+    }
+    
+    func fetchUserNotRx(uid: String, completion: @escaping (Result<User, Error>) -> Void) {
+        db.collection("users").document(uid).getDocument { document, error in
+            if let error = error {
+                completion(.failure(error))
+            } else if let document = document, let data = document.data() {
+                do {
+                    let jsonData = try JSONSerialization.data(withJSONObject: data)
+                    let user = try JSONDecoder().decode(User.self, from: jsonData)
+                    completion(.success(user))
+                } catch {
+                    completion(.failure(error))
+                }
+            } else {
+                let notFoundError = NSError(domain: "UserService", code: -1, userInfo: [NSLocalizedDescriptionKey: "User not found"])
+                completion(.failure(notFoundError))
+            }
         }
     }
     

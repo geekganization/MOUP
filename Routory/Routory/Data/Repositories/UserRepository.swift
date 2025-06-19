@@ -46,4 +46,7 @@ final class UserRepository: UserRepositoryProtocol {
     func addWorkplaceToUser(uid: String, workplaceId: String) -> Observable<Void> {
         return userService.addWorkplaceToUser(uid: uid, workplaceId: workplaceId)
     }
+    func fetchUserNotRx(uid: String, completion: @escaping (Result<User, Error>) -> Void) {
+        userService.fetchUserNotRx(uid: uid, completion: completion)
+    }
 }

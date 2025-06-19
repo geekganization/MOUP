@@ -13,8 +13,10 @@ final class HomeViewModel {
     private let disposeBag = DisposeBag()
     private let userUseCase: UserUseCaseProtocol
     private let workplaceUseCase: WorkplaceUseCaseProtocol
-    private var userId: String? {
-        return UserManager.shared.firebaseUid
+    private let routineUseCase: RoutineUseCaseProtocol
+    private var userId: String {
+        guard let userId = UserManager.shared.firebaseUid else { return "" }
+        return userId
     }
 
     // MARK: - Mock Data
@@ -41,7 +43,7 @@ final class HomeViewModel {
     )
     private lazy var dummyWorkplace2 = dummyWorkplace
     private lazy var dummyWorkplace3 = dummyWorkplace
-    private lazy var dummyWorkerHeaderInfo = DummyHomeHeaderInfo(currentMonth: 6, monthlyAmount: 516000, amountDifference: 32000, todayRoutineCount: 4)
+    private lazy var dummyWorkerHeaderInfo = HomeHeaderInfo(currentMonth: 6, monthlyAmount: 516000, amountDifference: 32000, todayRoutineCount: 4)
 
     private let dummyStore = DummyStoreInfo(isOfficial: true, storeName: "롯데리아 강북 수유점", daysUntilPayday: 13, totalLaborCost: 255300)
     private let dummyStore1 = DummyStoreInfo(isOfficial: false, storeName: "롯데리아 강북 문익점", daysUntilPayday: 11, totalLaborCost: 490000)
@@ -53,10 +55,12 @@ final class HomeViewModel {
     // MARK: - Initializer
     init(
         userUseCase: UserUseCaseProtocol,
-        workplaceUseCase: WorkplaceUseCaseProtocol
+        workplaceUseCase: WorkplaceUseCaseProtocol,
+        routineUseCase: RoutineUseCaseProtocol
     ) {
         self.userUseCase = userUseCase
         self.workplaceUseCase = workplaceUseCase
+        self.routineUseCase = routineUseCase
     }
 
     // MARK: - Input, Output
@@ -69,15 +73,21 @@ final class HomeViewModel {
     struct Output {
         let sectionData: Observable<[HomeTableViewFirstSection]>
         let expandedIndexPath: Observable<Set<IndexPath>>
-        let headerData: Observable<DummyHomeHeaderInfo>
+        let headerData: Observable<HomeHeaderInfo>
         let userType: Observable<UserType>
     }
 
     func transform(input: Input) -> Output {
-        let user = input.viewDidLoad
+        // 데이터 fetch 트리거
+        let dataLoadTrigger = Observable.merge(
+            input.viewDidLoad.map { _ in () },
+            input.refreshBtnTapped.do(onNext: { LoadingManager.start() })
+        )
+
+        let user = dataLoadTrigger
             .flatMapLatest { [weak self] _ -> Observable<User> in
                 print("transform - user triggered")
-                guard let self, let userId = self.userId else { return .empty() }
+                guard let self else { return .empty() }
                 return self.userUseCase.fetchUser(uid: userId)
             }.share(replay: 1)
 
@@ -85,12 +95,62 @@ final class HomeViewModel {
             UserType(role: $0.role)
         }.distinctUntilChanged()
 
-        let headerData = input.viewDidLoad
-            .flatMapLatest { [weak self] _ -> Observable<DummyHomeHeaderInfo> in
-                print("transform - headerData triggered")
+        // 내 근무지
+        let workplaceData = dataLoadTrigger
+            .flatMapLatest { [weak self] _ -> Observable<[WorkplaceInfo]> in
                 guard let self else { return .empty() }
-                return Observable.just(dummyWorkerHeaderInfo)
-            }.share(replay: 1)
+                return self.workplaceUseCase.fetchAllWorkplacesForUser(uid: userId)
+            }
+            .share(replay: 1)
+
+        /// 이번 달 기준 근무 요약 데이터를 다룹니다. 해당 데이터들 기반해 totalWage를 합산해 총액을 계산합니다.
+        // 이번 달 근무 요약
+        let currentMonthSummary = dataLoadTrigger
+            .flatMapLatest { [weak self] _ -> Observable<[WorkplaceWorkSummary]> in
+                let components = Calendar.current.dateComponents([.year, .month], from: Date())
+                guard let self,
+                      let year = components.year,
+                      let month = components.month else { return .empty() }
+
+                return workplaceUseCase.fetchMonthlyWorkSummary(uid: userId, year: year, month: month)
+            }
+
+        /// 지난 달의 근무 요약 데이터를 다룹니다.\n지난 달 대비 얼마를 더 벌었는지 계산 가능합니다.
+        // 지난 달 근무 요약
+        let previousMonthSummary = dataLoadTrigger
+            .flatMapLatest { [weak self] _ -> Observable<[WorkplaceWorkSummary]> in
+                let components = Calendar.current.dateComponents([.year, .month], from: Date())
+                guard let self,
+                      let year = components.year,
+                      let month = components.month else { return .empty() }
+
+                return workplaceUseCase.fetchMonthlyWorkSummary(uid: userId, year: year, month: month - 1)
+            }
+
+        // 오늘의 루틴
+        let todaysRoutine = dataLoadTrigger
+            .flatMapLatest { [weak self] _ -> Observable<[String: [CalendarEvent]]> in
+                guard let self else { return .empty() }
+                return routineUseCase.fetchTodayRoutineEventsGroupedByWorkplace(uid: userId, date: Date())
+            }
+
+        let homeHeaderData = Observable.combineLatest(
+            workplaceData,
+            currentMonthSummary,
+            previousMonthSummary,
+            todaysRoutine
+        ) { workplace, currentSummary, previousSummary, todaysRoutine in
+            let homeHeaderData = HomeHeaderInfo(
+                currentMonth: <#T##Int#>,
+                monthlyAmount: <#T##Int#>,
+                amountDifference: <#T##Int#>,
+                todayRoutineCount: <#T##Int#>
+            )
+        }
+
+
+
+
 
         input.refreshBtnTapped
             .subscribe(onNext: { [weak self] in
@@ -114,7 +174,7 @@ final class HomeViewModel {
             .bind(to: expandedIndexPathRelay)
             .disposed(by: disposeBag)
 
-        workplaceUseCase.fetchAllWorkplacesForUser(uid: userId!)
+        workplaceUseCase.fetchAllWorkplacesForUser(uid: userId)
             .subscribe(
                 onNext: { [weak self] workplaces in
                     guard let self else { return }
@@ -125,21 +185,6 @@ final class HomeViewModel {
 //                                                        storeName: $0.workplace.workplacesName,
 //                                                        daysUntilPayday: 18,
 //                                                        totalEarned: 252000,
-//                                                        totalWorkTime: "25시간 07분",
-//                                                        totalWorkPay: 252000,
-//                                                        normalWorkTime: "20시간 00분",
-//                                                        normalWorkPay: 200600,
-//                                                        nightWorkTime: "",
-//                                                        nightWorkPay: 0,
-//                                                        substituteWorkTime: "05시간 07분",
-//                                                        substituteWorkPay: 51344,
-//                                                        substituteNormalWorkTime: "05시간 07분",
-//                                                        substituteNormalWorkPay: 51344,
-//                                                        substituteNightWorkTime: "",
-//                                                        substituteNightWorkPay: 0,
-//                                                        weeklyAllowancePay: 0,
-//                                                        insuranceDeduction: 24_947,
-//                                                        taxDeduction: 3_528
 //                                                    )
                             DummyStoreInfo(
                                 isOfficial: $0.workplace.isOfficial,

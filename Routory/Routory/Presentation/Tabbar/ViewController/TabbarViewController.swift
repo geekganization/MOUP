@@ -69,11 +69,15 @@ private extension TabbarViewController {
         let workplaceService = WorkplaceService()
         let workplaceRepository = WorkplaceRepository(service: workplaceService)
         let workplaceUseCase = WorkplaceUseCase(repository: workplaceRepository)
+        let routineService = RoutineService()
+        let routineRepository = RoutineRepository(service: routineService)
+        let routineUseCase = RoutineUseCase(repository: routineRepository)
 
         let homeVC = HomeViewController(
             homeViewModel: HomeViewModel(
                 userUseCase: userUseCase,
-                workplaceUseCase: workplaceUseCase
+                workplaceUseCase: workplaceUseCase,
+                routineUseCase: routineUseCase
             )
         )
 

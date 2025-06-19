@@ -122,6 +122,9 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
         if mode == .inputOnly {
             contentView.setPresetWorkplaceInfo(name: presetWorkplaceName ?? "", category: presetCategory ?? "")
         }
+        
+        contentView.workConditionView.isHidden = true
+        contentView.labelView.isHidden = true
     }
     
     private func layout() {

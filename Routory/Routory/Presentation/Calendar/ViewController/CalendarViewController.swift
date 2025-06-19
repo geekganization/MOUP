@@ -407,7 +407,7 @@ extension CalendarViewController: RegistrationVCDelegate {
         // TODO: 해당 날짜 이벤트 다시 로드
         guard let selectedDate else { return }
         calendarView.getJTACalendar.selectDates([selectedDate])
-        // 데이터 업데이트
+        // 캘린더 데이터 업데이트
         visibleYearMonth.accept(visibleYearMonth.value)
     }
 }

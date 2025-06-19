@@ -44,7 +44,7 @@ final class ManageRoutineViewModel {
 
     // MARK: - Input, Output
     struct Input {
-        let viewDidLoad: Observable<Void>
+        let refreshTriggered: Observable<Void>
     }
 
     struct Output {
@@ -58,7 +58,7 @@ final class ManageRoutineViewModel {
         switch routineType {
         case .today:
             print("오늘의 루틴 호출 시도")
-            let todayRoutines = input.viewDidLoad
+            let todayRoutines = input.refreshTriggered
                 .flatMapLatest { [weak self] _ -> Observable<[DummyTodaysRoutine]> in
                     print("flatMapLatest 진입")
                     guard let self else { print("self가 nil"); return .empty() }
@@ -71,7 +71,7 @@ final class ManageRoutineViewModel {
                 allRoutine: .just([])
             )
         case .all:
-            let allRoutines = input.viewDidLoad
+            let allRoutines = input.refreshTriggered
                 .flatMapLatest { [weak self] _ -> Observable<[RoutineInfo]> in
                     print("flatMapLatest 진입")
                     guard let self else { print("self가 nil"); return .empty() }

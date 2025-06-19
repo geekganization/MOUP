@@ -84,7 +84,30 @@ private extension WorkplaceAddModalViewController {
     }
     
     @objc func manualInputButtonDidTap() {
-        let vc = WorkerWorkplaceRegistrationViewController(mode: .fullRegistration)
-        navigationController?.pushViewController(vc, animated: true)
+        UserManager.shared.getUser { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let user):
+                switch UserType(role: user.role) {
+                case .worker:
+                    let vc = self.makeManualWorkplaceRegistrationVC(type: .worker)
+                    self.navigationController?.pushViewController(vc, animated: true)
+                case .owner:
+                    let vc = self.makeManualWorkplaceRegistrationVC(type: .owner)
+                    self.navigationController?.pushViewController(vc, animated: true)
+                }
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
+
+    func makeManualWorkplaceRegistrationVC(type: UserType) -> UIViewController {
+        switch type {
+        case .worker:
+            return WorkerWorkplaceRegistrationViewController(mode: .fullRegistration)
+        case .owner:
+            return OwnerWorkplaceRegistrationViewController()
+        }
     }
 }

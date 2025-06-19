@@ -19,6 +19,7 @@ final class HomeViewModel {
 
     // MARK: - Mock Data
     let dummyWorkplace = DummyWorkplaceInfo(
+        isOfficial: false,
         storeName: "맥도날드 강북 수유점",
         daysUntilPayday: 18,
         totalEarned: 252000,
@@ -90,6 +91,7 @@ final class HomeViewModel {
         input.refreshBtnTapped
             .subscribe(onNext: { [weak self] in
                 print("refreshBtnTapped - 데이터 새로고침")
+                LoadingManager.stop()
                 // 새로고침 시 확장 상태 초기화
                 self?.expandedIndexPathRelay.accept([])
             }).disposed(by: disposeBag)

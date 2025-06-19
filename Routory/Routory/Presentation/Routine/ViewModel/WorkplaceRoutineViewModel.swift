@@ -33,12 +33,8 @@ final class WorkplaceRoutineViewModel {
 
     func transform(input: Input) -> Output {
         input.viewDidLoad
-            .do(onNext: {
-                print("viewModel - viewDidLoad 이벤트 수신됨")
-            })
             .subscribe(onNext: { [weak self] in
                 guard let self else { return }
-                print("viewDidLoad 호출됨")
                 self.routinesRelay.accept(self.workplaceRoutine.routines)
             })
             .disposed(by: disposeBag)

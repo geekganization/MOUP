@@ -16,7 +16,7 @@ final class ManageRoutineView: UIView {
 
     // MARK: - UI Components
     fileprivate lazy var navigationBar = BaseNavigationBar(title: routineTitle)
-    fileprivate let tableView = UITableView().then {
+    let tableView = UITableView().then {
         $0.backgroundColor = .clear
         $0.separatorColor = .gray300
         $0.separatorInset = .zero
@@ -110,26 +110,6 @@ extension Reactive where Base: ManageRoutineView {
                     return cell
                 }
                 .disposed(by: view.disposeBag) // 적절한 disposeBag 사용 필요
-        }
-    }
-
-    var bindTodaysRoutines: Binder<[DummyTodaysRoutine]> {
-        return Binder(base) { view, routines in
-            Observable.just(routines)
-                .bind(to: view.tableView.rx.items) { tableView, index, routine in
-                    let indexPath = IndexPath(row: index, section: 0)
-
-                    guard let cell = tableView.dequeueReusableCell(
-                        withIdentifier: TodaysRoutineCell.identifier,
-                        for: indexPath
-                    ) as? TodaysRoutineCell else {
-                        return UITableViewCell()
-                    }
-                    cell.update(with: routine)
-
-
-                    return cell
-                }.disposed(by: view.disposeBag)
         }
     }
 

@@ -82,19 +82,14 @@ final class UserService: UserServiceProtocol {
     /// - Parameter uid: 삭제할 사용자 UID.
     /// - Returns: 성공 시 완료(Void)를 방출하는 Observable.
     func deleteUser(uid: String) -> Observable<Void> {
-        print("🟢 [deleteUser] 시작 - uid: \(uid)")
-        
         // 1. 내가 오너인 workplaces 조회
         let ownedWorkplacesObs = Observable<[String]>.create { observer in
-            print("🔍 [deleteUser] 오너인 근무지(workplaces) 조회 시작")
             self.db.collection("workplaces").whereField("ownerId", isEqualTo: uid).getDocuments { snap, err in
                 if let err = err {
-                    print("❌ [deleteUser] 오너 근무지 쿼리 실패: \(err)")
                     observer.onError(err)
                     return
                 }
                 let ids = snap?.documents.map { $0.documentID } ?? []
-                print("✅ [deleteUser] 오너 근무지 ID들: \(ids)")
                 observer.onNext(ids)
                 observer.onCompleted()
             }
@@ -103,15 +98,12 @@ final class UserService: UserServiceProtocol {
         
         // 2. 내가 워커로 참여한 workplaces 조회
         let joinedWorkplacesObs = Observable<[String]>.create { observer in
-            print("🔍 [deleteUser] 워커로 참여한 근무지 조회 시작")
             self.db.collection("users").document(uid).collection("workplaces").getDocuments { snap, err in
                 if let err = err {
-                    print("❌ [deleteUser] 워커 근무지 쿼리 실패: \(err)")
                     observer.onError(err)
                     return
                 }
                 let ids = snap?.documents.map { $0.documentID } ?? []
-                print("✅ [deleteUser] 워커 근무지 ID들: \(ids)")
                 observer.onNext(ids)
                 observer.onCompleted()
             }
@@ -120,62 +112,48 @@ final class UserService: UserServiceProtocol {
         
         return Observable.zip(ownedWorkplacesObs, joinedWorkplacesObs)
             .flatMap { (ownedWorkplaceIds, joinedWorkplaceIds) -> Observable<Void> in
-                print("▶️ [deleteUser] 삭제 플로우 진입 - 오너 근무지: \(ownedWorkplaceIds), 워커 근무지: \(joinedWorkplaceIds)")
                 
                 // 1. 오너 근무지 삭제
                 let ownerDeletes = Observable.from(ownedWorkplaceIds)
                     .flatMap { workplaceId -> Observable<Void> in
                         Observable.create { observer in
-                            print("🔴 [deleteUser] 오너 근무지 삭제 시작 - workplaceId: \(workplaceId)")
                             self.db.collection("workplaces").document(workplaceId)
                                 .collection("worker").getDocuments { snap, err in
                                     guard let snap = snap, err == nil else {
-                                        print("❌ [deleteUser] 오너 근무지 내 워커 조회 실패(\(workplaceId)): \(String(describing: err))")
                                         observer.onError(err ?? NSError(domain: "", code: -1))
                                         return
                                     }
                                     let workerUids = snap.documents.map { $0.documentID }
-                                    print("✅ [deleteUser] 오너 근무지 워커 UIDs(\(workplaceId)): \(workerUids)")
                                     var batch = self.db.batch()
                                     var batchOps = 0
-                                    
-                                    // workplaces/{workplaceId} 삭제
                                     batch.deleteDocument(self.db.collection("workplaces").document(workplaceId)); batchOps += 1
-                                    // 각 워커의 users/{uid}/workplaces/{workplaceId} 삭제
                                     for workerUid in workerUids {
                                         batch.deleteDocument(self.db.collection("users").document(workerUid).collection("workplaces").document(workplaceId)); batchOps += 1
                                         if batchOps >= 450 {
-                                            print("⚡️ [deleteUser] 오너 근무지 batch 커밋(중간) - ops: \(batchOps)")
                                             batch.commit { _ in }
                                             batch = self.db.batch(); batchOps = 0
                                         }
                                     }
-                                    // 연관 캘린더/이벤트 삭제
                                     self.db.collection("calendars").whereField("workplaceId", isEqualTo: workplaceId).getDocuments { calSnap, _ in
                                         if let calendarId = calSnap?.documents.first?.documentID {
-                                            print("🔶 [deleteUser] 오너 근무지의 캘린더 삭제 시도 - calendarId: \(calendarId)")
                                             batch.deleteDocument(self.db.collection("calendars").document(calendarId)); batchOps += 1
                                             let eventsRef = self.db.collection("calendars").document(calendarId).collection("events")
                                             eventsRef.getDocuments { eventsSnap, _ in
                                                 let eventDocs = eventsSnap?.documents ?? []
                                                 let group = DispatchGroup()
-                                                print("🟠 [deleteUser] 오너 근무지 캘린더 이벤트 삭제 \(eventDocs.count)개")
                                                 for (i, doc) in eventDocs.enumerated() {
                                                     group.enter()
                                                     doc.reference.delete { _ in group.leave() }
                                                     if (i+1) % 450 == 0 {
-                                                        print("⚡️ [deleteUser] 오너 근무지 이벤트 batch 커밋(중간) - ops: \(batchOps)")
                                                         batch.commit { _ in }
                                                         batch = self.db.batch(); batchOps = 0
                                                     }
                                                 }
                                                 batch.commit { error in
                                                     if let error = error {
-                                                        print("❌ [deleteUser] 오너 근무지 batch 커밋 실패: \(error)")
                                                         observer.onError(error)
                                                     } else {
                                                         group.notify(queue: .main) {
-                                                            print("✅ [deleteUser] 오너 근무지 최종 삭제 완료: \(workplaceId)")
                                                             observer.onNext(())
                                                             observer.onCompleted()
                                                         }
@@ -183,10 +161,8 @@ final class UserService: UserServiceProtocol {
                                                 }
                                             }
                                         } else {
-                                            print("⚠️ [deleteUser] 캘린더 없음, batch 커밋")
                                             batch.commit { error in
                                                 if let error = error {
-                                                    print("❌ [deleteUser] 캘린더 없음 batch 커밋 실패: \(error)")
                                                     observer.onError(error)
                                                 } else {
                                                     observer.onNext(())
@@ -205,38 +181,29 @@ final class UserService: UserServiceProtocol {
                 let workerDeletes = Observable.from(notOwnerWorkplaceIds)
                     .flatMap { workplaceId -> Observable<Void> in
                         Observable.create { observer in
-                            print("🔵 [deleteUser] 워커 근무지 삭제 시작 - workplaceId: \(workplaceId)")
                             var batch = self.db.batch()
                             var batchOps = 0
-                            // workplaces/{workplaceId}/worker/{uid} 삭제
                             batch.deleteDocument(self.db.collection("workplaces").document(workplaceId).collection("worker").document(uid)); batchOps += 1
-                            // users/{uid}/workplaces/{workplaceId} 삭제
                             batch.deleteDocument(self.db.collection("users").document(uid).collection("workplaces").document(workplaceId)); batchOps += 1
-                            // 연관 캘린더의 내가 쓴 이벤트만 삭제
                             self.db.collection("calendars").whereField("workplaceId", isEqualTo: workplaceId).getDocuments { calSnap, _ in
                                 if let calendarId = calSnap?.documents.first?.documentID {
-                                    print("🔵 [deleteUser] 워커 근무지의 내 이벤트 삭제 시도 - calendarId: \(calendarId)")
                                     let eventsRef = self.db.collection("calendars").document(calendarId).collection("events")
                                     eventsRef.whereField("createdBy", isEqualTo: uid).getDocuments { eventsSnap, _ in
                                         let eventDocs = eventsSnap?.documents ?? []
                                         let group = DispatchGroup()
-                                        print("🟦 [deleteUser] 워커 근무지 내 이벤트 삭제 \(eventDocs.count)개")
                                         for (i, doc) in eventDocs.enumerated() {
                                             group.enter()
                                             doc.reference.delete { _ in group.leave() }
                                             if (i+1) % 450 == 0 {
-                                                print("⚡️ [deleteUser] 워커 근무지 내 이벤트 batch 커밋(중간) - ops: \(batchOps)")
                                                 batch.commit { _ in }
                                                 batch = self.db.batch(); batchOps = 0
                                             }
                                         }
                                         batch.commit { error in
                                             if let error = error {
-                                                print("❌ [deleteUser] 워커 근무지 batch 커밋 실패: \(error)")
                                                 observer.onError(error)
                                             } else {
                                                 group.notify(queue: .main) {
-                                                    print("✅ [deleteUser] 워커 근무지 최종 삭제 완료: \(workplaceId)")
                                                     observer.onNext(())
                                                     observer.onCompleted()
                                                 }
@@ -244,10 +211,8 @@ final class UserService: UserServiceProtocol {
                                         }
                                     }
                                 } else {
-                                    print("⚠️ [deleteUser] 워커 근무지 내 캘린더 없음, batch 커밋")
                                     batch.commit { error in
                                         if let error = error {
-                                            print("❌ [deleteUser] 워커 근무지 batch 커밋 실패: \(error)")
                                             observer.onError(error)
                                         } else {
                                             observer.onNext(())
@@ -262,7 +227,6 @@ final class UserService: UserServiceProtocol {
                 
                 // 3. 내 users/{uid} 및 모든 서브컬렉션 삭제 (최후)
                 let userDelete = Observable<Void>.create { observer in
-                    print("🟣 [deleteUser] 사용자 도큐먼트 및 workplaces 서브컬렉션 삭제 시작")
                     let userRef = self.db.collection("users").document(uid)
                     userRef.collection("workplaces").getDocuments { snap, _ in
                         let group = DispatchGroup()
@@ -273,10 +237,8 @@ final class UserService: UserServiceProtocol {
                         group.notify(queue: .main) {
                             userRef.delete { error in
                                 if let error = error {
-                                    print("❌ [deleteUser] 사용자 도큐먼트 삭제 실패: \(error)")
                                     observer.onError(error)
                                 } else {
-                                    print("✅ [deleteUser] 사용자 도큐먼트 최종 삭제 완료")
                                     observer.onNext(())
                                     observer.onCompleted()
                                 }
@@ -287,7 +249,6 @@ final class UserService: UserServiceProtocol {
                 }
                 
                 // 전체 삭제 순서대로 실행
-                print("▶️ [deleteUser] concat으로 삭제 실행")
                 return Observable.concat(ownerDeletes, workerDeletes, userDelete)
                     .ignoreElements()
                     .asObservable()

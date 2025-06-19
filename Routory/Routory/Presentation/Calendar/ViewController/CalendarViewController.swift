@@ -214,7 +214,7 @@ private extension CalendarViewController {
         let workplaceRepository = WorkplaceRepository(service: workplaceService)
         let workplaceUseCase = WorkplaceUseCase(repository: workplaceRepository)
         let filterVM = FilterViewModel(workplaceUseCase: workplaceUseCase)
-        let filterModalVC = FilterViewController(viewModel: filterVM, calendarMode: calendarMode.value)
+        let filterModalVC = FilterViewController(viewModel: filterVM, calendarMode: calendarMode.value, prevFilterWorkplace: filterWorkplace.value)
         filterModalVC.delegate = self
         
         if let sheet = filterModalVC.sheetPresentationController {

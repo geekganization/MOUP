@@ -113,6 +113,7 @@ final class CalendarDayCell: JTACDayCell {
                         let workHour = DateFormatter.hourDiffDecimal(from: event.startTime, to: event.endTime)
                         // TODO: dailyWage 계산 필요
                         // TODO: isShared == true일 때 이름 표시
+                        // TODO: color 표시
                         eventView.update(workHourOrName: "\(workHour?.hours ?? 0)", dailyWage: "100,000", calendarMode: calendarMode, color: "red")
                         eventView.isHidden = false
                     }

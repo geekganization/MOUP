@@ -21,6 +21,8 @@ final class FilterViewController: UIViewController {
     private let disposeBag = DisposeBag()
     
     private let calendarMode: CalendarMode
+    private let prevFilterWorkplace: String
+    private var prevFilterIndex: Int?
     
     // MARK: UI Components
     
@@ -28,9 +30,10 @@ final class FilterViewController: UIViewController {
     
     // MARK: - Initializer
     
-    init(viewModel: FilterViewModel, calendarMode: CalendarMode) {
+    init(viewModel: FilterViewModel, calendarMode: CalendarMode, prevFilterWorkplace: String) {
         self.viewModel = viewModel
         self.calendarMode = calendarMode
+        self.prevFilterWorkplace = prevFilterWorkplace
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -95,14 +98,24 @@ private extension FilterViewController {
                 }
             }
             .asDriver(onErrorJustReturn: [])
+            .do(afterNext: { [weak self] _ in
+                if let prevFilterIndex = self?.prevFilterIndex {
+                    self?.filterView.getWorkplaceTableView.selectRow(at: IndexPath(row: prevFilterIndex, section: 0), animated: false, scrollPosition: .middle)
+                } else {
+                    self?.filterView.getWorkplaceTableView.selectRow(at: IndexPath(row: 0, section: 0), animated: false, scrollPosition: .middle)
+                }
+            })
             .drive(filterView.getWorkplaceTableView.rx.items(
                 cellIdentifier: WorkplaceCell.identifier, cellType: WorkplaceCell.self)) { [weak self] index, model, cell in
                     guard let model = model as? WorkplaceInfo else { return }
                     if self?.calendarMode == .personal && index == 0 {
                         cell.update(workplace: "전체 보기")
-                        self?.filterView.getWorkplaceTableView.selectRow(at: IndexPath(row: 0, section: 0), animated: false, scrollPosition: .none)
                     } else {
                         cell.update(workplace: model.workplace.workplacesName)
+                    }
+                    
+                    if model.workplace.workplacesName == self?.prevFilterWorkplace {
+                        self?.prevFilterIndex = index
                     }
                 }.disposed(by: disposeBag)
     }

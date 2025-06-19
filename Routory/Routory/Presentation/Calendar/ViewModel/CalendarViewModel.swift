@@ -44,7 +44,7 @@ final class CalendarViewModel {
             .subscribe(with: self, onNext: { owner, combined in
                 let ((year, month), workplace) = combined
                 
-                // TODO: 로그인된 userId의 모든 WorkCalendar, 공유 캘린더 데이터 불러오기 (직전달, 이번달, 다음달 3개월 or 모든 달?)
+                // TODO: 직전달, 이번달, 다음달 3개월씩 불러오기
                 guard let uid = UserManager.shared.firebaseUid else { return }
                 
                 owner.eventUseCase.fetchAllEventsForUserInMonthSeparated(uid: uid, year: year, month: month)

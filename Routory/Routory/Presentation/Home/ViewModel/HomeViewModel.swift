@@ -57,7 +57,7 @@ final class HomeViewModel {
         // 데이터 fetch 트리거
         let dataLoadTrigger = Observable.merge(
             input.viewDidLoad.map { _ in () },
-            input.refreshBtnTapped.do(onNext: { LoadingManager.start() })
+            input.refreshBtnTapped.do(onNext: { /*LoadingManager.start()*/ })
         )
 
         let user = dataLoadTrigger

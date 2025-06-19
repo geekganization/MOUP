@@ -132,7 +132,7 @@ private extension HomeViewController {
         // HomeView 버튼 이벤트 바인딩
         homeView.rx.refreshButtonTapped
             .do (onNext: { _ in
-                LoadingManager.start()
+//                LoadingManager.start()
                 print("로딩 시작됨")
             })
             .bind(to: refreshBtnTappedRelay)

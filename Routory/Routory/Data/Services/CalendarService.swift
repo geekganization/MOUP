@@ -12,6 +12,7 @@ protocol CalendarServiceProtocol {
     func addUserToCalendarSharedWith(calendarId: String, uid: String) -> Observable<Void>
     func fetchCalendarIdByWorkplaceId(workplaceId: String) -> Observable<String?>
     func addEventToCalendar(calendarId: String, event: CalendarEvent) -> Observable<Void>
+    func deleteEventFromCalendarIfPermitted(calendarId: String, eventId: String, uid: String) -> Observable<Void>
 }
 
 final class CalendarService: CalendarServiceProtocol {
@@ -69,30 +70,79 @@ final class CalendarService: CalendarServiceProtocol {
     ///   - event: 추가할 CalendarEvent 모델
     /// - Returns: 성공 시 Void, 실패 시 에러 Observable
     func addEventToCalendar(calendarId: String, event: CalendarEvent) -> Observable<Void> {
-            let eventRef = db.collection("calendars").document(calendarId).collection("events").document()
-            let data: [String: Any] = [
-                "title": event.title,
-                "eventDate": event.eventDate,
-                "startTime": event.startTime,
-                "endTime": event.endTime,
-                "createdBy": event.createdBy,
-                "year": event.year,
-                "month": event.month,
-                "day": event.day,
-                "routineIds": event.routineIds,
-                "repeatDays": event.repeatDays,
-                "memo": event.memo
-            ]
-            return Observable.create { observer in
-                eventRef.setData(data) { error in
-                    if let error = error {
-                        observer.onError(error)
-                    } else {
-                        observer.onNext(())
-                        observer.onCompleted()
+        let eventRef = db.collection("calendars").document(calendarId).collection("events").document()
+        let data: [String: Any] = [
+            "title": event.title,
+            "eventDate": event.eventDate,
+            "startTime": event.startTime,
+            "endTime": event.endTime,
+            "createdBy": event.createdBy,
+            "year": event.year,
+            "month": event.month,
+            "day": event.day,
+            "routineIds": event.routineIds,
+            "repeatDays": event.repeatDays,
+            "memo": event.memo
+        ]
+        return Observable.create { observer in
+            eventRef.setData(data) { error in
+                if let error = error {
+                    observer.onError(error)
+                } else {
+                    observer.onNext(())
+                    observer.onCompleted()
+                }
+            }
+            return Disposables.create()
+        }
+    }
+    
+    /// 권한 체크 후 삭제 (owner, sharedWith, createdBy)
+    func deleteEventFromCalendarIfPermitted(calendarId: String, eventId: String, uid: String) -> Observable<Void> {
+        let calendarRef = db.collection("calendars").document(calendarId)
+        let eventRef = calendarRef.collection("events").document(eventId)
+        
+        return Observable.create { observer in
+            // 1. 캘린더 권한 확인
+            calendarRef.getDocument { calendarSnap, calendarError in
+                guard let calendarData = calendarSnap?.data(),
+                      let ownerId = calendarData["ownerId"] as? String,
+                      let sharedWith = calendarData["sharedWith"] as? [String] else {
+                    observer.onError(NSError(domain: "CalendarService", code: 404, userInfo: [NSLocalizedDescriptionKey: "캘린더 정보를 찾을 수 없습니다."]))
+                    return
+                }
+                
+                // 2. 이벤트 정보 확인
+                eventRef.getDocument { eventSnap, eventError in
+                    guard let eventData = eventSnap?.data(),
+                          let createdBy = eventData["createdBy"] as? String else {
+                        observer.onError(NSError(domain: "CalendarService", code: 404, userInfo: [NSLocalizedDescriptionKey: "이벤트 정보를 찾을 수 없습니다."]))
+                        return
+                    }
+                    
+                    // 3. 권한 체크: 내가 오너 or sharedWith or 내가 만든 이벤트만 허용
+                    let isPermitted =
+                    (ownerId == uid)
+                    || (sharedWith.contains(uid))
+                    || (createdBy == uid)
+                    if !isPermitted {
+                        observer.onError(NSError(domain: "CalendarService", code: 403, userInfo: [NSLocalizedDescriptionKey: "이벤트를 삭제할 권한이 없습니다."]))
+                        return
+                    }
+                    
+                    // 4. 실제 삭제 진행
+                    eventRef.delete { deleteError in
+                        if let deleteError = deleteError {
+                            observer.onError(deleteError)
+                        } else {
+                            observer.onNext(())
+                            observer.onCompleted()
+                        }
                     }
                 }
-                return Disposables.create()
             }
+            return Disposables.create()
         }
+    }
+    
 }

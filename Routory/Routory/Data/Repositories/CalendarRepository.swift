@@ -22,4 +22,7 @@ final class CalendarRepository: CalendarRepositoryProtocol {
     func addEventToCalendar(calendarId: String, event: CalendarEvent) -> Observable<Void> {
         return calendarService.addEventToCalendar(calendarId: calendarId, event: event)
     }
+    func deleteEventFromCalendarIfPermitted(calendarId: String, eventId: String, uid: String) -> Observable<Void> {
+        return calendarService.deleteEventFromCalendarIfPermitted(calendarId: calendarId, eventId: eventId, uid: uid)
+    }
 }

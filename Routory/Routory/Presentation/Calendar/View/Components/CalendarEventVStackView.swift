@@ -44,7 +44,7 @@ final class CalendarEventVStackView: UIStackView {
         dailyWageLabel.isHidden = (calendarMode == .shared)
         
         // TODO: color 설정
-        self.backgroundColor = .primary50
+        self.backgroundColor = .primary100
         workHourOrNameLabel.textColor = .primary600
         dailyWageLabel.textColor = .primary600
     }

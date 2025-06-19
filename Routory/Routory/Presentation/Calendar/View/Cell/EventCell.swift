@@ -58,7 +58,7 @@ final class EventCell: UITableViewCell {
         super.layoutSubviews()
         self.contentView.frame = self.contentView.frame.inset(by: UIEdgeInsets(top: 6, left: 16, bottom: 6, right: 16))
         
-        self.backgroundView = ColorBorderView(frame: self.contentView.bounds, borderColor: .primary500)
+        self.backgroundView = ColorBorderView(frame: self.contentView.bounds, borderColor: .primary600)
         self.backgroundView?.frame = self.contentView.frame
     }
     

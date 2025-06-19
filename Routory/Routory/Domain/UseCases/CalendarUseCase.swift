@@ -23,4 +23,8 @@ final class CalendarUseCase: CalendarUseCaseProtocol {
     func addEventToCalendar(calendarId: String, event: CalendarEvent) -> Observable<Void> {
         return repository.addEventToCalendar(calendarId: calendarId, event: event)
     }
+    
+    func deleteEventFromCalendarIfPermitted(calendarId: String, eventId: String, uid: String) -> Observable<Void> {
+        return repository.deleteEventFromCalendarIfPermitted(calendarId: calendarId, eventId: eventId, uid: uid)
+    }
 }

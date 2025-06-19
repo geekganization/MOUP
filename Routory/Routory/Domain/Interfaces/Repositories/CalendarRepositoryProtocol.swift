@@ -11,4 +11,5 @@ protocol CalendarRepositoryProtocol {
     func addUserToCalendarSharedWith(calendarId: String, uid: String) -> Observable<Void>
     func fetchCalendarIdByWorkplaceId(workplaceId: String) -> Observable<String?>
     func addEventToCalendar(calendarId: String, event: CalendarEvent) -> Observable<Void>
+    func deleteEventFromCalendarIfPermitted(calendarId: String, eventId: String, uid: String) -> Observable<Void>
 }

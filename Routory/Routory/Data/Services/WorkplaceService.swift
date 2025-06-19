@@ -108,54 +108,46 @@ final class WorkplaceService: WorkplaceServiceProtocol {
     func fetchAllWorkplacesForUser(uid: String) -> Observable<[WorkplaceInfo]> {
         let userWorkplaceRef = Firestore.firestore().collection("users").document(uid).collection("workplaces")
         
-        return Observable.create { observer in
+        // 1. users/{uid}/workplaces 조회
+        return Observable<[String]>.create { observer in
             userWorkplaceRef.getDocuments { snapshot, error in
                 if let error = error {
                     observer.onError(error)
                     return
                 }
-                
                 let ids = snapshot?.documents.map { $0.documentID } ?? []
-                
-                // ids가 없으면 빈 배열 반환
-                if ids.isEmpty {
-                    observer.onNext([])
-                    observer.onCompleted()
-                    return
-                }
-                
-                // 각 workplaceId로 workplaces 컬렉션에서 상세 조회 Observable 만들기
-                let db = Firestore.firestore()
-                let observables: [Observable<WorkplaceInfo>] = ids.map { workplaceId in
-                    Observable<WorkplaceInfo>.create { detailObserver in
-                        db.collection("workplaces").document(workplaceId).getDocument { doc, error in
-                            if let doc = doc, let data = doc.data() {
-                                do {
-                                    let jsonData = try JSONSerialization.data(withJSONObject: data)
-                                    let workplace = try JSONDecoder().decode(Workplace.self, from: jsonData)
-                                    detailObserver.onNext(WorkplaceInfo(id: workplaceId, workplace: workplace))
-                                    detailObserver.onCompleted()
-                                } catch {
-                                    detailObserver.onError(error)
-                                }
-                            } else {
-                                detailObserver.onCompleted()
-                            }
-                        }
-                        return Disposables.create()
-                    }
-                }
-                
-                Observable.zip(observables)
-                    .subscribe(onNext: { workplaces in
-                        observer.onNext(workplaces)
-                        observer.onCompleted()
-                    }, onError: { error in
-                        observer.onError(error)
-                    })
-                    .disposed(by: DisposeBag())
+                observer.onNext(ids)
+                observer.onCompleted()
             }
             return Disposables.create()
+        }
+        .flatMap { ids -> Observable<[WorkplaceInfo]> in
+            // 2. workplaceId가 없으면 바로 []
+            if ids.isEmpty {
+                return Observable.just([])
+            }
+            let db = Firestore.firestore()
+            let observables: [Observable<WorkplaceInfo>] = ids.map { workplaceId in
+                Observable<WorkplaceInfo>.create { detailObserver in
+                    db.collection("workplaces").document(workplaceId).getDocument { doc, error in
+                        if let doc = doc, let data = doc.data() {
+                            do {
+                                let jsonData = try JSONSerialization.data(withJSONObject: data)
+                                let workplace = try JSONDecoder().decode(Workplace.self, from: jsonData)
+                                detailObserver.onNext(WorkplaceInfo(id: workplaceId, workplace: workplace))
+                                detailObserver.onCompleted()
+                            } catch {
+                                detailObserver.onError(error)
+                            }
+                        } else {
+                            detailObserver.onCompleted()
+                        }
+                    }
+                    return Disposables.create()
+                }
+            }
+            // 3. zip([Observable])을 그대로 반환 (subscribe 없이!)
+            return Observable.zip(observables)
         }
     }
     

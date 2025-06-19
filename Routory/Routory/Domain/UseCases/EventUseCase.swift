@@ -31,4 +31,12 @@ final class EventUseCase: EventUseCaseProtocol {
     ) -> Observable<(personal: [CalendarEvent], shared: [CalendarEvent])> {
         return repository.fetchEventsForUserOnDateSeparated(uid: uid, year: year, month: month, day: day)
     }
+    
+    func fetchMonthlyWorkSummaryDailySeparated(
+        uid: String,
+        year: Int,
+        month: Int
+    ) -> Observable<[WorkplaceWorkSummaryDailySeparated]> {
+        return repository.fetchMonthlyWorkSummaryDailySeparated(uid: uid, year: year, month: month)
+    }
 }

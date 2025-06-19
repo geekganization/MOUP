@@ -126,6 +126,7 @@ private extension DeleteAccountModalViewController {
     }
     
     func logoutAndGoToLoginScreen() {
+        print("로그아웃 및 화면전환 진입")
         do {
             try Auth.auth().signOut()
             

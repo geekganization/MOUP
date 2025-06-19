@@ -110,7 +110,7 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
             workplacesName: name,
             category: category,
             ownerId: uid,
-            inviteCode: UUID().uuidString,
+            inviteCode: InviteCodeGenerator.generate(userID: uid), // 초대 코드 생성
             isOfficial: true
         )
 

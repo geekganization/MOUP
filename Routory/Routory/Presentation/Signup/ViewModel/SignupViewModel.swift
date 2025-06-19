@@ -44,23 +44,19 @@ final class SignupViewModel {
                 .flatMapLatest { [weak self] role -> Observable<Event<Void>> in
                     guard let self = self else { return .empty() }
                     return Observable.create { observer in
-                        Auth.auth().signIn(with: self.credential) { result, error in
-                            if let error = error {
-                                observer.onError(error)
-                            } else if let user = result?.user {
-                                let uid = user.uid
-                                let userData = User(userName: self.userName, role: role, workplaceList: [])
-                                self.userUseCase.createUser(uid: uid, user: userData)
-                                    .subscribe(
-                                        onNext: { observer.onNext(()) },
-                                        onError: { observer.onError($0) },
-                                        onCompleted: { observer.onCompleted() }
-                                    )
-                                    .disposed(by: self.disposeBag)
-                            } else {
-                                observer.onError(NSError(domain: "Signup", code: -1, userInfo: [NSLocalizedDescriptionKey: "Auth 실패"]))
-                            }
+                        // Use the already signed-in Firebase user instead of signing in again
+                        guard let uid = Auth.auth().currentUser?.uid else {
+                            observer.onError(NSError(domain: "Signup", code: -1, userInfo: [NSLocalizedDescriptionKey: "Auth user not found"]))
+                            return Disposables.create()
                         }
+                        let userData = User(userName: self.userName, role: role, workplaceList: [])
+                        self.userUseCase.createUser(uid: uid, user: userData)
+                            .subscribe(
+                                onNext: { observer.onNext(()) },
+                                onError: { observer.onError($0) },
+                                onCompleted: { observer.onCompleted() }
+                            )
+                            .disposed(by: self.disposeBag)
                         return Disposables.create()
                     }.materialize()
                 }

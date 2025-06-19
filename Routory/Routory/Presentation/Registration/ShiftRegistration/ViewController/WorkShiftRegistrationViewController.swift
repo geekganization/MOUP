@@ -59,8 +59,8 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
         }
     }
     
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
         
         if self.isMovingFromParent {
             delegate?.registrationVCIsMovingFromParent()

@@ -98,11 +98,15 @@ private extension FilterViewController {
                 }
             }
             .asDriver(onErrorJustReturn: [])
-            .do(afterNext: { [weak self] _ in
-                if let prevFilterIndex = self?.prevFilterIndex {
-                    self?.filterView.getWorkplaceTableView.selectRow(at: IndexPath(row: prevFilterIndex, section: 0), animated: false, scrollPosition: .middle)
-                } else {
-                    self?.filterView.getWorkplaceTableView.selectRow(at: IndexPath(row: 0, section: 0), animated: false, scrollPosition: .middle)
+            .do(afterNext: { [weak self] list in
+                self?.filterView.getWorkplaceTableView.isHidden = list.isEmpty
+                
+                if !list.isEmpty {
+                    if let prevFilterIndex = self?.prevFilterIndex {
+                        self?.filterView.getWorkplaceTableView.selectRow(at: IndexPath(row: prevFilterIndex, section: 0), animated: false, scrollPosition: .middle)
+                    } else {
+                        self?.filterView.getWorkplaceTableView.selectRow(at: IndexPath(row: 0, section: 0), animated: false, scrollPosition: .middle)
+                    }
                 }
             })
             .drive(filterView.getWorkplaceTableView.rx.items(

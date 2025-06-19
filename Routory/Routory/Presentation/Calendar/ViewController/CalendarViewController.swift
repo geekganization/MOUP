@@ -147,6 +147,12 @@ private extension CalendarViewController {
             .drive(with: self) { owner, calendarEventList in
                 owner.populateDataSource(calendarEvents: calendarEventList)
             }.disposed(by: disposeBag)
+        
+        output.workplaceWorkSummaryDailyListRelay
+            .asDriver(onErrorJustReturn: [])
+            .drive(with: self) { owner, workplaceWorkSummaryList in
+                
+            }.disposed(by: disposeBag)
     }
 }
 
@@ -392,7 +398,7 @@ extension CalendarViewController: YearMonthPickerVCDelegate {
     }
 }
 
-// MARK: -
+// MARK: - FilterVCDelegate
 
 extension CalendarViewController: FilterVCDelegate {
     func didApplyButtonTap(workplaceText: String) {
@@ -407,7 +413,7 @@ extension CalendarViewController: RegistrationVCDelegate {
         // TODO: 해당 날짜 이벤트 다시 로드
         guard let selectedDate else { return }
         calendarView.getJTACalendar.selectDates([selectedDate])
-        // TODO: 근무 추가 후 캘린더 업데이트 해야함
-        calendarView.getJTACalendar.reloadData()
+        // 캘린더 데이터 업데이트
+        visibleYearMonth.accept(visibleYearMonth.value)
     }
 }

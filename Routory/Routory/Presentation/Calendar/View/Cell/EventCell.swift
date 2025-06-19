@@ -78,6 +78,7 @@ final class EventCell: UITableViewCell {
         }
         dailyWageLabel.isHidden = (calendarMode == .shared)
         // TODO: dailyWage 계산 필요
+        
     }
 }
 

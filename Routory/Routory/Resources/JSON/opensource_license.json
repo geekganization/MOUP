@@ -41,6 +41,12 @@
       "copyright": "Copyright © 2015 Suyeol Jeon (xoul.kr)",
       "license": "MIT License",
       "url": "https://github.com/devxoul/Then"
+    },
+    {
+      "name": "BigInt",
+      "copyright": "Copyright (c) 2016-2017 Károly Lőrentey",
+      "license": "MIT License",
+      "url": "https://github.com/attaswift/BigInt"
     }
   ],
   "licenses": {

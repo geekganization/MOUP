@@ -115,11 +115,11 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
         )
 
         // getUserName의 결과를 받은 후 처리하도록 클로저 내부로 이동
-        UserManager.shared.getUserName { [weak self] result in
+        UserManager.shared.getUser { [weak self] result in
             switch result {
-            case .success(let userName):
+            case .success(let user):
                 let workerDetail = WorkerDetail(
-                    workerName: userName,
+                    workerName: user.userName,
                     wage: 0,
                     wageCalcMethod: "monthly",
                     wageType: "",

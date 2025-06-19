@@ -46,6 +46,7 @@ final class LoginViewController: UIViewController {
 private extension LoginViewController {
     func configure() {
         setBinding()
+        setStyles()
     }
 
     func setBinding() {
@@ -88,5 +89,9 @@ private extension LoginViewController {
                 }
             })
             .disposed(by: disposeBag)
+    }
+    
+    func setStyles() {
+        navigationController?.navigationBar.isHidden = true
     }
 }

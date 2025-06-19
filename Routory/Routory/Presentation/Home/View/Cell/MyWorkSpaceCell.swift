@@ -103,7 +103,7 @@ class MyWorkSpaceCell: UITableViewCell {
     func update(with workplaceInfo: DummyWorkplaceInfo, isExpanded: Bool, menuActions: [UIAction]) {
         print("셀 업데이트: \(workplaceInfo.storeName), isExpanded: \(isExpanded)")
         storeNameLabel.text = workplaceInfo.storeName
-        officialChip.isHidden = !workplaceInfo.isOfficial
+//        officialChip.isHidden = !workplaceInfo.isOfficial
         daysUntilPaydayLabel.text = "급여일까지 D-\(workplaceInfo.daysUntilPayday)"
         totalEarnedLabel.text = "현재까지 \(workplaceInfo.totalEarned.withComma)원"
 

@@ -38,6 +38,7 @@ final class CalendarEventListViewModel {
         
         input.loadEventList
             .subscribe(with: self) { owner, _ in
+                // TODO: API 호출로 갱신해야 함
                 eventListRelay.accept(owner.eventList)
             }.disposed(by: disposeBag)
         

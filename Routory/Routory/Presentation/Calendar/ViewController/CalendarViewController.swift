@@ -147,6 +147,12 @@ private extension CalendarViewController {
             .drive(with: self) { owner, calendarEventList in
                 owner.populateDataSource(calendarEvents: calendarEventList)
             }.disposed(by: disposeBag)
+        
+        output.workplaceWorkSummaryDailyListRelay
+            .asDriver(onErrorJustReturn: [])
+            .drive(with: self) { owner, workplaceWorkSummaryList in
+                
+            }.disposed(by: disposeBag)
     }
 }
 

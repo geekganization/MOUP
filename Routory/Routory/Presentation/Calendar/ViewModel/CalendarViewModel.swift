@@ -20,6 +20,7 @@ final class CalendarViewModel {
     private let disposeBag = DisposeBag()
     
     private let eventUseCase: EventUseCaseProtocol
+    private let workplaceUseCase: WorkplaceUseCaseProtocol
     
     // MARK: - Input (ViewController ➡️ ViewModel)
     
@@ -33,12 +34,14 @@ final class CalendarViewModel {
     
     struct Output {
         let calendarEventListRelay: PublishRelay<(personal: [CalendarEvent], shared: [CalendarEvent])>
+        let workplaceWorkSummaryDailyListRelay: PublishRelay<[WorkplaceWorkSummaryDailySeparated]>
     }
     
     // MARK: - Transform (Input ➡️ Output)
     
     func tranform(input: Input) -> Output {
         let calendarEventListRelay = PublishRelay<(personal: [CalendarEvent], shared: [CalendarEvent])>()
+        let workplaceWorkSummaryDailyListRelay = PublishRelay<[WorkplaceWorkSummaryDailySeparated]>()
         
         Observable.combineLatest(input.loadMonthEvent, input.filterWorkplace)
             .subscribe(with: self, onNext: { owner, combined in
@@ -46,6 +49,11 @@ final class CalendarViewModel {
                 
                 // TODO: 직전달, 이번달, 다음달 3개월씩 불러오기
                 guard let uid = UserManager.shared.firebaseUid else { return }
+                
+                owner.eventUseCase.fetchMonthlyWorkSummaryDailySeparated(uid: uid, year: year, month: month)
+                    .subscribe(with: self) { owner, workplaceWorkSummaryDailyList in
+                        dump(workplaceWorkSummaryDailyList)
+                    }.disposed(by: owner.disposeBag)
                 
                 owner.eventUseCase.fetchAllEventsForUserInMonthSeparated(uid: uid, year: year, month: month)
                     .subscribe(with: self) { owner, calendarEventList in
@@ -62,12 +70,14 @@ final class CalendarViewModel {
                     }.disposed(by: owner.disposeBag)
             }).disposed(by: disposeBag)
         
-        return Output(calendarEventListRelay: calendarEventListRelay)
+        return Output(calendarEventListRelay: calendarEventListRelay,
+                      workplaceWorkSummaryDailyListRelay: workplaceWorkSummaryDailyListRelay)
     }
     
     // MARK: - Initializer
     
-    init(eventUseCase: EventUseCaseProtocol) {
+    init(eventUseCase: EventUseCaseProtocol, workplaceUseCase: WorkplaceUseCaseProtocol) {
         self.eventUseCase = eventUseCase
+        self.workplaceUseCase = workplaceUseCase
     }
 }

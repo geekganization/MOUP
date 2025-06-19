@@ -22,6 +22,7 @@ final class CalendarEventListViewController: UIViewController {
     private let disposeBag = DisposeBag()
     
     private let day: Int
+    private let calendarMode: CalendarMode
     
     // MARK: - UI Components
     
@@ -29,9 +30,10 @@ final class CalendarEventListViewController: UIViewController {
     
     // MARK: - Initializer
     
-    init(viewModel: CalendarEventListViewModel, day: Int) {
+    init(viewModel: CalendarEventListViewModel, day: Int, calendarMode: CalendarMode) {
         self.viewModel = viewModel
         self.day = day
+        self.calendarMode = calendarMode
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -88,9 +90,10 @@ private extension CalendarEventListViewController {
         let output = viewModel.tranform(input: input)
         
         output.eventListRelay.asDriver(onErrorJustReturn: [])
-            .drive(calendarEventListView.getEventTableView.rx.items( 
-                cellIdentifier: EventCell.identifier, cellType: EventCell.self)) { _, model, cell in
-                    cell.update(workplace: model.title, startTime: model.startTime, endTime: model.endTime, dailyWage: "", isShared: false)
+            .drive(calendarEventListView.getEventTableView.rx.items(
+                cellIdentifier: EventCell.identifier, cellType: EventCell.self)) { [weak self] _, model, cell in
+                    guard let self else { return }
+                    cell.update(workplace: model.title, startTime: model.startTime, endTime: model.endTime, dailyWage: "", calendarMode: calendarMode)
                 }.disposed(by: disposeBag)
     }
 }

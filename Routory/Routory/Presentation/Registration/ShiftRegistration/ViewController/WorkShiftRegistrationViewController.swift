@@ -147,6 +147,7 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
 
     @objc func didTapRegister() {
         let workPlaceID = contentView.simpleRowView.getID()
+        let workPlace = contentView.simpleRowView.getData()
         let eventDate = contentView.workDateView.getdateRowData()
         let startTime = contentView.workTimeView.getstartRowData()
         let endTime = contentView.workTimeView.getendRowData()
@@ -165,7 +166,7 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
             }
 
         let event = CalendarEvent(
-            title: "",
+            title: workPlace,
             eventDate: eventDate,
             startTime: startTime,
             endTime: endTime,

@@ -208,10 +208,11 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
 
         switch registrationMode {
         case .owner:
+            let workPlace = contentView.simpleRowView.getData()
             let routineIDs = contentView.routineView.getSelectedRoutineIDs()
 
             let event = CalendarEvent(
-                title: "",
+                title: workPlace,
                 eventDate: eventDate,
                 startTime: startTime,
                 endTime: endTime,
@@ -228,12 +229,13 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
 
         case .employee:
             let workPlaceID = contentView.simpleRowView.getID()
+            let workPlace = contentView.simpleRowView.getData()
             let workers = contentView.workerSelectionView.getSelectedWorkerData()
             let routineIDs = contentView.routineView.getSelectedRoutineIDs()
             
             workers.forEach { worker in
                 let event = CalendarEvent(
-                    title: "",
+                title: workPlace,
                     eventDate: eventDate,
                     startTime: startTime,
                     endTime: endTime,

@@ -20,6 +20,7 @@ final class FilterViewController: UIViewController {
     
     private let disposeBag = DisposeBag()
     
+    private let calendarMode: CalendarMode
     private var selectedIndexPath = IndexPath()
     
     // MARK: UI Components
@@ -28,8 +29,9 @@ final class FilterViewController: UIViewController {
     
     // MARK: - Initializer
     
-    init(viewModel: FilterViewModel) {
+    init(viewModel: FilterViewModel, calendarMode: CalendarMode) {
         self.viewModel = viewModel
+        self.calendarMode = calendarMode
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -48,6 +50,11 @@ final class FilterViewController: UIViewController {
         super.viewDidLoad()
         configure()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        filterView.getWorkplaceTableView.selectRow(at: IndexPath(row: 0, section: 0), animated: false, scrollPosition: .none)
+    }
 }
 
 // MARK: - UI Methods
@@ -61,8 +68,6 @@ private extension FilterViewController {
     
     func setStyles() {
         self.view.backgroundColor = .primaryBackground
-        
-        filterView.getWorkplaceTableView.selectRow(at: IndexPath(row: 0, section: 0), animated: false, scrollPosition: .none)
     }
     
     func setActions() {
@@ -79,7 +84,7 @@ private extension FilterViewController {
                 owner.selectedIndexPath = indexPath
             }.disposed(by: disposeBag)
         
-        let input = FilterViewModel.Input(viewDidLoad: Observable.just(()))
+        let input = FilterViewModel.Input(calendarMode: Observable.just((calendarMode)))
         
         let output = viewModel.tranform(input: input)
         

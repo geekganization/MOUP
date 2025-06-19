@@ -24,7 +24,7 @@ final class FilterViewModel {
     // MARK: - Input (ViewController ➡️ ViewModel)
     
     struct Input {
-        let viewDidLoad: Observable<Void>
+        let calendarMode: Observable<CalendarMode>
     }
     
     // MARK: - Output (ViewModel ➡️ ViewController)
@@ -38,13 +38,17 @@ final class FilterViewModel {
     func tranform(input: Input) -> Output {
         let workplaceInfoListRelay = BehaviorRelay<[WorkplaceInfo]>(value: [])
         
-        input.viewDidLoad
-            .subscribe(with: self) { owner, _ in
+        input.calendarMode
+            .subscribe(with: self) { owner, calendarMode in
                 guard let uid = UserManager.shared.firebaseUid else { return }
                 owner.workplaceUseCase.fetchAllWorkplacesForUser(uid: uid)
                     .subscribe(with: self) { owner, workplaceInfoList in
-//                        let sorted = workplaceInfoList.sorted(by: { $0.workplace.workplacesName < $1.workplace.workplacesName })
-                        workplaceInfoListRelay.accept(workplaceInfoList)
+                        if calendarMode == .shared {
+                            let filtered = workplaceInfoList.filter { $0.workplace.isOfficial }
+                            workplaceInfoListRelay.accept(filtered)
+                        } else {
+                            workplaceInfoListRelay.accept(workplaceInfoList)
+                        }
                     } onError: { owner, error in
                         owner.logger.error("\(error.localizedDescription)")
                     }.disposed(by: owner.disposeBag)

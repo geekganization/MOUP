@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import OSLog
 
 import BetterSegmentedControl
 import JTAppleCalendar
@@ -16,6 +17,8 @@ import Then
 final class CalendarViewController: UIViewController {
     
     // MARK: - Properties
+    
+    private lazy var logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: String(describing: self))
     
     private let viewModel: CalendarViewModel
     
@@ -185,7 +188,7 @@ private extension CalendarViewController {
     ///   - eventList: 탭한 셀의 일에 해당하는 `CalendarEvent` 배열
     func didSelectCell(day: Int, eventList: [CalendarEvent]) {
         let calendarEventListVM = CalendarEventListViewModel(eventList: eventList)
-        let calendarEventListVC = CalendarEventListViewController(viewModel: calendarEventListVM, day: day)
+        let calendarEventListVC = CalendarEventListViewController(viewModel: calendarEventListVM, day: day, calendarMode: calendarMode.value)
         calendarEventListVC.delegate = self
         
         let modalNC = UINavigationController(rootViewController: calendarEventListVC)
@@ -212,7 +215,7 @@ private extension CalendarViewController {
         let workplaceRepository = WorkplaceRepository(service: workplaceService)
         let workplaceUseCase = WorkplaceUseCase(repository: workplaceRepository)
         let filterVM = FilterViewModel(workplaceUseCase: workplaceUseCase)
-        let filterModalVC = FilterViewController(viewModel: filterVM)
+        let filterModalVC = FilterViewController(viewModel: filterVM, calendarMode: calendarMode.value)
         
         if let sheet = filterModalVC.sheetPresentationController {
             sheet.detents = [.medium()]
@@ -263,9 +266,9 @@ extension CalendarViewController: JTACMonthViewDelegate {
     func calendar(_ calendar: JTAppleCalendar.JTACMonthView, willDisplay cell: JTAppleCalendar.JTACDayCell, forItemAt date: Date, cellState: JTAppleCalendar.CellState, indexPath: IndexPath) {
         switch calendarMode.value {
         case .personal:
-            calendarView.configureCell(cell: cell, date: date, cellState: cellState, isShared: calendarMode.value == .shared, calendarEventList: personalEventDataSource[date] ?? [])
+            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarMode: calendarMode.value, calendarEventList: personalEventDataSource[date] ?? [])
         case .shared:
-            calendarView.configureCell(cell: cell, date: date, cellState: cellState, isShared: calendarMode.value == .shared, calendarEventList: sharedEventDataSource[date] ?? [])
+            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarMode: calendarMode.value, calendarEventList: sharedEventDataSource[date] ?? [])
         }
     }
     
@@ -299,10 +302,10 @@ extension CalendarViewController: JTACMonthViewDelegate {
         let day = Calendar.current.component(.day, from: date)
         switch calendarMode.value {
         case .personal:
-            calendarView.configureCell(cell: cell, date: date, cellState: cellState, isShared: calendarMode.value == .shared, calendarEventList: personalEventDataSource[date] ?? [])
+            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarMode: calendarMode.value, calendarEventList: personalEventDataSource[date] ?? [])
             didSelectCell(day: day, eventList: personalEventDataSource[date] ?? [])
         case .shared:
-            calendarView.configureCell(cell: cell, date: date, cellState: cellState, isShared: calendarMode.value == .shared, calendarEventList: sharedEventDataSource[date] ?? [])
+            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarMode: calendarMode.value, calendarEventList: sharedEventDataSource[date] ?? [])
             didSelectCell(day: day, eventList: sharedEventDataSource[date] ?? [])
         }
     }
@@ -312,9 +315,9 @@ extension CalendarViewController: JTACMonthViewDelegate {
         
         switch calendarMode.value {
         case .personal:
-            calendarView.configureCell(cell: cell, date: date, cellState: cellState, isShared: calendarMode.value == .shared, calendarEventList: personalEventDataSource[date] ?? [])
+            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarMode: calendarMode.value, calendarEventList: personalEventDataSource[date] ?? [])
         case .shared:
-            calendarView.configureCell(cell: cell, date: date, cellState: cellState, isShared: calendarMode.value == .shared, calendarEventList: sharedEventDataSource[date] ?? [])
+            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarMode: calendarMode.value, calendarEventList: sharedEventDataSource[date] ?? [])
         }
         self.dismiss(animated: true)
     }
@@ -356,31 +359,28 @@ extension CalendarViewController: CalendarEventListVCDelegate {
     }
     
     func didTapAssignButton() {
-        // TODO: 새로운 근무 작성
-        guard let uid = UserManager.shared.firebaseUid else { return }
-        
-        userService.fetchUser(uid: uid)
-            .observe(on: MainScheduler.instance)
-            .subscribe(with: self) { owner, user in
-                switch user.role {
-                case UserRole.worker.rawValue:
+        UserManager.shared.getUser { [weak self] result in
+            switch result {
+            case .success(let user):
+                if user.role == UserRole.worker.rawValue {
                     let workShiftRegisterVC = WorkShiftRegistrationViewController()
                     workShiftRegisterVC.hidesBottomBarWhenPushed = true
                     workShiftRegisterVC.delegate = self
                     
-                    self.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
-                    self.tabBarController?.presentedViewController?.dismiss(animated: true)
-                case UserRole.owner.rawValue:
+                    self?.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
+                    self?.tabBarController?.presentedViewController?.dismiss(animated: true)
+                } else if user.role == UserRole.owner.rawValue {
                     let ownerShiftRegisterVC = OwnerShiftRegistrationViewController()
                     ownerShiftRegisterVC.hidesBottomBarWhenPushed = true
                     ownerShiftRegisterVC.delegate = self
                     
-                    self.navigationController?.pushViewController(ownerShiftRegisterVC, animated: true)
-                    self.tabBarController?.presentedViewController?.dismiss(animated: true)
-                default:
-                    return
+                    self?.navigationController?.pushViewController(ownerShiftRegisterVC, animated: true)
+                    self?.tabBarController?.presentedViewController?.dismiss(animated: true)
                 }
-            }.disposed(by: disposeBag)
+            case .failure(let error):
+                self?.logger.error("\(error.localizedDescription)")
+            }
+        }
     }
 }
 
@@ -401,5 +401,7 @@ extension CalendarViewController: RegistrationVCDelegate {
         // TODO: 해당 날짜 이벤트 다시 로드
         guard let selectedDate else { return }
         calendarView.getJTACalendar.selectDates([selectedDate])
+        // TODO: 근무 추가 후 캘린더 업데이트 해야함
+        calendarView.getJTACalendar.reloadData()
     }
 }

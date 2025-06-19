@@ -77,7 +77,7 @@ final class CalendarDayCell: JTACDayCell {
     
     // MARK: - Methods
     
-    func update(date: String, isSaturday: Bool, isSunday: Bool, isToday: Bool, isShared: Bool, eventList: [CalendarEvent]?) {
+    func update(date: String, isSaturday: Bool, isSunday: Bool, isToday: Bool, calendarMode: CalendarMode, eventList: [CalendarEvent]?) {
         dayLabel.text = date
         dayLabel.textColor = isSunday ? .sundayText : .gray900
         
@@ -100,12 +100,12 @@ final class CalendarDayCell: JTACDayCell {
             } else {
                 eventVStackView.isHidden = false
                 
-                if isShared && eventList.count > 3 {
+                if (calendarMode == .shared) && eventList.count > 3 {
                     otherEventLabel.text = "+\(eventList.count - 3)"
                     otherEventLabel.isHidden = false
                 }
                 for (index, event) in eventList.enumerated() {
-                    if index > (isShared ? 2 : 1) {
+                    if index > ((calendarMode == .shared) ? 2 : 1) {
                         break
                     } else {
                         guard let eventView = eventVStackView.subviews[index] as? CalendarEventVStackView else { continue }
@@ -113,7 +113,7 @@ final class CalendarDayCell: JTACDayCell {
                         let workHour = DateFormatter.hourDiffDecimal(from: event.startTime, to: event.endTime)
                         // TODO: dailyWage 계산 필요
                         // TODO: isShared == true일 때 이름 표시
-                        eventView.update(workHourOrName: "\(workHour?.hours ?? 0)", dailyWage: "100,000", isShared: isShared, color: "red")
+                        eventView.update(workHourOrName: "\(workHour?.hours ?? 0)", dailyWage: "100,000", calendarMode: calendarMode, color: "red")
                         eventView.isHidden = false
                     }
                 }
@@ -133,9 +133,9 @@ private extension CalendarDayCell {
     
     func setHierarchy() {
         self.contentView.addSubviews(seperatorView,
-                         selectedView,
-                         dayLabel,
-                         eventVStackView)
+                                     selectedView,
+                                     dayLabel,
+                                     eventVStackView)
         
         eventVStackView.addArrangedSubviews(firstEventStackView,
                                             secondEventStackView,

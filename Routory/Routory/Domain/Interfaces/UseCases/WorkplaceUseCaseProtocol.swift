@@ -29,4 +29,5 @@ protocol WorkplaceUseCaseProtocol {
         year: Int,
         month: Int
     ) -> Observable<[WorkplaceWorkSummaryDaily]>
+    func deleteOrLeaveWorkplace(workplaceId: String, uid: String) -> Observable<Void>
 }

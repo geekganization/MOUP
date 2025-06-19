@@ -8,6 +8,7 @@
 import Foundation
 import FirebaseFirestore
 import RxSwift
+import RxCocoa
 
 enum Role {
     case owner
@@ -81,18 +82,181 @@ final class UserService: UserServiceProtocol {
     /// - Parameter uid: 삭제할 사용자 UID.
     /// - Returns: 성공 시 완료(Void)를 방출하는 Observable.
     func deleteUser(uid: String) -> Observable<Void> {
-        return Observable.create { observer in
-            self.db.collection("users").document(uid).delete { error in
-                if let error = error {
-                    observer.onError(error)
-                } else {
-                    observer.onNext(())
-                    observer.onCompleted()
+        // 1. 내가 오너인 workplaces 조회
+        let ownedWorkplacesObs = Observable<[String]>.create { observer in
+            self.db.collection("workplaces").whereField("ownerId", isEqualTo: uid).getDocuments { snap, err in
+                if let err = err {
+                    observer.onError(err)
+                    return
                 }
+                let ids = snap?.documents.map { $0.documentID } ?? []
+                observer.onNext(ids)
+                observer.onCompleted()
             }
             return Disposables.create()
         }
+        
+        // 2. 내가 워커로 참여한 workplaces 조회
+        let joinedWorkplacesObs = Observable<[String]>.create { observer in
+            self.db.collection("users").document(uid).collection("workplaces").getDocuments { snap, err in
+                if let err = err {
+                    observer.onError(err)
+                    return
+                }
+                let ids = snap?.documents.map { $0.documentID } ?? []
+                observer.onNext(ids)
+                observer.onCompleted()
+            }
+            return Disposables.create()
+        }
+        
+        return Observable.zip(ownedWorkplacesObs, joinedWorkplacesObs)
+            .flatMap { (ownedWorkplaceIds, joinedWorkplaceIds) -> Observable<Void> in
+                
+                // 1. 오너 근무지 삭제
+                let ownerDeletes = Observable.from(ownedWorkplaceIds)
+                    .flatMap { workplaceId -> Observable<Void> in
+                        Observable.create { observer in
+                            self.db.collection("workplaces").document(workplaceId)
+                                .collection("worker").getDocuments { snap, err in
+                                    guard let snap = snap, err == nil else {
+                                        observer.onError(err ?? NSError(domain: "", code: -1))
+                                        return
+                                    }
+                                    let workerUids = snap.documents.map { $0.documentID }
+                                    var batch = self.db.batch()
+                                    var batchOps = 0
+                                    batch.deleteDocument(self.db.collection("workplaces").document(workplaceId)); batchOps += 1
+                                    for workerUid in workerUids {
+                                        batch.deleteDocument(self.db.collection("users").document(workerUid).collection("workplaces").document(workplaceId)); batchOps += 1
+                                        if batchOps >= 450 {
+                                            batch.commit { _ in }
+                                            batch = self.db.batch(); batchOps = 0
+                                        }
+                                    }
+                                    self.db.collection("calendars").whereField("workplaceId", isEqualTo: workplaceId).getDocuments { calSnap, _ in
+                                        if let calendarId = calSnap?.documents.first?.documentID {
+                                            batch.deleteDocument(self.db.collection("calendars").document(calendarId)); batchOps += 1
+                                            let eventsRef = self.db.collection("calendars").document(calendarId).collection("events")
+                                            eventsRef.getDocuments { eventsSnap, _ in
+                                                let eventDocs = eventsSnap?.documents ?? []
+                                                let group = DispatchGroup()
+                                                for (i, doc) in eventDocs.enumerated() {
+                                                    group.enter()
+                                                    doc.reference.delete { _ in group.leave() }
+                                                    if (i+1) % 450 == 0 {
+                                                        batch.commit { _ in }
+                                                        batch = self.db.batch(); batchOps = 0
+                                                    }
+                                                }
+                                                batch.commit { error in
+                                                    if let error = error {
+                                                        observer.onError(error)
+                                                    } else {
+                                                        group.notify(queue: .main) {
+                                                            observer.onNext(())
+                                                            observer.onCompleted()
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            batch.commit { error in
+                                                if let error = error {
+                                                    observer.onError(error)
+                                                } else {
+                                                    observer.onNext(())
+                                                    observer.onCompleted()
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            return Disposables.create()
+                        }
+                    }
+                
+                // 2. 내가 워커로만 참여한 근무지 처리
+                let notOwnerWorkplaceIds = joinedWorkplaceIds.filter { !ownedWorkplaceIds.contains($0) }
+                let workerDeletes = Observable.from(notOwnerWorkplaceIds)
+                    .flatMap { workplaceId -> Observable<Void> in
+                        Observable.create { observer in
+                            var batch = self.db.batch()
+                            var batchOps = 0
+                            batch.deleteDocument(self.db.collection("workplaces").document(workplaceId).collection("worker").document(uid)); batchOps += 1
+                            batch.deleteDocument(self.db.collection("users").document(uid).collection("workplaces").document(workplaceId)); batchOps += 1
+                            self.db.collection("calendars").whereField("workplaceId", isEqualTo: workplaceId).getDocuments { calSnap, _ in
+                                if let calendarId = calSnap?.documents.first?.documentID {
+                                    let eventsRef = self.db.collection("calendars").document(calendarId).collection("events")
+                                    eventsRef.whereField("createdBy", isEqualTo: uid).getDocuments { eventsSnap, _ in
+                                        let eventDocs = eventsSnap?.documents ?? []
+                                        let group = DispatchGroup()
+                                        for (i, doc) in eventDocs.enumerated() {
+                                            group.enter()
+                                            doc.reference.delete { _ in group.leave() }
+                                            if (i+1) % 450 == 0 {
+                                                batch.commit { _ in }
+                                                batch = self.db.batch(); batchOps = 0
+                                            }
+                                        }
+                                        batch.commit { error in
+                                            if let error = error {
+                                                observer.onError(error)
+                                            } else {
+                                                group.notify(queue: .main) {
+                                                    observer.onNext(())
+                                                    observer.onCompleted()
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    batch.commit { error in
+                                        if let error = error {
+                                            observer.onError(error)
+                                        } else {
+                                            observer.onNext(())
+                                            observer.onCompleted()
+                                        }
+                                    }
+                                }
+                            }
+                            return Disposables.create()
+                        }
+                    }
+                
+                // 3. 내 users/{uid} 및 모든 서브컬렉션 삭제 (최후)
+                let userDelete = Observable<Void>.create { observer in
+                    let userRef = self.db.collection("users").document(uid)
+                    userRef.collection("workplaces").getDocuments { snap, _ in
+                        let group = DispatchGroup()
+                        for doc in snap?.documents ?? [] {
+                            group.enter()
+                            doc.reference.delete { _ in group.leave() }
+                        }
+                        group.notify(queue: .main) {
+                            userRef.delete { error in
+                                if let error = error {
+                                    observer.onError(error)
+                                } else {
+                                    observer.onNext(())
+                                    observer.onCompleted()
+                                }
+                            }
+                        }
+                    }
+                    return Disposables.create()
+                }
+                
+                // 전체 삭제 순서대로 실행
+                return Observable.concat(ownerDeletes, workerDeletes, userDelete)
+                    .ignoreElements()
+                    .asObservable()
+                    .flatMap { _ in Observable.just(()) }
+                    .ifEmpty(switchTo: Observable.just(()))
+            }
     }
+
     
     /// 사용자 정보를 조회합니다.
     ///

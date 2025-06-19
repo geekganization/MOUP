@@ -59,5 +59,9 @@ final class WorkplaceRepository: WorkplaceRepositoryProtocol {
     ) -> Observable<[WorkplaceWorkSummaryDaily]> {
         return service.fetchDailyWorkSummary(uid: uid, year: year, month: month)
     }
+    
+    func deleteOrLeaveWorkplace(workplaceId: String, uid: String) -> Observable<Void> {
+        return service.deleteOrLeaveWorkplace(workplaceId: workplaceId, uid: uid)
+    }
 
 }

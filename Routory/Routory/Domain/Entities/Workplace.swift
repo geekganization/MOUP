@@ -48,6 +48,9 @@ struct WorkplaceWorkSummary {
     let workplaceId: String
     let workplaceName: String
     let wage: Int
+    let wageCalcMethod: String
+    let payDay: Int?
+    let payWeekday: String?
     let events: [CalendarEvent]
     let totalWage: Int
 }

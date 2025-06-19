@@ -332,7 +332,6 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                                 o.onCompleted()
                                 return
                             }
-                            // 내 워커 정보(시급)
                             workplaceDoc.collection("worker").document(uid).getDocument { workerDoc, _ in
                                 guard let workerDoc, let wDetail = workerDoc.data(),
                                       let wage = wDetail["wage"] as? Int else {
@@ -340,6 +339,10 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                                     o.onCompleted()
                                     return
                                 }
+                                let wageCalcMethod = wDetail["wageCalcMethod"] as? String ?? "hourly"
+                                let payDay = wDetail["payDay"] as? Int
+                                let payWeekday = wDetail["payWeekday"] as? String
+                                
                                 // 캘린더 아이디
                                 self.db.collection("calendars").whereField("workplaceId", isEqualTo: workplaceId).getDocuments { calSnap, _ in
                                     guard let calId = calSnap?.documents.first?.documentID else {
@@ -364,11 +367,21 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                                             let totalHours = events.reduce(0.0) { sum, event in
                                                 sum + Self.calculateWorkedHours(start: event.startTime, end: event.endTime)
                                             }
-                                            let totalWage = Int(Double(wage) * totalHours)
+
+                                            let totalWage: Int
+                                            if wageCalcMethod == "monthly" {
+                                                totalWage = wage
+                                            } else {
+                                                totalWage = Int(Double(wage) * totalHours)
+                                            }
+                                            
                                             o.onNext(WorkplaceWorkSummary(
                                                 workplaceId: workplaceId,
                                                 workplaceName: workplaceName,
                                                 wage: wage,
+                                                wageCalcMethod: wageCalcMethod,
+                                                payDay: payDay,
+                                                payWeekday: payWeekday,
                                                 events: events,
                                                 totalWage: totalWage
                                             ))
@@ -381,7 +394,6 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                     }
                 }
                 
-                // disposeBag 사용 금지 (subscribe만)
                 Observable.zip(perWorkplaceObservables)
                     .map { $0.compactMap { $0 } }
                     .subscribe(onNext: { summaries in
@@ -390,7 +402,6 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                     }, onError: { error in
                         observer.onError(error)
                     })
-                // 외부에서 disposeBag으로 관리
             }
             return Disposables.create()
         }

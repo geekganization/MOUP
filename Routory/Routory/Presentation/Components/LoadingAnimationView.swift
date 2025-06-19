@@ -39,7 +39,7 @@ final class LoadingAnimationView: UIView {
         logoImageView.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
         
         // 페이드인 + 스케일 애니메이션
-        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut) {
+        UIView.animate(withDuration: 1.0, delay: 0, options: .curveEaseOut) {
             self.alpha = 1
             self.logoImageView.transform = .identity
         }
@@ -53,7 +53,7 @@ final class LoadingAnimationView: UIView {
         logoImageView.layer.removeAllAnimations()
         
         // 페이드아웃
-        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut) {
+        UIView.animate(withDuration: 1.0, delay: 0, options: .curveEaseInOut) {
             self.alpha = 0
             self.logoImageView.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
         } completion: { _ in

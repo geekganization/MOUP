@@ -41,4 +41,18 @@ final class WorkplaceUseCase: WorkplaceUseCaseProtocol {
         return repository.fetchWorkerListForWorkplace(workplaceId: workplaceId)
     }
     
+    func fetchMonthlyWorkSummary(
+        uid: String,
+        year: Int,
+        month: Int
+    ) -> Observable<[WorkplaceWorkSummary]> {
+        return repository.fetchMonthlyWorkSummary(uid: uid, year: year, month: month)
+    }
+    func fetchDailyWorkSummary(
+        uid: String,
+        year: Int,
+        month: Int
+    ) -> Observable<[WorkplaceWorkSummaryDaily]> {
+        return repository.fetchDailyWorkSummary(uid: uid, year: year, month: month)
+    }
 }

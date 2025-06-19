@@ -18,4 +18,14 @@ protocol WorkplaceUseCaseProtocol {
             color: String
         ) -> Observable<String>
     func fetchWorkerListForWorkplace(workplaceId: String) -> Observable<[WorkerDetailInfo]>
+    func fetchMonthlyWorkSummary(
+        uid: String,
+        year: Int,
+        month: Int
+    ) -> Observable<[WorkplaceWorkSummary]>
+    func fetchDailyWorkSummary(
+        uid: String,
+        year: Int,
+        month: Int
+    ) -> Observable<[WorkplaceWorkSummaryDaily]>
 }

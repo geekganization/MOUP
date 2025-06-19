@@ -15,15 +15,15 @@ protocol EventServiceProtocol {
      사용자가 소속된 모든 근무지의 '월' 단위 이벤트를 개인/공유로 분리해서 조회합니다.
      
      - Parameters:
-        - uid: 조회할 사용자 UID (users/{uid})
-        - year: 연도 (예: 2025)
-        - month: 월 (예: 6)
+     - uid: 조회할 사용자 UID (users/{uid})
+     - year: 연도 (예: 2025)
+     - month: 월 (예: 6)
      - Returns: (personal: [CalendarEvent], shared: [CalendarEvent]) - 각 배열은 조건에 맞는 이벤트 리스트
      
      Firestore Path 참고:
-        - users/{uid}/workplaces/{workplaceId}
-        - calendars (where workplaceId == ... , isShared)
-        - calendars/{calendarId}/events (where year == ..., month == ...)
+     - users/{uid}/workplaces/{workplaceId}
+     - calendars (where workplaceId == ... , isShared)
+     - calendars/{calendarId}/events (where year == ..., month == ...)
      */
     func fetchAllEventsForUserInMonthSeparated(
         uid: String,
@@ -35,16 +35,16 @@ protocol EventServiceProtocol {
      사용자가 소속된 모든 근무지의 '특정 일자' 이벤트를 개인/공유로 분리해서 조회합니다.
      
      - Parameters:
-        - uid: 조회할 사용자 UID (users/{uid})
-        - year: 연도
-        - month: 월
-        - day: 일(1~31)
+     - uid: 조회할 사용자 UID (users/{uid})
+     - year: 연도
+     - month: 월
+     - day: 일(1~31)
      - Returns: (personal: [CalendarEvent], shared: [CalendarEvent]) - 각 배열은 조건에 맞는 이벤트 리스트
      
      Firestore Path 참고:
-        - users/{uid}/workplaces/{workplaceId}
-        - calendars (where workplaceId == ... , isShared)
-        - calendars/{calendarId}/events (where year == ..., month == ..., day == ...)
+     - users/{uid}/workplaces/{workplaceId}
+     - calendars (where workplaceId == ... , isShared)
+     - calendars/{calendarId}/events (where year == ..., month == ..., day == ...)
      */
     func fetchEventsForUserOnDateSeparated(
         uid: String,
@@ -136,7 +136,7 @@ final class EventService: EventServiceProtocol {
                         let sharedIds = calendarIdTuples.flatMap { $0.1 }
                         return .just((personalIds, sharedIds))
                     }
-                    // 4. 각 캘린더별로 이벤트 쿼리 (월 or 일 단위)
+                // 4. 각 캘린더별로 이벤트 쿼리 (월 or 일 단위)
                     .flatMap { (personalIds, sharedIds) -> Observable<([CalendarEvent], [CalendarEvent])> in
                         let fetchEvents: ([String]) -> [Observable<[CalendarEvent]>] = { ids in
                             ids.map { calendarId in
@@ -175,7 +175,7 @@ final class EventService: EventServiceProtocol {
                         let sharedEventsObs = Observable.zip(fetchEvents(sharedIds)).map { $0.flatMap { $0 } }
                         return Observable.zip(personalEventsObs, sharedEventsObs)
                     }
-                    // 6. Rx 최종 반환
+                // 6. Rx 최종 반환
                     .subscribe(onNext: { (personalEvents, sharedEvents) in
                         observer.onNext((personal: personalEvents, shared: sharedEvents))
                         observer.onCompleted()

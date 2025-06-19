@@ -5,6 +5,9 @@
 //  Created by 양원식 on 6/9/25.
 //
 
+import RxSwift
+import Foundation
+
 // MARK: - Workplace
 
 /// Firestore의 workplaces/{workplaceId} 문서에 대응되는 근무지 정보 모델
@@ -39,4 +42,19 @@ struct WorkplaceInfo: Codable {
     let id: String
     let workplace: Workplace
     
+}
+
+struct WorkplaceWorkSummary {
+    let workplaceId: String
+    let workplaceName: String
+    let wage: Int
+    let events: [CalendarEvent]
+    let totalWage: Int
+}
+
+struct WorkplaceWorkSummaryDaily {
+    let workplaceId: String
+    let workplaceName: String
+    let wage: Int
+    let dailySummary: [String: (events: [CalendarEvent], totalHours: Double, totalWage: Int)] // "2025-06-20": (이벤트리스트, 총 근무시간, 일급)
 }

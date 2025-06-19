@@ -40,5 +40,21 @@ final class WorkplaceRepository: WorkplaceRepositoryProtocol {
     func fetchWorkerListForWorkplace(workplaceId: String) -> Observable<[WorkerDetailInfo]> {
         return service.fetchWorkerListForWorkplace(workplaceId: workplaceId)
     }
+    
+    func fetchMonthlyWorkSummary(
+        uid: String,
+        year: Int,
+        month: Int
+    ) -> Observable<[WorkplaceWorkSummary]> {
+        return service.fetchMonthlyWorkSummary(uid: uid, year: year, month: month)
+    }
+    
+    func fetchDailyWorkSummary(
+        uid: String,
+        year: Int,
+        month: Int
+    ) -> Observable<[WorkplaceWorkSummaryDaily]> {
+        return service.fetchDailyWorkSummary(uid: uid, year: year, month: month)
+    }
 
 }

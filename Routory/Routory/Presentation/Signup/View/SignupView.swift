@@ -116,7 +116,7 @@ private extension SignupView {
         }
         startButton.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(16)
-            $0.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom)
+            $0.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom).inset(46)
             $0.height.equalTo(45)
         }
     }

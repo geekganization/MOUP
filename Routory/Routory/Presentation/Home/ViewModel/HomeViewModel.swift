@@ -21,8 +21,8 @@ final class HomeViewModel {
 
     // MARK: - Mock Data
 
-    private let dummyStore = DummyStoreInfo(isOfficial: true, storeName: "롯데리아 강북 수유점", daysUntilPayday: 13, totalLaborCost: 255300)
-    private let dummyStore1 = DummyStoreInfo(isOfficial: false, storeName: "롯데리아 강북 문익점", daysUntilPayday: 11, totalLaborCost: 490000)
+    private let dummyStore = DummyStoreInfo(isOfficial: true, storeName: "롯데리아 강북 수유점", daysUntilPayday: 13, totalLaborCost: 255300, inviteCode: "123456")
+    private let dummyStore1 = DummyStoreInfo(isOfficial: false, storeName: "롯데리아 강북 문익점", daysUntilPayday: 11, totalLaborCost: 490000, inviteCode: "123456")
 
 //    private lazy var firstSectionData = BehaviorRelay<[HomeTableViewFirstSection]>(value: [HomeTableViewFirstSection(header: "나의 근무지", items: [.workplace(dummyWorkplace), .workplace(dummyWorkplace2)])])
     private lazy var firstSectionData = BehaviorRelay<[HomeTableViewFirstSection]>(value: [HomeTableViewFirstSection(header: "나의 근무지", items: [.store(dummyStore), .store(dummyStore1)])])
@@ -185,7 +185,8 @@ final class HomeViewModel {
                                 isOfficial: $0.workplace.isOfficial,
                                 storeName: $0.workplace.workplacesName,
                                 daysUntilPayday: 18,
-                                totalLaborCost: 252000
+                                totalLaborCost: 252000,
+                                inviteCode: $0.workplace.inviteCode
                             )
                     )
                     return workplace

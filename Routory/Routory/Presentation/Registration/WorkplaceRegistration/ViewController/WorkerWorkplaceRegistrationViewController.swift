@@ -16,7 +16,7 @@ import FirebaseAuth
 enum WorkplaceRegistrationMode {
     /// 직접 등록 플로우 - 사용자가 모든 정보를 수동으로 입력하고 즉시 등록까지 수행
     case fullRegistration
-
+    
     /// 초대 코드 기반 플로우 - 상위 VC에서 전달된 일부 정보(name, category)를 바탕으로 나머지 정보만 작성
     /// 최종 등록은 상위 VC에서 수행
     case inputOnly
@@ -43,10 +43,10 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
     
     /// 근무지 등록 방식 (직접 입력 or 초대코드 기반)
     private let mode: WorkplaceRegistrationMode
-
+    
     /// 초대코드 플로우에서 전달받은 근무지 이름 (직접 입력 모드에서는 nil)
     private let presetWorkplaceName: String?
-
+    
     /// 초대코드 플로우에서 전달받은 카테고리 (직접 입력 모드에서는 nil)
     private let presetCategory: String?
     
@@ -123,7 +123,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
             contentView.setPresetWorkplaceInfo(name: presetWorkplaceName ?? "", category: presetCategory ?? "")
         }
         
-        // 숨김 처리 - 기능 완성되면 나중에 지워야 함 
+        // 숨김 처리 - 기능 완성되면 나중에 지워야 함
         contentView.workConditionView.isHidden = true
         contentView.labelView.isHidden = true
     }
@@ -160,18 +160,18 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
         let payDate = contentView.salaryInfoView.getPayDateValue()
         let selectedConditions = contentView.workConditionView.getSelectedConditions()
         let label = contentView.labelView.getColorLabelData()
-
-        let (wage, wageCalcMethod): (Int, String) = {
-            switch salaryType {
-            case "매월":
-                return (parseCurrencyStringToInt(fixedSalary), "monthly")
-            case "매주", "매일":
-                return (parseCurrencyStringToInt(hourlyWage), "hourly")
+        
+        let wage: Int = {
+            switch salaryCalc {
+            case "시급":
+                return (parseCurrencyStringToInt(hourlyWage))
+            case "고정":
+                return (parseCurrencyStringToInt(fixedSalary))
             default:
-                return (0, "hourly")
+                return (0)
             }
         }()
-
+        
         let employmentInsurance = selectedConditions.contains("고용보험")
         let healthInsurance = selectedConditions.contains("건강보험")
         let industrialAccident = selectedConditions.contains("산재보험")
@@ -180,7 +180,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
         let weeklyAllowance = selectedConditions.contains("주휴수당")
         let nightAllowance = selectedConditions.contains("야간수당*")
         let breakTimeMinutes = 0
-
+        
         let workplace = Workplace(
             workplacesName: name,
             category: category,
@@ -188,12 +188,12 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
             inviteCode: "",
             isOfficial: false
         )
-
+        
         guard let uid = Auth.auth().currentUser?.uid, !uid.isEmpty else {
             print("유저 UID가 존재하지 않음")
             return
         }
-
+        
         // 비동기 처리 위치: 여기서 workerDetail을 만들어야 함
         UserManager.shared.getUser { [weak self] result in
             switch result {
@@ -201,8 +201,8 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
                 let workerDetail = WorkerDetail(
                     workerName: user.userName,
                     wage: wage,
-                    wageCalcMethod: wageCalcMethod,
-                    wageType: salaryType,
+                    wageCalcMethod: salaryType,
+                    wageType: salaryCalc,
                     weeklyAllowance: weeklyAllowance,
                     payDay: parseDateStringToInt(payDate),
                     payWeekday: payWeekday,
@@ -215,9 +215,9 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
                     nightAllowance: nightAllowance,
                     color: label
                 )
-
+                
                 guard let self = self else { return }
-
+                
                 switch self.mode {
                 case .fullRegistration:
                     let input = CreateWorkplaceViewModel.Input(
@@ -228,9 +228,9 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
                         color: Observable.just(label),
                         role: Observable.just(Role.worker)
                     )
-
+                    
                     let output = self.viewModel.transform(input: input)
-
+                    
                     output.workplaceId
                         .observe(on: MainScheduler.instance)
                         .subscribe(onNext: { [weak self] id in
@@ -238,19 +238,19 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
                             self?.navigationController?.popViewController(animated: true)
                         })
                         .disposed(by: self.disposeBag)
-
+                    
                     output.error
                         .observe(on: MainScheduler.instance)
                         .subscribe(onNext: { error in
                             print("에러 발생: \(error.localizedDescription)")
                         })
                         .disposed(by: self.disposeBag)
-
+                    
                 case .inputOnly:
                     self.onWorkplaceInfoPrepared?(workerDetail)
                     self.navigationController?.popViewController(animated: true)
                 }
-
+                
             case .failure(let error):
                 print("사용자 이름 가져오기 실패: \(error.localizedDescription)")
             }

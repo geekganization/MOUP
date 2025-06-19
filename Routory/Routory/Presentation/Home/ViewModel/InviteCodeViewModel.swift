@@ -71,7 +71,7 @@ final class InviteCodeViewModel {
                 let (workplaceInfo, detail) = registerData
                 return (workplaceInfo, detail, userId)
             }
-            .flatMapLatest { [weak self] (workplaceInfo: WorkplaceInfo, detail: WorkerDetail, userId: String) -> Observable<Bool> in
+            .flatMapLatest { [weak self] (workplaceInfo, detail, userId) -> Observable<Bool> in
                 guard let self else {
                     registrationSubject.onNext(false)
                     return .empty()
@@ -82,14 +82,16 @@ final class InviteCodeViewModel {
                 return self.workplaceUseCase
                     .registerWorkerToWorkplace(workplaceId: workplaceId, uid: userId, workerDetail: detail)
                     .flatMap {
-                        self.calendarUseCase
-                            .fetchCalendarIdByWorkplaceId(workplaceId: workplaceId)
+                        self.calendarUseCase.fetchCalendarIdByWorkplaceId(workplaceId: workplaceId)
                     }
                     .flatMap { calendarIdOptional -> Observable<Void> in
                         guard let calendarId = calendarIdOptional else {
                             return .error(NSError(domain: "CalendarError", code: -1, userInfo: [NSLocalizedDescriptionKey: "캘린더 ID를 찾을 수 없습니다."]))
                         }
                         return self.calendarUseCase.shareCalendarWithUser(calendarId: calendarId, uid: userId)
+                    }
+                    .flatMap {
+                        self.userUseCase.addWorkplaceToUser(uid: userId, workplaceId: workplaceId)
                     }
                     .map { _ in true }
                     .catch { error in

@@ -195,11 +195,11 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
         }
 
         // 비동기 처리 위치: 여기서 workerDetail을 만들어야 함
-        UserManager.shared.getUserName { [weak self] result in
+        UserManager.shared.getUser { [weak self] result in
             switch result {
-            case .success(let userName):
+            case .success(let user):
                 let workerDetail = WorkerDetail(
-                    workerName: userName,
+                    workerName: user.userName,
                     wage: wage,
                     wageCalcMethod: wageCalcMethod,
                     wageType: salaryType,

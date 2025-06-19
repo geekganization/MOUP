@@ -19,4 +19,10 @@ protocol EventUseCaseProtocol {
         month: Int,
         day: Int
     ) -> Observable<(personal: [CalendarEvent], shared: [CalendarEvent])>
+    
+    func fetchMonthlyWorkSummaryDailySeparated(
+        uid: String,
+        year: Int,
+        month: Int
+    ) -> Observable<[WorkplaceWorkSummaryDailySeparated]>
 }

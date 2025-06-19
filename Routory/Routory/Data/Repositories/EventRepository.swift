@@ -31,4 +31,12 @@ final class EventRepository: EventRepositoryProtocol {
     ) -> Observable<(personal: [CalendarEvent], shared: [CalendarEvent])> {
         return eventService.fetchEventsForUserOnDateSeparated(uid: uid, year: year, month: month, day: day)
     }
+    
+    func fetchMonthlyWorkSummaryDailySeparated(
+        uid: String,
+        year: Int,
+        month: Int
+    ) -> Observable<[WorkplaceWorkSummaryDailySeparated]> {
+        return eventService.fetchMonthlyWorkSummaryDailySeparated(uid: uid, year: year, month: month)
+    }
 }

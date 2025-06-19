@@ -52,6 +52,12 @@ protocol EventServiceProtocol {
         month: Int,
         day: Int
     ) -> Observable<(personal: [CalendarEvent], shared: [CalendarEvent])>
+    
+    func fetchMonthlyWorkSummaryDailySeparated(
+        uid: String,
+        year: Int,
+        month: Int
+    ) -> Observable<[WorkplaceWorkSummaryDailySeparated]>
 }
 
 /// Firestore에서 근무지-캘린더-이벤트 트리를 타고 올라가서,
@@ -78,6 +84,120 @@ final class EventService: EventServiceProtocol {
     ) -> Observable<(personal: [CalendarEvent], shared: [CalendarEvent])> {
         return fetchEvents(uid: uid, year: year, month: month, day: day)
     }
+    
+    func fetchMonthlyWorkSummaryDailySeparated(
+        uid: String,
+        year: Int,
+        month: Int
+    ) -> Observable<[WorkplaceWorkSummaryDailySeparated]> {
+        let workplacesRef = db.collection("users").document(uid).collection("workplaces")
+        
+        return Observable.create { observer in
+            workplacesRef.getDocuments { snapshot, error in
+                if let error = error {
+                    observer.onError(error)
+                    return
+                }
+                let workplaceIds = snapshot?.documents.map { $0.documentID } ?? []
+                if workplaceIds.isEmpty {
+                    observer.onNext([])
+                    observer.onCompleted()
+                    return
+                }
+                let perWorkplaceObs = workplaceIds.map { workplaceId -> Observable<WorkplaceWorkSummaryDailySeparated?> in
+                    Observable<WorkplaceWorkSummaryDailySeparated?>.create { o in
+                        let workplaceDoc = self.db.collection("workplaces").document(workplaceId)
+                        workplaceDoc.getDocument { doc, _ in
+                            guard let doc, let wData = doc.data(),
+                                  let workplaceName = wData["workplaceName"] as? String,
+                                  let wage = wData["wage"] as? Int,
+                                  let wageCalcMethod = wData["wageCalcMethod"] as? String
+                            else {
+                                o.onNext(nil); o.onCompleted(); return
+                            }
+                            // 캘린더(개인/공유) 구분
+                            self.db.collection("calendars")
+                                .whereField("workplaceId", isEqualTo: workplaceId)
+                                .getDocuments { calSnap, _ in
+                                    let personalCalIds = calSnap?.documents.filter { ($0.data()["isShared"] as? Bool) == false }.map { $0.documentID } ?? []
+                                    let sharedCalIds   = calSnap?.documents.filter { ($0.data()["isShared"] as? Bool) == true  }.map { $0.documentID } ?? []
+                                    
+                                    // 이벤트 조회 함수
+                                    func fetchEvents(calIds: [String]) -> Observable<[CalendarEvent]> {
+                                        let eventObs = calIds.map { calId in
+                                            Observable<[CalendarEvent]>.create { eventObserver in
+                                                self.db.collection("calendars").document(calId)
+                                                    .collection("events")
+                                                    .whereField("year", isEqualTo: year)
+                                                    .whereField("month", isEqualTo: month)
+                                                    .getDocuments { evtSnap, _ in
+                                                        let events: [CalendarEvent] = evtSnap?.documents.compactMap { doc in
+                                                            do {
+                                                                let data = try JSONSerialization.data(withJSONObject: doc.data())
+                                                                return try JSONDecoder().decode(CalendarEvent.self, from: data)
+                                                            } catch { return nil }
+                                                        } ?? []
+                                                        eventObserver.onNext(events)
+                                                        eventObserver.onCompleted()
+                                                    }
+                                                return Disposables.create()
+                                            }
+                                        }
+                                        return eventObs.isEmpty ? .just([]) : Observable.zip(eventObs).map { $0.flatMap { $0 } }
+                                    }
+                                    
+                                    let personalEventsObs = fetchEvents(calIds: personalCalIds)
+                                    let sharedEventsObs   = fetchEvents(calIds: sharedCalIds)
+                                    
+                                    Observable.zip(personalEventsObs, sharedEventsObs)
+                                        .subscribe(onNext: { personalEvents, sharedEvents in
+                                            func groupSummary(_ events: [CalendarEvent]) -> [String: (events: [CalendarEvent], totalHours: Double, totalWage: Int)] {
+                                                let groupedByDay = Dictionary(grouping: events) { $0.eventDate }
+                                                return groupedByDay.mapValues { events in
+                                                    let totalHours = events.reduce(0.0) { $0 + Self.calculateWorkedHours(start: $1.startTime, end: $1.endTime) }
+                                                    let totalWage: Int
+                                                    if wageCalcMethod == "monthly" {
+                                                        let workDays = groupedByDay.count
+                                                        totalWage = workDays > 0 ? wage / workDays : wage
+                                                    } else {
+                                                        totalWage = Int(Double(wage) * totalHours)
+                                                    }
+                                                    return (events, totalHours, totalWage)
+                                                }
+                                            }
+                                            o.onNext(WorkplaceWorkSummaryDailySeparated(
+                                                workplaceId: workplaceId,
+                                                workplaceName: workplaceName,
+                                                wage: wage,
+                                                wageCalcMethod: wageCalcMethod,
+                                                personalSummary: groupSummary(personalEvents),
+                                                sharedSummary: groupSummary(sharedEvents)
+                                            ))
+                                            o.onCompleted()
+                                        }, onError: { error in
+                                            o.onError(error)
+                                        })
+                                        .disposed(by: DisposeBag())
+                                }
+                        }
+                        return Disposables.create()
+                    }
+                }
+                Observable.zip(perWorkplaceObs)
+                    .map { $0.compactMap { $0 } }
+                    .subscribe(onNext: { summaries in
+                        observer.onNext(summaries)
+                        observer.onCompleted()
+                    }, onError: { error in
+                        observer.onError(error)
+                    })
+                    .disposed(by: DisposeBag())
+            }
+            return Disposables.create()
+        }
+    }
+    
+    
     
     /**
      내부 공통 함수 (월/일 단위 모두 여기서 분기 처리)
@@ -173,13 +293,13 @@ final class EventService: EventServiceProtocol {
                         // 5. 쿼리 결과 zip & flatMap
                         // 보완된 분기 처리
                         let personalEventsObs: Observable<[CalendarEvent]> =
-                            personalIds.isEmpty
-                            ? .just([])
-                            : Observable.zip(fetchEvents(personalIds)).map { $0.flatMap { $0 } }
+                        personalIds.isEmpty
+                        ? .just([])
+                        : Observable.zip(fetchEvents(personalIds)).map { $0.flatMap { $0 } }
                         let sharedEventsObs: Observable<[CalendarEvent]> =
-                            sharedIds.isEmpty
-                            ? .just([])
-                            : Observable.zip(fetchEvents(sharedIds)).map { $0.flatMap { $0 } }
+                        sharedIds.isEmpty
+                        ? .just([])
+                        : Observable.zip(fetchEvents(sharedIds)).map { $0.flatMap { $0 } }
                         return Observable.zip(personalEventsObs, sharedEventsObs)
                     }
                 // 6. Rx 최종 반환
@@ -193,5 +313,15 @@ final class EventService: EventServiceProtocol {
             }
             return Disposables.create()
         }
+    }
+    
+    static func calculateWorkedHours(start: String, end: String) -> Double {
+        // 예: "09:00" ~ "18:00" -> Double 시간 반환
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "HH:mm"
+        guard let startDate = dateFormatter.date(from: start),
+              let endDate = dateFormatter.date(from: end) else { return 0 }
+        let interval = endDate.timeIntervalSince(startDate)
+        return max(interval / 3600, 0)
     }
 }

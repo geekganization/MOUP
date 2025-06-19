@@ -96,18 +96,78 @@ final class RoutineService: RoutineServiceProtocol {
     /// - Returns: 성공 시 완료(Void)를 방출하는 Observable
     /// - Firestore 경로: users/{userId}/routine/{routineId}
     func deleteRoutine(uid: String, routineId: String) -> Observable<Void> {
-        return Observable.create { observer in
-            let routineRef = self.db.collection("users").document(uid).collection("routine").document(routineId)
-            routineRef.delete { error in
-                if let error = error {
-                    observer.onError(error)
-                } else {
-                    observer.onNext(())
-                    observer.onCompleted()
+        let db = self.db
+        
+        // 1. 내가 오너인 캘린더 id들 조회
+        let ownerCalendarsObs = Observable<[String]>.create { observer in
+            db.collection("calendars").whereField("ownerId", isEqualTo: uid).getDocuments { snap, err in
+                if let err = err {
+                    observer.onError(err)
+                    return
                 }
+                let calendarIds = snap?.documents.map { $0.documentID } ?? []
+                observer.onNext(calendarIds)
+                observer.onCompleted()
             }
             return Disposables.create()
         }
+        
+        // 2. 쉐어윗에 내가 들어간 캘린더 id들 조회
+        let sharedCalendarsObs = Observable<[String]>.create { observer in
+            db.collection("calendars").whereField("shareWith", arrayContains: uid).getDocuments { snap, err in
+                if let err = err {
+                    observer.onError(err)
+                    return
+                }
+                let calendarIds = snap?.documents.map { $0.documentID } ?? []
+                observer.onNext(calendarIds)
+                observer.onCompleted()
+            }
+            return Disposables.create()
+        }
+        
+        // 3. 두 결과 합치기
+        return Observable.zip(ownerCalendarsObs, sharedCalendarsObs)
+            .flatMap { (ownerIds, sharedIds) -> Observable<Void> in
+                let calendarIds = Set(ownerIds).union(sharedIds) // 중복 제거
+                
+                // 4. 각 캘린더에서, 이벤트 컬렉션을 순회하며 내가 만든 이벤트 중 routineId == 삭제할 routineId인 것의 routineId 필드를 삭제
+                let eventsUpdates = calendarIds.map { calendarId in
+                    Observable<Void>.create { observer in
+                        let eventsRef = db.collection("calendars").document(calendarId).collection("events")
+                        eventsRef
+                            .whereField("createdBy", isEqualTo: uid)
+                            .whereField("routineId", isEqualTo: routineId)
+                            .getDocuments { snap, err in
+                                if let err = err {
+                                    observer.onError(err)
+                                    return
+                                }
+                                let docs = snap?.documents ?? []
+                                if docs.isEmpty {
+                                    observer.onNext(())
+                                    observer.onCompleted()
+                                    return
+                                }
+                                let group = DispatchGroup()
+                                for doc in docs {
+                                    group.enter()
+                                    doc.reference.updateData(["routineId": FieldValue.delete()]) { _ in
+                                        group.leave()
+                                    }
+                                }
+                                group.notify(queue: .main) {
+                                    observer.onNext(())
+                                    observer.onCompleted()
+                                }
+                            }
+                        return Disposables.create()
+                    }
+                }
+                // 5. 모든 이벤트 업데이트가 끝나면 완료
+                return Observable.zip(eventsUpdates)
+                    .map { _ in () }
+            }
     }
     
     /// 사용자의 특정 루틴 정보를 수정합니다.
@@ -139,22 +199,22 @@ final class RoutineService: RoutineServiceProtocol {
     }
     
     func fetchTodayRoutineEventsGroupedByWorkplace(uid: String, date: Date) -> Observable<[String: [CalendarEvent]]> {
-            let calendar = Calendar.current
-            let year = calendar.component(.year, from: date)
-            let month = calendar.component(.month, from: date)
-            let day = calendar.component(.day, from: date)
-            
-            // 1. 내 근무지 ID + 이름 조회
-            let userWorkplaceRef = db.collection("users").document(uid).collection("workplaces")
-            
-            return Observable.create { observer in
-                userWorkplaceRef.getDocuments { snapshot, error in
-                    if let error = error {
-                        observer.onError(error)
-                        return
-                    }
-                    let workplaceIds = snapshot?.documents.map { $0.documentID } ?? []
-                    if workplaceIds.isEmpty {
+        let calendar = Calendar.current
+        let year = calendar.component(.year, from: date)
+        let month = calendar.component(.month, from: date)
+        let day = calendar.component(.day, from: date)
+        
+        // 1. 내 근무지 ID + 이름 조회
+        let userWorkplaceRef = db.collection("users").document(uid).collection("workplaces")
+        
+        return Observable.create { observer in
+            userWorkplaceRef.getDocuments { snapshot, error in
+                if let error = error {
+                    observer.onError(error)
+                    return
+                }
+                let workplaceIds = snapshot?.documents.map { $0.documentID } ?? []
+                if workplaceIds.isEmpty {
                         observer.onNext([:])
                         observer.onCompleted()
                         return

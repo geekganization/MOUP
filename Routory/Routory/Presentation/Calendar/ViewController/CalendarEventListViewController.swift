@@ -74,10 +74,16 @@ private extension CalendarEventListViewController {
     }
     
     func setBinding() {
+        let deleteEventIndexPathRelay = PublishRelay<IndexPath>()
+        
         calendarEventListView.getEventTableView.rx.itemSelected
             .subscribe(with: self) { owner, indexPath in
-                
                 owner.delegate?.didTapEventCell()
+            }.disposed(by: disposeBag)
+        
+        calendarEventListView.getEventTableView.rx.itemDeleted
+            .subscribe(with: self) { owner, indexPath in
+                deleteEventIndexPathRelay.accept(indexPath)
             }.disposed(by: disposeBag)
         
         calendarEventListView.getAssignButton.rx.tap
@@ -85,7 +91,8 @@ private extension CalendarEventListViewController {
                 owner.delegate?.didTapAssignButton()
             }.disposed(by: disposeBag)
         
-        let input = CalendarEventListViewModel.Input(viewDidLoad: Observable.just(()))
+        let input = CalendarEventListViewModel.Input(loadEventList: Observable.just(()),
+                                                     deleteEventIndexPath: deleteEventIndexPathRelay.asObservable())
         
         let output = viewModel.tranform(input: input)
         

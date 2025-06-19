@@ -19,8 +19,10 @@ final class CalendarEventListViewModel {
     private var eventList: [CalendarEvent] = []
     
     // MARK: - Input (ViewController ➡️ ViewModel)
+    
     struct Input {
-        let viewDidLoad: Observable<Void>
+        let loadEventList: Observable<Void>
+        let deleteEventIndexPath: Observable<IndexPath>
     }
     
     // MARK: - Output (ViewModel ➡️ ViewController)
@@ -34,9 +36,14 @@ final class CalendarEventListViewModel {
     func tranform(input: Input) -> Output {
         let eventListRelay = BehaviorRelay<[CalendarEvent]>(value: [])
         
-        input.viewDidLoad
+        input.loadEventList
             .subscribe(with: self) { owner, _ in
                 eventListRelay.accept(owner.eventList)
+            }.disposed(by: disposeBag)
+        
+        input.deleteEventIndexPath
+            .subscribe(with: self) { owner, indexPath in
+                // TODO: UseCase를 통해 삭제
             }.disposed(by: disposeBag)
         
         return Output(eventListRelay: eventListRelay)

@@ -50,11 +50,6 @@ final class FilterViewController: UIViewController {
         super.viewDidLoad()
         configure()
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        filterView.getWorkplaceTableView.selectRow(at: IndexPath(row: 0, section: 0), animated: false, scrollPosition: .none)
-    }
 }
 
 // MARK: - UI Methods
@@ -89,10 +84,29 @@ private extension FilterViewController {
         let output = viewModel.tranform(input: input)
         
         output.workplaceInfoListRelay
-            .asDriver()
+            .map { [weak self] in
+                if self?.calendarMode == .personal {
+                    let staticWorkplace = Workplace(workplacesName: "",
+                                                    category: "",
+                                                    ownerId: "",
+                                                    inviteCode: "",
+                                                    isOfficial: false)
+                    let staticWorkplaceInfo = WorkplaceInfo(id: "", workplace: staticWorkplace)
+                    return [staticWorkplaceInfo] + $0
+                } else {
+                    return $0
+                }
+            }
+            .asDriver(onErrorJustReturn: [])
             .drive(filterView.getWorkplaceTableView.rx.items(
-                cellIdentifier: WorkplaceCell.identifier, cellType: WorkplaceCell.self)) { _, model, cell in
-                    cell.update(workplace: model.workplace.workplacesName)
+                cellIdentifier: WorkplaceCell.identifier, cellType: WorkplaceCell.self)) { [weak self] index, model, cell in
+                    guard let model = model as? WorkplaceInfo else { return }
+                    if self?.calendarMode == .personal && index == 0 {
+                        cell.update(workplace: "전체 보기")
+                        self?.filterView.getWorkplaceTableView.selectRow(at: IndexPath(row: 0, section: 0), animated: false, scrollPosition: .none)
+                    } else {
+                        cell.update(workplace: model.workplace.workplacesName)
+                    }
                 }.disposed(by: disposeBag)
     }
 }

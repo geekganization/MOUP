@@ -26,7 +26,7 @@ protocol WorkplaceServiceProtocol {
 
 final class WorkplaceService: WorkplaceServiceProtocol {
     private let db = Firestore.firestore()
-    
+
     /// 초대코드를 통해 근무지 정보를 조회합니다.
     ///
     /// - Parameter inviteCode: 조회할 근무지의 초대코드
@@ -59,7 +59,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
             return Disposables.create()
         }
     }
-    
+
     /// 근무지의 worker 서브컬렉션에 알바(워커) 정보를 등록합니다.
     ///
     /// - Parameters:
@@ -89,30 +89,30 @@ final class WorkplaceService: WorkplaceServiceProtocol {
             return Disposables.create()
         }
     }
-    
+
     /// 해당 사용자가 소속된 모든 근무지 정보를 조회합니다.
     /// - Parameter uid: 유저의 UID
     /// - Returns: WorkplaceInfo 배열
     /// - Firestore 경로: users/{uid}/workplaces → workplaces/{workplaceId}
     func fetchAllWorkplacesForUser(uid: String) -> Observable<[WorkplaceInfo]> {
         let userWorkplaceRef = Firestore.firestore().collection("users").document(uid).collection("workplaces")
-        
+
         return Observable.create { observer in
             userWorkplaceRef.getDocuments { snapshot, error in
                 if let error = error {
                     observer.onError(error)
                     return
                 }
-                
+
                 let ids = snapshot?.documents.map { $0.documentID } ?? []
-                
+
                 // ids가 없으면 빈 배열 반환
                 if ids.isEmpty {
                     observer.onNext([])
                     observer.onCompleted()
                     return
                 }
-                
+
                 // 각 workplaceId로 workplaces 컬렉션에서 상세 조회 Observable 만들기
                 let db = Firestore.firestore()
                 let observables: [Observable<WorkplaceInfo>] = ids.map { workplaceId in
@@ -134,7 +134,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                         return Disposables.create()
                     }
                 }
-                
+
                 Observable.zip(observables)
                     .subscribe(onNext: { workplaces in
                         observer.onNext(workplaces)
@@ -148,7 +148,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
         }
     }
 
-    
+
     func fetchAllWorkplacesForUser2(uid: String) -> Observable<[WorkplaceInfo]> {
         let workplacesRef = db.collection("workplaces")
         return Observable.create { observer in
@@ -182,7 +182,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
             return Disposables.create()
         }
     }
-    
+
     /// 근무지, 캘린더를 동시에 생성(필요시 워커 등록)합니다.
     ///
     /// - Parameters:
@@ -208,10 +208,10 @@ final class WorkplaceService: WorkplaceServiceProtocol {
         let workplaceId = workplaceRef.documentID
         let calendarRef = db.collection("calendars").document()
         let userWorkplaceRef = db.collection("users").document(uid).collection("workplaces").document(workplaceId)
-        
+
         return Observable.create { observer in
             let batch = self.db.batch()
-            
+
             // 1. 근무지 저장
             batch.setData([
                 "workplacesName": workplace.workplacesName,
@@ -220,7 +220,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                 "inviteCode": workplace.inviteCode,
                 "isOfficial": (role == .owner)
             ], forDocument: workplaceRef)
-            
+
             // 2. 캘린더 저장 (조건에 맞게 필드 세팅)
             batch.setData([
                 "calendarName": workplace.workplacesName,
@@ -229,7 +229,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                 "sharedWith": [],
                 "workplaceId": workplaceId
             ], forDocument: calendarRef)
-            
+
             // 3. 알바일 때 워커 서브컬렉션 등록
             if role == .worker, let workerDetail {
                 let workerRef = workplaceRef.collection("worker").document(uid)
@@ -241,12 +241,12 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                     return Disposables.create()
                 }
             }
-            
+
             // 4. 사장이든 알바든 users/{uid}/workplace/{workplaceId}에 color 저장
             batch.setData([
                 "color": color
             ], forDocument: userWorkplaceRef)
-            
+
             batch.commit { error in
                 if let error = error {
                     observer.onError(error)
@@ -258,7 +258,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
             return Disposables.create()
         }
     }
-    
+
     /// 근무지의 worker 서브컬렉션에서 모든 알바(워커) 정보를 조회합니다.
     ///
     /// - Parameter workplaceId: 조회할 근무지의 Firestore documentID

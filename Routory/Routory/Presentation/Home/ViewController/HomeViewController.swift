@@ -65,7 +65,7 @@ final class HomeViewController: UIViewController {
                 ) as? MyStoreCell else {
                     return UITableViewCell()
                 }
-                cell.update(menuActions: self?.createStoreMenuActions() ?? []) // TODO: - 실제 데이터 바인딩
+                cell.update(with: dummy, menuActions: self?.createStoreMenuActions() ?? []) // TODO: - 실제 데이터 바인딩
                 return cell
             }
         }

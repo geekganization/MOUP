@@ -9,8 +9,8 @@ import Foundation
 import RxDataSources
 
 enum HomeSectionItem {
-    case workplace(DummyWorkplaceInfo) // 후에 WorkplaceModel로
-    case store(DummyStoreInfo) // 후에 StoreModel로
+    case workplace(WorkplaceCellInfo) // 후에 WorkplaceModel로
+    case store(StoreCellInfo) // 후에 StoreModel로
 }
 
 struct HomeTableViewFirstSection {

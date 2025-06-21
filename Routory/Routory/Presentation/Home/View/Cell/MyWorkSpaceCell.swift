@@ -100,7 +100,7 @@ class MyWorkSpaceCell: UITableViewCell {
     }
 
     // MARK: - Public Methods
-    func update(with workplaceInfo: DummyWorkplaceInfo, isExpanded: Bool, menuActions: [UIAction]) {
+    func update(with workplaceInfo: WorkplaceCellInfo, isExpanded: Bool, menuActions: [UIAction]) {
         print("셀 업데이트: \(workplaceInfo.storeName), isExpanded: \(isExpanded)")
         storeNameLabel.text = workplaceInfo.storeName
 //        officialChip.isHidden = !workplaceInfo.isOfficial

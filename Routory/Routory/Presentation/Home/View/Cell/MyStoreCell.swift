@@ -75,7 +75,7 @@ class MyStoreCell: UITableViewCell {
     }
 
     // MARK: - Public Methods
-    func update(with storeInfo: DummyStoreInfo, menuActions: [UIAction]) {
+    func update(with storeInfo: StoreCellInfo, menuActions: [UIAction]) {
         storeNameLabel.text = storeInfo.storeName
         daysUntilPaydayLabel.text = "급여일까지 D-\(storeInfo.daysUntilPayday)"
         totalLaborCostLabel.text = "\(storeInfo.totalLaborCost.withComma)원"

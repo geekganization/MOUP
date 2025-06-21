@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct DummyWorkplaceInfo {
+struct WorkplaceCellInfo {
     // 공유 여부
     let isOfficial: Bool
 

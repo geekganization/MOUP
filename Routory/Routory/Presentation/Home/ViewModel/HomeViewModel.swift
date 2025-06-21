@@ -21,8 +21,8 @@ final class HomeViewModel {
 
     // MARK: - Mock Data
 
-    private let dummyStore = DummyStoreInfo(isOfficial: true, storeName: "롯데리아 강북 수유점", daysUntilPayday: 13, totalLaborCost: 255300, inviteCode: "123456")
-    private let dummyStore1 = DummyStoreInfo(isOfficial: false, storeName: "롯데리아 강북 문익점", daysUntilPayday: 11, totalLaborCost: 490000, inviteCode: "123456")
+    private let dummyStore = StoreCellInfo(isOfficial: true, storeName: "롯데리아 강북 수유점", daysUntilPayday: 13, totalLaborCost: 255300, inviteCode: "123456")
+    private let dummyStore1 = StoreCellInfo(isOfficial: false, storeName: "롯데리아 강북 문익점", daysUntilPayday: 11, totalLaborCost: 490000, inviteCode: "123456")
 
 //    private lazy var firstSectionData = BehaviorRelay<[HomeTableViewFirstSection]>(value: [HomeTableViewFirstSection(header: "나의 근무지", items: [.workplace(dummyWorkplace), .workplace(dummyWorkplace2)])])
     private lazy var firstSectionData = BehaviorRelay<[HomeTableViewFirstSection]>(value: [HomeTableViewFirstSection(header: "나의 근무지", items: [.store(dummyStore), .store(dummyStore1)])])
@@ -57,7 +57,7 @@ final class HomeViewModel {
         // 데이터 fetch 트리거
         let dataLoadTrigger = Observable.merge(
             input.viewDidLoad.map { _ in () },
-            input.refreshBtnTapped.do(onNext: { /*LoadingManager.start()*/ })
+            input.refreshBtnTapped.do(onNext: { _ in () })
         )
 
         let user = dataLoadTrigger
@@ -65,7 +65,11 @@ final class HomeViewModel {
                 print("transform - user triggered")
                 guard let self else { return .empty() }
                 return self.userUseCase.fetchUser(uid: userId)
-            }.share(replay: 1)
+            }
+            .do(onNext: { user in
+                print("user: \(user)")
+            })
+            .share(replay: 1)
 
         let userType = user.map {
             UserType(role: $0.role)
@@ -77,6 +81,9 @@ final class HomeViewModel {
                 guard let self else { return .empty() }
                 return self.workplaceUseCase.fetchAllWorkplacesForUser(uid: userId)
             }
+            .do(onNext: { workplace in
+                print("workplace: \(workplace)")
+            })
             .share(replay: 1)
 
         /// 이번 달 기준 근무 요약 데이터를 다룹니다. 해당 데이터들 기반해 totalWage를 합산해 총액을 계산합니다.
@@ -89,7 +96,9 @@ final class HomeViewModel {
                       let month = components.month else { return .empty() }
 
                 return workplaceUseCase.fetchMonthlyWorkSummary(uid: userId, year: year, month: month)
-            }
+            }.do(onNext: { summaries in
+                print("summaries: \(summaries)")
+            })
 
         /// 지난 달의 근무 요약 데이터를 다룹니다.\n지난 달 대비 얼마를 더 벌었는지 계산 가능합니다.
         // 지난 달 근무 요약
@@ -101,21 +110,37 @@ final class HomeViewModel {
                       let month = components.month else { return .empty() }
 
                 return workplaceUseCase.fetchMonthlyWorkSummary(uid: userId, year: year, month: month - 1)
-            }
+            }.do(onNext: { summaries in
+                print("summaries: \(summaries)")
+            })
 
         // 오늘의 루틴
         let todaysRoutine = dataLoadTrigger
             .flatMapLatest { [weak self] _ -> Observable<[String: [CalendarEvent]]> in
-                guard let self else { return .empty() }
-                return routineUseCase.fetchTodayRoutineEventsGroupedByWorkplace(uid: userId, date: Date())
-            }
+                    guard let self else {
+                        print("❌ self가 nil")
+                        return .empty()
+                    }
+                    print("🔄 오늘 루틴 요청 시작")
+                return routineUseCase.fetchTodayRoutineEventsGroupedByWorkplace(uid: userId, date: Date()).timeout(.seconds(5), scheduler: MainScheduler.instance)
+                }
+                .do(onNext: { routines in
+                    print("✅ routines 받음: \(routines)")
+                })
+                .do(onError: { error in
+                    print("❌ routines 에러: \(error)")
+                })
+                .do(onSubscribe: {
+                    print("🔔 routines 구독 시작")
+                })
+                .catchAndReturn([:])
 
         let homeHeaderData = Observable.combineLatest(
-            workplaceData,
+            workplaceData, // 해당 데이터는 필요 없으나 헤더 로딩 시 같이 로드
             currentMonthSummary,
             previousMonthSummary,
             todaysRoutine
-        ) { workplace, currentSummaries, previousSummaries, todaysRoutine in
+        ) { workplaces, currentSummaries, previousSummaries, todaysRoutine in
             print("homeHeaderData 합침")
             let monthlyAmount = {
                 var amount = 0
@@ -147,12 +172,67 @@ final class HomeViewModel {
 
         print("홈 헤더 데이터 : \(homeHeaderData)")
 
+//        let homeSectionData = Observable.combineLatest(
+//            workplaceData,
+//            currentMonthSummary,
+//            userType // TODO: - 사장님 기준 바인딩 준비
+//        ) {
+//            workplaces,
+//            currentSummaries,
+//            userType in
+//            var items: [HomeSectionItem] = []
+//            
+//            for workplaceInfo in workplaces {
+//                let workplaceId = workplaceInfo.id
+//                var payday: Int? = nil
+//                var totalAmount = 0 // 근무지 별 총액
+//                for summary in currentSummaries {
+//                    if summary.workplaceId == workplaceId {
+//                        totalAmount = summary.totalWage
+//                        payday = summary.payDay
+//                        break
+//                    }
+//                }
+//                
+//                if userType == .worker {
+//                    let workplaceItem = HomeSectionItem.workplace(
+//                        WorkplaceCellInfo(
+//                            isOfficial: workplaceInfo.workplace.isOfficial,
+//                            storeName: workplaceInfo.workplace.workplacesName,
+//                            daysUntilPayday: PaydayCalculator.calculateDaysUntilPayday(payDay: payday),
+//                            totalEarned: totalAmount
+//                        )
+//                    )
+//                    items.append(workplaceItem)
+//                } else {
+//                    let storeItem = HomeSectionItem.store(
+//                        StoreCellInfo(
+//                            isOfficial: workplaceInfo,
+//                            storeName: workplaceInfo.workplace.workplacesName,
+//                            daysUntilPayday: payday,
+//                            totalLaborCost: totalAmount,
+//                            inviteCode: workplaceInfo.workplace.inviteCode
+//                        )
+//                    )
+//                }
+//            }
+//
+//            let headerTitle = userType == .worker ? "나의 근무지" : "나의 매장"
+//            let section = HomeTableViewFirstSection(header: headerTitle, items: items)
+//        }
+
         input.refreshBtnTapped
             .subscribe(onNext: { [weak self] in
+                guard let self else { return }
+                LoadingManager.start()
                 print("refreshBtnTapped - 데이터 새로고침")
-                LoadingManager.stop()
+                homeHeaderData.take(1)
+                    .subscribe(onNext: { _ in
+                        LoadingManager.stop()
+                        self.expandedIndexPathRelay.accept([])
+                    })
+                    .disposed(by: self.disposeBag)
                 // 새로고침 시 확장 상태 초기화
-                self?.expandedIndexPathRelay.accept([])
             }).disposed(by: disposeBag)
 
         // 셀 탭 이벤트 처리 - ViewModel에서 확장 상태 관리
@@ -169,38 +249,6 @@ final class HomeViewModel {
             .bind(to: expandedIndexPathRelay)
             .disposed(by: disposeBag)
 
-        workplaceUseCase.fetchAllWorkplacesForUser(uid: userId)
-            .subscribe(
-                onNext: { [weak self] workplaces in
-                    guard let self else { return }
-                    let workplacesArray = workplaces.map { // TODO: - role에 따라 다른 enum type의 데이터 생성
-                        let workplace = HomeSectionItem.store(
-//                                                    DummyWorkplaceInfo(
-//                                                        isOfficial: $0.workplace.isOfficial, 
-//                                                        storeName: $0.workplace.workplacesName,
-//                                                        daysUntilPayday: 18,
-//                                                        totalEarned: 252000,
-//                                                    )
-                            DummyStoreInfo(
-                                isOfficial: $0.workplace.isOfficial,
-                                storeName: $0.workplace.workplacesName,
-                                daysUntilPayday: 18,
-                                totalLaborCost: 252000,
-                                inviteCode: $0.workplace.inviteCode
-                            )
-                    )
-                    return workplace
-                }
-                let homeFirstSectionItem = HomeTableViewFirstSection(header: "나의 근무지", items: workplacesArray)
-                firstSectionData.accept([homeFirstSectionItem])
-            })
-            .disposed(by: disposeBag)
-
-        routineUseCase.fetchTodayRoutineEventsGroupedByWorkplace(uid: userId, date: .now)
-            .subscribe(onNext: { calendarEvents in
-                print("오늘 루틴들: \(calendarEvents)")
-            })
-            .disposed(by: disposeBag)
 
         return Output(
             sectionData: firstSectionData.asObservable(),

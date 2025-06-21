@@ -37,6 +37,8 @@ final class HomeViewController: UIViewController {
     private let expandedIndexPathRelay = BehaviorRelay<Set<IndexPath>>(value: []) // 확장된 셀 인덱스 관리
     private let navigationRequestRelay = PublishRelay<Void>()
 
+    private var headerCallCount = 0
+
     private lazy var input = HomeViewModel.Input(
         viewDidLoad: viewDidLoadRelay.asObservable(),
         refreshBtnTapped: refreshBtnTappedRelay.asObservable(),
@@ -109,11 +111,6 @@ private extension HomeViewController {
     }
 
     func setBindings() {
-        output.userType.subscribe().disposed(by: disposeBag)
-        output.headerData.subscribe().disposed(by: disposeBag)
-        output.sectionData.subscribe().disposed(by: disposeBag)
-
-
         homeView.rx.setDelegate
             .onNext(self)
         homeView.rx.bindItems
@@ -195,13 +192,15 @@ private extension HomeViewController {
 
 extension HomeViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        headerCallCount += 1
+        print("🔥 viewForHeaderInSection 호출됨 - \(headerCallCount)번째")
+        print("🔥🔥🔥 헤더 호출 - 시간: \(Date())")
+
         guard let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: HomeHeaderView.identifier) as? HomeHeaderView else {
             return UIView()
         }
 
-        let initialHeaderData = HomeHeaderInfo(monthlyAmount: 0, amountDifference: 0, todayRoutineCount: 0)
-
-        Observable.combineLatest(output.headerData.startWith(initialHeaderData), output.userType)
+        Observable.combineLatest(output.headerData, output.userType)
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { headerData, userType in
                 print("headerData: \(headerData)")

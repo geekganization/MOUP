@@ -14,7 +14,7 @@ final class LoadingAnimationView: UIView {
     
     // MARK: - UI Components
     private let overlayView = UIView().then {
-        $0.backgroundColor = UIColor.black.withAlphaComponent(0.3)
+        $0.backgroundColor = .primaryBackground.withAlphaComponent(0.9)
     }
     
     private let logoImageView = UIImageView().then {
@@ -35,7 +35,7 @@ final class LoadingAnimationView: UIView {
     // MARK: - Public Methods
     func startAnimation() {
         // 초기 상태 설정
-        alpha = 0
+        alpha = 0.8
         logoImageView.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
         
         // 페이드인 + 스케일 애니메이션

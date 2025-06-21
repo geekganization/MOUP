@@ -37,8 +37,6 @@ final class HomeViewController: UIViewController {
     private let expandedIndexPathRelay = BehaviorRelay<Set<IndexPath>>(value: []) // 확장된 셀 인덱스 관리
     private let navigationRequestRelay = PublishRelay<Void>()
 
-    private var headerCallCount = 0
-
     private lazy var input = HomeViewModel.Input(
         viewDidLoad: viewDidLoadRelay.asObservable(),
         refreshBtnTapped: refreshBtnTappedRelay.asObservable(),
@@ -192,10 +190,6 @@ private extension HomeViewController {
 
 extension HomeViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        headerCallCount += 1
-        print("🔥 viewForHeaderInSection 호출됨 - \(headerCallCount)번째")
-        print("🔥🔥🔥 헤더 호출 - 시간: \(Date())")
-
         guard let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: HomeHeaderView.identifier) as? HomeHeaderView else {
             return UIView()
         }

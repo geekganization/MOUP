@@ -57,11 +57,13 @@ final class CalendarViewModel {
                 
                 owner.eventUseCase.fetchAllEventsForUserInMonthSeparated(uid: uid, year: year, month: month)
                     .subscribe(with: self) { owner, calendarEventList in
+                        let personalSorted = calendarEventList.personal.sorted(by: owner.eventSort)
+                        let sharedSorted = calendarEventList.shared.sorted(by: owner.eventSort)
                         if workplace == "전체 보기" {
-                            calendarEventListRelay.accept(calendarEventList)
+                            calendarEventListRelay.accept((personalSorted, sharedSorted))
                         } else {
-                            let filteredPersonal = calendarEventList.personal.filter { $0.title == workplace }
-                            let filteredShared = calendarEventList.shared.filter { $0.title == workplace }
+                            let filteredPersonal = personalSorted.filter { $0.title == workplace }
+                            let filteredShared = sharedSorted.filter { $0.title == workplace }
                             let filteredEventList = (personal: filteredPersonal, shared: filteredShared)
                             calendarEventListRelay.accept(filteredEventList)
                         }
@@ -79,5 +81,13 @@ final class CalendarViewModel {
     init(eventUseCase: EventUseCaseProtocol, workplaceUseCase: WorkplaceUseCaseProtocol) {
         self.eventUseCase = eventUseCase
         self.workplaceUseCase = workplaceUseCase
+    }
+}
+
+// MARK: - Private Methods
+
+private extension CalendarViewModel {
+    func eventSort(_ lhs: CalendarEvent, _ rhs: CalendarEvent ) -> Bool {
+        return lhs.eventDate < rhs.eventDate || lhs.startTime < rhs.startTime || lhs.endTime < rhs.endTime
     }
 }

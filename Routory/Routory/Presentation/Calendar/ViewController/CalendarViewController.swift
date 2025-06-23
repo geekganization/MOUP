@@ -38,7 +38,8 @@ final class CalendarViewController: UIViewController {
     private var personalEventDataSource: [Date: [CalendarEvent]] = [:]
     private var sharedEventDataSource: [Date: [CalendarEvent]] = [:]
     
-    private let visibleYearMonth = BehaviorRelay<(year: Int, month: Int)>(value: (year: Calendar.current.component(.year, from: .now), month: Calendar.current.component(.month, from: .now)))
+    private let visibleYearMonth = BehaviorRelay<(year: Int, month: Int)>(value: (year: Calendar.current.component(.year, from: .now),
+                                                                                  month: Calendar.current.component(.month, from: .now)))
     private var selectedDate: Date?
     
     // MARK: - UI Components
@@ -66,6 +67,11 @@ final class CalendarViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configure()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        visibleYearMonth.accept(visibleYearMonth.value)
     }
 }
 
@@ -137,8 +143,12 @@ private extension CalendarViewController {
                 owner.didFilterButtonTap()
             }.disposed(by: disposeBag)
         
+        // MARK: - Input (ViewController ➡️ ViewModel)
+        
         let input = CalendarViewModel.Input(loadMonthEvent: visibleYearMonth.asObservable(),
                                             filterWorkplace: filterWorkplace.asObservable())
+        
+        // MARK: - Output (ViewModel ➡️ ViewController)
         
         let output = viewModel.tranform(input: input)
         
@@ -325,7 +335,7 @@ extension CalendarViewController: JTACMonthViewDelegate {
         case .shared:
             calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarMode: calendarMode.value, calendarEventList: sharedEventDataSource[date] ?? [])
         }
-        self.dismiss(animated: true)
+        self.navigationController?.presentedViewController?.dismiss(animated: true)
     }
 }
 
@@ -347,14 +357,14 @@ extension CalendarViewController: CalendarEventListVCDelegate {
                     workShiftRegisterVC.delegate = self
                     
                     self?.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
-                    self?.tabBarController?.presentedViewController?.dismiss(animated: true)
+                    self?.navigationController?.presentedViewController?.dismiss(animated: true)
                 } else if user.role == UserRole.owner.rawValue {
                     let ownerShiftRegisterVC = OwnerShiftRegistrationViewController()
                     ownerShiftRegisterVC.hidesBottomBarWhenPushed = true
                     ownerShiftRegisterVC.delegate = self
                     
                     self?.navigationController?.pushViewController(ownerShiftRegisterVC, animated: true)
-                    self?.tabBarController?.presentedViewController?.dismiss(animated: true)
+                    self?.navigationController?.presentedViewController?.dismiss(animated: true)
                 }
             case .failure(let error):
                 self?.logger.error("\(error.localizedDescription)")
@@ -372,14 +382,14 @@ extension CalendarViewController: CalendarEventListVCDelegate {
                     workShiftRegisterVC.delegate = self
                     
                     self?.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
-                    self?.tabBarController?.presentedViewController?.dismiss(animated: true)
+                    self?.navigationController?.presentedViewController?.dismiss(animated: true)
                 } else if user.role == UserRole.owner.rawValue {
                     let ownerShiftRegisterVC = OwnerShiftRegistrationViewController()
                     ownerShiftRegisterVC.hidesBottomBarWhenPushed = true
                     ownerShiftRegisterVC.delegate = self
                     
                     self?.navigationController?.pushViewController(ownerShiftRegisterVC, animated: true)
-                    self?.tabBarController?.presentedViewController?.dismiss(animated: true)
+                    self?.navigationController?.presentedViewController?.dismiss(animated: true)
                 }
             case .failure(let error):
                 self?.logger.error("\(error.localizedDescription)")
@@ -410,10 +420,7 @@ extension CalendarViewController: FilterVCDelegate {
 
 extension CalendarViewController: RegistrationVCDelegate {
     func registrationVCIsMovingFromParent() {
-        // TODO: 해당 날짜 이벤트 다시 로드
         guard let selectedDate else { return }
         calendarView.getJTACalendar.selectDates([selectedDate])
-        // 캘린더 데이터 업데이트
-        visibleYearMonth.accept(visibleYearMonth.value)
     }
 }

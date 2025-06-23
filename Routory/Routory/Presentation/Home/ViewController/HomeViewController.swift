@@ -94,7 +94,6 @@ final class HomeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configure()
-        viewDidLoadRelay.accept(())
     }
 }
 
@@ -109,11 +108,7 @@ private extension HomeViewController {
         self.navigationController?.navigationBar.isHidden = true
     }
 
-    func setBindings() { 
-        output.sectionData.subscribe().disposed(by: disposeBag)
-        output.headerData.subscribe().disposed(by: disposeBag)
-        output.userType.subscribe().disposed(by: disposeBag) // 구독 전에 방출하면 의미가 없으므로 미리 인위적으로 구독 처리
-
+    func setBindings() {
         homeView.rx.setDelegate
             .onNext(self)
         homeView.rx.bindItems
@@ -198,6 +193,7 @@ extension HomeViewController: UITableViewDelegate {
         guard let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: HomeHeaderView.identifier) as? HomeHeaderView else {
             return UIView()
         }
+
         Observable.combineLatest(output.headerData, output.userType)
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { headerData, userType in

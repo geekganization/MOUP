@@ -27,7 +27,7 @@ final class WorkplaceListViewModel {
             return
         }
         
-        workplaceUseCase.fetchAllWorkplacesForUser(uid: uid)
+        workplaceUseCase.fetchAllWorkplacesForUser2(uid: uid)
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] workplaces in
                 self?.workplaceInfos = workplaces

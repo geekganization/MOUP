@@ -1,0 +1,12 @@
+//
+//  Version.xcconfig
+//  Routory
+//
+//  Created by 서동환 on 6/19/25.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+VERSION = 1.0.0
+BUILD_NUMBER = 20250619

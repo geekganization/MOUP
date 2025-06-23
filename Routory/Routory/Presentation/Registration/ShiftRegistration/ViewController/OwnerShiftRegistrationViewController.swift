@@ -15,6 +15,8 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
     weak var delegate: RegistrationVCDelegate?
     
     private var isRead: Bool
+    
+    private let isRegisterMode: Bool
 
     private let scrollView = UIScrollView()
     private let stackView = UIStackView()
@@ -60,7 +62,8 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
     private let submitTrigger = PublishSubject<(String, CalendarEvent)>()
     
     init(
-        isRead: Bool = false,
+        isRegisterMode: Bool,
+        isRead: Bool,
         workPlaceTitle: String,
         workerTitle: String,
         routineTitle: String,
@@ -71,6 +74,7 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
         restTime: String,
         memoPlaceholder: String
     ) {
+        self.isRegisterMode = isRegisterMode
         self.isRead = isRead
         self.contentView = ShiftRegistrationContentView(
             isRead: isRead,
@@ -88,6 +92,11 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
     }
     
     private func updateRightBarButtonTitle() {
+        if isRegisterMode {
+            navigationBar.configureRightButton(icon: nil, title: nil, isHidden: true)
+            return
+        }
+        
         let title = isRead ? "수정" : "읽기"
         navigationBar.configureRightButton(icon: nil, title: title)
     }

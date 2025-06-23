@@ -140,8 +140,8 @@ private extension WorkplaceAddModalViewController {
             )
         case .owner:
             return OwnerWorkplaceRegistrationViewController(
-                isRegisterMode: true,
-                isRead: false,
+                isRegisterMode: false,
+                isRead: true,
                 nameValue: "세븐일레븐 평촌점",
                 categoryValue: "편의점",
                 

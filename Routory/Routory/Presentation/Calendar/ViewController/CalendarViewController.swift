@@ -370,6 +370,8 @@ extension CalendarViewController: CalendarEventListVCDelegate {
                     self?.navigationController?.presentedViewController?.dismiss(animated: true)
                 } else if user.role == UserRole.owner.rawValue {
                     let ownerShiftRegisterVC = OwnerShiftRegistrationViewController(
+                        isRegisterMode: true,
+                        isRead: false,
                         workPlaceTitle: "근무지 선택",
                         workerTitle: "알바 선택",
                         routineTitle: "루틴 입력",
@@ -415,6 +417,8 @@ extension CalendarViewController: CalendarEventListVCDelegate {
                     self?.navigationController?.presentedViewController?.dismiss(animated: true)
                 } else if user.role == UserRole.owner.rawValue {
                     let ownerShiftRegisterVC = OwnerShiftRegistrationViewController(
+                        isRegisterMode: true,
+                        isRead: false,
                         workPlaceTitle: "근무지 선택",
                         workerTitle: "알바 선택",
                         routineTitle: "루틴 입력",

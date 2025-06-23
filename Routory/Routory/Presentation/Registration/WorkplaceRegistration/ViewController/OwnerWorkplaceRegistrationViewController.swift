@@ -106,6 +106,11 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
     // MARK: - Setup
     
     private func updateRightBarButtonTitle() {
+        if isRegisterMode {
+            navigationBar.configureRightButton(icon: nil, title: nil, isHidden: true)
+            return
+        }
+        
         let title = isRead ? "수정" : "읽기"
         navigationBar.configureRightButton(icon: nil, title: title)
     }

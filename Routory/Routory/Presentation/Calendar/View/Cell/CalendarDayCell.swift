@@ -8,7 +8,6 @@
 import UIKit
 
 import JTAppleCalendar
-import RxSwift
 import SnapKit
 import Then
 
@@ -17,8 +16,6 @@ final class CalendarDayCell: JTACDayCell {
     // MARK: - Properties
     
     static let identifier = String(describing: CalendarDayCell.self)
-    
-    
     
     // MARK: - UI Components
     
@@ -37,7 +34,7 @@ final class CalendarDayCell: JTACDayCell {
         $0.textAlignment = .center
         $0.backgroundColor = .clear
         $0.clipsToBounds = true
-        $0.layer.cornerRadius = 10.5
+        $0.layer.cornerRadius = 10
     }
     
     private let firstEventStackView = CalendarEventVStackView()
@@ -163,12 +160,12 @@ private extension CalendarDayCell {
         
         dayLabel.snp.makeConstraints {
             $0.top.equalTo(seperatorView.snp.bottom).offset(4)
-            $0.width.height.equalTo(21)
+            $0.width.height.equalTo(20)
             $0.centerX.equalToSuperview()
         }
         
         eventVStackView.snp.makeConstraints {
-            $0.top.equalTo(dayLabel.snp.bottom)
+            $0.top.equalTo(dayLabel.snp.bottom).offset(4)
             $0.leading.trailing.equalToSuperview().inset(2)
         }
     }

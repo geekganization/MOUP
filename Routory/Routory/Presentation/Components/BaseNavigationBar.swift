@@ -43,8 +43,8 @@ final class BaseNavigationBar: UIView {
         rightButton.contentHorizontalAlignment = .left
 
         if let title = title, title.count <= 2 {
-            rightButton.setAttributedTitle(NSAttributedString(string: title, attributes: [.font: UIFont.bodyMedium(14), .foregroundColor: UIColor.gray900]), for: .normal)
-            rightButton.setAttributedTitle(NSAttributedString(string: title, attributes: [.font: UIFont.bodyMedium(14), .foregroundColor: UIColor.gray900]), for: .selected)
+            rightButton.setAttributedTitle(NSAttributedString(string: title, attributes: [.font: UIFont.headBold(14), .foregroundColor: UIColor.gray900]), for: .normal)
+            rightButton.setAttributedTitle(NSAttributedString(string: title, attributes: [.font: UIFont.headBold(14), .foregroundColor: UIColor.gray900]), for: .selected)
         }
     }
 

@@ -39,9 +39,9 @@ final class DeleteAccountModalViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
-    @available(*, unavailable, message: "Use init(viewModel:) instead")
+    @available(*, unavailable, message: "storyboard is not supported.")
     required init?(coder: NSCoder) {
-        fatalError("Use init(viewModel:) instead")
+        fatalError("init(coder:) has not been implemented.")
     }
     
     

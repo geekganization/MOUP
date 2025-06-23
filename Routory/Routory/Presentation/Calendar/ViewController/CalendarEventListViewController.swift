@@ -100,7 +100,7 @@ private extension CalendarEventListViewController {
             .drive(calendarEventListView.getEventTableView.rx.items(
                 cellIdentifier: EventCell.identifier, cellType: EventCell.self)) { [weak self] _, model, cell in
                     guard let self else { return }
-                    cell.update(workplace: model.title, startTime: model.startTime, endTime: model.endTime, dailyWage: "", calendarMode: calendarMode)
+                    cell.update(workplace: model.title, startTime: model.startTime, endTime: model.endTime, dailyWage: "", isOfficial: false, calendarMode: calendarMode)
                 }.disposed(by: disposeBag)
     }
 }

@@ -23,14 +23,24 @@ final class EventCell: UITableViewCell {
         $0.font = .bodyMedium(16)
     }
     
+    /// 연동 표시 칩 `UILabel`
+    private let sharedChipLabel = ChipLabel(title: "연동", color: .primary100, titleColor: .primary600)
+    
+    private let workplaceChipHStackView = UIStackView().then {
+        $0.axis = .horizontal
+        $0.spacing = 4
+        $0.alignment = .center
+    }
+    
     private let workHourLabel = UILabel().then {
         $0.textColor = .gray900
         $0.font = .bodyMedium(16)
     }
     
-    private let labelStackView = UIStackView().then {
+    private let leadingVStackView = UIStackView().then {
         $0.axis = .vertical
         $0.spacing = 4
+        $0.alignment = .leading
         $0.distribution = .fillEqually
     }
     
@@ -64,10 +74,12 @@ final class EventCell: UITableViewCell {
     
     // MARK: - Methods
     
-    func update(workplace: String, startTime: String, endTime: String, dailyWage: String, calendarMode: CalendarMode) {
+    func update(workplace: String, startTime: String, endTime: String, dailyWage: String, isOfficial: Bool, calendarMode: CalendarMode) {
         workplaceLabel.text = workplace
-        let workHour = DateFormatter.hourDiffDecimal(from: startTime, to: endTime)
         
+        sharedChipLabel.isHidden = !isOfficial
+        
+        let workHour = DateFormatter.hourDiffDecimal(from: startTime, to: endTime)
         if let hour = workHour?.hours,
            let min = workHour?.minutes {
             if min == 0 {
@@ -76,6 +88,7 @@ final class EventCell: UITableViewCell {
                 workHourLabel.text = "\(startTime) ~ \(endTime) (\(hour)시간 \(min)분)"
             }
         }
+        
         dailyWageLabel.isHidden = (calendarMode == .shared)
         // TODO: dailyWage 계산 필요
     }
@@ -91,11 +104,12 @@ private extension EventCell {
     }
     
     func setHierarchy() {
-        self.contentView.addSubviews(labelStackView,
-                                     dailyWageLabel)
+        self.contentView.addSubviews(leadingVStackView, dailyWageLabel)
         
-        labelStackView.addArrangedSubviews(workplaceLabel,
-                                           workHourLabel)
+        workplaceChipHStackView.addArrangedSubviews(workplaceLabel, sharedChipLabel)
+        
+        leadingVStackView.addArrangedSubviews(workplaceChipHStackView,
+                                              workHourLabel)
     }
     
     func setStyles() {
@@ -103,9 +117,14 @@ private extension EventCell {
     }
     
     func setConstraints() {
-        labelStackView.snp.makeConstraints {
+        leadingVStackView.snp.makeConstraints {
             $0.top.bottom.equalToSuperview().inset(8)
             $0.leading.equalToSuperview().inset(16)
+        }
+        
+        sharedChipLabel.snp.makeConstraints {
+            $0.width.equalTo(37)
+            $0.height.equalTo(18)
         }
         
         dailyWageLabel.snp.makeConstraints {

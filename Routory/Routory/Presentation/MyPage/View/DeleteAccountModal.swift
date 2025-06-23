@@ -88,6 +88,10 @@ final class DeleteAccountModal: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    func update(nickname: String) {
+        titleLabel.text = "\(nickname)님, 탈퇴 전에 확인해주세요!"
+    }
+    
 }
 
 private extension DeleteAccountModal {

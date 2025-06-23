@@ -25,6 +25,8 @@ final class DeleteAccountModalViewController: UIViewController {
         $0.layer.masksToBounds = true
     }
     
+    var deleteAccountContentModel: DeleteAccountModal { deleteAccountModal }
+    
     // MARK: - Dependencies
     private let viewModel: DeleteAccountViewModel
     private let disposeBag = DisposeBag()

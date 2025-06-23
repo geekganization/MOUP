@@ -36,6 +36,7 @@ final class MyPageViewController: UIViewController {
     private let viewModel: MyPageViewModel
     private let disposeBag = DisposeBag()
     private let menuItems = MyPageMenu.allCases
+    private var nickname: String?
     
     // MARK: - UI Components
     
@@ -164,6 +165,7 @@ private extension MyPageViewController {
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] user in
                 self?.myPageView.update(user: user)
+                self?.nickname = user.userName
             })
             .disposed(by: disposeBag)
     }
@@ -197,6 +199,8 @@ extension MyPageViewController: UITableViewDelegate, UITableViewDataSource {
         switch selectedMenu {
         case .account:
             let accountVC = AccountViewController()
+            guard let nickname = self.nickname else { return }
+            accountVC.updateNickname(nickname)
             navigationController?.pushViewController(accountVC, animated: true)
 //        case .notification:
 //            let notificationVC = NotificationSettingsViewController()

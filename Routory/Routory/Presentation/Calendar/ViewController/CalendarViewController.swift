@@ -352,14 +352,34 @@ extension CalendarViewController: CalendarEventListVCDelegate {
             switch result {
             case .success(let user):
                 if user.role == UserRole.worker.rawValue {
-                    let workShiftRegisterVC = WorkShiftRegistrationViewController()
+                    let workShiftRegisterVC = WorkShiftRegistrationViewController(
+                        workPlaceTitle: "근무지 수정",
+                        workerTitle: "인원 선택",
+                        routineTitle: "루틴 추가",
+                        dateValue: "2025.07.07",
+                        repeatValue: "없음",
+                        startTime: "09:00",
+                        endTime: "18:00",
+                        restTime: "1시간",
+                        memoPlaceholder: "내용을 입력하세요."
+                    )
                     workShiftRegisterVC.hidesBottomBarWhenPushed = true
                     workShiftRegisterVC.delegate = self
                     
                     self?.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
                     self?.navigationController?.presentedViewController?.dismiss(animated: true)
                 } else if user.role == UserRole.owner.rawValue {
-                    let ownerShiftRegisterVC = OwnerShiftRegistrationViewController()
+                    let ownerShiftRegisterVC = OwnerShiftRegistrationViewController(
+                        workPlaceTitle: "근무지 선택",
+                        workerTitle: "알바 선택",
+                        routineTitle: "루틴 입력",
+                        dateValue: "2025.07.07",
+                        repeatValue: "없음",
+                        startTime: "09:00",
+                        endTime: "18:00",
+                        restTime: "1시간",
+                        memoPlaceholder: "메모를 입력하세요"
+                    )
                     ownerShiftRegisterVC.hidesBottomBarWhenPushed = true
                     ownerShiftRegisterVC.delegate = self
                     
@@ -377,14 +397,34 @@ extension CalendarViewController: CalendarEventListVCDelegate {
             switch result {
             case .success(let user):
                 if user.role == UserRole.worker.rawValue {
-                    let workShiftRegisterVC = WorkShiftRegistrationViewController()
+                    let workShiftRegisterVC = WorkShiftRegistrationViewController(
+                        workPlaceTitle: "근무지 수정",
+                        workerTitle: "인원 선택",
+                        routineTitle: "루틴 추가",
+                        dateValue: "2025.07.07",
+                        repeatValue: "없음",
+                        startTime: "09:00",
+                        endTime: "18:00",
+                        restTime: "1시간",
+                        memoPlaceholder: "내용을 입력하세요."
+                    )
                     workShiftRegisterVC.hidesBottomBarWhenPushed = true
                     workShiftRegisterVC.delegate = self
                     
                     self?.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
                     self?.navigationController?.presentedViewController?.dismiss(animated: true)
                 } else if user.role == UserRole.owner.rawValue {
-                    let ownerShiftRegisterVC = OwnerShiftRegistrationViewController()
+                    let ownerShiftRegisterVC = OwnerShiftRegistrationViewController(
+                        workPlaceTitle: "근무지 선택",
+                        workerTitle: "알바 선택",
+                        routineTitle: "루틴 입력",
+                        dateValue: "2025.07.07",
+                        repeatValue: "없음",
+                        startTime: "09:00",
+                        endTime: "18:00",
+                        restTime: "1시간",
+                        memoPlaceholder: "메모를 입력하세요"
+                    )
                     ownerShiftRegisterVC.hidesBottomBarWhenPushed = true
                     ownerShiftRegisterVC.delegate = self
                     

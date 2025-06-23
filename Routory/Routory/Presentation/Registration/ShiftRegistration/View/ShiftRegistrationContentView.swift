@@ -11,12 +11,14 @@ import Then
 
 final class ShiftRegistrationContentView: UIView {
 
-    let simpleRowView = WorkPlaceSelectionView(title: "근무지 수정")
-    let workerSelectionView = WorkerSelectionView(title: "인원 선택")
-    let routineView = RoutineView(title: "루틴 추가")
-    let workDateView = WorkDateView(dateValue: "2025.07.07", repeatValue: "없음")
-    let workTimeView = WorkTimeView(startTime: "09:00", endTime: "18:00", restTime: "1시간")
-    let memoBoxView = MemoBoxView(placeholder: "내용을 입력하세요.")
+    // MARK: - Subviews
+
+    let simpleRowView: WorkPlaceSelectionView
+    let workerSelectionView: WorkerSelectionView
+    let routineView: RoutineView
+    let workDateView: WorkDateView
+    let workTimeView: WorkTimeView
+    let memoBoxView: MemoBoxView
     let registerButton = UIButton(type: .system)
 
     private let stackView = UIStackView().then {
@@ -24,8 +26,27 @@ final class ShiftRegistrationContentView: UIView {
         $0.spacing = 24
     }
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    // MARK: - Initializer
+
+    init(
+        workPlaceTitle: String,
+        workerTitle: String,
+        routineTitle: String,
+        dateValue: String,
+        repeatValue: String,
+        startTime: String,
+        endTime: String,
+        restTime: String,
+        memoPlaceholder: String
+    ) {
+        self.simpleRowView = WorkPlaceSelectionView(title: workPlaceTitle)
+        self.workerSelectionView = WorkerSelectionView(title: workerTitle)
+        self.routineView = RoutineView(title: routineTitle)
+        self.workDateView = WorkDateView(dateValue: dateValue, repeatValue: repeatValue)
+        self.workTimeView = WorkTimeView(startTime: startTime, endTime: endTime, restTime: restTime)
+        self.memoBoxView = MemoBoxView(placeholder: memoPlaceholder)
+
+        super.init(frame: .zero)
         setupUI()
         layout()
     }
@@ -34,10 +55,19 @@ final class ShiftRegistrationContentView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: - Setup
+
     private func setupUI() {
         addSubview(stackView)
-        [simpleRowView, workerSelectionView, workDateView, workTimeView, routineView, memoBoxView, registerButton]
-            .forEach { stackView.addArrangedSubview($0) }
+        [
+            simpleRowView,
+            workerSelectionView,
+            workDateView,
+            workTimeView,
+            routineView,
+            memoBoxView,
+            registerButton
+        ].forEach { stackView.addArrangedSubview($0) }
 
         registerButton.setTitle("등록하기", for: .normal)
         registerButton.setTitleColor(.primary50, for: .normal)

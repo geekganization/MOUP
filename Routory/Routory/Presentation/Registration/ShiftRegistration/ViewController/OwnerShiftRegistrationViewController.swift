@@ -35,7 +35,7 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
     }
 
     private var registrationMode: ShiftRegistrationMode = .owner
-    private let contentView = ShiftRegistrationContentView()
+    private let contentView: ShiftRegistrationContentView
     private var delegateHandler: ShiftRegistrationDelegateHandler?
     private var actionHandler: RegistrationActionHandler?
     private var keyboardHandler: KeyboardInsetHandler?
@@ -56,6 +56,35 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
     )
 
     private let submitTrigger = PublishSubject<(String, CalendarEvent)>()
+    
+    init(
+        workPlaceTitle: String,
+        workerTitle: String,
+        routineTitle: String,
+        dateValue: String,
+        repeatValue: String,
+        startTime: String,
+        endTime: String,
+        restTime: String,
+        memoPlaceholder: String
+    ) {
+        self.contentView = ShiftRegistrationContentView(
+            workPlaceTitle: workPlaceTitle,
+            workerTitle: workerTitle,
+            routineTitle: routineTitle,
+            dateValue: dateValue,
+            repeatValue: repeatValue,
+            startTime: startTime,
+            endTime: endTime,
+            restTime: restTime,
+            memoPlaceholder: memoPlaceholder
+        )
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)

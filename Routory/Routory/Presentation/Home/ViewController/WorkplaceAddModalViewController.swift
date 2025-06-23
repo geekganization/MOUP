@@ -76,6 +76,13 @@ private extension WorkplaceAddModalViewController {
             action: #selector(manualInputButtonDidTap),
             for: .touchUpInside
         )
+        
+        let tapGesture = UITapGestureRecognizer(
+            target: self,
+            action: #selector(backgroundDidTap(_:))
+        )
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
     }
     
     @objc func inviteCodeButtonDidTap() {
@@ -108,6 +115,14 @@ private extension WorkplaceAddModalViewController {
             return WorkerWorkplaceRegistrationViewController(mode: .fullRegistration)
         case .owner:
             return OwnerWorkplaceRegistrationViewController()
+        }
+    }
+    
+    @objc func backgroundDidTap(_ sender: UITapGestureRecognizer) {
+        let location = sender.location(in: view)
+        
+        if workplaceAddView.frame.contains(location) == false {
+            dismiss(animated: true)
         }
     }
 }

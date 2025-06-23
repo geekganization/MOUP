@@ -144,6 +144,7 @@ private extension InviteCodeViewController {
             .map { !$0.isEmpty }
             .subscribe(onNext: { [weak self] isEnabled in
                 self?.updateSearchButtonStyle(enabled: isEnabled)
+                self?.inviteCodeView.searchButtonView.isEnabled = isEnabled
             })
             .disposed(by: disposeBag)
         

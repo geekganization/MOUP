@@ -18,9 +18,15 @@ final class DeleteAccountModal: UIView {
     
     // MARK: - UI Components
     
-    private let handleView = UIView().then {
+    private let handleBar = UIView().then {
         $0.backgroundColor = .gray400
         $0.layer.cornerRadius = 2
+        $0.clipsToBounds = true
+    }
+    
+    private let handleView = UIView().then {
+        $0.backgroundColor = .white
+        $0.layer.cornerRadius = 12
         $0.clipsToBounds = true
     }
     
@@ -88,6 +94,10 @@ final class DeleteAccountModal: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    func update(nickname: String) {
+        titleLabel.text = "\(nickname)님, 탈퇴 전에 확인해주세요!"
+    }
+    
 }
 
 private extension DeleteAccountModal {
@@ -101,6 +111,8 @@ private extension DeleteAccountModal {
     
     // MARK: - setHierarchy
     func setHierarchy() {
+        handleView.addSubview(handleBar)
+        
         deleteAccountNoticeStackView.addArrangedSubviews(
             titleLabel,
             descriptionLabel,
@@ -122,11 +134,17 @@ private extension DeleteAccountModal {
     
     // MARK: - setConstraints
     func setConstraints() {
-        handleView.snp.makeConstraints {
+        handleBar.snp.makeConstraints {
             $0.top.equalToSuperview().offset(12)
             $0.width.equalTo(45)
             $0.height.equalTo(4)
             $0.centerX.equalToSuperview()
+        }
+        
+        handleView.snp.makeConstraints {
+            $0.top.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview()
+            $0.height.equalTo(28)
         }
         
         deleteAccountNoticeStackView.snp.makeConstraints {

@@ -10,20 +10,26 @@ import FirebaseAuth
 
 final class AccountViewController: UIViewController {
     
+    private var nickname: String?
+    
     // MARK: - UI Components
     
-    private let accountView = AccountView()
+    private let accountContentView = AccountView()
     
     // MARK: - Lifecycle
     
     override func loadView() {
-        self.view = accountView
+        self.view = accountContentView
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         configure()
+    }
+    
+    func updateNickname(_ nickname: String) {
+        self.nickname = nickname
     }
 }
 
@@ -41,13 +47,13 @@ private extension AccountViewController {
     
     // MARK: - setActions
     func setActions() {
-        accountView.navigationBarView.backButtonView.addTarget(
+        accountContentView.navigationBarView.backButtonView.addTarget(
             self,
             action: #selector(backButonDidTap),
             for: .touchUpInside
         )
         
-        accountView.onDeleteAccountTapped = { [weak self] in
+        accountContentView.onDeleteAccountTapped = { [weak self] in
             guard let self else { return }
 
             // 현재 로그인한 유저의 uid 가져오기
@@ -63,6 +69,8 @@ private extension AccountViewController {
                 userId: userId
             )
             let deleteModalVC = DeleteAccountModalViewController(viewModel: deleteAccountViewModel)
+            guard let nickname = self.nickname else { return }
+            deleteModalVC.deleteAccountContentModel.update(nickname: nickname)
             deleteModalVC.modalPresentationStyle = .overFullScreen
             deleteModalVC.modalTransitionStyle = .crossDissolve
             self.present(deleteModalVC, animated: true, completion: nil)

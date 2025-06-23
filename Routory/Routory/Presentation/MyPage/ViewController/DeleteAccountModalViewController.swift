@@ -25,6 +25,8 @@ final class DeleteAccountModalViewController: UIViewController {
         $0.layer.masksToBounds = true
     }
     
+    var deleteAccountContentModel: DeleteAccountModal { deleteAccountModal }
+    
     // MARK: - Dependencies
     private let viewModel: DeleteAccountViewModel
     private let disposeBag = DisposeBag()
@@ -37,9 +39,9 @@ final class DeleteAccountModalViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
-    @available(*, unavailable, message: "Use init(viewModel:) instead")
+    @available(*, unavailable, message: "storyboard is not supported.")
     required init?(coder: NSCoder) {
-        fatalError("Use init(viewModel:) instead")
+        fatalError("init(coder:) has not been implemented.")
     }
     
     
@@ -89,6 +91,13 @@ private extension DeleteAccountModalViewController {
         deleteAccountModal.onRequestDeleteAccount = { [weak self] in
             self?.confirmTappedSubject.onNext(())
         }
+        
+        let tapGesture = UITapGestureRecognizer(
+            target: self,
+            action: #selector(backgroundDidTap(_:))
+        )
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
     }
     
     func setBinding() {
@@ -112,14 +121,16 @@ private extension DeleteAccountModalViewController {
                 var errorMessage = ""
 
                 if nsError.domain == "FIRAuthErrorDomain", nsError.code == 17014 {
-                    errorMessage = "탈퇴에 실패했습니다. 다시 로그인 후 재시도해주세요."
+                    errorMessage = "세션이 만료되어 탈퇴에 실패했습니다.\n로그아웃 로그인 후에 다시 시도해주세요."
                 } else {
-                    errorMessage = "탈퇴에 실패했습니다. 다시 시도해주세요."
+                    errorMessage = "일시적인 오류가 발생했습니다. 다시 시도해주세요."
                 }
                 
-                let alert = UIAlertController(title: "오류", message: errorMessage, preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "확인", style: .default))
-                self?.present(alert, animated: true)
+                let deleteAccountFailVC = DeleteAccountFailModalViewController()
+                deleteAccountFailVC.update(errorMessage: errorMessage)
+                deleteAccountFailVC.modalPresentationStyle = .overFullScreen
+                deleteAccountFailVC.modalTransitionStyle = .crossDissolve
+                self?.present(deleteAccountFailVC, animated: true, completion: nil)
             })
             .disposed(by: disposeBag)
         
@@ -165,6 +176,14 @@ private extension DeleteAccountModalViewController {
             })
         } catch {
             print("로그아웃 실패: \(error)")
+        }
+    }
+    
+    @objc func backgroundDidTap(_ sender: UITapGestureRecognizer) {
+        let location = sender.location(in: view)
+        
+        if deleteAccountModal.frame.contains(location) == false {
+            dismiss(animated: true)
         }
     }
 }

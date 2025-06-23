@@ -44,25 +44,20 @@ final class ShareInviteCodeView: UIView {
         $0.textColor = .black
     }
     
-    private let copyInviteCodeButton = UIButton().then {
+    private let copyButton = UIButton().then {
         var config = UIButton.Configuration.filled()
-        config.title = "초대 코드 복사하기"
-        config.baseForegroundColor = .white
-        config.baseBackgroundColor = .primary500
-        config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
-            var outgoing = incoming
-            outgoing.font = .buttonSemibold(14)
-            return outgoing
-        }
+        config.image = .copyButton
+        config.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12)
+        config.baseBackgroundColor = .white
+        config.cornerStyle = .fixed
 
         $0.configuration = config
-        $0.layer.cornerRadius = 12
-        $0.clipsToBounds = true
+        $0.contentHorizontalAlignment = .center
     }
     
     // MARK: - Getter
     
-    var copyInviteCodeButtonView: UIButton { copyInviteCodeButton }
+    var copyButtonView: UIButton { copyButton }
     
     // MARK: - Initializer
     
@@ -79,6 +74,10 @@ final class ShareInviteCodeView: UIView {
     
     func update(inviteCode: String) {
         inviteCodeLabel.text = inviteCode
+    }
+    
+    func update() {
+        copyButton.setImage(.check, for: .normal)
     }
 }
 
@@ -102,7 +101,7 @@ private extension ShareInviteCodeView {
         addSubviews(
             titleView,
             inviteCodeLabel,
-            copyInviteCodeButton
+            copyButton
         )
     }
     
@@ -142,10 +141,10 @@ private extension ShareInviteCodeView {
             $0.centerX.equalToSuperview()
         }
         
-        copyInviteCodeButton.snp.makeConstraints {
-            $0.height.equalTo(45)
-            $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.bottom.equalToSuperview().inset(34)
+        copyButton.snp.makeConstraints {
+            $0.leading.equalTo(inviteCodeLabel.snp.trailing)
+            $0.centerY.equalTo(inviteCodeLabel.snp.centerY)
+            $0.width.height.equalTo(40)
         }
     }
     

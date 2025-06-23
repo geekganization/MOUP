@@ -112,7 +112,32 @@ private extension WorkplaceAddModalViewController {
     func makeManualWorkplaceRegistrationVC(type: UserType) -> UIViewController {
         switch type {
         case .worker:
-            return WorkerWorkplaceRegistrationViewController(mode: .fullRegistration)
+            return WorkerWorkplaceRegistrationViewController(
+                mode: .fullRegistration,
+                
+                nameValue: "세븐일레븐 평촌점",
+                categoryValue: "편의점",
+                
+                salaryTypeValue: "매월",
+                salaryCalcValue: "고정",
+                fixedSalaryValue: "2,000,000",
+                hourlyWageValue: "12,000",
+                payDateValue: "15일",
+                payWeekdayValue: "금요일",
+                
+                isFourMajorSelected: true,
+                isNationalPensionSelected: false,
+                isHealthInsuranceSelected: true,
+                isEmploymentInsuranceSelected: true,
+                isIndustrialAccidentInsuranceSelected: false,
+                isIncomeTaxSelected: true,
+                isWeeklyAllowanceSelected: false,
+                isNightAllowanceSelected: true,
+                
+                labelTitle: "노란색",
+                showDot: true,
+                dotColor: .systemYellow
+            )
         case .owner:
             return OwnerWorkplaceRegistrationViewController()
         }

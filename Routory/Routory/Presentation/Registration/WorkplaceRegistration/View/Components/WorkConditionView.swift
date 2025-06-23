@@ -11,21 +11,50 @@ import Then
 
 final class WorkConditionView: UIView {
 
-    private let items = [
-        "4대 보험", "국민연금", "건강보험", "고용보험",
-        "산재보험", "소득세", "주휴수당", "야간수당*"
-    ]
+    // MARK: - Constants
 
+    private let items: [String]
+    private let initialCheckedItems: [String: Bool]
+    private let mainGroupItem: String
+    private let subGroupItems: [String]
     private var checkBoxes: [UIButton] = []
 
-    private let mainGroupItem = "4대 보험"
-    private let subGroupItems = ["국민연금", "건강보험", "고용보험", "산재보험"]
     private let titleLabel = UILabel().then {
         $0.font = .headBold(18)
     }
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    // MARK: - Initializer
+
+    init(
+        isFourMajorSelected: Bool,
+        isNationalPensionSelected: Bool,
+        isHealthInsuranceSelected: Bool,
+        isEmploymentInsuranceSelected: Bool,
+        isIndustrialAccidentInsuranceSelected: Bool,
+        isIncomeTaxSelected: Bool,
+        isWeeklyAllowanceSelected: Bool,
+        isNightAllowanceSelected: Bool
+    ) {
+        self.items = [
+            "4대 보험", "국민연금", "건강보험", "고용보험",
+            "산재보험", "소득세", "주휴수당", "야간수당*"
+        ]
+
+        self.initialCheckedItems = [
+            "4대 보험": isFourMajorSelected,
+            "국민연금": isNationalPensionSelected,
+            "건강보험": isHealthInsuranceSelected,
+            "고용보험": isEmploymentInsuranceSelected,
+            "산재보험": isIndustrialAccidentInsuranceSelected,
+            "소득세": isIncomeTaxSelected,
+            "주휴수당": isWeeklyAllowanceSelected,
+            "야간수당*": isNightAllowanceSelected
+        ]
+
+        self.mainGroupItem = "4대 보험"
+        self.subGroupItems = ["국민연금", "건강보험", "고용보험", "산재보험"]
+
+        super.init(frame: .zero)
         titleLabel.attributedText = makeTitleAttributedString(from: "근무조건 *")
         setup()
     }
@@ -34,8 +63,9 @@ final class WorkConditionView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func setup() {
+    // MARK: - Setup
 
+    private func setup() {
         let boxView = UIView().then {
             $0.layer.cornerRadius = 8
             $0.layer.borderWidth = 1
@@ -64,6 +94,7 @@ final class WorkConditionView: UIView {
             let checkbox = UIButton(type: .custom).then {
                 $0.setImage(UIImage(named: "CheckboxUnselected"), for: .normal)
                 $0.setImage(UIImage(named: "CheckboxSelected"), for: .selected)
+                $0.isSelected = initialCheckedItems[text] ?? false
                 $0.addTarget(self, action: #selector(toggleCheckbox(_:)), for: .touchUpInside)
             }
 
@@ -120,6 +151,8 @@ final class WorkConditionView: UIView {
         }
     }
 
+    // MARK: - Actions
+
     @objc private func toggleCheckbox(_ sender: UIButton) {
         guard let index = checkBoxes.firstIndex(of: sender) else { return }
 
@@ -144,6 +177,8 @@ final class WorkConditionView: UIView {
             }
         }
     }
+
+    // MARK: - Public API
 
     func getSelectedConditions() -> [String] {
         return zip(items, checkBoxes)

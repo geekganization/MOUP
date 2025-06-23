@@ -15,7 +15,30 @@ import FirebaseAuth
 final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestureRecognizerDelegate {
     
     private let scrollView = UIScrollView()
-    private let contentView = WorkplaceRegistrationContentView(workplaceTitle: "매장 *")
+    private let contentView = WorkplaceRegistrationContentView(
+        nameValue: "세븐일레븐 평촌점",
+        categoryValue: "편의점",
+        
+        salaryTypeValue: "매월",
+        salaryCalcValue: "고정",
+        fixedSalaryValue: "2,000,000",
+        hourlyWageValue: "12,000",
+        payDateValue: "15일",
+        payWeekdayValue: "금요일",
+        
+        isFourMajorSelected: true,
+        isNationalPensionSelected: false,
+        isHealthInsuranceSelected: true,
+        isEmploymentInsuranceSelected: true,
+        isIndustrialAccidentInsuranceSelected: false,
+        isIncomeTaxSelected: true,
+        isWeeklyAllowanceSelected: false,
+        isNightAllowanceSelected: true,
+        
+        labelTitle: "노란색",
+        showDot: true,
+        dotColor: .systemYellow
+    )
     
     private var delegateHandler: WorkplaceRegistrationDelegateHandler?
     private var actionHandler: RegistrationActionHandler?

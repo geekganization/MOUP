@@ -14,9 +14,9 @@ final class WorkplaceRegistrationContentView: UIView {
     // MARK: - Subviews
 
     let workplaceInfoView: WorkplaceInfoView
-    let salaryInfoView = SalaryInfoView()
-    let workConditionView = WorkConditionView()
-    let labelView = LabelView()
+    let salaryInfoView: SalaryInfoView
+    let workConditionView: WorkConditionView
+    let labelView: LabelView
     let registerButton = UIButton(type: .system)
 
     private let stackView = UIStackView().then {
@@ -26,8 +26,61 @@ final class WorkplaceRegistrationContentView: UIView {
 
     // MARK: - Initializer
 
-    init(workplaceTitle: String) {
-        self.workplaceInfoView = WorkplaceInfoView(title: workplaceTitle)
+    init(
+        nameValue: String?,
+        categoryValue: String?,
+        
+        salaryTypeValue: String,
+        salaryCalcValue: String,
+        fixedSalaryValue: String,
+        hourlyWageValue: String,
+        payDateValue: String,
+        payWeekdayValue: String,
+
+        isFourMajorSelected: Bool,
+        isNationalPensionSelected: Bool,
+        isHealthInsuranceSelected: Bool,
+        isEmploymentInsuranceSelected: Bool,
+        isIndustrialAccidentInsuranceSelected: Bool,
+        isIncomeTaxSelected: Bool,
+        isWeeklyAllowanceSelected: Bool,
+        isNightAllowanceSelected: Bool,
+
+        labelTitle: String,
+        showDot: Bool,
+        dotColor: UIColor?
+    ) {
+        self.workplaceInfoView = WorkplaceInfoView(
+            nameValue: nameValue,
+            categoryValue: categoryValue
+        )
+        
+        self.salaryInfoView = SalaryInfoView(
+            typeValue: salaryTypeValue,
+            calcValue: salaryCalcValue,
+            fixedSalaryValue: fixedSalaryValue,
+            hourlyWageValue: hourlyWageValue,
+            payDateValue: payDateValue,
+            payWeekdayValue: payWeekdayValue
+        )
+
+        self.workConditionView = WorkConditionView(
+            isFourMajorSelected: isFourMajorSelected,
+            isNationalPensionSelected: isNationalPensionSelected,
+            isHealthInsuranceSelected: isHealthInsuranceSelected,
+            isEmploymentInsuranceSelected: isEmploymentInsuranceSelected,
+            isIndustrialAccidentInsuranceSelected: isIndustrialAccidentInsuranceSelected,
+            isIncomeTaxSelected: isIncomeTaxSelected,
+            isWeeklyAllowanceSelected: isWeeklyAllowanceSelected,
+            isNightAllowanceSelected: isNightAllowanceSelected
+        )
+
+        self.labelView = LabelView(
+            title: labelTitle,
+            showDot: showDot,
+            dotColor: dotColor
+        )
+
         super.init(frame: .zero)
         setupUI()
         layout()
@@ -64,15 +117,5 @@ final class WorkplaceRegistrationContentView: UIView {
         stackView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-    }
-    
-    /// 상위 VC에서 전달받은 근무지 이름과 카테고리를 설정하고, 편집을 비활성화합니다.
-    /// - Parameters:
-    ///   - name: 설정할 근무지 이름
-    ///   - category: 설정할 근무지 카테고리
-    func setPresetWorkplaceInfo(name: String, category: String) {
-        workplaceInfoView.updateName(name)
-        workplaceInfoView.updateCategory(category)
-        workplaceInfoView.disableEditing()
     }
 }

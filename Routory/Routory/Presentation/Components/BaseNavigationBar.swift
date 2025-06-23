@@ -37,8 +37,8 @@ final class BaseNavigationBar: UIView {
     func configureBackButton(isHidden: Bool = false) {
         backButton.isHidden = isHidden // 뒤로 가기 버튼을 띄우고 싶지 않은 경우
     }
-
-    func configureRightButton(icon: UIImage?, title: String?) {
+    
+    func configureRightButton(icon: UIImage?, title: String?, isHidden: Bool = false) {
         rightButton.setImage(icon, for: .normal)
         rightButton.contentHorizontalAlignment = .left
 
@@ -46,6 +46,8 @@ final class BaseNavigationBar: UIView {
             rightButton.setAttributedTitle(NSAttributedString(string: title, attributes: [.font: UIFont.headBold(14), .foregroundColor: UIColor.gray900]), for: .normal)
             rightButton.setAttributedTitle(NSAttributedString(string: title, attributes: [.font: UIFont.headBold(14), .foregroundColor: UIColor.gray900]), for: .selected)
         }
+        
+        rightButton.isHidden = isHidden
     }
 
     func configureTitle(title: String) {

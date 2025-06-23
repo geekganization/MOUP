@@ -121,14 +121,16 @@ private extension DeleteAccountModalViewController {
                 var errorMessage = ""
 
                 if nsError.domain == "FIRAuthErrorDomain", nsError.code == 17014 {
-                    errorMessage = "탈퇴에 실패했습니다. 다시 로그인 후 재시도해주세요."
+                    errorMessage = "세션이 만료되어 탈퇴에 실패했습니다.\n로그아웃 로그인 후에 다시 시도해주세요."
                 } else {
-                    errorMessage = "탈퇴에 실패했습니다. 다시 시도해주세요."
+                    errorMessage = "일시적인 오류가 발생했습니다. 다시 시도해주세요."
                 }
                 
-                let alert = UIAlertController(title: "오류", message: errorMessage, preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "확인", style: .default))
-                self?.present(alert, animated: true)
+                let deleteAccountFailVC = DeleteAccountFailModalViewController()
+                deleteAccountFailVC.update(errorMessage: errorMessage)
+                deleteAccountFailVC.modalPresentationStyle = .overFullScreen
+                deleteAccountFailVC.modalTransitionStyle = .crossDissolve
+                self?.present(deleteAccountFailVC, animated: true, completion: nil)
             })
             .disposed(by: disposeBag)
         

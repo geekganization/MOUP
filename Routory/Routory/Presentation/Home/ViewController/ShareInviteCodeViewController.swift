@@ -91,6 +91,13 @@ private extension ShareInviteCodeViewController {
                 self?.showAlert()
             }
             .disposed(by: disposeBag)
+        
+        let tapGesture = UITapGestureRecognizer(
+            target: self,
+            action: #selector(backgroundDidTap(_:))
+        )
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
     }
     
     // 임시로 alert로 해두었습니다.
@@ -98,5 +105,13 @@ private extension ShareInviteCodeViewController {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "확인", style: .default))
         present(alert, animated: true)
+    }
+    
+    @objc func backgroundDidTap(_ sender: UITapGestureRecognizer) {
+        let location = sender.location(in: view)
+        
+        if shareInviteCodeView.frame.contains(location) == false {
+            dismiss(animated: true)
+        }
     }
 }

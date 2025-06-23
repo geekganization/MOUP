@@ -15,30 +15,7 @@ import FirebaseAuth
 final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestureRecognizerDelegate {
     
     private let scrollView = UIScrollView()
-    private let contentView = WorkplaceRegistrationContentView(
-        nameValue: "세븐일레븐 평촌점",
-        categoryValue: "편의점",
-        
-        salaryTypeValue: "매월",
-        salaryCalcValue: "고정",
-        fixedSalaryValue: "2,000,000",
-        hourlyWageValue: "12,000",
-        payDateValue: "15일",
-        payWeekdayValue: "금요일",
-        
-        isFourMajorSelected: true,
-        isNationalPensionSelected: false,
-        isHealthInsuranceSelected: true,
-        isEmploymentInsuranceSelected: true,
-        isIndustrialAccidentInsuranceSelected: false,
-        isIncomeTaxSelected: true,
-        isWeeklyAllowanceSelected: false,
-        isNightAllowanceSelected: true,
-        
-        labelTitle: "노란색",
-        showDot: true,
-        dotColor: .systemYellow
-    )
+    private let contentView: WorkplaceRegistrationContentView
     
     private var delegateHandler: WorkplaceRegistrationDelegateHandler?
     private var actionHandler: RegistrationActionHandler?
@@ -54,6 +31,55 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
     private let disposeBag = DisposeBag()
     
     // MARK: - Lifecycle
+    
+    init(
+        nameValue: String?,
+        categoryValue: String?,
+        salaryTypeValue: String,
+        salaryCalcValue: String,
+        fixedSalaryValue: String,
+        hourlyWageValue: String,
+        payDateValue: String,
+        payWeekdayValue: String,
+        isFourMajorSelected: Bool,
+        isNationalPensionSelected: Bool,
+        isHealthInsuranceSelected: Bool,
+        isEmploymentInsuranceSelected: Bool,
+        isIndustrialAccidentInsuranceSelected: Bool,
+        isIncomeTaxSelected: Bool,
+        isWeeklyAllowanceSelected: Bool,
+        isNightAllowanceSelected: Bool,
+        labelTitle: String,
+        showDot: Bool,
+        dotColor: UIColor?
+    ) {
+        self.contentView = WorkplaceRegistrationContentView(
+            nameValue: nameValue,
+            categoryValue: categoryValue,
+            salaryTypeValue: salaryTypeValue,
+            salaryCalcValue: salaryCalcValue,
+            fixedSalaryValue: fixedSalaryValue,
+            hourlyWageValue: hourlyWageValue,
+            payDateValue: payDateValue,
+            payWeekdayValue: payWeekdayValue,
+            isFourMajorSelected: isFourMajorSelected,
+            isNationalPensionSelected: isNationalPensionSelected,
+            isHealthInsuranceSelected: isHealthInsuranceSelected,
+            isEmploymentInsuranceSelected: isEmploymentInsuranceSelected,
+            isIndustrialAccidentInsuranceSelected: isIndustrialAccidentInsuranceSelected,
+            isIncomeTaxSelected: isIncomeTaxSelected,
+            isWeeklyAllowanceSelected: isWeeklyAllowanceSelected,
+            isNightAllowanceSelected: isNightAllowanceSelected,
+            labelTitle: labelTitle,
+            showDot: showDot,
+            dotColor: dotColor
+        )
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)

@@ -199,4 +199,13 @@ final class SalaryInfoView: UIView, ValueRowViewDelegate, FieldRowViewDelegate {
     func getPayWeekdayValue() -> String {
         return payWeekdayRow.getData()
     }
+    
+    func disableEditing() {
+        typeRow.updateArrowHidden(true)
+        calcRow.updateArrowHidden(true)
+        fixedSalaryRow.updateArrowHidden(true)
+        hourlyWageRow.updateArrowHidden(true)
+        payDateRow.setIsRead()
+        payWeekdayRow.setIsRead()
+    }
 }

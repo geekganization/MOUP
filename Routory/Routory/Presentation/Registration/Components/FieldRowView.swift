@@ -136,4 +136,8 @@ final class FieldRowView: UIView {
     func getData() -> String {
         return valueLabel.text ?? ""
     }
+    
+    func setIsRead() {
+        valueContainerView.backgroundColor = .clear
+    }
 }

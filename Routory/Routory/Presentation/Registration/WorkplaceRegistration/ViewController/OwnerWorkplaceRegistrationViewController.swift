@@ -33,6 +33,7 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
     // MARK: - Lifecycle
     
     init(
+        isRead: Bool = false,
         nameValue: String?,
         categoryValue: String?,
         salaryTypeValue: String,
@@ -54,6 +55,7 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
         dotColor: UIColor?
     ) {
         self.contentView = WorkplaceRegistrationContentView(
+            isRead: isRead,
             nameValue: nameValue,
             categoryValue: categoryValue,
             salaryTypeValue: salaryTypeValue,

@@ -89,4 +89,9 @@ final class RoutineView: UIView, ValueRowViewDelegate {
     func getSelectedRoutineIDs() -> [String] {
         return routines.map { $0.id }
     }
+    
+    func setChevronHidden() {
+        addRow.updateArrowHidden(true)
+    }
+
 }

@@ -34,6 +34,7 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
     private let submitTrigger = PublishSubject<(String, CalendarEvent)>()
     
     init(
+        isRead: Bool = false,
         workPlaceTitle: String,
         workerTitle: String,
         routineTitle: String,
@@ -45,6 +46,7 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
         memoPlaceholder: String
     ) {
         self.contentView = ShiftRegistrationContentView(
+            isRead: isRead,
             workPlaceTitle: workPlaceTitle,
             workerTitle: workerTitle,
             routineTitle: routineTitle,

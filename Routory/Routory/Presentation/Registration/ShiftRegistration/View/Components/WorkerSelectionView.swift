@@ -68,4 +68,8 @@ final class WorkerSelectionView: UIView, ValueRowViewDelegate {
     func getSelectedWorkerData() -> [Employee] {
         return selectRow.getEmployeesData()
     }
+    
+    func setChevronHidden() {
+        selectRow.updateArrowHidden(true)
+    }
 }

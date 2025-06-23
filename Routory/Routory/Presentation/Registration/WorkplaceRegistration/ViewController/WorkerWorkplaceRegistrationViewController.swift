@@ -17,9 +17,6 @@ enum WorkplaceRegistrationMode {
     /// 직접 등록 플로우 - 사용자가 모든 정보를 수동으로 입력하고 즉시 등록까지 수행
     case fullRegistration
     
-    // 읽기 모드 -> 모든 버튼 비할성화
-    case isRead
-    
     /// 초대 코드 기반 플로우 - 상위 VC에서 전달된 일부 정보(name, category)를 바탕으로 나머지 정보만 작성
     /// 최종 등록은 상위 VC에서 수행
     case inputOnly
@@ -75,6 +72,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
     ///   - presetWorkplaceName: `.inputOnly` 모드에서 사용할 근무지 이름 (기본값: nil)
     ///   - presetCategory: `.inputOnly` 모드에서 사용할 카테고리 (기본값: nil)
     init(
+        isRead: Bool = false,
         mode: WorkplaceRegistrationMode,
         nameValue: String?,
         categoryValue: String?,
@@ -99,6 +97,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
         self.mode = mode
 
         self.contentView = WorkplaceRegistrationContentView(
+            isRead: isRead,
             nameValue: nameValue,
             categoryValue: categoryValue,
             salaryTypeValue: salaryTypeValue,
@@ -279,8 +278,6 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
                 case .inputOnly:
                     self.onWorkplaceInfoPrepared?(workerDetail)
                     self.navigationController?.popViewController(animated: true)
-                case .isRead:
-                    print("isRead")
                 }
                 
             case .failure(let error):

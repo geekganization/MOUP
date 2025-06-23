@@ -113,4 +113,8 @@ final class WorkPlaceSelectionView: UIView {
     func getID() -> String {
         return self.workplaceID
     }
+    
+    func setChevronHidden() {
+        chevronImageView.alpha = 0
+    }
 }

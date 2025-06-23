@@ -98,4 +98,10 @@ final class WorkTimeView: UIView, FieldRowViewDelegate {
     func getstartRowData() -> String { startRow.getData() }
     func getendRowData() -> String { endRow.getData() }
     func getrestRowData() -> String { restRow.getData() }
+    
+    func setIsRead() {
+        startRow.setIsRead()
+        endRow.setIsRead()
+        restRow.setIsRead()
+    }
 }

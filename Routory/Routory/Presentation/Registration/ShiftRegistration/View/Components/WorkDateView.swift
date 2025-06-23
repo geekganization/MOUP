@@ -98,4 +98,9 @@ final class WorkDateView: UIView, FieldRowViewDelegate, ValueRowViewDelegate {
     func getrepeatRowData() -> String {
         return repeatRow.getValueData()
     }
+    
+    func setIsRead() {
+        dateRow.setIsRead()
+        repeatRow.updateArrowHidden(true)
+    }
 }

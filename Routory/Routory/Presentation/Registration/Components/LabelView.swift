@@ -91,4 +91,8 @@ final class LabelView: UIView, ValueRowViewDelegate {
     func getColorData() -> UIColor {
         return redLabelRow.getColorData()
     }
+    
+    func disableEditing() {
+        redLabelRow.updateArrowHidden(true)
+    }
 }

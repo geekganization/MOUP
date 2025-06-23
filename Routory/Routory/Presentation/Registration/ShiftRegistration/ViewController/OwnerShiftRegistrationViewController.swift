@@ -58,6 +58,7 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
     private let submitTrigger = PublishSubject<(String, CalendarEvent)>()
     
     init(
+        isRead: Bool = false,
         workPlaceTitle: String,
         workerTitle: String,
         routineTitle: String,
@@ -69,6 +70,7 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
         memoPlaceholder: String
     ) {
         self.contentView = ShiftRegistrationContentView(
+            isRead: isRead,
             workPlaceTitle: workPlaceTitle,
             workerTitle: workerTitle,
             routineTitle: routineTitle,

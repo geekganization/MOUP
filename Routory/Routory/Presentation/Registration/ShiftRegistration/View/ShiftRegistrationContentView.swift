@@ -13,6 +13,7 @@ final class ShiftRegistrationContentView: UIView {
 
     // MARK: - Subviews
 
+    let isRead: Bool
     let simpleRowView: WorkPlaceSelectionView
     let workerSelectionView: WorkerSelectionView
     let routineView: RoutineView
@@ -29,6 +30,7 @@ final class ShiftRegistrationContentView: UIView {
     // MARK: - Initializer
 
     init(
+        isRead: Bool,
         workPlaceTitle: String,
         workerTitle: String,
         routineTitle: String,
@@ -39,6 +41,7 @@ final class ShiftRegistrationContentView: UIView {
         restTime: String,
         memoPlaceholder: String
     ) {
+        self.isRead = isRead
         self.simpleRowView = WorkPlaceSelectionView(title: workPlaceTitle)
         self.workerSelectionView = WorkerSelectionView(title: workerTitle)
         self.routineView = RoutineView(title: routineTitle)
@@ -49,6 +52,7 @@ final class ShiftRegistrationContentView: UIView {
         super.init(frame: .zero)
         setupUI()
         layout()
+        setReadOnlyMode(isRead)
     }
 
     required init?(coder: NSCoder) {
@@ -84,5 +88,23 @@ final class ShiftRegistrationContentView: UIView {
         stackView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
+    }
+}
+
+extension ShiftRegistrationContentView {
+    func setReadOnlyMode(_ isReadOnly: Bool) {
+        simpleRowView.isUserInteractionEnabled = !isReadOnly
+        simpleRowView.setChevronHidden()
+        workerSelectionView.isUserInteractionEnabled = !isReadOnly
+        workerSelectionView.setChevronHidden()
+        routineView.isUserInteractionEnabled = !isReadOnly
+        routineView.setChevronHidden()
+        workDateView.isUserInteractionEnabled = !isReadOnly
+        workDateView.setIsRead()
+        workTimeView.isUserInteractionEnabled = !isReadOnly
+        workTimeView.setIsRead()
+        memoBoxView.isUserInteractionEnabled = !isReadOnly
+        registerButton.isEnabled = !isReadOnly
+        registerButton.alpha = isReadOnly ? 0.4 : 1.0
     }
 }

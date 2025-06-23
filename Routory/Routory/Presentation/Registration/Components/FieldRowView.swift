@@ -140,4 +140,8 @@ final class FieldRowView: UIView {
     func setIsRead() {
         valueContainerView.backgroundColor = .clear
     }
+    
+    func setIsEditable() {
+        valueContainerView.backgroundColor = .primary100
+    }
 }

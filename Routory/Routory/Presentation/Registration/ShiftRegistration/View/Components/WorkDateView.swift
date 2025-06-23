@@ -103,4 +103,9 @@ final class WorkDateView: UIView, FieldRowViewDelegate, ValueRowViewDelegate {
         dateRow.setIsRead()
         repeatRow.updateArrowHidden(true)
     }
+    
+    func setIsEditable() {
+        dateRow.setIsEditable()
+        repeatRow.updateArrowHidden(false)
+    }
 }

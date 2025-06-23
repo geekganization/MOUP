@@ -104,4 +104,10 @@ final class WorkTimeView: UIView, FieldRowViewDelegate {
         endRow.setIsRead()
         restRow.setIsRead()
     }
+    
+    func setIsEditable() {
+        startRow.setIsEditable()
+        endRow.setIsEditable()
+        restRow.setIsEditable()
+    }
 }

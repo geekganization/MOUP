@@ -13,7 +13,7 @@ final class ShiftRegistrationContentView: UIView {
 
     // MARK: - Subviews
 
-    let isRead: Bool
+    var isRead: Bool
     let simpleRowView: WorkPlaceSelectionView
     let workerSelectionView: WorkerSelectionView
     let routineView: RoutineView
@@ -52,9 +52,7 @@ final class ShiftRegistrationContentView: UIView {
         super.init(frame: .zero)
         setupUI()
         layout()
-        if isRead == true {
-            setReadOnlyMode()
-        }
+        setReadMode(isRead)
     }
 
     required init?(coder: NSCoder) {
@@ -94,19 +92,29 @@ final class ShiftRegistrationContentView: UIView {
 }
 
 extension ShiftRegistrationContentView {
-    func setReadOnlyMode() {
-        simpleRowView.isUserInteractionEnabled = true
-        simpleRowView.setChevronHidden()
-        workerSelectionView.isUserInteractionEnabled = true
-        workerSelectionView.setChevronHidden()
-        routineView.isUserInteractionEnabled = true
-        routineView.setChevronHidden()
-        workDateView.isUserInteractionEnabled = true
-        workDateView.setIsRead()
-        workTimeView.isUserInteractionEnabled = true
-        workTimeView.setIsRead()
-        memoBoxView.isUserInteractionEnabled = true
-        registerButton.isEnabled = true
-        registerButton.alpha = 0
+    func setReadMode(_ isRead: Bool) {
+        self.isRead = isRead
+        
+        simpleRowView.isUserInteractionEnabled = !isRead
+        workerSelectionView.isUserInteractionEnabled = !isRead
+        routineView.isUserInteractionEnabled = !isRead
+        workDateView.isUserInteractionEnabled = !isRead
+        workTimeView.isUserInteractionEnabled = !isRead
+        memoBoxView.isUserInteractionEnabled = !isRead
+        registerButton.isHidden = isRead
+
+        if isRead {
+            simpleRowView.setChevronHidden()
+            workerSelectionView.setChevronHidden()
+            routineView.setChevronHidden()
+            workDateView.setIsRead()
+            workTimeView.setIsRead()
+        } else {
+            simpleRowView.setChevronVisible()
+            workerSelectionView.setChevronVisible()
+            routineView.setChevronVisible()
+            workDateView.setIsEditable()
+            workTimeView.setIsEditable()
+        }
     }
 }

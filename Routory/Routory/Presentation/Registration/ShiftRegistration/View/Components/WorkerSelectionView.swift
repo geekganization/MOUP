@@ -72,4 +72,8 @@ final class WorkerSelectionView: UIView, ValueRowViewDelegate {
     func setChevronHidden() {
         selectRow.updateArrowHidden(true)
     }
+    
+    func setChevronVisible() {
+        selectRow.updateArrowHidden(false)
+    }
 }

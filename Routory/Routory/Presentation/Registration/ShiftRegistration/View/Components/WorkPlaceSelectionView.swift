@@ -117,4 +117,8 @@ final class WorkPlaceSelectionView: UIView {
     func setChevronHidden() {
         chevronImageView.alpha = 0
     }
+    
+    func setChevronVisible() {
+        chevronImageView.alpha = 1
+    }
 }

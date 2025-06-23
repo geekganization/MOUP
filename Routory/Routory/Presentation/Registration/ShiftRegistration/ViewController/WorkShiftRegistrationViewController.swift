@@ -13,6 +13,8 @@ import FirebaseAuth
 final class WorkShiftRegistrationViewController: UIViewController, UIGestureRecognizerDelegate {
 
     weak var delegate: RegistrationVCDelegate?
+    
+    private var isRead: Bool
 
     private let scrollView = UIScrollView()
     private let contentView: ShiftRegistrationContentView
@@ -45,6 +47,7 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
         restTime: String,
         memoPlaceholder: String
     ) {
+        self.isRead = isRead
         self.contentView = ShiftRegistrationContentView(
             isRead: isRead,
             workPlaceTitle: workPlaceTitle,
@@ -96,6 +99,17 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
         if self.isMovingFromParent {
             delegate?.registrationVCIsMovingFromParent()
         }
+    }
+    
+    private func updateRightBarButtonTitle() {
+        let title = isRead ? "수정" : "읽기"
+        navigationBar.configureRightButton(icon: nil, title: title)
+    }
+    
+    private func toggleReadMode() {
+        isRead.toggle()
+        contentView.setReadMode(isRead)
+        updateRightBarButtonTitle()
     }
 
     private func bindViewModel() {
@@ -153,6 +167,14 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
                 self?.navigationController?.popViewController(animated: true)
             })
             .disposed(by: disposeBag)
+        
+        navigationBar.rx.rightBtnTapped
+            .subscribe(onNext: { [weak self] in
+                self?.toggleReadMode()
+            })
+            .disposed(by: disposeBag)
+        
+        updateRightBarButtonTitle()
     }
 
     private func layout() {

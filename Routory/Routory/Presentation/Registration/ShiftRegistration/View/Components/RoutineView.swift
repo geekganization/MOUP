@@ -93,5 +93,9 @@ final class RoutineView: UIView, ValueRowViewDelegate {
     func setChevronHidden() {
         addRow.updateArrowHidden(true)
     }
+    
+    func setChevronVisible() {
+        addRow.updateArrowHidden(false)
+    }
 
 }

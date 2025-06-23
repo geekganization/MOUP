@@ -13,6 +13,8 @@ import FirebaseAuth
 final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRecognizerDelegate {
     
     weak var delegate: RegistrationVCDelegate?
+    
+    private var isRead: Bool
 
     private let scrollView = UIScrollView()
     private let stackView = UIStackView()
@@ -69,6 +71,7 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
         restTime: String,
         memoPlaceholder: String
     ) {
+        self.isRead = isRead
         self.contentView = ShiftRegistrationContentView(
             isRead: isRead,
             workPlaceTitle: workPlaceTitle,
@@ -82,6 +85,17 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
             memoPlaceholder: memoPlaceholder
         )
         super.init(nibName: nil, bundle: nil)
+    }
+    
+    private func updateRightBarButtonTitle() {
+        let title = isRead ? "수정" : "읽기"
+        navigationBar.configureRightButton(icon: nil, title: title)
+    }
+    
+    private func toggleReadMode() {
+        isRead.toggle()
+        contentView.setReadMode(isRead)
+        updateRightBarButtonTitle()
     }
 
     required init?(coder: NSCoder) {
@@ -155,6 +169,15 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
                 self?.navigationController?.popViewController(animated: true)
             })
             .disposed(by: disposeBag)
+        
+        navigationBar.rx.rightBtnTapped
+            .subscribe(onNext: { [weak self] in
+                self?.toggleReadMode()
+            })
+            .disposed(by: disposeBag)
+        
+        updateRightBarButtonTitle()
+
     }
 
     private func setupUI() {

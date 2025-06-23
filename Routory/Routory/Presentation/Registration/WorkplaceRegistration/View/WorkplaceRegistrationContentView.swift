@@ -86,7 +86,9 @@ final class WorkplaceRegistrationContentView: UIView {
         super.init(frame: .zero)
         setupUI()
         layout()
-        setReadOnlyMode(isRead)
+        if isRead == true {
+            setReadOnlyMode()
+        }
     }
 
     required init?(coder: NSCoder) {
@@ -124,15 +126,15 @@ final class WorkplaceRegistrationContentView: UIView {
 }
 
 extension WorkplaceRegistrationContentView {
-    func setReadOnlyMode(_ isReadOnly: Bool) {
-        workplaceInfoView.isUserInteractionEnabled = !isReadOnly
+    func setReadOnlyMode() {
+        workplaceInfoView.isUserInteractionEnabled = true
         workplaceInfoView.disableEditing()
-        salaryInfoView.isUserInteractionEnabled = !isReadOnly
+        salaryInfoView.isUserInteractionEnabled = true
         salaryInfoView.disableEditing()
-        workConditionView.isUserInteractionEnabled = !isReadOnly
-        labelView.isUserInteractionEnabled = !isReadOnly
+        workConditionView.isUserInteractionEnabled = true
+        labelView.isUserInteractionEnabled = true
         labelView.disableEditing()
-        registerButton.isEnabled = !isReadOnly
-        registerButton.alpha = isReadOnly ? 0.4 : 1.0
+        registerButton.isEnabled = true
+        registerButton.alpha = 0
     }
 }

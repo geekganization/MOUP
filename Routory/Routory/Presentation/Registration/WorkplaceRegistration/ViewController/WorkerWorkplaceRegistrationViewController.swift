@@ -30,7 +30,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
     
     private var delegateHandler: WorkplaceRegistrationDelegateHandler?
     private var actionHandler: RegistrationActionHandler?
-    
+        
     fileprivate lazy var navigationBar = BaseNavigationBar(title: "새 근무지 등록") //*2
     
     private let viewModel = CreateWorkplaceViewModel(

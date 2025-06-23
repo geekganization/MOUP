@@ -52,7 +52,9 @@ final class ShiftRegistrationContentView: UIView {
         super.init(frame: .zero)
         setupUI()
         layout()
-        setReadOnlyMode(isRead)
+        if isRead == true {
+            setReadOnlyMode()
+        }
     }
 
     required init?(coder: NSCoder) {
@@ -92,19 +94,19 @@ final class ShiftRegistrationContentView: UIView {
 }
 
 extension ShiftRegistrationContentView {
-    func setReadOnlyMode(_ isReadOnly: Bool) {
-        simpleRowView.isUserInteractionEnabled = !isReadOnly
+    func setReadOnlyMode() {
+        simpleRowView.isUserInteractionEnabled = true
         simpleRowView.setChevronHidden()
-        workerSelectionView.isUserInteractionEnabled = !isReadOnly
+        workerSelectionView.isUserInteractionEnabled = true
         workerSelectionView.setChevronHidden()
-        routineView.isUserInteractionEnabled = !isReadOnly
+        routineView.isUserInteractionEnabled = true
         routineView.setChevronHidden()
-        workDateView.isUserInteractionEnabled = !isReadOnly
+        workDateView.isUserInteractionEnabled = true
         workDateView.setIsRead()
-        workTimeView.isUserInteractionEnabled = !isReadOnly
+        workTimeView.isUserInteractionEnabled = true
         workTimeView.setIsRead()
-        memoBoxView.isUserInteractionEnabled = !isReadOnly
-        registerButton.isEnabled = !isReadOnly
-        registerButton.alpha = isReadOnly ? 0.4 : 1.0
+        memoBoxView.isUserInteractionEnabled = true
+        registerButton.isEnabled = true
+        registerButton.alpha = 0
     }
 }

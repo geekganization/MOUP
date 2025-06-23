@@ -11,13 +11,12 @@ import Then
 
 final class ShiftRegistrationContentView: UIView {
 
-    let simpleRowView = WorkPlaceSelectionView()
-    let workerSelectionView = WorkerSelectionView()
-    let routineView = RoutineView()
-    let workDateView = WorkDateView()
-    let workTimeView = WorkTimeView()
-    let labelView = LabelView()
-    let memoBoxView = MemoBoxView()
+    let simpleRowView = WorkPlaceSelectionView(title: "근무지 수정")
+    let workerSelectionView = WorkerSelectionView(title: "인원 선택")
+    let routineView = RoutineView(title: "루틴 추가")
+    let workDateView = WorkDateView(dateValue: "2025.07.07", repeatValue: "없음")
+    let workTimeView = WorkTimeView(startTime: "09:00", endTime: "18:00", restTime: "1시간")
+    let memoBoxView = MemoBoxView(placeholder: "내용을 입력하세요.")
     let registerButton = UIButton(type: .system)
 
     private let stackView = UIStackView().then {
@@ -37,7 +36,7 @@ final class ShiftRegistrationContentView: UIView {
 
     private func setupUI() {
         addSubview(stackView)
-        [simpleRowView, workerSelectionView, workDateView, workTimeView, routineView, labelView, memoBoxView, registerButton]
+        [simpleRowView, workerSelectionView, workDateView, workTimeView, routineView, memoBoxView, registerButton]
             .forEach { stackView.addArrangedSubview($0) }
 
         registerButton.setTitle("등록하기", for: .normal)

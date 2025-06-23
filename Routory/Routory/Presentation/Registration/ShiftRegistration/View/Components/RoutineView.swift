@@ -22,14 +22,15 @@ final class RoutineView: UIView, ValueRowViewDelegate {
     // MARK: - Properties
 
     weak var delegate: RoutineViewDelegate?
-    
-    private var routines: [RoutineInfo] = []
 
-    private let addRow = ValueRowView(title: "루틴 추가", value: nil)
+    private var routines: [RoutineInfo] = []
+    private let addRow: ValueRowView
+    private let titleLabel = UILabel()
 
     // MARK: - Initializer
 
-    init() {
+    init(title: String) {
+        self.addRow = ValueRowView(title: title, value: nil)
         super.init(frame: .zero)
         setup()
     }
@@ -43,10 +44,8 @@ final class RoutineView: UIView, ValueRowViewDelegate {
     private func setup() {
         addRow.delegate = self
 
-        let titleLabel = UILabel().then {
-            $0.text = "루틴"
-            $0.font = .headBold(18)
-        }
+        titleLabel.text = "루틴"
+        titleLabel.font = .headBold(18)
 
         let box = makeBoxedStackView(with: [addRow])
 
@@ -66,7 +65,7 @@ final class RoutineView: UIView, ValueRowViewDelegate {
     }
 
     // MARK: - Public API
-    
+
     func updateSelectedRoutineData(_ routines: [RoutineInfo]) {
         self.routines = routines
     }
@@ -74,19 +73,19 @@ final class RoutineView: UIView, ValueRowViewDelegate {
     func updateSelectedRoutine(_ name: String) {
         addRow.updateTitle(name)
     }
-    
-    func updateCounterLabel(_ name: String){
+
+    func updateCounterLabel(_ name: String) {
         addRow.updatePlusLabel(value: name)
     }
 
     func getTitleData() -> String {
         return addRow.getTitleData()
     }
-    
+
     func getSelectedRoutineData() -> [RoutineInfo] {
-        return self.routines
+        return routines
     }
-    
+
     func getSelectedRoutineIDs() -> [String] {
         return routines.map { $0.id }
     }

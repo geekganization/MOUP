@@ -73,18 +73,6 @@ extension ShiftRegistrationDelegateHandler: RoutineViewDelegate {
     }
 }
 
-// MARK: - LabelViewDelegate
-
-extension ShiftRegistrationDelegateHandler: LabelViewDelegate {
-    func labelViewDidTapSelectColor(_ sender: LabelView) {
-        let vc = ColorSelectionViewController()
-        vc.onSelect = { [weak self] labelColor in
-            self?.contentView?.labelView.updateLabelName(labelColor.name, color: labelColor.color)
-        }
-        navigationController?.pushViewController(vc, animated: true)
-    }
-}
-
 // MARK: - WorkDateViewDelegate
 
 extension ShiftRegistrationDelegateHandler: WorkDateViewDelegate {

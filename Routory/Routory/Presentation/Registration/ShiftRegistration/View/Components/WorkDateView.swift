@@ -25,14 +25,15 @@ final class WorkDateView: UIView, FieldRowViewDelegate, ValueRowViewDelegate {
     weak var delegate: WorkDateViewDelegate?
     private var repeatDays: [String] = []
 
-    private let dateRow = FieldRowView(title: "날짜", value: "2025.07.07")
-    private let repeatRow = ValueRowView(title: "반복", value: "없음")
-    
+    private let dateRow: FieldRowView
+    private let repeatRow: ValueRowView
     private let titleLabel = UILabel()
 
-    // MARK: - Initializers
+    // MARK: - Initializer
 
-    init() {
+    init(dateValue: String, repeatValue: String) {
+        self.dateRow = FieldRowView(title: "날짜", value: dateValue)
+        self.repeatRow = ValueRowView(title: "반복", value: repeatValue)
         super.init(frame: .zero)
         titleLabel.attributedText = makeTitleAttributedString(from: "근무 날짜 *")
         setup()
@@ -81,7 +82,7 @@ final class WorkDateView: UIView, FieldRowViewDelegate, ValueRowViewDelegate {
     func updateRepeatData(_ data: [String]) {
         repeatDays = data
     }
-    
+
     func getRepeatData() -> [String] {
         return repeatDays
     }

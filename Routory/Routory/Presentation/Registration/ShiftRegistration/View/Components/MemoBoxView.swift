@@ -15,8 +15,8 @@ final class MemoBoxView: UIStackView {
 
     // MARK: - Constants
 
-    private let placeholder = "내용을 입력하세요."
     private let maxLength = 50
+    private let placeholder: String
 
     // MARK: - UI Components
 
@@ -26,7 +26,8 @@ final class MemoBoxView: UIStackView {
 
     // MARK: - Initializers
 
-    init() {
+    init(placeholder: String) {
+        self.placeholder = placeholder
         super.init(frame: .zero)
         axis = .vertical
         spacing = 8

@@ -154,7 +154,6 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
 
         contentView.simpleRowView.delegate = delegateHandler
         contentView.routineView.delegate = delegateHandler
-        contentView.labelView.delegate = delegateHandler
         contentView.workDateView.delegate = delegateHandler
         contentView.workTimeView.delegate = delegateHandler
         contentView.workerSelectionView.delegate = delegateHandler
@@ -259,13 +258,11 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
             registrationMode = .owner
             contentView.simpleRowView.isHidden = false
             contentView.workerSelectionView.isHidden = true
-            contentView.labelView.isHidden = true
             contentView.routineView.isHidden = false
         case 1:
             registrationMode = .employee
             contentView.simpleRowView.isHidden = false
             contentView.workerSelectionView.isHidden = false
-            contentView.labelView.isHidden = true
             contentView.routineView.isHidden = true
         default:
             break

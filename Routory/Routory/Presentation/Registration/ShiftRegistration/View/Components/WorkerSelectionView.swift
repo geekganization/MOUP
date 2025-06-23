@@ -17,10 +17,11 @@ final class WorkerSelectionView: UIView, ValueRowViewDelegate {
 
     weak var delegate: WorkerSelectionViewDelegate?
 
-    private let selectRow = ValueRowView(title: "인원 선택", value: nil)
+    private let selectRow: ValueRowView
     private let titleLabel = UILabel()
 
-    init() {
+    init(title: String) {
+        self.selectRow = ValueRowView(title: title, value: nil)
         super.init(frame: .zero)
         titleLabel.attributedText = makeTitleAttributedString(from: "근무자 *")
         setup()

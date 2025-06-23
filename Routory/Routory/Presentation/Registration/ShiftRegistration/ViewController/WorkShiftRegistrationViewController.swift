@@ -106,12 +106,10 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
 
         contentView.simpleRowView.delegate = delegateHandler
         contentView.routineView.delegate = delegateHandler
-        contentView.labelView.delegate = delegateHandler
         contentView.workDateView.delegate = delegateHandler
         contentView.workTimeView.delegate = delegateHandler
 
         contentView.workerSelectionView.isHidden = true
-        contentView.labelView.isHidden = true
 
         contentView.registerButton.addTarget(self, action: #selector(didTapRegister), for: .touchUpInside)
         contentView.registerButton.addTarget(actionHandler, action: #selector(RegistrationActionHandler.buttonTouchDown(_:)), for: .touchDown)

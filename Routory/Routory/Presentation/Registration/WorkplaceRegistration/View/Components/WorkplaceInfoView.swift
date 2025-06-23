@@ -86,4 +86,11 @@ final class WorkplaceInfoView: UIView, ValueRowViewDelegate {
         categoryRow.isUserInteractionEnabled = false
         categoryRow.updateArrowHidden(true)
     }
+    
+    func enableEditing() {
+        nameRow.isUserInteractionEnabled = true
+        nameRow.updateArrowHidden(false)
+        categoryRow.isUserInteractionEnabled = true
+        categoryRow.updateArrowHidden(false)
+    }
 }

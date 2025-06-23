@@ -208,4 +208,13 @@ final class SalaryInfoView: UIView, ValueRowViewDelegate, FieldRowViewDelegate {
         payDateRow.setIsRead()
         payWeekdayRow.setIsRead()
     }
+    
+    func enableEditing() {
+        typeRow.updateArrowHidden(false)
+        calcRow.updateArrowHidden(false)
+        fixedSalaryRow.updateArrowHidden(false)
+        hourlyWageRow.updateArrowHidden(false)
+        payDateRow.setIsEditable()
+        payWeekdayRow.setIsEditable()
+    }
 }

@@ -30,6 +30,8 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
     )
     private let disposeBag = DisposeBag()
     
+    private var isRead: Bool
+    
     // MARK: - Lifecycle
     
     init(
@@ -54,6 +56,7 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
         showDot: Bool,
         dotColor: UIColor?
     ) {
+        self.isRead = isRead
         self.contentView = WorkplaceRegistrationContentView(
             isRead: isRead,
             nameValue: nameValue,
@@ -98,12 +101,31 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
     
     // MARK: - Setup
     
+    private func updateRightBarButtonTitle() {
+        let title = isRead ? "수정" : "읽기"
+        navigationBar.configureRightButton(icon: nil, title: title)
+    }
+    
+    private func toggleReadMode() {
+        isRead.toggle()
+        contentView.setReadMode(isRead)
+        updateRightBarButtonTitle()
+    }
+    
     private func setupNavigationBar() {
         navigationBar.rx.backBtnTapped
             .subscribe(onNext: { [weak self] in
                 self?.navigationController?.popViewController(animated: true)
             })
             .disposed(by: disposeBag)
+
+        navigationBar.rx.rightBtnTapped
+            .subscribe(onNext: { [weak self] in
+                self?.toggleReadMode()
+            })
+            .disposed(by: disposeBag)
+
+        updateRightBarButtonTitle()
     }
     
     private func setupUI() {

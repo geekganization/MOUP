@@ -95,4 +95,8 @@ final class LabelView: UIView, ValueRowViewDelegate {
     func disableEditing() {
         redLabelRow.updateArrowHidden(true)
     }
+    
+    func enableEditing() {
+        redLabelRow.updateArrowHidden(false)
+    }
 }

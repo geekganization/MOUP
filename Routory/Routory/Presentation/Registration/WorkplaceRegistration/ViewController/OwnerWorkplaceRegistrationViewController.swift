@@ -32,10 +32,13 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
     
     private var isRead: Bool
     
+    private let isRegisterMode: Bool
+    
     // MARK: - Lifecycle
     
     init(
-        isRead: Bool = false,
+        isRegisterMode: Bool,
+        isRead: Bool,
         nameValue: String?,
         categoryValue: String?,
         salaryTypeValue: String,
@@ -56,6 +59,7 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
         showDot: Bool,
         dotColor: UIColor?
     ) {
+        self.isRegisterMode = isRegisterMode
         self.isRead = isRead
         self.contentView = WorkplaceRegistrationContentView(
             isRead: isRead,

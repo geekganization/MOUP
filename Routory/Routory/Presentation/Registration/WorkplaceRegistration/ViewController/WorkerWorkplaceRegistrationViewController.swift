@@ -42,6 +42,8 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
     )
     private let disposeBag = DisposeBag()
     
+    private let isRegisterMode: Bool
+    
     private var isRead: Bool
     
     /// 근무지 등록 방식 (직접 입력 or 초대코드 기반)
@@ -74,7 +76,8 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
     ///   - presetWorkplaceName: `.inputOnly` 모드에서 사용할 근무지 이름 (기본값: nil)
     ///   - presetCategory: `.inputOnly` 모드에서 사용할 카테고리 (기본값: nil)
     init(
-        isRead: Bool = false,
+        isRegisterMode: Bool,
+        isRead: Bool,
         mode: WorkplaceRegistrationMode,
         nameValue: String?,
         categoryValue: String?,
@@ -97,6 +100,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
         dotColor: UIColor?
     ) {
         self.mode = mode
+        self.isRegisterMode = isRegisterMode
         self.isRead = isRead
 
         self.contentView = WorkplaceRegistrationContentView(
@@ -131,6 +135,11 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
     // MARK: - Setup
     
     private func updateRightBarButtonTitle() {
+        if isRegisterMode {
+            navigationBar.configureRightButton(icon: nil, title: nil, isHidden: true)
+            return
+        }
+        
         let title = isRead ? "수정" : "읽기"
         navigationBar.configureRightButton(icon: nil, title: title)
     }

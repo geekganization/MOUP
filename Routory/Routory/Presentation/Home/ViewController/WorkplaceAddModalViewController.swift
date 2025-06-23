@@ -113,7 +113,11 @@ private extension WorkplaceAddModalViewController {
         switch type {
         case .worker:
             return WorkerWorkplaceRegistrationViewController(
+                isRegisterMode: true,
+                isRead: false,
                 mode: .fullRegistration,
+                
+                
                 
                 nameValue: "세븐일레븐 평촌점",
                 categoryValue: "편의점",

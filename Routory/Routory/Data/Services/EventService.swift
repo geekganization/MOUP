@@ -177,7 +177,7 @@ final class EventService: EventServiceProtocol {
                                         }, onError: { error in
                                             o.onError(error)
                                         })
-                                        .disposed(by: DisposeBag())
+                                        .disposed(by: self.disposeBag)
                                 }
                         }
                         return Disposables.create()
@@ -191,7 +191,7 @@ final class EventService: EventServiceProtocol {
                     }, onError: { error in
                         observer.onError(error)
                     })
-                    .disposed(by: DisposeBag())
+                    .disposed(by: self.disposeBag)
             }
             return Disposables.create()
         }

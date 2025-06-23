@@ -91,6 +91,13 @@ private extension DeleteAccountModalViewController {
         deleteAccountModal.onRequestDeleteAccount = { [weak self] in
             self?.confirmTappedSubject.onNext(())
         }
+        
+        let tapGesture = UITapGestureRecognizer(
+            target: self,
+            action: #selector(backgroundDidTap(_:))
+        )
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
     }
     
     func setBinding() {
@@ -167,6 +174,14 @@ private extension DeleteAccountModalViewController {
             })
         } catch {
             print("로그아웃 실패: \(error)")
+        }
+    }
+    
+    @objc func backgroundDidTap(_ sender: UITapGestureRecognizer) {
+        let location = sender.location(in: view)
+        
+        if deleteAccountModal.frame.contains(location) == false {
+            dismiss(animated: true)
         }
     }
 }

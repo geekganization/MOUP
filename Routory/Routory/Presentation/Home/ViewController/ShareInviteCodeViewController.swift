@@ -84,11 +84,11 @@ private extension ShareInviteCodeViewController {
             self?.dismiss(animated: true, completion: nil)
         }
         
-        shareInviteCodeView.copyInviteCodeButtonView.rx.tap
+        shareInviteCodeView.copyButtonView.rx.tap
             .bind { [weak self] in
                 guard let inviteCode = self?.inviteCode else { return }
                 UIPasteboard.general.string = inviteCode
-                self?.showAlert()
+                self?.shareInviteCodeView.update()
             }
             .disposed(by: disposeBag)
         
@@ -98,13 +98,6 @@ private extension ShareInviteCodeViewController {
         )
         tapGesture.cancelsTouchesInView = false
         view.addGestureRecognizer(tapGesture)
-    }
-    
-    // 임시로 alert로 해두었습니다.
-    func showAlert(title: String = "복사 완료", message: String = "초대 코드가 클립보드에 복사되었어요.") {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "확인", style: .default))
-        present(alert, animated: true)
     }
     
     @objc func backgroundDidTap(_ sender: UITapGestureRecognizer) {

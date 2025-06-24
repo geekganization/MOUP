@@ -99,7 +99,7 @@ extension WorkerListViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
-        // 데이터 받아와서 WorkerEditViewController 생성하기
+        // workerList[indexPath].WorkerDetail로 접근해서 데이터들로 WorkerEditViewController 생성하기
 
         let vc = WorkerEditViewController(
             navigationTitle: "홍길동",
@@ -130,6 +130,8 @@ extension WorkerListViewController: UITableViewDataSource, UITableViewDelegate {
             workerList.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .automatic)
             // 데이터(알바생) 삭제 로직
+            // deleteOrLeaveWorkplace에다
+            // workerplaceId랑 workerList[indexPath].id를 넘겨줘서 해당 데이터 삭제
         }
     }
 

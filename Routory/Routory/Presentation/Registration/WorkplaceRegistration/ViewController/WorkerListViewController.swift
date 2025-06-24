@@ -98,8 +98,10 @@ extension WorkerListViewController: UITableViewDataSource, UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        
+        // 데이터 받아와서 WorkerEditViewController 생성하기
 
-        let dummyVC = WorkerEditViewController(
+        let vc = WorkerEditViewController(
             navigationTitle: "홍길동",
             salaryTypeValue: "매월",
             salaryCalcValue: "고정",
@@ -120,13 +122,14 @@ extension WorkerListViewController: UITableViewDataSource, UITableViewDelegate {
             dotColor: UIColor(red: 1, green: 0.18, blue: 0.33, alpha: 1)
         )
 
-        navigationController?.pushViewController(dummyVC, animated: true)
+        navigationController?.pushViewController(vc, animated: true)
     }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             workerList.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .automatic)
+            // 데이터(알바생) 삭제 로직
         }
     }
 

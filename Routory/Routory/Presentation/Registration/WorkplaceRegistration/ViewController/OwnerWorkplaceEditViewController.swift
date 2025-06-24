@@ -38,20 +38,6 @@ final class OwnerWorkplaceEditViewController: UIViewController, UIGestureRecogni
         workPlaceID: String,
         nameValue: String?,
         categoryValue: String?,
-        salaryTypeValue: String,
-        salaryCalcValue: String,
-        fixedSalaryValue: String,
-        hourlyWageValue: String,
-        payDateValue: String,
-        payWeekdayValue: String,
-        isFourMajorSelected: Bool,
-        isNationalPensionSelected: Bool,
-        isHealthInsuranceSelected: Bool,
-        isEmploymentInsuranceSelected: Bool,
-        isIndustrialAccidentInsuranceSelected: Bool,
-        isIncomeTaxSelected: Bool,
-        isWeeklyAllowanceSelected: Bool,
-        isNightAllowanceSelected: Bool,
         labelTitle: String,
         showDot: Bool,
         dotColor: UIColor?
@@ -62,20 +48,20 @@ final class OwnerWorkplaceEditViewController: UIViewController, UIGestureRecogni
             isEdit: false,
             nameValue: nameValue,
             categoryValue: categoryValue,
-            salaryTypeValue: salaryTypeValue,
-            salaryCalcValue: salaryCalcValue,
-            fixedSalaryValue: fixedSalaryValue,
-            hourlyWageValue: hourlyWageValue,
-            payDateValue: payDateValue,
-            payWeekdayValue: payWeekdayValue,
-            isFourMajorSelected: isFourMajorSelected,
-            isNationalPensionSelected: isNationalPensionSelected,
-            isHealthInsuranceSelected: isHealthInsuranceSelected,
-            isEmploymentInsuranceSelected: isEmploymentInsuranceSelected,
-            isIndustrialAccidentInsuranceSelected: isIndustrialAccidentInsuranceSelected,
-            isIncomeTaxSelected: isIncomeTaxSelected,
-            isWeeklyAllowanceSelected: isWeeklyAllowanceSelected,
-            isNightAllowanceSelected: isNightAllowanceSelected,
+            salaryTypeValue: "매월",
+            salaryCalcValue: "고정",
+            fixedSalaryValue: "2,000,000",
+            hourlyWageValue: "12,000",
+            payDateValue: "15일",
+            payWeekdayValue: "금요일",
+            isFourMajorSelected: true,
+            isNationalPensionSelected: false,
+            isHealthInsuranceSelected: true,
+            isEmploymentInsuranceSelected: true,
+            isIndustrialAccidentInsuranceSelected: false,
+            isIncomeTaxSelected: true,
+            isWeeklyAllowanceSelected: false,
+            isNightAllowanceSelected: true,
             labelTitle: labelTitle,
             showDot: showDot,
             dotColor: dotColor,
@@ -171,7 +157,9 @@ final class OwnerWorkplaceEditViewController: UIViewController, UIGestureRecogni
             isOfficial: true
         )
         
+        // 업데이트 로직
         print(workplace,label)
+        
         //navigationController?.popViewController(animated: true)
     }
 }

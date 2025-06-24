@@ -224,6 +224,8 @@ final class WorkerEditViewController: UIViewController, UIGestureRecognizerDeleg
         print("레이블 색상:", labelColor.description)
         
         navigationController?.popViewController(animated: true)
+        
+        // 데이터 업데이트 로직 
     }
 }
 

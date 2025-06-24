@@ -27,6 +27,7 @@ extension WorkplaceRegistrationDelegateHandler: WorkplaceInfoViewDelegate {
         useCase.fetchWorkerListForWorkplace(workplaceId: workplaceId)
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] workerList in
+                // workerList로 교체
                 let vc = WorkerListViewController(workerList: [WorkerDetailInfo(
                     id: "abc123",
                     detail: WorkerDetail(

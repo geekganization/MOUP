@@ -98,5 +98,28 @@ extension WorkerListViewController: UITableViewDataSource, UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+
+        let dummyVC = WorkerEditViewController(
+            navigationTitle: "홍길동",
+            salaryTypeValue: "매월",
+            salaryCalcValue: "고정",
+            fixedSalaryValue: "3,000,000",
+            hourlyWageValue: "10,000",
+            payDateValue: "25일",
+            payWeekdayValue: "금요일",
+            isFourMajorSelected: true,
+            isNationalPensionSelected: true,
+            isHealthInsuranceSelected: true,
+            isEmploymentInsuranceSelected: true,
+            isIndustrialAccidentInsuranceSelected: true,
+            isIncomeTaxSelected: true,
+            isWeeklyAllowanceSelected: false,
+            isNightAllowanceSelected: true,
+            labelTitle: "빨간색",
+            showDot: true,
+            dotColor: UIColor(red: 1, green: 0.18, blue: 0.33, alpha: 1)
+        )
+
+        navigationController?.pushViewController(dummyVC, animated: true)
     }
 }

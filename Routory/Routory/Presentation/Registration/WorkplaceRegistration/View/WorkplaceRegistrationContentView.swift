@@ -20,6 +20,7 @@ final class WorkplaceRegistrationContentView: UIView {
     let registerButton = UIButton(type: .system)
     let registerBtnTitle: String
     let workplaceId: String
+    let isWorkerManagerShow: Bool
 
     private let stackView = UIStackView().then {
         $0.axis = .vertical
@@ -31,6 +32,7 @@ final class WorkplaceRegistrationContentView: UIView {
     init(
         workplaceId: String,
         isEdit: Bool,
+        isWorkerManagerShow: Bool,
         
         nameValue: String?,
         categoryValue: String?,
@@ -57,6 +59,8 @@ final class WorkplaceRegistrationContentView: UIView {
         
         registerBtnTitle: String
     ) {
+        self.isWorkerManagerShow = isWorkerManagerShow
+        
         self.workplaceInfoView = WorkplaceInfoView(
             nameValue: nameValue,
             categoryValue: categoryValue,
@@ -132,21 +136,25 @@ final class WorkplaceRegistrationContentView: UIView {
 }
 
 extension WorkplaceRegistrationContentView {
-    func setReadMode(_ isEdit: Bool) {
-        workplaceInfoView.isUserInteractionEnabled = !isEdit
-        salaryInfoView.isUserInteractionEnabled = !isEdit
-        workConditionView.isUserInteractionEnabled = !isEdit
-        labelView.isUserInteractionEnabled = !isEdit
-        registerButton.isHidden = isEdit
+    func setReadMode(_ isRead: Bool) {
+        workplaceInfoView.isUserInteractionEnabled = !isRead
+        salaryInfoView.isUserInteractionEnabled = !isRead
+        workConditionView.isUserInteractionEnabled = !isRead
+        labelView.isUserInteractionEnabled = !isRead
+        registerButton.isHidden = isRead
             
-        if isEdit {
+        if isRead {
             workplaceInfoView.disableEditing()
             workplaceInfoView.hideWorkerManagerRow()
             salaryInfoView.disableEditing()
             labelView.disableEditing()
         } else {
             workplaceInfoView.enableEditing()
-            workplaceInfoView.showWorkerManagerRow()
+            if isWorkerManagerShow {
+                workplaceInfoView.showWorkerManagerRow()
+            } else {
+                workplaceInfoView.hideWorkerManagerRow()
+            }
             salaryInfoView.enableEditing()
             labelView.enableEditing()
         }

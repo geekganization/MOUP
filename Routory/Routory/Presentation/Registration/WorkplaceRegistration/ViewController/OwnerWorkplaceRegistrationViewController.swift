@@ -64,6 +64,7 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
         self.contentView = WorkplaceRegistrationContentView(
             workplaceId: "",
             isEdit: isEdit,
+            isWorkerManagerShow: false,
             nameValue: nameValue,
             categoryValue: categoryValue,
             salaryTypeValue: salaryTypeValue,

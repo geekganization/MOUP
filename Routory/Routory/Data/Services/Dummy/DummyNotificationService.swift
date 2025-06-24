@@ -155,8 +155,8 @@ final class DummyNotificationService {
                     self.sendNotification(
                         uid: uid,
                         referenceId: referenceId,
-                        title: "곧 급여일이에요!",
-                        body: "이번 달 급여일은 \(payDay)일입니다.",
+                        title: "급여알림",
+                        body: "이번주는 급여일이에요!\n총 예상 급여는\(payDay)원이에요!",
                         type: "payday_reminder"
                     )
                 }
@@ -237,7 +237,7 @@ final class DummyNotificationService {
                         guard let startTime = data["startTime"] as? String,
                               let title = data["title"] as? String,
                               let eventMinutes = self.toMinutes(timeString: startTime),
-                              eventMinutes - nowMinutes == 60 // 시작 1시간 전인지 판단
+                              eventMinutes - nowMinutes <= 60 && eventMinutes - nowMinutes > 0
                         else {
                             continue // 조건 미충족 시 무시
                         }
@@ -253,8 +253,8 @@ final class DummyNotificationService {
                                     self.sendNotification(
                                         uid: uid,
                                         referenceId: referenceId,
-                                        title: "근무 1시간 전 알림",
-                                        body: "\(title) 근무는 \(startTime)에 시작합니다.",
+                                        title: "근무알림",
+                                        body: "오늘 \(startTime)시부터 \(title)에서\n근무가 있어요. 준비되셨나요?",
                                         type: "work_event"
                                     )
                                 }

@@ -31,10 +31,13 @@ final class OwnerWorkplaceEditViewController: UIViewController, UIGestureRecogni
     private let disposeBag = DisposeBag()
     
     private var isEdit: Bool
+    
+    private let workPlaceID: String
         
     // MARK: - Lifecycle
     
     init(
+        workPlaceID: String,
         isEdit: Bool,
         nameValue: String?,
         categoryValue: String?,
@@ -56,7 +59,9 @@ final class OwnerWorkplaceEditViewController: UIViewController, UIGestureRecogni
         showDot: Bool,
         dotColor: UIColor?
     ) {
+        self.workPlaceID = workPlaceID
         self.contentView = WorkplaceRegistrationContentView(
+            workplaceId: workPlaceID,
             isEdit: false,
             nameValue: nameValue,
             categoryValue: categoryValue,

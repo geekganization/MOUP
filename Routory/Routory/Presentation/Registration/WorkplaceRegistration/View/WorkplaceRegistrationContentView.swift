@@ -19,6 +19,7 @@ final class WorkplaceRegistrationContentView: UIView {
     let labelView: LabelView
     let registerButton = UIButton(type: .system)
     let registerBtnTitle: String
+    let workplaceId: String
 
     private let stackView = UIStackView().then {
         $0.axis = .vertical
@@ -28,6 +29,7 @@ final class WorkplaceRegistrationContentView: UIView {
     // MARK: - Initializer
 
     init(
+        workplaceId: String,
         isEdit: Bool,
         
         nameValue: String?,
@@ -57,7 +59,8 @@ final class WorkplaceRegistrationContentView: UIView {
     ) {
         self.workplaceInfoView = WorkplaceInfoView(
             nameValue: nameValue,
-            categoryValue: categoryValue
+            categoryValue: categoryValue,
+            workplaceId: workplaceId,
         )
         
         self.salaryInfoView = SalaryInfoView(
@@ -87,7 +90,7 @@ final class WorkplaceRegistrationContentView: UIView {
         )
         
         self.registerBtnTitle = registerBtnTitle
-
+        self.workplaceId = workplaceId
         super.init(frame: .zero)
         setupUI()
         layout()

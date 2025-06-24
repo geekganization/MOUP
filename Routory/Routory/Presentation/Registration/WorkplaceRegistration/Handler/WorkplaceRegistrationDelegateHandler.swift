@@ -6,11 +6,13 @@
 //
 
 import UIKit
+import RxSwift
 
 final class WorkplaceRegistrationDelegateHandler: NSObject {
     weak var contentView: WorkplaceRegistrationContentView?
     weak var navigationController: UINavigationController?
-
+    private let disposeBag = DisposeBag()
+    
     init(contentView: WorkplaceRegistrationContentView, navigationController: UINavigationController?) {
         self.contentView = contentView
         self.navigationController = navigationController
@@ -18,6 +20,40 @@ final class WorkplaceRegistrationDelegateHandler: NSObject {
 }
 
 extension WorkplaceRegistrationDelegateHandler: WorkplaceInfoViewDelegate {
+    
+    func didTapWorkerManagerRow(workplaceId: String) {
+        let useCase = WorkplaceUseCase(repository: WorkplaceRepository(service: WorkplaceService()))
+        
+        useCase.fetchWorkerListForWorkplace(workplaceId: workplaceId)
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] workerList in
+                let vc = WorkerListViewController(workerList: [WorkerDetailInfo(
+                    id: "abc123",
+                    detail: WorkerDetail(
+                        workerName: "김알바",
+                        wage: 10000,
+                        wageCalcMethod: "hourly",
+                        wageType: "시급제",
+                        weeklyAllowance: true,
+                        payDay: 10,
+                        payWeekday: "금요일",
+                        breakTimeMinutes: 30,
+                        employmentInsurance: true,
+                        healthInsurance: true,
+                        industrialAccident: true,
+                        nationalPension: false,
+                        incomeTax: true,
+                        nightAllowance: false,
+                        color: "#FF3366"
+                    )
+                )])
+                self?.navigationController?.pushViewController(vc, animated: true)
+            }, onError: { error in
+                print("알바생 목록 불러오기 실패: \(error.localizedDescription)")
+            })
+            .disposed(by: disposeBag)
+    }
+    
     func didTapNameRow() {
         let vc = TextInputViewController(
             title: "근무지 이름",

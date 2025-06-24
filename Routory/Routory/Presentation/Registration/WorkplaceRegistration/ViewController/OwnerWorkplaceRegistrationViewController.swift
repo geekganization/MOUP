@@ -62,6 +62,7 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
         self.isRegisterMode = isRegisterMode
         self.isEdit = isEdit
         self.contentView = WorkplaceRegistrationContentView(
+            workplaceId: "",
             isEdit: isEdit,
             nameValue: nameValue,
             categoryValue: categoryValue,

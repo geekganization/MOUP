@@ -104,6 +104,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
         self.isEdit = isEdit
 
         self.contentView = WorkplaceRegistrationContentView(
+            workplaceId: "",
             isEdit: isEdit,
             nameValue: nameValue,
             categoryValue: categoryValue,

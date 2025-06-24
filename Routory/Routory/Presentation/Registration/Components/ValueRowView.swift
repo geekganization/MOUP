@@ -27,7 +27,6 @@ final class ValueRowView: UIView {
     }
 
     private let dotView = UIView().then {
-        $0.backgroundColor = .systemRed
         $0.layer.cornerRadius = 4
         $0.snp.makeConstraints { $0.size.equalTo(8) }
     }
@@ -70,11 +69,14 @@ final class ValueRowView: UIView {
 
     // MARK: - Initializer
 
-    init(title: String, value: String?, showDot: Bool = false) {
+    init(title: String, value: String?, showDot: Bool = false, dotColor: UIColor? = nil) {
         super.init(frame: .zero)
         titleLabel.text = title
         valueLabel.text = value
         dotView.isHidden = !showDot
+        if let color = dotColor {
+            dotView.backgroundColor = color
+        }
         setupLayout()
         setupGesture()
     }
@@ -178,6 +180,6 @@ final class ValueRowView: UIView {
     /// 화살표(> 아이콘)의 표시 여부를 설정합니다.
     /// - Parameter hidden: true일 경우 화살표를 숨기고, false일 경우 표시합니다.
     func updateArrowHidden(_ hidden: Bool) {
-        arrow.isHidden = hidden
+        arrow.alpha = hidden ? 0 : 1
     }
 }

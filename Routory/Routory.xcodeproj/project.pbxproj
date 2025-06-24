@@ -245,6 +245,7 @@
 /* Begin XCBuildConfiguration section */
 		5B6E8D2B2DF17A36006B061E /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6A924698414119037D57527D /* Pods-Routory.debug.xcconfig */;
 			baseConfigurationReferenceAnchor = 5B6E8D192DF17A34006B061E /* Routory */;
 			baseConfigurationReferenceRelativePath = Resources/DebugConfig.xcconfig;
 			buildSettings = {
@@ -283,6 +284,7 @@
 		};
 		5B6E8D2C2DF17A36006B061E /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D9140A70FE20A2F4CBC5D583 /* Pods-Routory.release.xcconfig */;
 			baseConfigurationReferenceAnchor = 5B6E8D192DF17A34006B061E /* Routory */;
 			baseConfigurationReferenceRelativePath = Resources/ReleaseConfig.xcconfig;
 			buildSettings = {

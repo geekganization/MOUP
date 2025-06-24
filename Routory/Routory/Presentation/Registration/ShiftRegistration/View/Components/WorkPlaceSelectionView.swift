@@ -27,9 +27,8 @@ final class WorkPlaceSelectionView: UIView {
     
     private var workplaceID: String = ""
 
-    private let titleLabel = UILabel().then {
+    private lazy var titleLabel = UILabel().then {
         $0.font = .headBold(18)
-        $0.text = "근무지 선택"
         $0.textColor = .gray900
     }
 
@@ -47,8 +46,9 @@ final class WorkPlaceSelectionView: UIView {
 
     // MARK: - Initializers
 
-    init() {
+    init(title: String) {
         super.init(frame: .zero)
+        titleLabel.text = title
         setupLayout()
         setupGesture()
     }
@@ -112,5 +112,13 @@ final class WorkPlaceSelectionView: UIView {
     
     func getID() -> String {
         return self.workplaceID
+    }
+    
+    func setChevronHidden() {
+        chevronImageView.alpha = 0
+    }
+    
+    func setChevronVisible() {
+        chevronImageView.alpha = 1
     }
 }

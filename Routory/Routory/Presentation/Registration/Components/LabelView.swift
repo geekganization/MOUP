@@ -23,11 +23,22 @@ final class LabelView: UIView, ValueRowViewDelegate {
 
     weak var delegate: LabelViewDelegate?
 
-    private let redLabelRow = ValueRowView(title: "빨간색", value: nil, showDot: true)
+    private let redLabelRow: ValueRowView
 
     // MARK: - Initializers
 
-    init() {
+    init(
+        title: String,
+        value: String? = nil,
+        showDot: Bool,
+        dotColor: UIColor? = .systemRed
+    ) {
+        self.redLabelRow = ValueRowView(
+            title: title,
+            value: value,
+            showDot: showDot,
+            dotColor: dotColor
+        )
         super.init(frame: .zero)
         setup()
     }
@@ -79,5 +90,13 @@ final class LabelView: UIView, ValueRowViewDelegate {
 
     func getColorData() -> UIColor {
         return redLabelRow.getColorData()
+    }
+    
+    func disableEditing() {
+        redLabelRow.updateArrowHidden(true)
+    }
+    
+    func enableEditing() {
+        redLabelRow.updateArrowHidden(false)
     }
 }

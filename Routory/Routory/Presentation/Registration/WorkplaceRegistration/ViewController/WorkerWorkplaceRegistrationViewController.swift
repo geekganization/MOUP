@@ -25,11 +25,12 @@ enum WorkplaceRegistrationMode {
 final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestureRecognizerDelegate {
     
     private let scrollView = UIScrollView()
-    private let contentView = WorkplaceRegistrationContentView(workplaceTitle: "근무지 *")
+    
+    private let contentView: WorkplaceRegistrationContentView
     
     private var delegateHandler: WorkplaceRegistrationDelegateHandler?
     private var actionHandler: RegistrationActionHandler?
-    
+        
     fileprivate lazy var navigationBar = BaseNavigationBar(title: "새 근무지 등록") //*2
     
     private let viewModel = CreateWorkplaceViewModel(
@@ -41,14 +42,12 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
     )
     private let disposeBag = DisposeBag()
     
+    private let isRegisterMode: Bool
+    
+    private var isRead: Bool
+    
     /// 근무지 등록 방식 (직접 입력 or 초대코드 기반)
     private let mode: WorkplaceRegistrationMode
-    
-    /// 초대코드 플로우에서 전달받은 근무지 이름 (직접 입력 모드에서는 nil)
-    private let presetWorkplaceName: String?
-    
-    /// 초대코드 플로우에서 전달받은 카테고리 (직접 입력 모드에서는 nil)
-    private let presetCategory: String?
     
     /// `.inputOnly` 모드에서 사용자 입력이 완료되었을 때 호출되는 콜백입니다.
     /// 상위 VC로 `WorkerDetail` 정보를 전달합니다.
@@ -77,20 +76,79 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
     ///   - presetWorkplaceName: `.inputOnly` 모드에서 사용할 근무지 이름 (기본값: nil)
     ///   - presetCategory: `.inputOnly` 모드에서 사용할 카테고리 (기본값: nil)
     init(
+        isRegisterMode: Bool,
+        isRead: Bool,
         mode: WorkplaceRegistrationMode,
-        presetWorkplaceName: String? = nil,
-        presetCategory: String? = nil
+        nameValue: String?,
+        categoryValue: String?,
+        salaryTypeValue: String,
+        salaryCalcValue: String,
+        fixedSalaryValue: String,
+        hourlyWageValue: String,
+        payDateValue: String,
+        payWeekdayValue: String,
+        isFourMajorSelected: Bool,
+        isNationalPensionSelected: Bool,
+        isHealthInsuranceSelected: Bool,
+        isEmploymentInsuranceSelected: Bool,
+        isIndustrialAccidentInsuranceSelected: Bool,
+        isIncomeTaxSelected: Bool,
+        isWeeklyAllowanceSelected: Bool,
+        isNightAllowanceSelected: Bool,
+        labelTitle: String,
+        showDot: Bool,
+        dotColor: UIColor?
     ) {
         self.mode = mode
-        self.presetWorkplaceName = presetWorkplaceName
-        self.presetCategory = presetCategory
+        self.isRegisterMode = isRegisterMode
+        self.isRead = isRead
+
+        self.contentView = WorkplaceRegistrationContentView(
+            isRead: isRead,
+            nameValue: nameValue,
+            categoryValue: categoryValue,
+            salaryTypeValue: salaryTypeValue,
+            salaryCalcValue: salaryCalcValue,
+            fixedSalaryValue: fixedSalaryValue,
+            hourlyWageValue: hourlyWageValue,
+            payDateValue: payDateValue,
+            payWeekdayValue: payWeekdayValue,
+            isFourMajorSelected: isFourMajorSelected,
+            isNationalPensionSelected: isNationalPensionSelected,
+            isHealthInsuranceSelected: isHealthInsuranceSelected,
+            isEmploymentInsuranceSelected: isEmploymentInsuranceSelected,
+            isIndustrialAccidentInsuranceSelected: isIndustrialAccidentInsuranceSelected,
+            isIncomeTaxSelected: isIncomeTaxSelected,
+            isWeeklyAllowanceSelected: isWeeklyAllowanceSelected,
+            isNightAllowanceSelected: isNightAllowanceSelected,
+            labelTitle: labelTitle,
+            showDot: showDot,
+            dotColor: dotColor
+        )
+
         super.init(nibName: nil, bundle: nil)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     // MARK: - Setup
+    
+    private func updateRightBarButtonTitle() {
+        if isRegisterMode {
+            navigationBar.configureRightButton(icon: nil, title: nil, isHidden: true)
+            return
+        }
+        
+        let title = isRead ? "수정" : "읽기"
+        navigationBar.configureRightButton(icon: nil, title: title)
+    }
+    
+    private func toggleReadMode() {
+        isRead.toggle()
+        contentView.setReadMode(isRead)
+        updateRightBarButtonTitle()
+    }
     
     private func setupNavigationBar() {
         navigationBar.rx.backBtnTapped
@@ -98,6 +156,14 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
                 self?.navigationController?.popViewController(animated: true)
             })
             .disposed(by: disposeBag)
+
+        navigationBar.rx.rightBtnTapped
+            .subscribe(onNext: { [weak self] in
+                self?.toggleReadMode()
+            })
+            .disposed(by: disposeBag)
+
+        updateRightBarButtonTitle()
     }
     
     private func setupUI() {
@@ -116,12 +182,6 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
         contentView.registerButton.addTarget(self, action: #selector(didTapRegister), for: .touchUpInside)
         contentView.registerButton.addTarget(actionHandler, action: #selector(RegistrationActionHandler.buttonTouchDown(_:)), for: .touchDown)
         contentView.registerButton.addTarget(actionHandler, action: #selector(RegistrationActionHandler.buttonTouchUp(_:)), for: [.touchUpInside, .touchUpOutside, .touchCancel])
-        
-        // 초대코드 기반 플로우인 경우, 상위 VC에서 전달받은 근무지 이름과 카테고리를
-        // ContentView에 설정하고 편집 불가능하도록 처리
-        if mode == .inputOnly {
-            contentView.setPresetWorkplaceInfo(name: presetWorkplaceName ?? "", category: presetCategory ?? "")
-        }
         
         // 숨김 처리 - 기능 완성되면 나중에 지워야 함
         contentView.workConditionView.isHidden = true

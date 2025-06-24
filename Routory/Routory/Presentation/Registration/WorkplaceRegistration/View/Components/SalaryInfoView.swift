@@ -26,20 +26,35 @@ final class SalaryInfoView: UIView, ValueRowViewDelegate, FieldRowViewDelegate {
 
     weak var delegate: SalaryInfoViewDelegate?
 
-    private let typeRow = ValueRowView(title: "급여 유형", value: "매월")
-    private let calcRow = ValueRowView(title: "급여 계산", value: "고정")
-    private let fixedSalaryRow = ValueRowView(title: "고정급", value: "1,000,000")
-    private let hourlyWageRow = ValueRowView(title: "시급", value: "10,030")
-    private let payDateRow = FieldRowView(title: "급여일", value: "25일")
-    private let payWeekdayRow = FieldRowView(title: "급여일(요일)", value: "월요일")
+    private let typeRow: ValueRowView
+    private let calcRow: ValueRowView
+    private let fixedSalaryRow: ValueRowView
+    private let hourlyWageRow: ValueRowView
+    private let payDateRow: FieldRowView
+    private let payWeekdayRow: FieldRowView
     private let titleLabel = UILabel().then {
         $0.font = .headBold(18)
     }
 
     private var boxStackView: UIStackView!
 
-    init() {
+    init(
+        typeValue: String,
+        calcValue: String,
+        fixedSalaryValue: String,
+        hourlyWageValue: String,
+        payDateValue: String,
+        payWeekdayValue: String
+    ) {
+        self.typeRow = ValueRowView(title: "급여 유형", value: typeValue)
+        self.calcRow = ValueRowView(title: "급여 계산", value: calcValue)
+        self.fixedSalaryRow = ValueRowView(title: "고정급", value: fixedSalaryValue)
+        self.hourlyWageRow = ValueRowView(title: "시급", value: hourlyWageValue)
+        self.payDateRow = FieldRowView(title: "급여일", value: payDateValue)
+        self.payWeekdayRow = FieldRowView(title: "급여일(요일)", value: payWeekdayValue)
+
         super.init(frame: .zero)
+
         titleLabel.attributedText = makeTitleAttributedString(from: "급여 *")
         setup()
         updateVisibleSalaryRows()
@@ -183,5 +198,23 @@ final class SalaryInfoView: UIView, ValueRowViewDelegate, FieldRowViewDelegate {
 
     func getPayWeekdayValue() -> String {
         return payWeekdayRow.getData()
+    }
+    
+    func disableEditing() {
+        typeRow.updateArrowHidden(true)
+        calcRow.updateArrowHidden(true)
+        fixedSalaryRow.updateArrowHidden(true)
+        hourlyWageRow.updateArrowHidden(true)
+        payDateRow.setIsRead()
+        payWeekdayRow.setIsRead()
+    }
+    
+    func enableEditing() {
+        typeRow.updateArrowHidden(false)
+        calcRow.updateArrowHidden(false)
+        fixedSalaryRow.updateArrowHidden(false)
+        hourlyWageRow.updateArrowHidden(false)
+        payDateRow.setIsEditable()
+        payWeekdayRow.setIsEditable()
     }
 }

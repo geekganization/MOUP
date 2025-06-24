@@ -111,9 +111,33 @@ private extension InviteCodeViewController {
     /// 사용자가 추가 정보를 입력하고 돌아오면 클로저를 통해 `Workplace`와 `WorkerDetail`을 전달받아 상태를 `.result`로 업데이트합니다.
     @objc func workplaceSelectViewDidTap() {
         let workerWorkplaceRegistraitionVC = WorkerWorkplaceRegistrationViewController(
+            isRegisterMode: false,
+            isRead: true,
+            
             mode: .inputOnly,
-            presetWorkplaceName: selectedWorkplace?.workplace.workplacesName,
-            presetCategory: selectedWorkplace?.workplace.category
+            
+            nameValue: selectedWorkplace?.workplace.workplacesName,
+            categoryValue: selectedWorkplace?.workplace.category,
+
+            salaryTypeValue: "매주",
+            salaryCalcValue: "시급",
+            fixedSalaryValue: "0",
+            hourlyWageValue: "9,500",
+            payDateValue: "금요일",
+            payWeekdayValue: "금요일",
+            
+            isFourMajorSelected: false,
+            isNationalPensionSelected: false,
+            isHealthInsuranceSelected: false,
+            isEmploymentInsuranceSelected: false,
+            isIndustrialAccidentInsuranceSelected: false,
+            isIncomeTaxSelected: false,
+            isWeeklyAllowanceSelected: true,
+            isNightAllowanceSelected: false,
+            
+            labelTitle: "초록색",
+            showDot: true,
+            dotColor: .systemGreen
         )
         
         workerWorkplaceRegistraitionVC.onWorkplaceInfoPrepared = { [weak self] workerDetail in

@@ -30,15 +30,17 @@ final class WorkTimeView: UIView, FieldRowViewDelegate {
 
     weak var delegate: WorkTimeViewDelegate?
 
-    private let startRow = FieldRowView(title: "출근", value: "09:00")
-    private let endRow = FieldRowView(title: "퇴근", value: "18:00")
-    private let restRow = FieldRowView(title: "휴게", value: "1시간")
-    
+    private let startRow: FieldRowView
+    private let endRow: FieldRowView
+    private let restRow: FieldRowView
     private let titleLabel = UILabel()
 
     // MARK: - Initializers
 
-    init() {
+    init(startTime: String, endTime: String, restTime: String) {
+        self.startRow = FieldRowView(title: "출근", value: startTime)
+        self.endRow = FieldRowView(title: "퇴근", value: endTime)
+        self.restRow = FieldRowView(title: "휴게", value: restTime)
         super.init(frame: .zero)
         titleLabel.attributedText = makeTitleAttributedString(from: "근무시간 *")
         setup()
@@ -96,4 +98,16 @@ final class WorkTimeView: UIView, FieldRowViewDelegate {
     func getstartRowData() -> String { startRow.getData() }
     func getendRowData() -> String { endRow.getData() }
     func getrestRowData() -> String { restRow.getData() }
+    
+    func setIsRead() {
+        startRow.setIsRead()
+        endRow.setIsRead()
+        restRow.setIsRead()
+    }
+    
+    func setIsEditable() {
+        startRow.setIsEditable()
+        endRow.setIsEditable()
+        restRow.setIsEditable()
+    }
 }

@@ -16,15 +16,17 @@ final class WorkplaceInfoView: UIView, ValueRowViewDelegate {
 
     weak var delegate: WorkplaceInfoViewDelegate?
 
-    private let nameRow = ValueRowView(title: "이름", value: nil)
-    private let categoryRow = ValueRowView(title: "카테고리", value: nil)
+    private let nameRow: ValueRowView
+    private let categoryRow: ValueRowView
     private let titleLabel = UILabel().then {
         $0.font = .headBold(18)
     }
 
-    init(title: String) {
+    init(nameValue: String?, categoryValue: String?) {
+        self.nameRow = ValueRowView(title: "이름", value: nameValue)
+        self.categoryRow = ValueRowView(title: "카테고리", value: categoryValue)
         super.init(frame: .zero)
-        titleLabel.attributedText = makeTitleAttributedString(from: title)
+        titleLabel.attributedText = makeTitleAttributedString(from: "근무지 *")
         setup()
     }
 
@@ -77,13 +79,18 @@ final class WorkplaceInfoView: UIView, ValueRowViewDelegate {
     func getCategory() -> String {
         return categoryRow.getValueData()
     }
-    
-    /// 이름 및 카테고리 항목을 비활성화하여 사용자 입력을 막습니다.
-    /// - 텍스트 영역을 터치할 수 없도록 하고, 우측 화살표 아이콘도 숨깁니다.
+
     func disableEditing() {
         nameRow.isUserInteractionEnabled = false
         nameRow.updateArrowHidden(true)
         categoryRow.isUserInteractionEnabled = false
         categoryRow.updateArrowHidden(true)
+    }
+    
+    func enableEditing() {
+        nameRow.isUserInteractionEnabled = true
+        nameRow.updateArrowHidden(false)
+        categoryRow.isUserInteractionEnabled = true
+        categoryRow.updateArrowHidden(false)
     }
 }

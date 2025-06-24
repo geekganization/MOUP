@@ -11,13 +11,15 @@ import Then
 
 final class ShiftRegistrationContentView: UIView {
 
-    let simpleRowView = WorkPlaceSelectionView()
-    let workerSelectionView = WorkerSelectionView()
-    let routineView = RoutineView()
-    let workDateView = WorkDateView()
-    let workTimeView = WorkTimeView()
-    let labelView = LabelView()
-    let memoBoxView = MemoBoxView()
+    // MARK: - Subviews
+
+    var isRead: Bool
+    let simpleRowView: WorkPlaceSelectionView
+    let workerSelectionView: WorkerSelectionView
+    let routineView: RoutineView
+    let workDateView: WorkDateView
+    let workTimeView: WorkTimeView
+    let memoBoxView: MemoBoxView
     let registerButton = UIButton(type: .system)
 
     private let stackView = UIStackView().then {
@@ -25,20 +27,51 @@ final class ShiftRegistrationContentView: UIView {
         $0.spacing = 24
     }
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    // MARK: - Initializer
+
+    init(
+        isRead: Bool,
+        workPlaceTitle: String,
+        workerTitle: String,
+        routineTitle: String,
+        dateValue: String,
+        repeatValue: String,
+        startTime: String,
+        endTime: String,
+        restTime: String,
+        memoPlaceholder: String
+    ) {
+        self.isRead = isRead
+        self.simpleRowView = WorkPlaceSelectionView(title: workPlaceTitle)
+        self.workerSelectionView = WorkerSelectionView(title: workerTitle)
+        self.routineView = RoutineView(title: routineTitle)
+        self.workDateView = WorkDateView(dateValue: dateValue, repeatValue: repeatValue)
+        self.workTimeView = WorkTimeView(startTime: startTime, endTime: endTime, restTime: restTime)
+        self.memoBoxView = MemoBoxView(placeholder: memoPlaceholder)
+
+        super.init(frame: .zero)
         setupUI()
         layout()
+        setReadMode(isRead)
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: - Setup
+
     private func setupUI() {
         addSubview(stackView)
-        [simpleRowView, workerSelectionView, workDateView, workTimeView, routineView, labelView, memoBoxView, registerButton]
-            .forEach { stackView.addArrangedSubview($0) }
+        [
+            simpleRowView,
+            workerSelectionView,
+            workDateView,
+            workTimeView,
+            routineView,
+            memoBoxView,
+            registerButton
+        ].forEach { stackView.addArrangedSubview($0) }
 
         registerButton.setTitle("등록하기", for: .normal)
         registerButton.setTitleColor(.primary50, for: .normal)
@@ -54,6 +87,34 @@ final class ShiftRegistrationContentView: UIView {
     private func layout() {
         stackView.snp.makeConstraints {
             $0.edges.equalToSuperview()
+        }
+    }
+}
+
+extension ShiftRegistrationContentView {
+    func setReadMode(_ isRead: Bool) {
+        self.isRead = isRead
+        
+        simpleRowView.isUserInteractionEnabled = !isRead
+        workerSelectionView.isUserInteractionEnabled = !isRead
+        routineView.isUserInteractionEnabled = !isRead
+        workDateView.isUserInteractionEnabled = !isRead
+        workTimeView.isUserInteractionEnabled = !isRead
+        memoBoxView.isUserInteractionEnabled = !isRead
+        registerButton.isHidden = isRead
+
+        if isRead {
+            simpleRowView.setChevronHidden()
+            workerSelectionView.setChevronHidden()
+            routineView.setChevronHidden()
+            workDateView.setIsRead()
+            workTimeView.setIsRead()
+        } else {
+            simpleRowView.setChevronVisible()
+            workerSelectionView.setChevronVisible()
+            routineView.setChevronVisible()
+            workDateView.setIsEditable()
+            workTimeView.setIsEditable()
         }
     }
 }

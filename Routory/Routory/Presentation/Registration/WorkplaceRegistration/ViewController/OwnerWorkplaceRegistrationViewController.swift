@@ -15,7 +15,7 @@ import FirebaseAuth
 final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestureRecognizerDelegate {
     
     private let scrollView = UIScrollView()
-    private let contentView = WorkplaceRegistrationContentView(workplaceTitle: "매장 *")
+    private let contentView: WorkplaceRegistrationContentView
     
     private var delegateHandler: WorkplaceRegistrationDelegateHandler?
     private var actionHandler: RegistrationActionHandler?
@@ -30,7 +30,65 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
     )
     private let disposeBag = DisposeBag()
     
+    private var isRead: Bool
+    
+    private let isRegisterMode: Bool
+    
     // MARK: - Lifecycle
+    
+    init(
+        isRegisterMode: Bool,
+        isRead: Bool,
+        nameValue: String?,
+        categoryValue: String?,
+        salaryTypeValue: String,
+        salaryCalcValue: String,
+        fixedSalaryValue: String,
+        hourlyWageValue: String,
+        payDateValue: String,
+        payWeekdayValue: String,
+        isFourMajorSelected: Bool,
+        isNationalPensionSelected: Bool,
+        isHealthInsuranceSelected: Bool,
+        isEmploymentInsuranceSelected: Bool,
+        isIndustrialAccidentInsuranceSelected: Bool,
+        isIncomeTaxSelected: Bool,
+        isWeeklyAllowanceSelected: Bool,
+        isNightAllowanceSelected: Bool,
+        labelTitle: String,
+        showDot: Bool,
+        dotColor: UIColor?
+    ) {
+        self.isRegisterMode = isRegisterMode
+        self.isRead = isRead
+        self.contentView = WorkplaceRegistrationContentView(
+            isRead: isRead,
+            nameValue: nameValue,
+            categoryValue: categoryValue,
+            salaryTypeValue: salaryTypeValue,
+            salaryCalcValue: salaryCalcValue,
+            fixedSalaryValue: fixedSalaryValue,
+            hourlyWageValue: hourlyWageValue,
+            payDateValue: payDateValue,
+            payWeekdayValue: payWeekdayValue,
+            isFourMajorSelected: isFourMajorSelected,
+            isNationalPensionSelected: isNationalPensionSelected,
+            isHealthInsuranceSelected: isHealthInsuranceSelected,
+            isEmploymentInsuranceSelected: isEmploymentInsuranceSelected,
+            isIndustrialAccidentInsuranceSelected: isIndustrialAccidentInsuranceSelected,
+            isIncomeTaxSelected: isIncomeTaxSelected,
+            isWeeklyAllowanceSelected: isWeeklyAllowanceSelected,
+            isNightAllowanceSelected: isNightAllowanceSelected,
+            labelTitle: labelTitle,
+            showDot: showDot,
+            dotColor: dotColor
+        )
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -47,12 +105,36 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
     
     // MARK: - Setup
     
+    private func updateRightBarButtonTitle() {
+        if isRegisterMode {
+            navigationBar.configureRightButton(icon: nil, title: nil, isHidden: true)
+            return
+        }
+        
+        let title = isRead ? "수정" : "읽기"
+        navigationBar.configureRightButton(icon: nil, title: title)
+    }
+    
+    private func toggleReadMode() {
+        isRead.toggle()
+        contentView.setReadMode(isRead)
+        updateRightBarButtonTitle()
+    }
+    
     private func setupNavigationBar() {
         navigationBar.rx.backBtnTapped
             .subscribe(onNext: { [weak self] in
                 self?.navigationController?.popViewController(animated: true)
             })
             .disposed(by: disposeBag)
+
+        navigationBar.rx.rightBtnTapped
+            .subscribe(onNext: { [weak self] in
+                self?.toggleReadMode()
+            })
+            .disposed(by: disposeBag)
+
+        updateRightBarButtonTitle()
     }
     
     private func setupUI() {

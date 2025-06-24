@@ -13,9 +13,13 @@ import FirebaseAuth
 final class WorkShiftRegistrationViewController: UIViewController, UIGestureRecognizerDelegate {
 
     weak var delegate: RegistrationVCDelegate?
+    
+    private let isRegisterMode: Bool
+    
+    private var isRead: Bool
 
     private let scrollView = UIScrollView()
-    private let contentView = ShiftRegistrationContentView()
+    private let contentView: ShiftRegistrationContentView
     private var delegateHandler: ShiftRegistrationDelegateHandler?
     private var actionHandler: RegistrationActionHandler?
     private var keyboardHandler: KeyboardInsetHandler?
@@ -32,6 +36,40 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
     private let registrationViewModel = ShiftRegistrationViewModel(calendarUseCase: CalendarUseCase(repository: CalendarRepository(calendarService: CalendarService())))
 
     private let submitTrigger = PublishSubject<(String, CalendarEvent)>()
+    
+    init(
+        isRegisterMode: Bool,
+        isRead: Bool,
+        workPlaceTitle: String,
+        workerTitle: String,
+        routineTitle: String,
+        dateValue: String,
+        repeatValue: String,
+        startTime: String,
+        endTime: String,
+        restTime: String,
+        memoPlaceholder: String
+    ) {
+        self.isRegisterMode = isRegisterMode
+        self.isRead = isRead
+        self.contentView = ShiftRegistrationContentView(
+            isRead: isRead,
+            workPlaceTitle: workPlaceTitle,
+            workerTitle: workerTitle,
+            routineTitle: routineTitle,
+            dateValue: dateValue,
+            repeatValue: repeatValue,
+            startTime: startTime,
+            endTime: endTime,
+            restTime: restTime,
+            memoPlaceholder: memoPlaceholder
+        )
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -65,6 +103,22 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
         if self.isMovingFromParent {
             delegate?.registrationVCIsMovingFromParent()
         }
+    }
+    
+    private func updateRightBarButtonTitle() {
+        if isRegisterMode {
+            navigationBar.configureRightButton(icon: nil, title: nil, isHidden: true)
+            return
+        }
+        
+        let title = isRead ? "수정" : "읽기"
+        navigationBar.configureRightButton(icon: nil, title: title)
+    }
+    
+    private func toggleReadMode() {
+        isRead.toggle()
+        contentView.setReadMode(isRead)
+        updateRightBarButtonTitle()
     }
 
     private func bindViewModel() {
@@ -106,12 +160,10 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
 
         contentView.simpleRowView.delegate = delegateHandler
         contentView.routineView.delegate = delegateHandler
-        contentView.labelView.delegate = delegateHandler
         contentView.workDateView.delegate = delegateHandler
         contentView.workTimeView.delegate = delegateHandler
 
         contentView.workerSelectionView.isHidden = true
-        contentView.labelView.isHidden = true
 
         contentView.registerButton.addTarget(self, action: #selector(didTapRegister), for: .touchUpInside)
         contentView.registerButton.addTarget(actionHandler, action: #selector(RegistrationActionHandler.buttonTouchDown(_:)), for: .touchDown)
@@ -124,6 +176,14 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
                 self?.navigationController?.popViewController(animated: true)
             })
             .disposed(by: disposeBag)
+        
+        navigationBar.rx.rightBtnTapped
+            .subscribe(onNext: { [weak self] in
+                self?.toggleReadMode()
+            })
+            .disposed(by: disposeBag)
+        
+        updateRightBarButtonTitle()
     }
 
     private func layout() {

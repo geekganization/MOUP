@@ -47,7 +47,7 @@ extension WorkplaceRegistrationDelegateHandler: WorkplaceInfoViewDelegate {
                         nightAllowance: false,
                         color: "#FF3366"
                     )
-                )])
+                )],workerPlaceId: workplaceId)
                 self?.navigationController?.pushViewController(vc, animated: true)
             }, onError: { error in
                 print("알바생 목록 불러오기 실패: \(error.localizedDescription)")

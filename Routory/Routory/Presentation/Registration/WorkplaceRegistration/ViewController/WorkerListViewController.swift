@@ -21,7 +21,7 @@ final class WorkerListViewController: UIViewController, UIGestureRecognizerDeleg
 
     // MARK: - Init
 
-    init(workerList: [WorkerDetailInfo]) {
+    init(workerList: [WorkerDetailInfo],workerPlaceId: String) {
         self.workerList = workerList
         super.init(nibName: nil, bundle: nil)
     }

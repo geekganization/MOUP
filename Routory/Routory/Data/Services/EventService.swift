@@ -102,7 +102,6 @@ final class EventService: EventServiceProtocol {
                 let workplaceIds = snapshot?.documents.map { $0.documentID } ?? []
                 if workplaceIds.isEmpty {
                     observer.onNext([])
-                    observer.onCompleted()
                     return
                 }
                 
@@ -151,7 +150,6 @@ final class EventService: EventServiceProtocol {
                                                                 } catch { return nil }
                                                             } ?? []
                                                             eventObserver.onNext(events)
-                                                            eventObserver.onCompleted()
                                                         }
                                                     // 이벤트 리스너 해제
                                                     return Disposables.create {
@@ -237,21 +235,19 @@ final class EventService: EventServiceProtocol {
         month: Int,
         day: Int?
     ) -> Observable<(personal: [CalendarEvent], shared: [CalendarEvent])> {
-        // 1. 내 근무지 id 조회(users/{uid}/workplaces)
         let workplacesRef = db.collection("users").document(uid).collection("workplaces")
         
         return Observable.create { observer in
-            workplacesRef.addSnapshotListener { snapshot, error in
+            let workplacesListener = workplacesRef.addSnapshotListener { snapshot, error in
                 if let error = error {
                     observer.onError(error)
                     return
                 }
                 let workplaceIds = snapshot?.documents.map { $0.documentID } ?? []
-                
-                // 2. 근무지별로 캘린더 ID 추출 (isShared 플래그로 분류)
+
                 let calendarQueryObservables = workplaceIds.map { workplaceId in
                     Observable<([String], [String])>.create { calendarObserver in
-                        self.db.collection("calendars")
+                        let listener = self.db.collection("calendars")
                             .whereField("workplaceId", isEqualTo: workplaceId)
                             .addSnapshotListener { snap, error in
                                 if let error = error {
@@ -270,12 +266,10 @@ final class EventService: EventServiceProtocol {
                                     }
                                 }
                                 calendarObserver.onNext((personalCalendarIds, sharedCalendarIds))
-                                calendarObserver.onCompleted()
                             }
-                        return Disposables.create()
+                        return Disposables.create { listener.remove() }
                     }
                 }
-                
                 // 3. 모든 캘린더 id를 평탄화
                 Observable.zip(calendarQueryObservables)
                     .flatMap { calendarIdTuples -> Observable<([String], [String])> in
@@ -283,7 +277,7 @@ final class EventService: EventServiceProtocol {
                         let sharedIds = calendarIdTuples.flatMap { $0.1 }
                         return .just((personalIds, sharedIds))
                     }
-                // 4. 각 캘린더별로 이벤트 쿼리 (월 or 일 단위)
+                    // 4. 각 캘린더별로 이벤트 쿼리 (월 or 일 단위)
                     .flatMap { (personalIds, sharedIds) -> Observable<([CalendarEvent], [CalendarEvent])> in
                         let fetchEvents: ([String]) -> [Observable<[CalendarEvent]>] = { ids in
                             ids.map { calendarId in
@@ -296,7 +290,7 @@ final class EventService: EventServiceProtocol {
                                     if let day = day {
                                         query = query.whereField("day", isEqualTo: day)
                                     }
-                                    query.addSnapshotListener { snap, error in
+                                    let eventListener = query.addSnapshotListener { snap, error in
                                         if let error = error {
                                             eventObserver.onError(error)
                                             return
@@ -311,36 +305,32 @@ final class EventService: EventServiceProtocol {
                                             }
                                         } ?? []
                                         eventObserver.onNext(events)
-                                        eventObserver.onCompleted()
                                     }
-                                    return Disposables.create()
+                                    return Disposables.create { eventListener.remove() }
                                 }
                             }
                         }
-                        // 5. 쿼리 결과 zip & flatMap
-                        // 보완된 분기 처리
                         let personalEventsObs: Observable<[CalendarEvent]> =
                         personalIds.isEmpty
-                        ? .just([])
-                        : Observable.zip(fetchEvents(personalIds)).map { $0.flatMap { $0 } }
+                            ? .just([])
+                            : Observable.zip(fetchEvents(personalIds)).map { $0.flatMap { $0 } }
                         let sharedEventsObs: Observable<[CalendarEvent]> =
                         sharedIds.isEmpty
-                        ? .just([])
-                        : Observable.zip(fetchEvents(sharedIds)).map { $0.flatMap { $0 } }
+                            ? .just([])
+                            : Observable.zip(fetchEvents(sharedIds)).map { $0.flatMap { $0 } }
                         return Observable.zip(personalEventsObs, sharedEventsObs)
                     }
-                // 6. Rx 최종 반환
                     .subscribe(onNext: { (personalEvents, sharedEvents) in
                         observer.onNext((personal: personalEvents, shared: sharedEvents))
-                        observer.onCompleted()
                     }, onError: { error in
                         observer.onError(error)
                     })
                     .disposed(by: self.disposeBag)
             }
-            return Disposables.create()
+            return Disposables.create { workplacesListener.remove() }
         }
     }
+
     
     static func calculateWorkedHours(start: String, end: String) -> Double {
         // 예: "09:00" ~ "18:00" -> Double 시간 반환

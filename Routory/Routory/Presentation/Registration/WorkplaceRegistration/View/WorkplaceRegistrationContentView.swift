@@ -18,6 +18,7 @@ final class WorkplaceRegistrationContentView: UIView {
     let workConditionView: WorkConditionView
     let labelView: LabelView
     let registerButton = UIButton(type: .system)
+    let registerBtnTitle: String
 
     private let stackView = UIStackView().then {
         $0.axis = .vertical
@@ -50,7 +51,9 @@ final class WorkplaceRegistrationContentView: UIView {
 
         labelTitle: String,
         showDot: Bool,
-        dotColor: UIColor?
+        dotColor: UIColor?,
+        
+        registerBtnTitle: String
     ) {
         self.workplaceInfoView = WorkplaceInfoView(
             nameValue: nameValue,
@@ -82,6 +85,8 @@ final class WorkplaceRegistrationContentView: UIView {
             showDot: showDot,
             dotColor: dotColor
         )
+        
+        self.registerBtnTitle = registerBtnTitle
 
         super.init(frame: .zero)
         setupUI()
@@ -101,7 +106,7 @@ final class WorkplaceRegistrationContentView: UIView {
         [workplaceInfoView, salaryInfoView, workConditionView, labelView, registerButton]
             .forEach { stackView.addArrangedSubview($0) }
 
-        registerButton.setTitle("등록하기", for: .normal)
+        registerButton.setTitle(registerBtnTitle, for: .normal)
         registerButton.setTitleColor(.primary50, for: .normal)
         registerButton.backgroundColor = .primary500
         registerButton.titleLabel?.font = .buttonSemibold(18)

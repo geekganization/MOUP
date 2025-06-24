@@ -86,7 +86,8 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
             startTime: startTime,
             endTime: endTime,
             restTime: restTime,
-            memoPlaceholder: memoPlaceholder
+            memoPlaceholder: memoPlaceholder,
+            registerBtnTitle: isRead ? "적용하기" : "등록하기"
         )
         super.init(nibName: nil, bundle: nil)
     }

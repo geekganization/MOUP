@@ -123,7 +123,8 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
             isNightAllowanceSelected: isNightAllowanceSelected,
             labelTitle: labelTitle,
             showDot: showDot,
-            dotColor: dotColor
+            dotColor: dotColor,
+            registerBtnTitle: isRead ? "적용하기" : "등록하기"
         )
 
         super.init(nibName: nil, bundle: nil)

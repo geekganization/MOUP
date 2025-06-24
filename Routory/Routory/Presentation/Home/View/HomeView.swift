@@ -24,6 +24,13 @@ final class HomeView: UIView {
         config.contentInsets = .init(top: 13.75, leading: 12.98, bottom: 13.75, trailing: 12.98)
         $0.configuration = config
     }
+    
+    fileprivate let notificationButton = UIButton().then {
+        var config = UIButton.Configuration.plain()
+        config.image = .bellWithDot.withTintColor(.gray700, renderingMode: .alwaysOriginal)
+        config.contentInsets = .init(top: 13.75, leading: 12.98, bottom: 13.75, trailing: 12.98)
+        $0.configuration = config
+    }
 
     private let homeHeaderView = HomeHeaderView()
     
@@ -63,7 +70,7 @@ private extension HomeView {
 
     func setHierarchy() {
         addSubviews(homeNavigationBar, tableView)
-        homeNavigationBar.addSubviews(logoImageView, refreshButton)
+        homeNavigationBar.addSubviews(logoImageView, refreshButton, notificationButton)
     }
 
     func setStyles() {
@@ -85,6 +92,12 @@ private extension HomeView {
         }
 
         refreshButton.snp.makeConstraints {
+            $0.trailing.equalTo(notificationButton.snp.leading).inset(7)
+            $0.centerY.equalToSuperview()
+            $0.size.equalTo(44)
+        }
+        
+        notificationButton.snp.makeConstraints {
             $0.trailing.equalToSuperview().inset(7)
             $0.centerY.equalToSuperview()
             $0.size.equalTo(44)
@@ -139,5 +152,9 @@ extension Reactive where Base: HomeView {
 
     var refreshButtonTapped: ControlEvent<Void> {
         return base.refreshButton.rx.tap
+    }
+    
+    var notificationButtonTapped: ControlEvent<Void> {
+        return base.notificationButton.rx.tap
     }
 }

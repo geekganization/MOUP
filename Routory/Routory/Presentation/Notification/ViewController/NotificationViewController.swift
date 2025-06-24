@@ -43,6 +43,7 @@ class NotificationViewController: UIViewController {
         super.viewDidLoad()
 
         configure()
+        viewDidLoadRelay.accept(())
     }
 }
 
@@ -56,13 +57,17 @@ private extension NotificationViewController {
         view.backgroundColor = .primaryBackground
     }
 
-    func setBindings() {
-        viewDidLoadRelay.accept(())
+    func setBindings() {        
+//        viewDidLoadRelay.accept(())
 
         notificationView.rx.setDelegates
             .onNext(self)
 
-        output.notifications.bind(to: notificationView.rx.bindItems)
+//        output.notifications.bind(to: notificationView.rx.bindItems)
+//            .disposed(by: disposeBag)
+        
+        output.notifications
+            .bind(to: notificationView.rx.bindItems)
             .disposed(by: disposeBag)
 
         notificationView.rx.backBtnTapped

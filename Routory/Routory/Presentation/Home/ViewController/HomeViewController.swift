@@ -166,6 +166,18 @@ private extension HomeViewController {
             })
             .bind(to: refreshBtnTappedRelay)
             .disposed(by: disposeBag)
+        
+        homeView.rx.notificationButtonTapped
+            .subscribe(onNext: { [weak self] in
+                guard let self else { return }
+                
+                let notificationService = DummyNotificationService()
+                let viewModel = NotificationViewModel(notificationService: notificationService)
+                let vc = NotificationViewController(viewModel: viewModel)
+                
+                self.navigationController?.pushViewController(vc, animated: true)
+            })
+            .disposed(by: disposeBag)
 
         // ViewModel의 Output을 ViewController의 상태에 반영
         output.expandedIndexPath

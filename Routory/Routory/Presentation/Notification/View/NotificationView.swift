@@ -73,6 +73,7 @@ private extension NotificationView {
 extension Reactive where Base: NotificationView {
     var setDelegates: Binder<UITableViewDelegate> {
         return Binder(base) { view, delegate in
+            view.tableView.delegate = nil
             view.tableView.rx.setDelegate(delegate)
                 .disposed(by: view.disposeBag)
         }
@@ -80,6 +81,7 @@ extension Reactive where Base: NotificationView {
 
     var bindItems: Binder<[DummyNotification]> {
         return Binder(base) { view, notifications in
+            view.tableView.dataSource = nil
             Observable.just(notifications)
                 .bind(to: view.tableView.rx.items) { tableView, index, notification in
                     switch notification.type {

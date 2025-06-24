@@ -70,7 +70,7 @@ class MyStoreCell: UITableViewCell {
 
         storeNameLabel.text = nil
         daysUntilPaydayLabel.text = nil
-        totalLaborCostLabel.text = nil;
+        totalLaborCostLabel.text = nil
         menuButton.menu = nil
     }
 

@@ -200,7 +200,7 @@ extension HomeViewController: UITableViewDelegate {
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { headerData, userType in
                 print("headerData: \(headerData)")
-                print("🔥 구독 실행! ID: \(UUID().uuidString.prefix(8))")
+                print("구독 실행, ID: \(UUID().uuidString.prefix(8))")
                 headerView.update(with: headerData, userType: userType)
             }) // TODO: - viewForHeaderInSection 다중 호출 특성으로 인한 다중 구독 해결
             .disposed(by: disposeBag)

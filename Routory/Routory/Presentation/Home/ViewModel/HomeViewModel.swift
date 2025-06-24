@@ -170,37 +170,10 @@ final class HomeViewModel {
         }
 
         return Observable.combineLatest (
-            self.workplaceUseCase.fetchAllWorkplacesForUser(uid: userId)
-                .do(onNext: { result in
-                    print("🏢 근무지 API 성공: \(result.count)개")
-                })
-                .do(onError: { error in
-                    print("🏢 근무지 API 실패: \(error)")
-                }),
-
-            self.workplaceUseCase.fetchMonthlyWorkSummary(uid: userId, year: currentYear, month: currentMonth)
-                .do(onNext: { result in
-                    print("📊 이번달 요약 API 성공: \(result.count)개")
-                })
-                .do(onError: { error in
-                    print("📊 이번달 요약 API 실패: \(error)")
-                }),
-
-            self.workplaceUseCase.fetchMonthlyWorkSummary(uid: userId, year: previousYear, month: previousMonth)
-                .do(onNext: { result in
-                    print("📈 지난달 요약 API 성공: \(result.count)개")
-                })
-                .do(onError: { error in
-                    print("📈 지난달 요약 API 실패: \(error)")
-                }),
-
+            self.workplaceUseCase.fetchAllWorkplacesForUser(uid: userId),
+            self.workplaceUseCase.fetchMonthlyWorkSummary(uid: userId, year: currentYear, month: currentMonth),
+            self.workplaceUseCase.fetchMonthlyWorkSummary(uid: userId, year: previousYear, month: previousMonth),
             routineUseCase.fetchTodayRoutineEventsGroupedByWorkplace(uid: userId, date: Date())
-                .do(onNext: { result in
-                    print("🔄 루틴 API 성공: \(result)")
-                })
-                .do(onError: { error in
-                    print("🔄 루틴 API 실패: \(error)")
-                })
                 .catchAndReturn([:])
         )
         .map { workplaces, currentSummaries, previousSummaries, todayRoutines in

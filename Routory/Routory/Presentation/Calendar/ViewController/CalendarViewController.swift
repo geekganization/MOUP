@@ -252,6 +252,7 @@ private extension CalendarViewController {
         for model in calendarModelLists.shared {
             let event = model.eventInfo.calendarEvent
             guard let eventDate = dataSourceDateFormatter.date(from: event.eventDate) else { continue }
+            personalEventDataSource[eventDate, default: []].append(model)
             sharedEventDataSource[eventDate, default: []].append(model)
         }
         

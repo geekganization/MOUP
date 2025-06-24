@@ -305,11 +305,11 @@ extension CalendarViewController: JTACMonthViewDelegate {
     func calendar(_ calendar: JTAppleCalendar.JTACMonthView, willDisplay cell: JTAppleCalendar.JTACDayCell, forItemAt date: Date, cellState: JTAppleCalendar.CellState, indexPath: IndexPath) {
         switch calendarMode.value {
         case .personal:
-            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarMode: calendarMode.value, calendarModelList: personalEventDataSource[date] ?? [])
+            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarMode: calendarMode.value, modelList: personalEventDataSource[date] ?? [])
         case .shared:
 //            let workerIdList = sharedEventDataSource[date, default: []].map { $0.createdBy }
 //            eventCreatedBy.accept(workerIdList)
-            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarMode: calendarMode.value, calendarModelList: sharedEventDataSource[date] ?? [])
+            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarMode: calendarMode.value, modelList: sharedEventDataSource[date] ?? [])
         }
     }
     
@@ -343,10 +343,10 @@ extension CalendarViewController: JTACMonthViewDelegate {
         let day = Calendar.current.component(.day, from: date)
         switch calendarMode.value {
         case .personal:
-            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarMode: calendarMode.value, calendarModelList: personalEventDataSource[date] ?? [])
+            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarMode: calendarMode.value, modelList: personalEventDataSource[date] ?? [])
             didSelectCell(day: day, calendarModelList: personalEventDataSource[date] ?? [])
         case .shared:
-            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarMode: calendarMode.value, calendarModelList: sharedEventDataSource[date] ?? [])
+            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarMode: calendarMode.value, modelList: sharedEventDataSource[date] ?? [])
             didSelectCell(day: day, calendarModelList: sharedEventDataSource[date] ?? [])
         }
     }
@@ -356,9 +356,9 @@ extension CalendarViewController: JTACMonthViewDelegate {
         
         switch calendarMode.value {
         case .personal:
-            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarMode: calendarMode.value, calendarModelList: personalEventDataSource[date] ?? [])
+            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarMode: calendarMode.value, modelList: personalEventDataSource[date] ?? [])
         case .shared:
-            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarMode: calendarMode.value, calendarModelList: sharedEventDataSource[date] ?? [])
+            calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarMode: calendarMode.value, modelList: sharedEventDataSource[date] ?? [])
         }
         self.navigationController?.presentedViewController?.dismiss(animated: true)
     }

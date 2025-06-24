@@ -74,7 +74,7 @@ final class CalendarDayCell: JTACDayCell {
     
     // MARK: - Methods
     
-    func update(date: String, isSaturday: Bool, isSunday: Bool, isToday: Bool, calendarMode: CalendarMode, calendarModelList: [CalendarModel]?) {
+    func update(date: String, isSaturday: Bool, isSunday: Bool, isToday: Bool, calendarMode: CalendarMode, modelList: [CalendarModel]?) {
         dayLabel.text = date
         dayLabel.textColor = isSunday ? .sundayText : .gray900
         
@@ -91,17 +91,17 @@ final class CalendarDayCell: JTACDayCell {
         
         eventVStackView.subviews.forEach { $0.isHidden = true }
         
-        if let calendarModelList {
-            if calendarModelList.isEmpty {
+        if let modelList {
+            if modelList.isEmpty {
                 eventVStackView.isHidden = true
             } else {
                 eventVStackView.isHidden = false
                 
-                if (calendarMode == .shared) && calendarModelList.count > 3 {
-                    otherEventLabel.text = "+\(calendarModelList.count - 3)"
+                if (calendarMode == .shared) && modelList.count > 3 {
+                    otherEventLabel.text = "+\(modelList.count - 3)"
                     otherEventLabel.isHidden = false
                 }
-                for (index, model) in calendarModelList.enumerated() {
+                for (index, model) in modelList.enumerated() {
                     if index > ((calendarMode == .shared) ? 2 : 1) {
                         break
                     } else {

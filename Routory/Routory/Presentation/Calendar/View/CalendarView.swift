@@ -135,11 +135,11 @@ extension CalendarView {
     /// - Parameters:
     ///   - cell: 구성할 `JTACDayCell` 인스턴스 (`JTACalendarDayCell`로 캐스팅됨).
     ///   - cellState: 셀의 상태 정보를 담은 `CellState`.
-    func configureCell(cell: JTACDayCell?, date: Date, cellState: CellState, calendarMode: CalendarMode, calendarModelList: [CalendarModel]) {
+    func configureCell(cell: JTACDayCell?, date: Date, cellState: CellState, calendarMode: CalendarMode, modelList: [CalendarModel]) {
         guard let cell = cell as? CalendarDayCell else { return }
         handleCellColor(cell: cell, cellState: cellState)
         handleCellSelection(cell: cell, cellState: cellState)
-        handleCellEvents(cell: cell, date: date, cellState: cellState, calendarMode: calendarMode, calendarModelList: calendarModelList)
+        handleCellEvents(cell: cell, date: date, cellState: cellState, calendarMode: calendarMode, modelList: modelList)
     }
     
     /// 셀에서 `seperatorView`를 제외한 UI 컴포넌트 표시 여부 및 상호작용 가능 여부를 설정합니다.
@@ -172,7 +172,7 @@ extension CalendarView {
         }
     }
     
-    func handleCellEvents(cell: CalendarDayCell, date: Date, cellState: CellState, calendarMode: CalendarMode, calendarModelList: [CalendarModel]) {
+    func handleCellEvents(cell: CalendarDayCell, date: Date, cellState: CellState, calendarMode: CalendarMode, modelList: [CalendarModel]) {
         let isToday = Calendar.current.isDateInToday(date) ? true : false
         
         // TODO: CalendarEvent, UserWorkplace와 WorkCalendar.isShared, WorkerDetail에서 필요한 데이터만 뽑아서 전달해야 함
@@ -181,6 +181,6 @@ extension CalendarView {
                     isSunday: cellState.day.rawValue == 1,
                     isToday: isToday,
                     calendarMode: calendarMode,
-                    calendarModelList: calendarModelList)
+                    modelList: modelList)
     }
 }

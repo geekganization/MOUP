@@ -18,7 +18,7 @@ final class EventCell: UITableViewCell {
     
     // MARK: - UI Components
     
-    private let workplaceLabel = UILabel().then {
+    private let workplaceOrNameLabel = UILabel().then {
         $0.textColor = .gray900
         $0.font = .bodyMedium(16)
     }
@@ -85,14 +85,14 @@ final class EventCell: UITableViewCell {
     
     // MARK: - Methods
     
-    func update(calendarModel: CalendarModel, calendarMode: CalendarMode) {
-        workplaceLabel.text = calendarModel.workplaceName
+    func update(model: CalendarModel, calendarMode: CalendarMode) {
+        workplaceOrNameLabel.text = calendarMode == .personal ? model.workplaceName : model.workerName
         
-        sharedChipLabel.isHidden = !calendarModel.isOfficial
+        sharedChipLabel.isHidden = !model.isOfficial
         
-        let startTime = calendarModel.eventInfo.calendarEvent.startTime
-        let endTime = calendarModel.eventInfo.calendarEvent.endTime
-        let workHour = DateFormatter.hourDiffDecimal(from: startTime, to: endTime, break: calendarModel.breakTimeMinutes.rawValue)
+        let startTime = model.eventInfo.calendarEvent.startTime
+        let endTime = model.eventInfo.calendarEvent.endTime
+        let workHour = DateFormatter.hourDiffDecimal(from: startTime, to: endTime, break: model.breakTimeMinutes.rawValue)
         if let hour = workHour?.hours,
            let min = workHour?.minutes {
             if min == 0 {
@@ -103,18 +103,18 @@ final class EventCell: UITableViewCell {
         }
         
         if let userId = UserManager.shared.firebaseUid {
-            ellipsisButton.isHidden = !(calendarModel.eventInfo.calendarEvent.createdBy == userId)
-            dailyWageLabel.isHidden = !(calendarModel.eventInfo.calendarEvent.createdBy == userId)
+            ellipsisButton.isHidden = !(model.eventInfo.calendarEvent.createdBy == userId)
+            dailyWageLabel.isHidden = !(model.eventInfo.calendarEvent.createdBy == userId)
         } else {
             ellipsisButton.isHidden = true
             dailyWageLabel.isHidden = true
         }
         
-        if calendarModel.wageType == "시급" {
-            let dailyWage = Int(Double(calendarModel.wage) * (workHour?.decimal ?? 0.0))
+        if model.wageType == "시급" {
+            let dailyWage = Int(Double(model.wage) * (workHour?.decimal ?? 0.0))
             let formatted = NumberFormatter.decimalFormatter.string(for: dailyWage) ?? "?"
             dailyWageLabel.text = "\(formatted)원"
-        } else if calendarModel.wageType == "고정" {
+        } else if model.wageType == "고정" {
             dailyWageLabel.text = "고정급"
         }
     }
@@ -133,7 +133,7 @@ private extension EventCell {
         self.contentView.addSubviews(leadingVStackView, ellipsisButton,
                                      dailyWageLabel)
         
-        workplaceChipHStackView.addArrangedSubviews(workplaceLabel, sharedChipLabel)
+        workplaceChipHStackView.addArrangedSubviews(workplaceOrNameLabel, sharedChipLabel)
         
         leadingVStackView.addArrangedSubviews(workplaceChipHStackView,
                                               workHourLabel)
@@ -149,7 +149,7 @@ private extension EventCell {
             $0.leading.equalToSuperview().inset(16)
         }
         
-        workplaceLabel.snp.makeConstraints {
+        workplaceOrNameLabel.snp.makeConstraints {
             $0.height.equalTo(24)
         }
         

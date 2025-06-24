@@ -95,7 +95,7 @@ private extension CalendarEventListViewController {
             .drive(calendarEventListView.getEventTableView.rx.items(
                 cellIdentifier: EventCell.identifier, cellType: EventCell.self)) { [weak self] index, model, cell in
                     guard let self else { return }
-                    cell.update(calendarModel: model, calendarMode: calendarMode)
+                    cell.update(model: model, calendarMode: calendarMode)
                     
                     let deleteAction = UIAction(title: "삭제하기", attributes: .destructive) { _ in
                         let alert = UIAlertController(title: "근무 삭제", message: "\(model.workplaceName) 근무를 삭제할까요?", preferredStyle: .alert)

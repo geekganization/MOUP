@@ -469,7 +469,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                     
                     // 1. workplaces/{workplaceId}/workers/{myUid}
                     let workerRef = self.db.collection("workplaces").document(workplaceId)
-                        .collection("workers").document(uid)
+                        .collection("worker").document(uid)
                     batch.deleteDocument(workerRef)
                     
                     // 2. users/{myUid}/workplaces/{workplaceId} (내 workplaces 문서 삭제)
@@ -529,7 +529,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
     /// 오너일 때 전체 삭제
     private func deleteWorkplaceAndReferences(workplaceId: String, calendarId: String?) -> Observable<Void> {
         // 1. workers 서브컬렉션 모든 문서 삭제 + uid 목록 수집
-        let workersRef = self.db.collection("workplaces").document(workplaceId).collection("workers")
+        let workersRef = self.db.collection("workplaces").document(workplaceId).collection("worker")
         let deleteWorkersObs = Observable<[String]>.create { observer in
             workersRef.getDocuments { snapshot, error in
                 if let error = error {

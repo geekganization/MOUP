@@ -9,6 +9,7 @@ import Foundation
 
 struct StoreCellInfo {
     // 공유 여부
+    let id: String
     let isOfficial: Bool
 
     // 상단 고정 요소

@@ -8,6 +8,8 @@
 import Foundation
 
 struct WorkplaceCellInfo {
+    let id: String
+
     // 공유 여부
     let isOfficial: Bool
 

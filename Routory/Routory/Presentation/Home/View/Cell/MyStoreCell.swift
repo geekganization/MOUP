@@ -34,7 +34,7 @@ class MyStoreCell: UITableViewCell {
     fileprivate let menuButton = UIButton().then {
         var config = UIButton.Configuration.plain()
         config.image = .ellipsis.withTintColor(.gray700, renderingMode: .alwaysOriginal)
-        config.contentInsets = .init(top: 20, leading: 12, bottom: 19.7, trailing: 12)
+        config.contentInsets = .init(top: 5, leading: 5, bottom: 5, trailing: 5)
         $0.configuration = config
     }
 
@@ -70,7 +70,7 @@ class MyStoreCell: UITableViewCell {
 
         storeNameLabel.text = nil
         daysUntilPaydayLabel.text = nil
-        totalLaborCostLabel.text = nil;
+        totalLaborCostLabel.text = nil
         menuButton.menu = nil
     }
 

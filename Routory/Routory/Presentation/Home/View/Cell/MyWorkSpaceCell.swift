@@ -36,7 +36,7 @@ class MyWorkSpaceCell: UITableViewCell {
     fileprivate let menuButton = UIButton().then {
         var config = UIButton.Configuration.plain()
         config.image = .ellipsis.withTintColor(.gray700, renderingMode: .alwaysOriginal)
-        config.contentInsets = .init(top: 20, leading: 12, bottom: 19.7, trailing: 12)
+        config.contentInsets = .init(top: 5, leading: 5, bottom: 5, trailing: 5)
         $0.configuration = config
     }
 
@@ -103,9 +103,10 @@ class MyWorkSpaceCell: UITableViewCell {
     func update(with workplaceInfo: WorkplaceCellInfo, isExpanded: Bool, menuActions: [UIAction]) {
         print("셀 업데이트: \(workplaceInfo.storeName), isExpanded: \(isExpanded)")
         storeNameLabel.text = workplaceInfo.storeName
-//        officialChip.isHidden = !workplaceInfo.isOfficial
+        officialChip.isHidden = !workplaceInfo.isOfficial
         daysUntilPaydayLabel.text = "급여일까지 D-\(workplaceInfo.daysUntilPayday)"
-        totalEarnedLabel.text = "현재까지 \(workplaceInfo.totalEarned.withComma)원"
+        setTotalEarnedLabel(amount: workplaceInfo.totalEarned.withComma)
+//        totalEarnedLabel.text = "현재까지 \(workplaceInfo.totalEarned.withComma)원"
 
 //        totalWorkRow.update(title: "총 근무", time: workplaceInfo.totalWorkTime, amount: workplaceInfo.totalWorkPay, isLabelBold: true, showBottomLine: true, useDarkBottomLine: true)
 //
@@ -264,6 +265,29 @@ private extension MyWorkSpaceCell {
 
         self.menuButton.menu = menu
         self.menuButton.showsMenuAsPrimaryAction = true
+    }
+
+    // MARK: - 컴포넌트 스타일 적용 메서드
+    private func setTotalEarnedLabel(amount: String) {
+        let fullText = "현재까지 \(amount)원"
+
+        var attributedString = AttributedString(fullText)
+
+        var baseContainer = AttributeContainer()
+        baseContainer.font = .bodyMedium(14)
+        baseContainer.foregroundColor = .gray900
+
+        var boldContainer = AttributeContainer()
+        boldContainer.font = .headBold(16)
+        boldContainer.foregroundColor = .gray900
+
+        attributedString.setAttributes(baseContainer)
+
+        if let range = attributedString.range(of: amount) {
+            attributedString[range].setAttributes(boldContainer)
+        }
+
+        totalEarnedLabel.attributedText = NSAttributedString(attributedString)
     }
 }
 

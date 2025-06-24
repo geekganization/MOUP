@@ -72,12 +72,12 @@ private extension InfoViewController {
     func setActions() {
         infoView.navigationBarView.backButtonView.addTarget(
             self,
-            action: #selector(backButonDidTap),
+            action: #selector(backButtonDidTap),
             for: .touchUpInside
         )
     }
     
-    @objc func backButonDidTap() {
+    @objc func backButtonDidTap() {
         navigationController?.popViewController(animated: true)
     }
 }

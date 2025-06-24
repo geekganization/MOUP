@@ -166,6 +166,17 @@ private extension HomeViewController {
             })
             .bind(to: refreshBtnTappedRelay)
             .disposed(by: disposeBag)
+        
+        homeView.rx.notificationButtonTapped
+            .subscribe(onNext: { [weak self] in
+                guard let self else { return }
+                guard let uid = UserManager.shared.firebaseUid else { return }
+                let viewModel = NotificationViewModel(uid: uid)
+                let vc = NotificationViewController(viewModel: viewModel)
+                
+                self.navigationController?.pushViewController(vc, animated: true)
+            })
+            .disposed(by: disposeBag)
 
         // ViewModel의 Output을 ViewController의 상태에 반영
         output.expandedIndexPath
@@ -220,7 +231,9 @@ extension HomeViewController: UITableViewDelegate {
             }).disposed(by: disposeBag)
         
         headerView.rx.plusButtonTapped
-            .subscribe(onNext: {
+            .subscribe(onNext: { [weak self] in
+                guard let self,
+                      self.presentedViewController == nil else { return }
                 let workplaceAddModalVC = WorkplaceAddModalViewController()
                 let nav = UINavigationController(rootViewController: workplaceAddModalVC)
                 nav.modalPresentationStyle = .overFullScreen

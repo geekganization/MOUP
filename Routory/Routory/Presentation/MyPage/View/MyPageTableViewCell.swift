@@ -28,7 +28,7 @@ final class MyPageTableViewCell: UITableViewCell {
         $0.contentMode = .scaleAspectFit
     }
     
-    private let seperatorView = UIView().then {
+    private let separatorView = UIView().then {
         $0.backgroundColor = UIColor.gray400
     }
     
@@ -65,7 +65,7 @@ private extension MyPageTableViewCell {
         addSubviews(
             titleLabel,
             rightArrow,
-            seperatorView
+            separatorView
         )
     }
     
@@ -86,7 +86,7 @@ private extension MyPageTableViewCell {
             $0.trailing.equalToSuperview().inset(16)
         }
         
-        seperatorView.snp.makeConstraints {
+        separatorView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview()
             $0.bottom.equalToSuperview()
             $0.height.equalTo(1)

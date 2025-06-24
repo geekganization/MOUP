@@ -30,7 +30,7 @@ final class WorkplaceAddModalView: UIView {
         $0.textColor = .gray900
     }
     
-    private let seperatorView = UIView().then {
+    private let separatorView = UIView().then {
         $0.backgroundColor = .gray300
     }
     
@@ -61,9 +61,21 @@ final class WorkplaceAddModalView: UIView {
         configure()
     }
     
-    @available(*, unavailable, message: "storyboard is not supported.")
+    @available(*, unavailable, message: "Storyboard is not supported")
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func updateLayoutForOwner() {
+        titleLabel.text = "새 매장 등록"
+        
+        inviteCodeButtonView.isHidden = true
+
+        manualInputButtonView.snp.remakeConstraints {
+            $0.top.equalTo(titleView.snp.bottom).offset(12)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.height.equalTo(45)
+        }
     }
 }
 
@@ -81,7 +93,7 @@ private extension WorkplaceAddModalView {
         titleView.addSubviews(
             handleView,
             titleLabel,
-            seperatorView
+            separatorView
         )
         
         addSubviews(
@@ -110,7 +122,7 @@ private extension WorkplaceAddModalView {
             $0.leading.equalTo(16)
         }
         
-        seperatorView.snp.makeConstraints {
+        separatorView.snp.makeConstraints {
             $0.height.equalTo(1)
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.bottom.equalToSuperview()

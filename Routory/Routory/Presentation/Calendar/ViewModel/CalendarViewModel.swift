@@ -71,7 +71,7 @@ final class CalendarViewModel {
                                 }
                             }
                             for sharedEventList in workplaceSummary.sharedSummary.values {
-                                for event in sharedEventList.events {
+                                for event in sharedEventList.events  {
                                     calendarModelList.shared.append(CalendarModel(workplaceId: workplaceSummary.workplaceId,
                                                                                   workplaceName: workplaceSummary.workplaceName,
                                                                                   isOfficial: workplaceSummary.isOfficial,
@@ -112,7 +112,9 @@ final class CalendarViewModel {
 // MARK: - Private Methods
 
 private extension CalendarViewModel {
-    func eventSort(_ lhs: CalendarEvent, _ rhs: CalendarEvent ) -> Bool {
-        return lhs.eventDate < rhs.eventDate || lhs.startTime < rhs.startTime || lhs.endTime < rhs.endTime
+    func calendarEventInfoSort(_ lhs: CalendarEventInfo, _ rhs: CalendarEventInfo ) -> Bool {
+        return lhs.calendarEvent.eventDate < rhs.calendarEvent.eventDate
+        || lhs.calendarEvent.startTime < rhs.calendarEvent.startTime
+        || lhs.calendarEvent.endTime < rhs.calendarEvent.endTime
     }
 }

@@ -111,7 +111,7 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
             return
         }
         
-        let title = isRead ? "수정" : "읽기"
+        let title = isRead ? "수정" : ""
         navigationBar.configureRightButton(icon: nil, title: title)
     }
     
@@ -180,6 +180,7 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
         navigationBar.rx.rightBtnTapped
             .subscribe(onNext: { [weak self] in
                 self?.toggleReadMode()
+                self?.navigationBar.configureRightButton(icon: nil, title: nil, isHidden: true)
             })
             .disposed(by: disposeBag)
         
@@ -223,7 +224,7 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
         guard let userId = Auth.auth().currentUser?.uid else {
               print("유저 ID를 찾을 수 없습니다.")
               return
-            }
+        }
 
         let event = CalendarEvent(
             title: workPlace,

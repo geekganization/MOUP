@@ -140,7 +140,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
             return
         }
         
-        let title = isRead ? "수정" : "읽기"
+        let title = isRead ? "수정" : ""
         navigationBar.configureRightButton(icon: nil, title: title)
     }
     
@@ -160,6 +160,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
         navigationBar.rx.rightBtnTapped
             .subscribe(onNext: { [weak self] in
                 self?.toggleReadMode()
+                self?.navigationBar.configureRightButton(icon: nil, title: nil, isHidden: true)
             })
             .disposed(by: disposeBag)
 

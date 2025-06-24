@@ -402,8 +402,8 @@ extension CalendarViewController: CalendarEventListVCDelegate {
             case .success(let user):
                 if user.role == UserRole.worker.rawValue {
                     let workShiftRegisterVC = WorkShiftRegistrationViewController(
-                        isRegisterMode: true,
-                        isRead: false,
+                        isRegisterMode: false,
+                        isRead: true,
                         workPlaceTitle: "근무지 수정",
                         workerTitle: "인원 선택",
                         routineTitle: "루틴 추가",

@@ -44,7 +44,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
     
     private let isRegisterMode: Bool
     
-    private var isRead: Bool
+    private var isEdit: Bool
     
     /// 근무지 등록 방식 (직접 입력 or 초대코드 기반)
     private let mode: WorkplaceRegistrationMode
@@ -77,7 +77,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
     ///   - presetCategory: `.inputOnly` 모드에서 사용할 카테고리 (기본값: nil)
     init(
         isRegisterMode: Bool,
-        isRead: Bool,
+        isEdit: Bool,
         mode: WorkplaceRegistrationMode,
         nameValue: String?,
         categoryValue: String?,
@@ -101,10 +101,10 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
     ) {
         self.mode = mode
         self.isRegisterMode = isRegisterMode
-        self.isRead = isRead
+        self.isEdit = isEdit
 
         self.contentView = WorkplaceRegistrationContentView(
-            isRead: isRead,
+            isEdit: isEdit,
             nameValue: nameValue,
             categoryValue: categoryValue,
             salaryTypeValue: salaryTypeValue,
@@ -124,7 +124,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
             labelTitle: labelTitle,
             showDot: showDot,
             dotColor: dotColor,
-            registerBtnTitle: isRead ? "적용하기" : "등록하기"
+            registerBtnTitle: isEdit ? "적용하기" : "등록하기"
         )
 
         super.init(nibName: nil, bundle: nil)
@@ -141,13 +141,13 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
             return
         }
         
-        let title = isRead ? "수정" : ""
+        let title = isEdit ? "수정" : ""
         navigationBar.configureRightButton(icon: nil, title: title)
     }
     
     private func toggleReadMode() {
-        isRead.toggle()
-        contentView.setReadMode(isRead)
+        isEdit.toggle()
+        contentView.setReadMode(isEdit)
         updateRightBarButtonTitle()
     }
     

@@ -18,6 +18,7 @@ final class WorkplaceInfoView: UIView, ValueRowViewDelegate {
 
     private let nameRow: ValueRowView
     private let categoryRow: ValueRowView
+    private let workerManagerRow: ValueRowView
     private let titleLabel = UILabel().then {
         $0.font = .headBold(18)
     }
@@ -25,6 +26,7 @@ final class WorkplaceInfoView: UIView, ValueRowViewDelegate {
     init(nameValue: String?, categoryValue: String?) {
         self.nameRow = ValueRowView(title: "이름", value: nameValue)
         self.categoryRow = ValueRowView(title: "카테고리", value: categoryValue)
+        self.workerManagerRow = ValueRowView(title: "알바생 관리", value: nil)
         super.init(frame: .zero)
         titleLabel.attributedText = makeTitleAttributedString(from: "근무지 *")
         setup()
@@ -38,7 +40,7 @@ final class WorkplaceInfoView: UIView, ValueRowViewDelegate {
         nameRow.delegate = self
         categoryRow.delegate = self
 
-        let box = makeBoxedStackView(with: [nameRow, categoryRow])
+        let box = makeBoxedStackView(with: [nameRow, categoryRow,workerManagerRow])
 
         let stack = UIStackView(arrangedSubviews: [titleLabel, box]).then {
             $0.axis = .vertical
@@ -92,5 +94,13 @@ final class WorkplaceInfoView: UIView, ValueRowViewDelegate {
         nameRow.updateArrowHidden(false)
         categoryRow.isUserInteractionEnabled = true
         categoryRow.updateArrowHidden(false)
+    }
+    
+    func hideWorkerManagerRow() {
+        workerManagerRow.isHidden = true
+    }
+
+    func showWorkerManagerRow() {
+        workerManagerRow.isHidden = false
     }
 }

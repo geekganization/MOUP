@@ -112,7 +112,7 @@ private extension InviteCodeViewController {
     @objc func workplaceSelectViewDidTap() {
         let workerWorkplaceRegistraitionVC = WorkerWorkplaceRegistrationViewController(
             isRegisterMode: false,
-            isRead: true,
+            isEdit: true,
             
             mode: .inputOnly,
             

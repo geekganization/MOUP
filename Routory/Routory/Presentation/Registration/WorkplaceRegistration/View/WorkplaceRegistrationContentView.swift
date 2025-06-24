@@ -28,7 +28,7 @@ final class WorkplaceRegistrationContentView: UIView {
     // MARK: - Initializer
 
     init(
-        isRead: Bool,
+        isEdit: Bool,
         
         nameValue: String?,
         categoryValue: String?,
@@ -91,7 +91,7 @@ final class WorkplaceRegistrationContentView: UIView {
         super.init(frame: .zero)
         setupUI()
         layout()
-        setReadMode(isRead)
+        setReadMode(isEdit)
     }
 
     required init?(coder: NSCoder) {
@@ -129,19 +129,21 @@ final class WorkplaceRegistrationContentView: UIView {
 }
 
 extension WorkplaceRegistrationContentView {
-    func setReadMode(_ isRead: Bool) {
-        workplaceInfoView.isUserInteractionEnabled = !isRead
-        salaryInfoView.isUserInteractionEnabled = !isRead
-        workConditionView.isUserInteractionEnabled = !isRead
-        labelView.isUserInteractionEnabled = !isRead
-        registerButton.isHidden = isRead
+    func setReadMode(_ isEdit: Bool) {
+        workplaceInfoView.isUserInteractionEnabled = !isEdit
+        salaryInfoView.isUserInteractionEnabled = !isEdit
+        workConditionView.isUserInteractionEnabled = !isEdit
+        labelView.isUserInteractionEnabled = !isEdit
+        registerButton.isHidden = isEdit
             
-        if isRead {
+        if isEdit {
             workplaceInfoView.disableEditing()
+            workplaceInfoView.hideWorkerManagerRow()
             salaryInfoView.disableEditing()
             labelView.disableEditing()
         } else {
             workplaceInfoView.enableEditing()
+            workplaceInfoView.showWorkerManagerRow()
             salaryInfoView.enableEditing()
             labelView.enableEditing()
         }

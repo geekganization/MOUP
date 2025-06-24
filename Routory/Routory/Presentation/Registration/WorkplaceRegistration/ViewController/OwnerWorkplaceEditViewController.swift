@@ -1,8 +1,8 @@
 //
-//  OwnerWorkplaceRegistrationViewController.swift
+//  OwnerWorkplaceEditViewController.swift
 //  Routory
 //
-//  Created by tlswo on 6/14/25.
+//  Created by tlswo on 6/24/25.
 //
 
 import UIKit
@@ -12,7 +12,7 @@ import RxSwift
 import RxCocoa
 import FirebaseAuth
 
-final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestureRecognizerDelegate {
+final class OwnerWorkplaceEditViewController: UIViewController, UIGestureRecognizerDelegate {
     
     private let scrollView = UIScrollView()
     private let contentView: WorkplaceRegistrationContentView
@@ -20,7 +20,7 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
     private var delegateHandler: WorkplaceRegistrationDelegateHandler?
     private var actionHandler: RegistrationActionHandler?
     
-    fileprivate lazy var navigationBar = BaseNavigationBar(title: "새 매장 등록")
+    fileprivate var navigationBar: BaseNavigationBar
     private let viewModel = CreateWorkplaceViewModel(
         useCase: WorkplaceUseCase(
             repository: WorkplaceRepository(
@@ -31,13 +31,10 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
     private let disposeBag = DisposeBag()
     
     private var isEdit: Bool
-    
-    private let isRegisterMode: Bool
-    
+        
     // MARK: - Lifecycle
     
     init(
-        isRegisterMode: Bool,
         isEdit: Bool,
         nameValue: String?,
         categoryValue: String?,
@@ -59,10 +56,8 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
         showDot: Bool,
         dotColor: UIColor?
     ) {
-        self.isRegisterMode = isRegisterMode
-        self.isEdit = isEdit
         self.contentView = WorkplaceRegistrationContentView(
-            isEdit: isEdit,
+            isEdit: false,
             nameValue: nameValue,
             categoryValue: categoryValue,
             salaryTypeValue: salaryTypeValue,
@@ -82,8 +77,10 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
             labelTitle: labelTitle,
             showDot: showDot,
             dotColor: dotColor,
-            registerBtnTitle: isEdit ? "적용하기" : "등록하기"
+            registerBtnTitle: "적용하기"
         )
+        self.isEdit = isEdit
+        navigationBar = BaseNavigationBar(title: nameValue ?? "매장 수정")
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -106,37 +103,12 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
     
     // MARK: - Setup
     
-    private func updateRightBarButtonTitle() {
-        if isRegisterMode {
-            navigationBar.configureRightButton(icon: nil, title: nil, isHidden: true)
-            return
-        }
-        
-        let title = isEdit ? "수정" : ""
-        navigationBar.configureRightButton(icon: nil, title: title)
-    }
-    
-    private func toggleReadMode() {
-        isEdit.toggle()
-        contentView.setReadMode(isEdit)
-        updateRightBarButtonTitle()
-    }
-    
     private func setupNavigationBar() {
         navigationBar.rx.backBtnTapped
             .subscribe(onNext: { [weak self] in
                 self?.navigationController?.popViewController(animated: true)
             })
             .disposed(by: disposeBag)
-
-        navigationBar.rx.rightBtnTapped
-            .subscribe(onNext: { [weak self] in
-                self?.toggleReadMode()
-                self?.navigationBar.configureRightButton(icon: nil, title: nil, isHidden: true)
-            })
-            .disposed(by: disposeBag)
-
-        updateRightBarButtonTitle()
     }
     
     private func setupUI() {

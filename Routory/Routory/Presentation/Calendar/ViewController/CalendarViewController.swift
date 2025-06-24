@@ -27,6 +27,7 @@ final class CalendarViewController: UIViewController {
     private let calendarMode = BehaviorRelay<CalendarMode>(value: .personal)
     
     private let filterWorkplace = BehaviorRelay<String>(value: "전체 보기")
+    private let eventCreatedBy = PublishRelay<[String]>()
     
     /// `calendarView`에서 `dataSource` 관련 데이터의 연/월 형식을 만들기 위한 `DateFormatter`
     private let dataSourceDateFormatter = DateFormatter().then {
@@ -146,7 +147,8 @@ private extension CalendarViewController {
         // MARK: - Input (ViewController ➡️ ViewModel)
         
         let input = CalendarViewModel.Input(loadMonthEvent: visibleYearMonth.asObservable(),
-                                            filterWorkplace: filterWorkplace.asObservable())
+                                            filterWorkplace: filterWorkplace.asObservable(),
+                                            eventCreatedBy: eventCreatedBy.asObservable())
         
         // MARK: - Output (ViewModel ➡️ ViewController)
         
@@ -161,7 +163,7 @@ private extension CalendarViewController {
         output.workplaceWorkSummaryDailyListRelay
             .asDriver(onErrorJustReturn: [])
             .drive(with: self) { owner, workplaceWorkSummaryList in
-                
+//                dump(workplaceWorkSummaryList)
             }.disposed(by: disposeBag)
     }
 }
@@ -284,6 +286,8 @@ extension CalendarViewController: JTACMonthViewDelegate {
         case .personal:
             calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarMode: calendarMode.value, calendarEventList: personalEventDataSource[date] ?? [])
         case .shared:
+            let workerIdList = sharedEventDataSource[date, default: []].map { $0.createdBy }
+            eventCreatedBy.accept(workerIdList)
             calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarMode: calendarMode.value, calendarEventList: sharedEventDataSource[date] ?? [])
         }
     }

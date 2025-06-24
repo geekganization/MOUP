@@ -74,7 +74,7 @@ final class CalendarDayCell: JTACDayCell {
     
     // MARK: - Methods
     
-    func update(date: String, isSaturday: Bool, isSunday: Bool, isToday: Bool, calendarMode: CalendarMode, eventList: [CalendarEvent]?) {
+    func update(date: String, isSaturday: Bool, isSunday: Bool, isToday: Bool, workerName: String, calendarMode: CalendarMode, eventList: [CalendarEvent]?) {
         dayLabel.text = date
         dayLabel.textColor = isSunday ? .sundayText : .gray900
         

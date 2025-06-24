@@ -20,7 +20,7 @@ final class CalendarViewModel {
     private let disposeBag = DisposeBag()
     
     private let eventUseCase: EventUseCaseProtocol
-    private let workplaceUseCase: WorkplaceUseCaseProtocol
+    private let userUseCase: UserUseCaseProtocol
     
     // MARK: - Input (ViewController ➡️ ViewModel)
     
@@ -28,6 +28,7 @@ final class CalendarViewModel {
         /// 직전달, 이번달, 다음달 3개월치 불러옴
         let loadMonthEvent: Observable<(year: Int, month: Int)>
         let filterWorkplace: Observable<String>
+        let eventCreatedBy: Observable<[String]>
     }
     
     // MARK: - Output (ViewModel ➡️ ViewController)
@@ -35,6 +36,7 @@ final class CalendarViewModel {
     struct Output {
         let calendarEventListRelay: PublishRelay<(personal: [CalendarEvent], shared: [CalendarEvent])>
         let workplaceWorkSummaryDailyListRelay: PublishRelay<[WorkplaceWorkSummaryDailySeparated]>
+        let workerNameRelay: PublishRelay<String>
     }
     
     // MARK: - Transform (Input ➡️ Output)
@@ -42,6 +44,7 @@ final class CalendarViewModel {
     func tranform(input: Input) -> Output {
         let calendarEventListRelay = PublishRelay<(personal: [CalendarEvent], shared: [CalendarEvent])>()
         let workplaceWorkSummaryDailyListRelay = PublishRelay<[WorkplaceWorkSummaryDailySeparated]>()
+        let workerNameRelay = PublishRelay<String>()
         
         Observable.combineLatest(input.loadMonthEvent, input.filterWorkplace)
             .subscribe(with: self, onNext: { owner, combined in
@@ -71,16 +74,26 @@ final class CalendarViewModel {
                         owner.logger.error("\(error.localizedDescription)")
                     }.disposed(by: owner.disposeBag)
             }).disposed(by: disposeBag)
+//        
+//        input.eventCreatedBy
+//            .subscribe(with: self) { owner, uid in
+//                owner.userUseCase.fetchUser(uid: uid)
+//                    .subscribe(with: self) { owner, user in
+//                        workerNameRelay.accept(user.userName)
+//                    }.disposed(by: owner.disposeBag)
+//                
+//            }.disposed(by: disposeBag)
         
         return Output(calendarEventListRelay: calendarEventListRelay,
-                      workplaceWorkSummaryDailyListRelay: workplaceWorkSummaryDailyListRelay)
+                      workplaceWorkSummaryDailyListRelay: workplaceWorkSummaryDailyListRelay,
+                      workerNameRelay: workerNameRelay)
     }
     
     // MARK: - Initializer
     
-    init(eventUseCase: EventUseCaseProtocol, workplaceUseCase: WorkplaceUseCaseProtocol) {
+    init(eventUseCase: EventUseCaseProtocol, userUseCase: UserUseCaseProtocol) {
         self.eventUseCase = eventUseCase
-        self.workplaceUseCase = workplaceUseCase
+        self.userUseCase = userUseCase
     }
 }
 

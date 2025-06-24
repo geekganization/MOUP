@@ -29,7 +29,7 @@ final class RoutineService: RoutineServiceProtocol {
     func fetchAllRoutines(uid: String) -> Observable<[RoutineInfo]> {
         return Observable.create { observer in
             self.db.collection("users").document(uid).collection("routine")
-                .getDocuments { snapshot, error in
+                .addSnapshotListener { snapshot, error in
                     if let error = error {
                         observer.onError(error)
                         return

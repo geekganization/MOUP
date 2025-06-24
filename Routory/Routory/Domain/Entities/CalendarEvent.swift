@@ -55,3 +55,8 @@ struct CalendarEvent: Codable {
         self.memo = memo
     }
 }
+
+struct CalendarEventInfo: Codable {
+    let id: String
+    let calendarEvent: CalendarEvent
+}

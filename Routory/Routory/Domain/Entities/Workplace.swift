@@ -67,6 +67,6 @@ struct WorkplaceWorkSummaryDailySeparated {
     let workplaceName: String
     let wage: Int
     let wageCalcMethod: String
-    let personalSummary: [String: (events: [CalendarEvent], totalHours: Double, totalWage: Int)]
-    let sharedSummary: [String: (events: [CalendarEvent], totalHours: Double, totalWage: Int)]
+    let personalSummary: [String: (events: [CalendarEventInfo], totalHours: Double, totalWage: Int)]
+    let sharedSummary: [String: (events: [CalendarEventInfo], totalHours: Double, totalWage: Int)]
 }

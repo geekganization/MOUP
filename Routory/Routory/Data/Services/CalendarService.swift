@@ -50,7 +50,7 @@ final class CalendarService: CalendarServiceProtocol {
         return Observable.create { observer in
             self.db.collection("calendars")
                 .whereField("workplaceId", isEqualTo: workplaceId)
-                .getDocuments { snapshot, error in
+                .addSnapshotListener { snapshot, error in
                     if let error = error {
                         observer.onError(error)
                         return
@@ -120,10 +120,9 @@ final class CalendarService: CalendarServiceProtocol {
                         return
                     }
                     
-                    // 3. 권한 체크: 내가 오너 or sharedWith or 내가 만든 이벤트만 허용
+                    // 3. 권한 체크: 내가 오너 or 내가 만든 이벤트만 허용
                     let isPermitted =
                     (ownerId == uid)
-                    || (sharedWith.contains(uid))
                     || (createdBy == uid)
                     if !isPermitted {
                         observer.onError(NSError(domain: "CalendarService", code: 403, userInfo: [NSLocalizedDescriptionKey: "이벤트를 삭제할 권한이 없습니다."]))

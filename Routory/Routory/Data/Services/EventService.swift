@@ -93,7 +93,7 @@ final class EventService: EventServiceProtocol {
         let workplacesRef = db.collection("users").document(uid).collection("workplaces")
         
         return Observable.create { observer in
-            workplacesRef.getDocuments { snapshot, error in
+            workplacesRef.addSnapshotListener { snapshot, error in
                 if let error = error {
                     observer.onError(error)
                     return
@@ -107,7 +107,8 @@ final class EventService: EventServiceProtocol {
                 let perWorkplaceObs = workplaceIds.map { workplaceId -> Observable<WorkplaceWorkSummaryDailySeparated?> in
                     Observable<WorkplaceWorkSummaryDailySeparated?>.create { o in
                         let workplaceDoc = self.db.collection("workplaces").document(workplaceId)
-                        workplaceDoc.getDocument { doc, _ in
+                            .collection("worker").document(uid)
+                        workplaceDoc.addSnapshotListener { doc, _ in
                             guard let doc, let wData = doc.data(),
                                   let workplaceName = wData["workplaceName"] as? String,
                                   let wage = wData["wage"] as? Int,
@@ -118,23 +119,24 @@ final class EventService: EventServiceProtocol {
                             // 캘린더(개인/공유) 구분
                             self.db.collection("calendars")
                                 .whereField("workplaceId", isEqualTo: workplaceId)
-                                .getDocuments { calSnap, _ in
+                                .addSnapshotListener { calSnap, _ in
                                     let personalCalIds = calSnap?.documents.filter { ($0.data()["isShared"] as? Bool) == false }.map { $0.documentID } ?? []
                                     let sharedCalIds   = calSnap?.documents.filter { ($0.data()["isShared"] as? Bool) == true  }.map { $0.documentID } ?? []
                                     
                                     // 이벤트 조회 함수
-                                    func fetchEvents(calIds: [String]) -> Observable<[CalendarEvent]> {
+                                    func fetchEvents(calIds: [String]) -> Observable<[CalendarEventInfo]> {
                                         let eventObs = calIds.map { calId in
-                                            Observable<[CalendarEvent]>.create { eventObserver in
+                                            Observable<[CalendarEventInfo]>.create { eventObserver in
                                                 self.db.collection("calendars").document(calId)
                                                     .collection("events")
                                                     .whereField("year", isEqualTo: year)
                                                     .whereField("month", isEqualTo: month)
-                                                    .getDocuments { evtSnap, _ in
-                                                        let events: [CalendarEvent] = evtSnap?.documents.compactMap { doc in
+                                                    .addSnapshotListener { evtSnap, _ in
+                                                        let events: [CalendarEventInfo] = evtSnap?.documents.compactMap { doc in
                                                             do {
                                                                 let data = try JSONSerialization.data(withJSONObject: doc.data())
-                                                                return try JSONDecoder().decode(CalendarEvent.self, from: data)
+                                                                let event = try JSONDecoder().decode(CalendarEvent.self, from: data)
+                                                                return CalendarEventInfo(id: doc.documentID, calendarEvent: event)
                                                             } catch { return nil }
                                                         } ?? []
                                                         eventObserver.onNext(events)
@@ -151,10 +153,10 @@ final class EventService: EventServiceProtocol {
                                     
                                     Observable.zip(personalEventsObs, sharedEventsObs)
                                         .subscribe(onNext: { personalEvents, sharedEvents in
-                                            func groupSummary(_ events: [CalendarEvent]) -> [String: (events: [CalendarEvent], totalHours: Double, totalWage: Int)] {
-                                                let groupedByDay = Dictionary(grouping: events) { $0.eventDate }
+                                            func groupSummary(_ events: [CalendarEventInfo]) -> [String: (events: [CalendarEventInfo], totalHours: Double, totalWage: Int)] {
+                                                let groupedByDay = Dictionary(grouping: events) { $0.calendarEvent.eventDate }
                                                 return groupedByDay.mapValues { events in
-                                                    let totalHours = events.reduce(0.0) { $0 + Self.calculateWorkedHours(start: $1.startTime, end: $1.endTime) }
+                                                    let totalHours = events.reduce(0.0) { $0 + EventService.calculateWorkedHours(start: $1.calendarEvent.startTime, end: $1.calendarEvent.endTime) }
                                                     let totalWage: Int
                                                     if wageCalcMethod == "monthly" {
                                                         let workDays = groupedByDay.count
@@ -214,7 +216,7 @@ final class EventService: EventServiceProtocol {
         let workplacesRef = db.collection("users").document(uid).collection("workplaces")
         
         return Observable.create { observer in
-            workplacesRef.getDocuments { snapshot, error in
+            workplacesRef.addSnapshotListener { snapshot, error in
                 if let error = error {
                     observer.onError(error)
                     return
@@ -226,7 +228,7 @@ final class EventService: EventServiceProtocol {
                     Observable<([String], [String])>.create { calendarObserver in
                         self.db.collection("calendars")
                             .whereField("workplaceId", isEqualTo: workplaceId)
-                            .getDocuments { snap, error in
+                            .addSnapshotListener { snap, error in
                                 if let error = error {
                                     calendarObserver.onError(error)
                                     return
@@ -269,7 +271,7 @@ final class EventService: EventServiceProtocol {
                                     if let day = day {
                                         query = query.whereField("day", isEqualTo: day)
                                     }
-                                    query.getDocuments { snap, error in
+                                    query.addSnapshotListener { snap, error in
                                         if let error = error {
                                             eventObserver.onError(error)
                                             return

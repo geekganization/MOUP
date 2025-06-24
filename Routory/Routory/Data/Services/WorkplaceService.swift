@@ -47,7 +47,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
         return Observable.create { observer in
             self.db.collection("workplaces")
                 .whereField("inviteCode", isEqualTo: inviteCode)
-                .getDocuments { snapshot, error in
+                .addSnapshotListener { snapshot, error in
                     if let error = error {
                         observer.onError(error)
                         return
@@ -129,7 +129,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
             let db = Firestore.firestore()
             let observables: [Observable<WorkplaceInfo>] = ids.map { workplaceId in
                 Observable<WorkplaceInfo>.create { detailObserver in
-                    db.collection("workplaces").document(workplaceId).getDocument { doc, error in
+                    db.collection("workplaces").document(workplaceId).addSnapshotListener { doc, error in
                         if let doc = doc, let data = doc.data() {
                             do {
                                 let jsonData = try JSONSerialization.data(withJSONObject: data)
@@ -157,7 +157,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
         return Observable.create { observer in
             workplacesRef
                 .whereField("ownerId", isEqualTo: uid)
-                .getDocuments { snapshot, error in
+                .addSnapshotListener { snapshot, error in
                     if let error = error {
                         observer.onError(error)
                         return
@@ -270,7 +270,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
     func fetchWorkerListForWorkplace(workplaceId: String) -> Observable<[WorkerDetailInfo]> {
         let workerRef = db.collection("workplaces").document(workplaceId).collection("worker")
         return Observable.create { observer in
-            workerRef.getDocuments { snapshot, error in
+            workerRef.addSnapshotListener { snapshot, error in
                 if let error = error {
                     observer.onError(error)
                     return
@@ -302,7 +302,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
     ) -> Observable<[WorkplaceWorkSummary]> {
         let userWorkplaceRef = db.collection("users").document(uid).collection("workplaces")
         return Observable.create { observer in
-            userWorkplaceRef.getDocuments { snap, err in
+            userWorkplaceRef.addSnapshotListener { snap, err in
                 if let err = err {
                     observer.onError(err)
                     return
@@ -317,14 +317,14 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                 let perWorkplaceObservables = ids.map { workplaceId -> Observable<WorkplaceWorkSummary?> in
                     Observable<WorkplaceWorkSummary?>.create { o in
                         let workplaceDoc = self.db.collection("workplaces").document(workplaceId)
-                        workplaceDoc.getDocument { doc, _ in
+                        workplaceDoc.addSnapshotListener { doc, _ in
                             guard let doc, let wData = doc.data(),
                                   let workplaceName = wData["workplacesName"] as? String else {
                                 o.onNext(nil)
                                 o.onCompleted()
                                 return
                             }
-                            workplaceDoc.collection("worker").document(uid).getDocument { workerDoc, _ in
+                            workplaceDoc.collection("worker").document(uid).addSnapshotListener { workerDoc, _ in
                                 guard let workerDoc, let wDetail = workerDoc.data(),
                                       let wage = wDetail["wage"] as? Int else {
                                     o.onNext(nil)
@@ -336,7 +336,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                                 let payWeekday = wDetail["payWeekday"] as? String
                                 
                                 // 캘린더 아이디
-                                self.db.collection("calendars").whereField("workplaceId", isEqualTo: workplaceId).getDocuments { calSnap, _ in
+                                self.db.collection("calendars").whereField("workplaceId", isEqualTo: workplaceId).addSnapshotListener { calSnap, _ in
                                     guard let calId = calSnap?.documents.first?.documentID else {
                                         o.onNext(nil)
                                         o.onCompleted()
@@ -347,7 +347,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                                         .collection("events")
                                         .whereField("year", isEqualTo: year)
                                         .whereField("month", isEqualTo: month)
-                                        .getDocuments { evtSnap, _ in
+                                        .addSnapshotListener { evtSnap, _ in
                                             let events: [CalendarEvent] = evtSnap?.documents.compactMap { doc in
                                                 do {
                                                     let data = try JSONSerialization.data(withJSONObject: doc.data())

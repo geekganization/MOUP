@@ -21,6 +21,7 @@ final class ShiftRegistrationContentView: UIView {
     let workTimeView: WorkTimeView
     let memoBoxView: MemoBoxView
     let registerButton = UIButton(type: .system)
+    let registerBtnTitle: String
 
     private let stackView = UIStackView().then {
         $0.axis = .vertical
@@ -39,7 +40,8 @@ final class ShiftRegistrationContentView: UIView {
         startTime: String,
         endTime: String,
         restTime: String,
-        memoPlaceholder: String
+        memoPlaceholder: String,
+        registerBtnTitle: String
     ) {
         self.isRead = isRead
         self.simpleRowView = WorkPlaceSelectionView(title: workPlaceTitle)
@@ -48,7 +50,8 @@ final class ShiftRegistrationContentView: UIView {
         self.workDateView = WorkDateView(dateValue: dateValue, repeatValue: repeatValue)
         self.workTimeView = WorkTimeView(startTime: startTime, endTime: endTime, restTime: restTime)
         self.memoBoxView = MemoBoxView(placeholder: memoPlaceholder)
-
+        self.registerBtnTitle = registerBtnTitle
+        
         super.init(frame: .zero)
         setupUI()
         layout()
@@ -73,7 +76,7 @@ final class ShiftRegistrationContentView: UIView {
             registerButton
         ].forEach { stackView.addArrangedSubview($0) }
 
-        registerButton.setTitle("등록하기", for: .normal)
+        registerButton.setTitle(registerBtnTitle, for: .normal)
         registerButton.setTitleColor(.primary50, for: .normal)
         registerButton.backgroundColor = .primary500
         registerButton.titleLabel?.font = .buttonSemibold(18)

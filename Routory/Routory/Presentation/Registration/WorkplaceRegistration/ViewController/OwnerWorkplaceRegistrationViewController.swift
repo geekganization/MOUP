@@ -30,7 +30,7 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
     )
     private let disposeBag = DisposeBag()
     
-    private var isRead: Bool
+    private var isEdit: Bool
     
     private let isRegisterMode: Bool
     
@@ -38,7 +38,7 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
     
     init(
         isRegisterMode: Bool,
-        isRead: Bool,
+        isEdit: Bool,
         nameValue: String?,
         categoryValue: String?,
         salaryTypeValue: String,
@@ -60,9 +60,10 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
         dotColor: UIColor?
     ) {
         self.isRegisterMode = isRegisterMode
-        self.isRead = isRead
+        self.isEdit = isEdit
         self.contentView = WorkplaceRegistrationContentView(
-            isRead: isRead,
+            workplaceId: "",
+            isEdit: isEdit,
             nameValue: nameValue,
             categoryValue: categoryValue,
             salaryTypeValue: salaryTypeValue,
@@ -81,7 +82,8 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
             isNightAllowanceSelected: isNightAllowanceSelected,
             labelTitle: labelTitle,
             showDot: showDot,
-            dotColor: dotColor
+            dotColor: dotColor,
+            registerBtnTitle: isEdit ? "적용하기" : "등록하기"
         )
         super.init(nibName: nil, bundle: nil)
     }
@@ -111,13 +113,13 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
             return
         }
         
-        let title = isRead ? "수정" : "읽기"
+        let title = isEdit ? "수정" : ""
         navigationBar.configureRightButton(icon: nil, title: title)
     }
     
     private func toggleReadMode() {
-        isRead.toggle()
-        contentView.setReadMode(isRead)
+        isEdit.toggle()
+        contentView.setReadMode(isEdit)
         updateRightBarButtonTitle()
     }
     
@@ -131,6 +133,7 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
         navigationBar.rx.rightBtnTapped
             .subscribe(onNext: { [weak self] in
                 self?.toggleReadMode()
+                self?.navigationBar.configureRightButton(icon: nil, title: nil, isHidden: true)
             })
             .disposed(by: disposeBag)
 

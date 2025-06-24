@@ -18,6 +18,8 @@ final class WorkplaceRegistrationContentView: UIView {
     let workConditionView: WorkConditionView
     let labelView: LabelView
     let registerButton = UIButton(type: .system)
+    let registerBtnTitle: String
+    let workplaceId: String
 
     private let stackView = UIStackView().then {
         $0.axis = .vertical
@@ -27,7 +29,8 @@ final class WorkplaceRegistrationContentView: UIView {
     // MARK: - Initializer
 
     init(
-        isRead: Bool,
+        workplaceId: String,
+        isEdit: Bool,
         
         nameValue: String?,
         categoryValue: String?,
@@ -50,11 +53,14 @@ final class WorkplaceRegistrationContentView: UIView {
 
         labelTitle: String,
         showDot: Bool,
-        dotColor: UIColor?
+        dotColor: UIColor?,
+        
+        registerBtnTitle: String
     ) {
         self.workplaceInfoView = WorkplaceInfoView(
             nameValue: nameValue,
-            categoryValue: categoryValue
+            categoryValue: categoryValue,
+            workplaceId: workplaceId,
         )
         
         self.salaryInfoView = SalaryInfoView(
@@ -82,11 +88,13 @@ final class WorkplaceRegistrationContentView: UIView {
             showDot: showDot,
             dotColor: dotColor
         )
-
+        
+        self.registerBtnTitle = registerBtnTitle
+        self.workplaceId = workplaceId
         super.init(frame: .zero)
         setupUI()
         layout()
-        setReadMode(isRead)
+        setReadMode(isEdit)
     }
 
     required init?(coder: NSCoder) {
@@ -101,7 +109,7 @@ final class WorkplaceRegistrationContentView: UIView {
         [workplaceInfoView, salaryInfoView, workConditionView, labelView, registerButton]
             .forEach { stackView.addArrangedSubview($0) }
 
-        registerButton.setTitle("등록하기", for: .normal)
+        registerButton.setTitle(registerBtnTitle, for: .normal)
         registerButton.setTitleColor(.primary50, for: .normal)
         registerButton.backgroundColor = .primary500
         registerButton.titleLabel?.font = .buttonSemibold(18)
@@ -124,19 +132,21 @@ final class WorkplaceRegistrationContentView: UIView {
 }
 
 extension WorkplaceRegistrationContentView {
-    func setReadMode(_ isRead: Bool) {
-        workplaceInfoView.isUserInteractionEnabled = !isRead
-        salaryInfoView.isUserInteractionEnabled = !isRead
-        workConditionView.isUserInteractionEnabled = !isRead
-        labelView.isUserInteractionEnabled = !isRead
-        registerButton.isHidden = isRead
+    func setReadMode(_ isEdit: Bool) {
+        workplaceInfoView.isUserInteractionEnabled = !isEdit
+        salaryInfoView.isUserInteractionEnabled = !isEdit
+        workConditionView.isUserInteractionEnabled = !isEdit
+        labelView.isUserInteractionEnabled = !isEdit
+        registerButton.isHidden = isEdit
             
-        if isRead {
+        if isEdit {
             workplaceInfoView.disableEditing()
+            workplaceInfoView.hideWorkerManagerRow()
             salaryInfoView.disableEditing()
             labelView.disableEditing()
         } else {
             workplaceInfoView.enableEditing()
+            workplaceInfoView.showWorkerManagerRow()
             salaryInfoView.enableEditing()
             labelView.enableEditing()
         }

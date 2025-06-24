@@ -86,7 +86,8 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
             startTime: startTime,
             endTime: endTime,
             restTime: restTime,
-            memoPlaceholder: memoPlaceholder
+            memoPlaceholder: memoPlaceholder,
+            registerBtnTitle: isRead ? "적용하기" : "등록하기"
         )
         super.init(nibName: nil, bundle: nil)
     }
@@ -97,7 +98,7 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
             return
         }
         
-        let title = isRead ? "수정" : "읽기"
+        let title = isRead ? "수정" : ""
         navigationBar.configureRightButton(icon: nil, title: title)
     }
     
@@ -182,6 +183,7 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
         navigationBar.rx.rightBtnTapped
             .subscribe(onNext: { [weak self] in
                 self?.toggleReadMode()
+                self?.navigationBar.configureRightButton(icon: nil, title: nil, isHidden: true)
             })
             .disposed(by: disposeBag)
         

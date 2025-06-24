@@ -78,8 +78,7 @@ class MyStoreCell: UITableViewCell {
     func update(with storeInfo: StoreCellInfo, menuActions: [UIAction]) {
         storeNameLabel.text = storeInfo.storeName
         daysUntilPaydayLabel.text = "급여일까지 D-\(storeInfo.daysUntilPayday)"
-        totalLaborCostLabel.text = "\(storeInfo.totalLaborCost.withComma)원"
-
+        setTotalLaborCostLabel(amount: storeInfo.totalLaborCost.withComma)
         setupButtonMenu(with: menuActions)
     }
 }
@@ -156,5 +155,28 @@ private extension MyStoreCell {
 
         self.menuButton.menu = menu
         self.menuButton.showsMenuAsPrimaryAction = true
+    }
+
+    private func setTotalLaborCostLabel(amount: String) {
+        let fullText = "현재까지 \(amount)원"
+
+        var attributedString = AttributedString(fullText)
+
+        var baseContainer = AttributeContainer()
+        baseContainer.font = .bodyMedium(14)
+        baseContainer.foregroundColor = .gray900
+
+        var boldContainer = AttributeContainer()
+        boldContainer.font = .headBold(16)
+        boldContainer.foregroundColor = .gray900
+
+        attributedString.setAttributes(baseContainer)
+
+        let boldText = "\(amount)원"
+        if let range = attributedString.range(of: boldText) {
+            attributedString[range].setAttributes(boldContainer)
+        }
+
+        totalLaborCostLabel.attributedText = NSAttributedString(attributedString)
     }
 }

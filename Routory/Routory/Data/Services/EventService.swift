@@ -122,7 +122,9 @@ final class EventService: EventServiceProtocol {
                                       let workplaceName = wData["workplacesName"] as? String,
                                       let workerData = workerDoc?.data(),
                                       let wage = workerData["wage"] as? Int,
-                                      let wageCalcMethod = workerData["wageCalcMethod"] as? String
+                                      let wageCalcMethod = workerData["wageCalcMethod"] as? String,
+                                      let wageType = workerData["wageType"] as? String,
+                                      let breakTimeMinutes = workerData["breakTimeMinutes"] as? Int
                                 else {
                                     o.onNext(nil); o.onCompleted(); return
                                 }
@@ -184,6 +186,8 @@ final class EventService: EventServiceProtocol {
                                                     workplaceName: workplaceName,
                                                     wage: wage,
                                                     wageCalcMethod: wageCalcMethod,
+                                                    wageType: wageType,
+                                                    breakTimeMinutes: breakTimeMinutes,
                                                     personalSummary: groupSummary(personalEvents),
                                                     sharedSummary: groupSummary(sharedEvents)
                                                 ))

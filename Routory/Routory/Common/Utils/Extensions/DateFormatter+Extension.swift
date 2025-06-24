@@ -18,17 +18,19 @@ extension DateFormatter {
     }
     
     /// 근무 시간 계산용 `DateFormatter`
-    static let workHourDateFormatter = DateFormatter().then() {
+    static let workHourDateFormatter = DateFormatter().then {
         $0.dateFormat = "HH:mm"
         $0.locale = Locale(identifier: "ko_KR")
         $0.timeZone = TimeZone(identifier: "Asia/Seoul")
     }
     
-    static func hourDiffDecimal(from start: String, to end: String) -> (hours: Int, minutes: Int, decimal: Double)? {
+    static func hourDiffDecimal(from start: String, to end: String, break minus: Int = 0) -> (hours: Int, minutes: Int, decimal: Double)? {
         guard let startDate = workHourDateFormatter.date(from: start),
               let endDate = workHourDateFormatter.date(from: end) else { return nil }
         
-        let todayOverEnd = endDate < startDate ? Calendar.current.date(byAdding: .day, value: 1, to: endDate) ?? endDate : endDate
+        let subtractedEndDate = Calendar.current.date(byAdding: .minute, value: minus, to: endDate) ?? endDate
+        
+        let todayOverEnd = subtractedEndDate < startDate ? Calendar.current.date(byAdding: .day, value: 1, to: subtractedEndDate) ?? subtractedEndDate : subtractedEndDate
         
         let components = Calendar.current.dateComponents([.hour, .minute], from: startDate, to: todayOverEnd)
         

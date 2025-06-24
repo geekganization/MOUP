@@ -108,11 +108,15 @@ final class CalendarDayCell: JTACDayCell {
                         guard let eventView = eventVStackView.subviews[index] as? CalendarEventVStackView else { continue }
                         
                         let event = model.eventInfo.calendarEvent
-                        let workHour = DateFormatter.hourDiffDecimal(from: event.startTime, to: event.endTime)
-                        // TODO: dailyWage 계산 필요
+                        let workHour = DateFormatter.hourDiffDecimal(from: event.startTime, to: event.endTime, break: model.breakTimeMinutes)
                         // TODO: isShared == true일 때 이름 표시
                         // TODO: color 표시
-                        eventView.update(workHourOrName: "\(workHour?.hours ?? 0)", dailyWage: "100,000", calendarMode: calendarMode, color: "red")
+                        if model.wageType == "시급" {
+                            let dailyWage = Int(Double(model.wage) * (workHour?.decimal ?? 0.0))
+                            eventView.update(workHour: workHour?.decimal ?? 0, workerName: "WIP", dailyWage: dailyWage, calendarMode: calendarMode, color: "red")
+                        } else if model.wageType == "고정" {
+                            eventView.update(workHour: workHour?.decimal ?? 0, workerName: "WIP", dailyWage: nil, calendarMode: calendarMode, color: "red")
+                        }
                         eventView.isHidden = false
                     }
                 }

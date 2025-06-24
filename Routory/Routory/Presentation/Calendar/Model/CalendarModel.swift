@@ -12,5 +12,7 @@ struct CalendarModel {
     let workplaceName: String
     let wage: Int
     let wageCalcMethod: String
+    let wageType: String
+    let breakTimeMinutes: Int
     let eventInfo: CalendarEventInfo
 }

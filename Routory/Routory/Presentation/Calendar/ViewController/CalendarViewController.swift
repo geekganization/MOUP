@@ -154,12 +154,6 @@ private extension CalendarViewController {
         
         let output = viewModel.tranform(input: input)
         
-        output.calendarEventListRelay
-            .asDriver(onErrorJustReturn: ([], []))
-            .drive(with: self) { owner, calendarEventList in
-//                owner.populateDataSource(calendarEvents: calendarEventList)
-            }.disposed(by: disposeBag)
-        
         output.calendarModelListRelay
             .asDriver(onErrorJustReturn: ([], []))
             .drive(with: self) { owner, calendarModelList in

@@ -34,7 +34,6 @@ final class CalendarViewModel {
     // MARK: - Output (ViewModel ➡️ ViewController)
     
     struct Output {
-        let calendarEventListRelay: PublishRelay<(personal: [CalendarEvent], shared: [CalendarEvent])>
         let calendarModelListRelay: PublishRelay<(personal: [CalendarModel], shared: [CalendarModel])>
         let workerNameRelay: PublishRelay<String>
     }
@@ -42,7 +41,6 @@ final class CalendarViewModel {
     // MARK: - Transform (Input ➡️ Output)
     
     func tranform(input: Input) -> Output {
-        let calendarEventListRelay = PublishRelay<(personal: [CalendarEvent], shared: [CalendarEvent])>()
         let calendarModelListRelay = PublishRelay<(personal: [CalendarModel], shared: [CalendarModel])>()
         let workerNameRelay = PublishRelay<String>()
         
@@ -63,6 +61,8 @@ final class CalendarViewModel {
                                                                                     workplaceName: workplaceSummary.workplaceName,
                                                                                     wage: workplaceSummary.wage,
                                                                                     wageCalcMethod: workplaceSummary.wageCalcMethod,
+                                                                                    wageType: workplaceSummary.wageType,
+                                                                                    breakTimeMinutes: workplaceSummary.breakTimeMinutes,
                                                                                     eventInfo: event))
                                 }
                             }
@@ -72,6 +72,8 @@ final class CalendarViewModel {
                                                                                   workplaceName: workplaceSummary.workplaceName,
                                                                                   wage: workplaceSummary.wage,
                                                                                   wageCalcMethod: workplaceSummary.wageCalcMethod,
+                                                                                  wageType: workplaceSummary.wageType,
+                                                                                  breakTimeMinutes: workplaceSummary.breakTimeMinutes,
                                                                                   eventInfo: event))
                                 }
                             }
@@ -79,21 +81,6 @@ final class CalendarViewModel {
                         calendarModelListRelay.accept(calendarModelList)
                     }.disposed(by: owner.disposeBag)
                 
-                owner.eventUseCase.fetchAllEventsForUserInMonthSeparated(uid: uid, year: year, month: month)
-                    .subscribe(with: self) { owner, calendarEventList in
-                        let personalSorted = calendarEventList.personal.sorted(by: owner.eventSort)
-                        let sharedSorted = calendarEventList.shared.sorted(by: owner.eventSort)
-                        if workplace == "전체 보기" {
-                            calendarEventListRelay.accept((personalSorted, sharedSorted))
-                        } else {
-                            let filteredPersonal = personalSorted.filter { $0.title == workplace }
-                            let filteredShared = sharedSorted.filter { $0.title == workplace }
-                            let filteredEventList = (personal: filteredPersonal, shared: filteredShared)
-                            calendarEventListRelay.accept(filteredEventList)
-                        }
-                    } onError: { owner, error in
-                        owner.logger.error("\(error.localizedDescription)")
-                    }.disposed(by: owner.disposeBag)
             }).disposed(by: disposeBag)
 //        
 //        input.eventCreatedBy
@@ -105,8 +92,7 @@ final class CalendarViewModel {
 //                
 //            }.disposed(by: disposeBag)
         
-        return Output(calendarEventListRelay: calendarEventListRelay,
-                      calendarModelListRelay: calendarModelListRelay,
+        return Output(calendarModelListRelay: calendarModelListRelay,
                       workerNameRelay: workerNameRelay)
     }
     

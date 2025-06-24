@@ -39,6 +39,7 @@ private extension WorkplaceAddModalViewController {
         setStyles()
         setConstraints()
         setActions()
+        updateUIBasedOnUserRole()
     }
     
     // MARK: - setHierarchy
@@ -177,6 +178,29 @@ private extension WorkplaceAddModalViewController {
         
         if workplaceAddView.frame.contains(location) == false {
             dismiss(animated: true)
+        }
+    }
+    
+    private func updateUIBasedOnUserRole() {
+        UserManager.shared.getUser { [weak self] result in
+            guard let self else { return }
+
+            switch result {
+            case .success(let user):
+                if UserType(role: user.role) == .owner {
+                    self.workplaceAddView.updateLayoutForOwner()
+                    self.updateWorkplaceAddViewHeight(to: 174)
+                    self.view.layoutIfNeeded()
+                }
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
+    
+    private func updateWorkplaceAddViewHeight(to height: CGFloat) {
+        workplaceAddView.snp.updateConstraints {
+            $0.height.equalTo(height)
         }
     }
 }

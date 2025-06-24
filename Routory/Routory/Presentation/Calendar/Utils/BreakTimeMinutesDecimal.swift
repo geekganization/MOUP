@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum BreakTimeMinutesDecimal: Int {
+enum BreakTimeMinutesDecimal: Int, CaseIterable {
     case _none = 0
     case aHalf = 30
     case anHour = 60

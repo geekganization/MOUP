@@ -73,7 +73,7 @@ final class CalendarViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        visibleYearMonth.accept(visibleYearMonth.value)
+        updateCalendar()
     }
 }
 
@@ -200,7 +200,10 @@ private extension CalendarViewController {
     ///   - day: 탭한 셀의 일
     ///   - eventList: 탭한 셀의 일에 해당하는 `CalendarEvent` 배열
     func didSelectCell(day: Int, calendarModelList: [CalendarModel]) {
-        let calendarEventListVM = CalendarEventListViewModel(calendarModelList: calendarModelList)
+        let calendarService = CalendarService()
+        let calendarRepository = CalendarRepository(calendarService: calendarService)
+        let calendarUseCase = CalendarUseCase(repository: calendarRepository)
+        let calendarEventListVM = CalendarEventListViewModel(calendarUseCase: calendarUseCase, calendarModelList: calendarModelList)
         let calendarEventListVC = CalendarEventListViewController(viewModel: calendarEventListVM, day: day, calendarMode: calendarMode.value)
         calendarEventListVC.delegate = self
         
@@ -260,6 +263,10 @@ private extension CalendarViewController {
         }
         
         calendarView.getJTACalendar.reloadData()
+    }
+    
+    func updateCalendar() {
+        visibleYearMonth.accept(visibleYearMonth.value)
     }
 }
 
@@ -347,10 +354,6 @@ extension CalendarViewController: JTACMonthViewDelegate {
 // MARK: - CalendarEventListVCDelegate
 
 extension CalendarViewController: CalendarEventListVCDelegate {
-    func presentationControllerDidDismiss() {
-        deselectCell()
-    }
-    
     func didTapEventCell(model: CalendarModel) {
         let event = model.eventInfo.calendarEvent
         let repeatValue = event.repeatDays.isEmpty ? "없음" : event.repeatDays.joined(separator: ", ")
@@ -453,6 +456,14 @@ extension CalendarViewController: CalendarEventListVCDelegate {
                 self?.logger.error("\(error.localizedDescription)")
             }
         }
+    }
+    
+    func didDeleteEvent() {
+        updateCalendar()
+    }
+    
+    func presentationControllerDidDismiss() {
+        deselectCell()
     }
 }
 

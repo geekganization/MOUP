@@ -93,10 +93,31 @@ private extension CalendarEventListViewController {
         
         output.calendarModelListRelay.asDriver(onErrorJustReturn: [])
             .drive(calendarEventListView.getEventTableView.rx.items(
-                cellIdentifier: EventCell.identifier, cellType: EventCell.self)) { [weak self] _, model, cell in
+                cellIdentifier: EventCell.identifier, cellType: EventCell.self)) { [weak self] index, model, cell in
                     guard let self else { return }
                     cell.update(calendarModel: model, calendarMode: calendarMode)
+                    
+                    let deleteAction = UIAction(title: "삭제하기", attributes: .destructive) { _ in
+                        let alert = UIAlertController(title: "근무 삭제", message: "\(model.workplaceName) 근무를 삭제할까요?", preferredStyle: .alert)
+                        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+                        alert.addAction(UIAlertAction(title: "삭제", style: .destructive, handler: { _ in
+                            deleteEventIndexPathRelay.accept(IndexPath(row: index, section: 0))
+                        }))
+                        self.present(alert, animated: true)
+                        
+                    }
+                    let menu = UIMenu(children: [deleteAction])
+                    cell.getEllipsisButton.menu = menu
+                    cell.getEllipsisButton.showsMenuAsPrimaryAction = true
+                    
                 }.disposed(by: disposeBag)
+        
+        output.deleteEventResultRelay.asDriver(onErrorJustReturn: false)
+            .drive(with: self) { owner, deleted in
+                if deleted {
+                    owner.delegate?.didDeleteEvent()
+                }
+            }.disposed(by: disposeBag)
     }
 }
 

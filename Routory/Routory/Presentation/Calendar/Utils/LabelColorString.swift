@@ -7,7 +7,7 @@
 
 import UIKit
 
-enum LabelColorString: String {
+enum LabelColorString: String, CaseIterable {
     case red = "빨간색"
     case orange = "주황색"
     case yellow = "노란색"

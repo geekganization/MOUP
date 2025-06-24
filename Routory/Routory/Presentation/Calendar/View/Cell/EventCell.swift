@@ -44,11 +44,22 @@ final class EventCell: UITableViewCell {
         $0.distribution = .fillEqually
     }
     
+    private let ellipsisButton = UIButton().then {
+        var config = UIButton.Configuration.plain()
+        config.image = .eventCellEllipsis.withTintColor(.gray700, renderingMode: .alwaysOriginal)
+        
+        $0.configuration = config
+    }
+    
     private let dailyWageLabel = UILabel().then {
         $0.text = "100,000원"
         $0.textColor = .gray900
         $0.font = .bodyMedium(16)
     }
+    
+    // MARK: - Getter
+    
+    var getEllipsisButton: UIButton { ellipsisButton }
     
     // MARK: - Initializer
     
@@ -91,6 +102,12 @@ final class EventCell: UITableViewCell {
             }
         }
         
+        if let userId = UserManager.shared.firebaseUid {
+            ellipsisButton.isHidden = !(calendarModel.eventInfo.calendarEvent.createdBy == userId)
+        } else {
+            ellipsisButton.isHidden = true
+        }
+        
         dailyWageLabel.isHidden = (calendarMode == .shared)
         // TODO: dailyWage 계산 필요
     }
@@ -106,7 +123,8 @@ private extension EventCell {
     }
     
     func setHierarchy() {
-        self.contentView.addSubviews(leadingVStackView, dailyWageLabel)
+        self.contentView.addSubviews(leadingVStackView, ellipsisButton,
+                                     dailyWageLabel)
         
         workplaceChipHStackView.addArrangedSubviews(workplaceLabel, sharedChipLabel)
         
@@ -127,6 +145,13 @@ private extension EventCell {
         sharedChipLabel.snp.makeConstraints {
             $0.width.equalTo(37)
             $0.height.equalTo(18)
+        }
+        
+        ellipsisButton.snp.makeConstraints {
+            $0.top.equalToSuperview()
+            $0.trailing.equalToSuperview().inset(6)
+            $0.width.equalTo(44)
+            $0.height.equalTo(30)
         }
         
         dailyWageLabel.snp.makeConstraints {

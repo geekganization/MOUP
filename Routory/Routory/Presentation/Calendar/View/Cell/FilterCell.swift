@@ -1,5 +1,5 @@
 //
-//  WorkplaceCell.swift
+//  FilterCell.swift
 //  Routory
 //
 //  Created by 서동환 on 6/15/25.
@@ -10,11 +10,11 @@ import UIKit
 import SnapKit
 import Then
 
-final class WorkplaceCell: UITableViewCell {
+final class FilterCell: UITableViewCell {
     
     // MARK: - Properties
     
-    static let identifier = String(describing: WorkplaceCell.self)
+    static let identifier = String(describing: FilterCell.self)
     
     // MARK: - UI Components
     
@@ -72,7 +72,7 @@ final class WorkplaceCell: UITableViewCell {
 
 // MARK: - UI Methods
 
-private extension WorkplaceCell {
+private extension FilterCell {
     func configure() {
         setHierarchy()
         setStyles()

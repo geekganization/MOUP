@@ -27,7 +27,7 @@ final class CalendarViewModel {
     struct Input {
         /// 직전달, 이번달, 다음달 3개월치 불러옴
         let loadMonthEvent: Observable<(year: Int, month: Int)>
-        let filterModel: Observable<FilterModel>
+        let filterModel: Observable<FilterModel?>
         let eventCreatedBy: Observable<[String]>
     }
     
@@ -56,7 +56,7 @@ final class CalendarViewModel {
                         var calendarModelList: (personal: [CalendarModel], shared: [CalendarModel]) = ([], [])
                         
                         for workplaceSummary in workplaceWorkSummaryDailyList {
-                            if filterModel.workplaceId == workplaceSummary.workplaceId { continue }
+                            if filterModel != nil && filterModel?.workplaceId != workplaceSummary.workplaceId { continue }
                             
                             for personalEventList in workplaceSummary.personalSummary.values {
                                 for event in personalEventList.events {

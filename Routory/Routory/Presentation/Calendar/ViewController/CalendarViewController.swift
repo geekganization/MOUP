@@ -26,7 +26,8 @@ final class CalendarViewController: UIViewController {
     
     private let calendarMode = BehaviorRelay<CalendarMode>(value: .personal)
     
-    private let filterModelRelay = BehaviorRelay<FilterModel>(value: FilterModel(workplaceId: "", workplaceName: "전체 보기"))
+    private let personalFilterModelRelay = BehaviorRelay<FilterModel?>(value: nil)
+    private let sharedFilterModelRelay = BehaviorRelay<FilterModel?>(value: nil)
     private let eventCreatedBy = PublishRelay<[String]>()
     
     /// `calendarView`에서 `dataSource` 관련 데이터의 연/월 형식을 만들기 위한 `DateFormatter`
@@ -147,7 +148,7 @@ private extension CalendarViewController {
         // MARK: - Input (ViewController ➡️ ViewModel)
         
         let input = CalendarViewModel.Input(loadMonthEvent: visibleYearMonth.asObservable(),
-                                            filterModel: filterModelRelay.asObservable(),
+                                            filterModel: personalFilterModelRelay.asObservable(),
                                             eventCreatedBy: eventCreatedBy.asObservable())
         
         // MARK: - Output (ViewModel ➡️ ViewController)
@@ -227,7 +228,9 @@ private extension CalendarViewController {
         let workplaceRepository = WorkplaceRepository(service: workplaceService)
         let workplaceUseCase = WorkplaceUseCase(repository: workplaceRepository)
         let filterVM = FilterViewModel(workplaceUseCase: workplaceUseCase)
-        let filterModalVC = FilterViewController(viewModel: filterVM, calendarMode: calendarMode.value, prevFilterModel: filterModelRelay.value)
+        let filterModalVC = FilterViewController(viewModel: filterVM,
+                                                 calendarMode: calendarMode.value,
+                                                 prevFilterModel: calendarMode.value == .personal ? personalFilterModelRelay.value : sharedFilterModelRelay.value)
         filterModalVC.delegate = self
         
         if let sheet = filterModalVC.sheetPresentationController {
@@ -466,8 +469,8 @@ extension CalendarViewController: YearMonthPickerVCDelegate {
 // MARK: - FilterVCDelegate
 
 extension CalendarViewController: FilterVCDelegate {
-    func didApplyButtonTap(model: FilterModel) {
-        filterModelRelay.accept(model)
+    func didApplyButtonTap(model: FilterModel?) {
+        calendarMode.value == .personal ? personalFilterModelRelay.accept(model) : sharedFilterModelRelay.accept(model)
     }
 }
 

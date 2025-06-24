@@ -21,8 +21,7 @@ final class FilterViewController: UIViewController {
     private let disposeBag = DisposeBag()
     
     private let calendarMode: CalendarMode
-    private let prevFilterModel: FilterModel
-    private var prevFilterIndex: Int?
+    private let prevFilterModel: FilterModel?
     
     private var selectedFilterModel = FilterModel(workplaceId: "", workplaceName: "전체 보기")
     
@@ -32,7 +31,7 @@ final class FilterViewController: UIViewController {
     
     // MARK: - Initializer
     
-    init(viewModel: FilterViewModel, calendarMode: CalendarMode, prevFilterModel: FilterModel) {
+    init(viewModel: FilterViewModel, calendarMode: CalendarMode, prevFilterModel: FilterModel?) {
         self.viewModel = viewModel
         self.calendarMode = calendarMode
         self.prevFilterModel = prevFilterModel
@@ -72,13 +71,17 @@ private extension FilterViewController {
     func setActions() {
         filterView.getApplyButton.rx.tap
             .subscribe(with: self) { owner, _ in
-                owner.delegate?.didApplyButtonTap(model: owner.selectedFilterModel)
+                if owner.selectedFilterModel.workplaceId.isEmpty {
+                    owner.delegate?.didApplyButtonTap(model: nil)
+                } else {
+                    owner.delegate?.didApplyButtonTap(model: owner.selectedFilterModel)
+                }
                 owner.dismiss(animated: true)
             }.disposed(by: disposeBag)
     }
     
     func setBinding() {
-        filterView.getWorkplaceTableView.rx.modelSelected(FilterModel.self)
+        filterView.getFilterTableView.rx.modelSelected(FilterModel.self)
             .subscribe(with: self) { owner, model in
                 owner.selectedFilterModel = model
             }.disposed(by: disposeBag)
@@ -90,14 +93,16 @@ private extension FilterViewController {
         output.filterModelListRelay
             .asDriver(onErrorJustReturn: [])
             .do(afterNext: { [weak self] list in
-                self?.filterView.getWorkplaceTableView.isHidden = list.isEmpty
+                self?.filterView.getFilterTableView.isHidden = list.isEmpty
             })
-            .drive(filterView.getWorkplaceTableView.rx.items(
-                cellIdentifier: WorkplaceCell.identifier, cellType: WorkplaceCell.self)) { [weak self] index, model, cell in
+            .drive(filterView.getFilterTableView.rx.items(
+                cellIdentifier: FilterCell.identifier, cellType: FilterCell.self)) { [weak self] index, model, cell in
                     cell.update(workplace: model.workplaceName)
                     
-                    if model.workplaceId == self?.prevFilterModel.workplaceId {
-                        self?.filterView.getWorkplaceTableView.selectRow(at: IndexPath(row: index, section: 0), animated: false, scrollPosition: .middle)
+                    if self?.prevFilterModel == nil {
+                        self?.filterView.getFilterTableView.selectRow(at: IndexPath(row: 0, section: 0), animated: false, scrollPosition: .middle)
+                    } else if model.workplaceId == self?.prevFilterModel?.workplaceId {
+                        self?.filterView.getFilterTableView.selectRow(at: IndexPath(row: index, section: 0), animated: false, scrollPosition: .middle)
                     }
                 }.disposed(by: disposeBag)
     }

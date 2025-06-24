@@ -175,7 +175,6 @@ extension CalendarView {
     func handleCellEvents(cell: CalendarDayCell, date: Date, cellState: CellState, calendarMode: CalendarMode, modelList: [CalendarModel]) {
         let isToday = Calendar.current.isDateInToday(date) ? true : false
         
-        // TODO: CalendarEvent, UserWorkplace와 WorkCalendar.isShared, WorkerDetail에서 필요한 데이터만 뽑아서 전달해야 함
         cell.update(date: cellState.text,
                     isSaturday: cellState.day.rawValue == 7,
                     isSunday: cellState.day.rawValue == 1,

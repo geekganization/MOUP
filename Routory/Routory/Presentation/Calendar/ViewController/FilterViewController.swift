@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import OSLog
 
 import RxCocoa
 import RxSwift
@@ -13,6 +14,8 @@ import RxSwift
 final class FilterViewController: UIViewController {
     
     // MARK: - Properties
+    
+    private lazy var logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: String(describing: self))
     
     weak var delegate: FilterVCDelegate?
     
@@ -66,6 +69,19 @@ private extension FilterViewController {
     
     func setStyles() {
         self.view.backgroundColor = .primaryBackground
+        
+        UserManager.shared.getUser { [weak self] result in
+            switch result {
+            case .success(let user):
+                if user.role == UserRole.worker.rawValue {
+                    self?.filterView.getHeaderLabel.text = "나의 근무지"
+                } else {
+                    self?.filterView.getHeaderLabel.text = "나의 매장"
+                }
+            case .failure(let error):
+                self?.logger.error("\(error.localizedDescription)")
+            }
+        }
     }
     
     func setActions() {

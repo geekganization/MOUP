@@ -50,10 +50,10 @@ final class CalendarEventListViewModel {
         
         input.deleteEventIndexPath
             .subscribe(with: self) { owner, indexPath in
-                // TODO: UseCase를 통해 삭제
                 guard let uid = UserManager.shared.firebaseUid else { return }
                 let workspaceId = owner.calendarModelList[indexPath.row].workplaceId
                 let eventId = owner.calendarModelList[indexPath.row].eventInfo.id
+                
                 owner.calendarUseCase.fetchCalendarIdByWorkplaceId(workplaceId: workspaceId)
                     .subscribe(with: self) { owner, calendarId in
                         guard let calendarId else { return }

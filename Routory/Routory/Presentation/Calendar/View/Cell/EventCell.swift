@@ -52,7 +52,6 @@ final class EventCell: UITableViewCell {
     }
     
     private let dailyWageLabel = UILabel().then {
-        $0.text = "100,000원"
         $0.textColor = .gray900
         $0.font = .bodyMedium(16)
     }

@@ -48,6 +48,7 @@ final class CalendarViewModel {
                 let ((year, month), filterModel) = combined
                 
                 // TODO: 직전달, 이번달, 다음달 3개월씩 불러오기
+                // TODO: 요일반복 로직 생각해야 함
                 guard let uid = UserManager.shared.firebaseUid else { return }
                 
                 owner.eventUseCase.fetchMonthlyWorkSummaryDailySeparated(uid: uid, year: year, month: month)

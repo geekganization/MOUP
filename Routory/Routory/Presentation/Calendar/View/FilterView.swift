@@ -27,8 +27,6 @@ final class FilterView: UIView {
     }
     
     private let headerLabel = UILabel().then {
-        // TODO: 알바생인지 사장님인지에 따라 바뀌어야 함
-        $0.text = "나의 근무지"
         $0.textColor = .gray900
         $0.font = .headBold(16)
     }
@@ -41,7 +39,7 @@ final class FilterView: UIView {
         $0.sectionHeaderTopPadding = 0.0
     }
     
-    private let emptyNotiLabel = UILabel().then {
+    private let emptyLabel = UILabel().then {
         $0.text = "등록된 공유 캘린더가 없어요"
         $0.textColor = .gray500
         $0.font = .bodyMedium(16)
@@ -58,6 +56,7 @@ final class FilterView: UIView {
     
     // MARK: - Getter
     
+    var getHeaderLabel: UILabel { headerLabel }
     var getFilterTableView: UITableView { filterTableView }
     var getApplyButton: UIButton { applyButton }
     
@@ -93,7 +92,7 @@ private extension FilterView {
                          titleLabel,
                          separatorView,
                          headerLabel,
-                         emptyNotiLabel,
+                         emptyLabel,
                          filterTableView,
                          applyButton)
     }
@@ -126,7 +125,7 @@ private extension FilterView {
             $0.leading.equalTo(self.safeAreaLayoutGuide).inset(16)
         }
         
-        emptyNotiLabel.snp.makeConstraints {
+        emptyLabel.snp.makeConstraints {
             $0.center.equalTo(filterTableView)
         }
         

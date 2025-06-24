@@ -74,7 +74,7 @@ final class CalendarDayCell: JTACDayCell {
     
     // MARK: - Methods
     
-    func update(date: String, isSaturday: Bool, isSunday: Bool, isToday: Bool, workerName: String, calendarMode: CalendarMode, calendarModelList: [CalendarModel]?) {
+    func update(date: String, isSaturday: Bool, isSunday: Bool, isToday: Bool, calendarMode: CalendarMode, calendarModelList: [CalendarModel]?) {
         dayLabel.text = date
         dayLabel.textColor = isSunday ? .sundayText : .gray900
         
@@ -113,9 +113,9 @@ final class CalendarDayCell: JTACDayCell {
                         // TODO: color 표시
                         if model.wageType == "시급" {
                             let dailyWage = Int(Double(model.wage) * (workHour?.decimal ?? 0.0))
-                            eventView.update(workHour: workHour?.decimal ?? 0, workerName: "WIP", dailyWage: dailyWage, calendarMode: calendarMode, color: "red")
+                            eventView.update(workHour: workHour?.decimal ?? 0, workerName: model.workerName, dailyWage: dailyWage, calendarMode: calendarMode, color: "red")
                         } else if model.wageType == "고정" {
-                            eventView.update(workHour: workHour?.decimal ?? 0, workerName: "WIP", dailyWage: nil, calendarMode: calendarMode, color: "red")
+                            eventView.update(workHour: workHour?.decimal ?? 0, workerName: model.workerName, dailyWage: nil, calendarMode: calendarMode, color: "red")
                         }
                         eventView.isHidden = false
                     }

@@ -159,7 +159,6 @@ private extension CalendarViewController {
             .asDriver(onErrorJustReturn: ([], []))
             .drive(with: self) { owner, calendarModelList in
                 owner.populateDataSource(calendarModelLists: calendarModelList)
-                dump(calendarModelList)
             }.disposed(by: disposeBag)
     }
 }

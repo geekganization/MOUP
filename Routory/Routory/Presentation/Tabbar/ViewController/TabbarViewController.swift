@@ -98,7 +98,7 @@ private extension TabbarViewController {
         let eventService = EventService()
         let eventRepository = EventRepository(eventService: eventService)
         let eventUseCase = EventUseCase(repository: eventRepository)
-        let calendarVM = CalendarViewModel(eventUseCase: eventUseCase, userUseCase: userUseCase)
+        let calendarVM = CalendarViewModel(eventUseCase: eventUseCase)
         let calendarVC = CalendarViewController(viewModel: calendarVM)
         
         guard let userId = Auth.auth().currentUser?.uid else {

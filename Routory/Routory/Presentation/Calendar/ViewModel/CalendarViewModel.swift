@@ -20,7 +20,6 @@ final class CalendarViewModel {
     private let disposeBag = DisposeBag()
     
     private let eventUseCase: EventUseCaseProtocol
-    private let userUseCase: UserUseCaseProtocol
     
     // MARK: - Input (ViewController ➡️ ViewModel)
     
@@ -63,6 +62,7 @@ final class CalendarViewModel {
                                     calendarModelList.personal.append(CalendarModel(workplaceId: workplaceSummary.workplaceId,
                                                                                     workplaceName: workplaceSummary.workplaceName,
                                                                                     isOfficial: workplaceSummary.isOfficial,
+                                                                                    workerName: workplaceSummary.workerName,
                                                                                     wage: workplaceSummary.wage,
                                                                                     wageCalcMethod: workplaceSummary.wageCalcMethod,
                                                                                     wageType: workplaceSummary.wageType,
@@ -75,6 +75,7 @@ final class CalendarViewModel {
                                     calendarModelList.shared.append(CalendarModel(workplaceId: workplaceSummary.workplaceId,
                                                                                   workplaceName: workplaceSummary.workplaceName,
                                                                                   isOfficial: workplaceSummary.isOfficial,
+                                                                                  workerName: workplaceSummary.workerName,
                                                                                   wage: workplaceSummary.wage,
                                                                                   wageCalcMethod: workplaceSummary.wageCalcMethod,
                                                                                   wageType: workplaceSummary.wageType,
@@ -87,15 +88,6 @@ final class CalendarViewModel {
                     }.disposed(by: owner.disposeBag)
                 
             }).disposed(by: disposeBag)
-//        
-//        input.eventCreatedBy
-//            .subscribe(with: self) { owner, uid in
-//                owner.userUseCase.fetchUser(uid: uid)
-//                    .subscribe(with: self) { owner, user in
-//                        workerNameRelay.accept(user.userName)
-//                    }.disposed(by: owner.disposeBag)
-//                
-//            }.disposed(by: disposeBag)
         
         return Output(calendarModelListRelay: calendarModelListRelay,
                       workerNameRelay: workerNameRelay)
@@ -103,9 +95,8 @@ final class CalendarViewModel {
     
     // MARK: - Initializer
     
-    init(eventUseCase: EventUseCaseProtocol, userUseCase: UserUseCaseProtocol) {
+    init(eventUseCase: EventUseCaseProtocol) {
         self.eventUseCase = eventUseCase
-        self.userUseCase = userUseCase
     }
 }
 

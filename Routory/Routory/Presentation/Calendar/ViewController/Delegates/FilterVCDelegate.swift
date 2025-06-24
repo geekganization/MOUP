@@ -8,5 +8,5 @@
 import Foundation
 
 protocol FilterVCDelegate: AnyObject {
-    func didApplyButtonTap(selectedFilterModel: FilterModel)
+    func didApplyButtonTap(model: FilterModel)
 }

@@ -37,7 +37,6 @@ final class FilterViewModel {
     
     func tranform(input: Input) -> Output {
         let filterModelListRelay = BehaviorRelay<[FilterModel]>(value: [])
-        let selectedFilterModelRelay = PublishRelay<FilterModel>()
         
         input.calendarMode
             .subscribe(with: self) { owner, calendarMode in

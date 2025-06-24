@@ -72,7 +72,7 @@ private extension FilterViewController {
     func setActions() {
         filterView.getApplyButton.rx.tap
             .subscribe(with: self) { owner, _ in
-                owner.delegate?.didApplyButtonTap(selectedFilterModel: owner.selectedFilterModel)
+                owner.delegate?.didApplyButtonTap(model: owner.selectedFilterModel)
                 owner.dismiss(animated: true)
             }.disposed(by: disposeBag)
     }

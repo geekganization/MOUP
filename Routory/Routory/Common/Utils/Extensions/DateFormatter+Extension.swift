@@ -28,7 +28,7 @@ extension DateFormatter {
         guard let startDate = workHourDateFormatter.date(from: start),
               let endDate = workHourDateFormatter.date(from: end) else { return nil }
         
-        let subtractedEndDate = Calendar.current.date(byAdding: .minute, value: minus, to: endDate) ?? endDate
+        let subtractedEndDate = Calendar.current.date(byAdding: .minute, value: -minus, to: endDate) ?? endDate
         
         let todayOverEnd = subtractedEndDate < startDate ? Calendar.current.date(byAdding: .day, value: 1, to: subtractedEndDate) ?? subtractedEndDate : subtractedEndDate
         

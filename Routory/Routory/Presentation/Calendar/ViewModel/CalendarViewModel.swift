@@ -66,7 +66,7 @@ final class CalendarViewModel {
                                                                                     wage: workplaceSummary.wage,
                                                                                     wageCalcMethod: workplaceSummary.wageCalcMethod,
                                                                                     wageType: workplaceSummary.wageType,
-                                                                                    breakTimeMinutes: workplaceSummary.breakTimeMinutes,
+                                                                                    breakTimeMinutes: BreakTimeMinutesDecimal(rawValue: workplaceSummary.breakTimeMinutes) ?? ._none,
                                                                                     eventInfo: event))
                                 }
                             }
@@ -78,7 +78,7 @@ final class CalendarViewModel {
                                                                                   wage: workplaceSummary.wage,
                                                                                   wageCalcMethod: workplaceSummary.wageCalcMethod,
                                                                                   wageType: workplaceSummary.wageType,
-                                                                                  breakTimeMinutes: workplaceSummary.breakTimeMinutes,
+                                                                                  breakTimeMinutes: BreakTimeMinutesDecimal(rawValue: workplaceSummary.breakTimeMinutes) ?? ._none,
                                                                                   eventInfo: event))
                                 }
                             }

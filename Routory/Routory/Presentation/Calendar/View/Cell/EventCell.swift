@@ -74,11 +74,13 @@ final class EventCell: UITableViewCell {
     
     // MARK: - Methods
     
-    func update(workplace: String, startTime: String, endTime: String, dailyWage: String, isOfficial: Bool, calendarMode: CalendarMode) {
-        workplaceLabel.text = workplace
+    func update(calendarModel: CalendarModel, calendarMode: CalendarMode) {
+        workplaceLabel.text = calendarModel.workplaceName
         
-        sharedChipLabel.isHidden = !isOfficial
+        sharedChipLabel.isHidden = !calendarModel.isOfficial
         
+        let startTime = calendarModel.eventInfo.calendarEvent.startTime
+        let endTime = calendarModel.eventInfo.calendarEvent.endTime
         let workHour = DateFormatter.hourDiffDecimal(from: startTime, to: endTime)
         if let hour = workHour?.hours,
            let min = workHour?.minutes {

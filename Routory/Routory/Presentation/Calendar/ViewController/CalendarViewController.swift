@@ -347,24 +347,27 @@ extension CalendarViewController: CalendarEventListVCDelegate {
         deselectCell()
     }
     
-    func didTapEventCell() {
-        // TODO: 존재하는 근무 표시
+    func didTapEventCell(model: CalendarModel) {
+        let event = model.eventInfo.calendarEvent
+        let repeatValue = event.repeatDays.isEmpty ? "없음" : event.repeatDays.joined(separator: ", ")
+        let restTime = model.breakTimeMinutes.displayString
+        
         UserManager.shared.getUser { [weak self] result in
             switch result {
             case .success(let user):
                 if user.role == UserRole.worker.rawValue {
                     let workShiftRegisterVC = WorkShiftRegistrationViewController(
-                        isRegisterMode: true,
-                        isRead: false,
-                        workPlaceTitle: "근무지 수정",
-                        workerTitle: "인원 선택",
-                        routineTitle: "루틴 추가",
-                        dateValue: "2025.07.07",
-                        repeatValue: "없음",
-                        startTime: "09:00",
-                        endTime: "18:00",
-                        restTime: "1시간",
-                        memoPlaceholder: "내용을 입력하세요."
+                        isRegisterMode: false,
+                        isRead: true,
+                        workPlaceTitle: model.workplaceName,
+                        workerTitle: "",
+                        routineTitle: "",
+                        dateValue: DateFormatter.dataSourceDateFormatter.string(from: self?.selectedDate ?? .now),
+                        repeatValue: repeatValue,
+                        startTime: event.startTime,
+                        endTime: event.endTime,
+                        restTime: restTime,
+                        memoPlaceholder: event.memo
                     )
                     workShiftRegisterVC.hidesBottomBarWhenPushed = true
                     workShiftRegisterVC.delegate = self
@@ -373,17 +376,17 @@ extension CalendarViewController: CalendarEventListVCDelegate {
                     self?.navigationController?.presentedViewController?.dismiss(animated: true)
                 } else if user.role == UserRole.owner.rawValue {
                     let ownerShiftRegisterVC = OwnerShiftRegistrationViewController(
-                        isRegisterMode: true,
-                        isRead: false,
+                        isRegisterMode: false,
+                        isRead: true,
                         workPlaceTitle: "근무지 선택",
                         workerTitle: "알바 선택",
                         routineTitle: "루틴 입력",
-                        dateValue: "2025.07.07",
-                        repeatValue: "없음",
-                        startTime: "09:00",
-                        endTime: "18:00",
-                        restTime: "1시간",
-                        memoPlaceholder: "메모를 입력하세요"
+                        dateValue: DateFormatter.dataSourceDateFormatter.string(from: self?.selectedDate ?? .now),
+                        repeatValue: repeatValue,
+                        startTime: event.startTime,
+                        endTime: event.endTime,
+                        restTime: restTime,
+                        memoPlaceholder: event.memo
                     )
                     ownerShiftRegisterVC.hidesBottomBarWhenPushed = true
                     ownerShiftRegisterVC.delegate = self
@@ -398,22 +401,24 @@ extension CalendarViewController: CalendarEventListVCDelegate {
     }
     
     func didTapAssignButton() {
+        let currentHour = Calendar.current.component(.hour, from: .now)
+        
         UserManager.shared.getUser { [weak self] result in
             switch result {
             case .success(let user):
                 if user.role == UserRole.worker.rawValue {
                     let workShiftRegisterVC = WorkShiftRegistrationViewController(
-                        isRegisterMode: false,
-                        isRead: true,
-                        workPlaceTitle: "근무지 수정",
-                        workerTitle: "인원 선택",
+                        isRegisterMode: true,
+                        isRead: false,
+                        workPlaceTitle: "근무지 선택",
+                        workerTitle: "",
                         routineTitle: "루틴 추가",
-                        dateValue: "2025.07.07",
+                        dateValue: DateFormatter.dataSourceDateFormatter.string(from: self?.selectedDate ?? .now),
                         repeatValue: "없음",
-                        startTime: "09:00",
-                        endTime: "18:00",
-                        restTime: "1시간",
-                        memoPlaceholder: "내용을 입력하세요."
+                        startTime: "\(String(format: "%02d", currentHour)):00",
+                        endTime: "\(String(format: "%02d", currentHour + 1)):00",
+                        restTime: "없음",
+                        memoPlaceholder: "추가적인 내용을 입력해주세요"
                     )
                     workShiftRegisterVC.hidesBottomBarWhenPushed = true
                     workShiftRegisterVC.delegate = self
@@ -426,13 +431,13 @@ extension CalendarViewController: CalendarEventListVCDelegate {
                         isRead: false,
                         workPlaceTitle: "근무지 선택",
                         workerTitle: "알바 선택",
-                        routineTitle: "루틴 입력",
-                        dateValue: "2025.07.07",
+                        routineTitle: "루틴 추가",
+                        dateValue: DateFormatter.dataSourceDateFormatter.string(from: self?.selectedDate ?? .now),
                         repeatValue: "없음",
-                        startTime: "09:00",
-                        endTime: "18:00",
-                        restTime: "1시간",
-                        memoPlaceholder: "메모를 입력하세요"
+                        startTime: "\(String(format: "%02d", currentHour)):00",
+                        endTime: "\(String(format: "%02d", currentHour + 1)):00",
+                        restTime: "없음",
+                        memoPlaceholder: "추가적인 내용을 입력해주세요"
                     )
                     ownerShiftRegisterVC.hidesBottomBarWhenPushed = true
                     ownerShiftRegisterVC.delegate = self
@@ -460,8 +465,8 @@ extension CalendarViewController: YearMonthPickerVCDelegate {
 // MARK: - FilterVCDelegate
 
 extension CalendarViewController: FilterVCDelegate {
-    func didApplyButtonTap(selectedFilterModel: FilterModel) {
-        filterModelRelay.accept(selectedFilterModel)
+    func didApplyButtonTap(model: FilterModel) {
+        filterModelRelay.accept(model)
     }
 }
 

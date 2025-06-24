@@ -110,10 +110,9 @@ private extension InviteCodeViewController {
     /// preset된 이름/카테고리를 전달하여 `WorkerWorkplaceRegistrationViewController`를 `.inputOnly` 모드로 push합니다.
     /// 사용자가 추가 정보를 입력하고 돌아오면 클로저를 통해 `Workplace`와 `WorkerDetail`을 전달받아 상태를 `.result`로 업데이트합니다.
     @objc func workplaceSelectViewDidTap() {
-        let workerWorkplaceRegistraitionVC = WorkerWorkplaceRegistrationViewController(
+        let workerWorkplaceRegistrationVC = WorkerWorkplaceRegistrationViewController(
             isRegisterMode: false,
             isEdit: true,
-            
             mode: .inputOnly,
             
             nameValue: selectedWorkplace?.workplace.workplacesName,
@@ -140,12 +139,12 @@ private extension InviteCodeViewController {
             dotColor: .systemGreen
         )
         
-        workerWorkplaceRegistraitionVC.onWorkplaceInfoPrepared = { [weak self] workerDetail in
+        workerWorkplaceRegistrationVC.onWorkplaceInfoPrepared = { [weak self] workerDetail in
             self?.selectedWorkerDetail = workerDetail
             self?.updateState(to: .result)
         }
         
-        navigationController?.pushViewController(workerWorkplaceRegistraitionVC, animated: true)
+        navigationController?.pushViewController(workerWorkplaceRegistrationVC, animated: true)
     }
     
     // MARK: - setBindings

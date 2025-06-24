@@ -71,7 +71,7 @@ final class MyPageView: UIView {
     
     var logoutButtonView: UIButton { logoutButton }
     
-    var EditButtonView: UIButton { editButton }
+    var editButtonView: UIButton { editButton }
     
     // MARK: - Initializer
     

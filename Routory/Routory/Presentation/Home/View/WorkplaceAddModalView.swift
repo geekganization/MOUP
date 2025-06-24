@@ -30,7 +30,7 @@ final class WorkplaceAddModalView: UIView {
         $0.textColor = .gray900
     }
     
-    private let seperatorView = UIView().then {
+    private let separatorView = UIView().then {
         $0.backgroundColor = .gray300
     }
     
@@ -81,7 +81,7 @@ private extension WorkplaceAddModalView {
         titleView.addSubviews(
             handleView,
             titleLabel,
-            seperatorView
+            separatorView
         )
         
         addSubviews(
@@ -110,7 +110,7 @@ private extension WorkplaceAddModalView {
             $0.leading.equalTo(16)
         }
         
-        seperatorView.snp.makeConstraints {
+        separatorView.snp.makeConstraints {
             $0.height.equalTo(1)
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.bottom.equalToSuperview()

@@ -25,7 +25,7 @@ final class InviteCodeEmptyModalViewController: UIViewController {
     }
     
     private let noWorkplaceFoundLabel = UILabel().then {
-        $0.text = "입력한 초대코드에 해당하는 근무지가 없어요.\n다시 한번 확인해 주세요!"
+        $0.text = "입력한 초대코드에 해당하는 근무지가 없어요.\n다시 한 번 확인해 주세요!"
         $0.font = .bodyMedium(14)
         $0.setLineSpacing(.bodyMedium)
         $0.textColor = .gray700

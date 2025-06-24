@@ -49,7 +49,7 @@ private extension AccountViewController {
     func setActions() {
         accountContentView.navigationBarView.backButtonView.addTarget(
             self,
-            action: #selector(backButonDidTap),
+            action: #selector(backButtonDidTap),
             for: .touchUpInside
         )
         
@@ -70,14 +70,14 @@ private extension AccountViewController {
             )
             let deleteModalVC = DeleteAccountModalViewController(viewModel: deleteAccountViewModel)
             guard let nickname = self.nickname else { return }
-            deleteModalVC.deleteAccountContentModel.update(nickname: nickname)
+            deleteModalVC.deleteAccountContentModal.update(nickname: nickname)
             deleteModalVC.modalPresentationStyle = .overFullScreen
             deleteModalVC.modalTransitionStyle = .crossDissolve
             self.present(deleteModalVC, animated: true, completion: nil)
         }
     }
     
-    @objc func backButonDidTap() {
+    @objc func backButtonDidTap() {
         navigationController?.popViewController(animated: true)
     }
 }

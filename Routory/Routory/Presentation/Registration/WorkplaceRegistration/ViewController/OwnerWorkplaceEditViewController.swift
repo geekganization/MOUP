@@ -46,6 +46,7 @@ final class OwnerWorkplaceEditViewController: UIViewController, UIGestureRecogni
         self.contentView = WorkplaceRegistrationContentView(
             workplaceId: workPlaceID,
             isEdit: false,
+            isWorkerManagerShow: true,
             nameValue: nameValue,
             categoryValue: categoryValue,
             salaryTypeValue: "매월",

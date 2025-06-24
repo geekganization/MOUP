@@ -120,12 +120,12 @@ final class HomeHeaderView: UITableViewHeaderFooterView {
 
     // MARK: - Public Methods
     func update(with headerData: HomeHeaderInfo, userType: UserType) {
-        print("headerData: \(headerData)")
         todaysRoutineNoticeLabel.attributedText = createRoutineNoticeText(count: headerData.todayRoutineCount)
         // 타입 별 UI 처리 분기
         monthlyAmount(headerData.monthlyAmount)
         monthlyAmountTitle(userType)
         monthlyChangeComment(userType, headerData.amountDifference)
+        setFirstSectionLabel(userType)
     }
 }
 
@@ -306,6 +306,10 @@ private extension HomeHeaderView {
         default:
             monthlyChangeCommentLabel.text = "지난 달 급여에 대한 정보가 없어요"
         }
+    }
+
+    func setFirstSectionLabel(_ userType: UserType) {
+        firstSectionLabel.text = userType == .worker ? "나의 근무지" : "나의 매장"
     }
 
 }

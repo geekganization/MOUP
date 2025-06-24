@@ -21,24 +21,21 @@ final class OwnerWorkplaceEditViewController: UIViewController, UIGestureRecogni
     private var actionHandler: RegistrationActionHandler?
     
     fileprivate var navigationBar: BaseNavigationBar
-    private let viewModel = CreateWorkplaceViewModel(
-        useCase: WorkplaceUseCase(
-            repository: WorkplaceRepository(
-                service: WorkplaceService()
-            )
-        )
-    )
+//    private let viewModel = CreateWorkplaceViewModel(
+//        useCase: WorkplaceUseCase(
+//            repository: WorkplaceRepository(
+//                service: WorkplaceService()
+//            )
+//        )
+//    )
     private let disposeBag = DisposeBag()
-    
-    private var isEdit: Bool
-    
+        
     private let workPlaceID: String
         
     // MARK: - Lifecycle
     
     init(
         workPlaceID: String,
-        isEdit: Bool,
         nameValue: String?,
         categoryValue: String?,
         salaryTypeValue: String,
@@ -84,7 +81,6 @@ final class OwnerWorkplaceEditViewController: UIViewController, UIGestureRecogni
             dotColor: dotColor,
             registerBtnTitle: "적용하기"
         )
-        self.isEdit = isEdit
         navigationBar = BaseNavigationBar(title: nameValue ?? "매장 수정")
         super.init(nibName: nil, bundle: nil)
     }
@@ -174,60 +170,8 @@ final class OwnerWorkplaceEditViewController: UIViewController, UIGestureRecogni
             inviteCode: InviteCodeGenerator.generate(userID: uid), // 초대 코드 생성
             isOfficial: true
         )
-
-        // getUserName의 결과를 받은 후 처리하도록 클로저 내부로 이동
-        UserManager.shared.getUser { [weak self] result in
-            switch result {
-            case .success(let user):
-                let workerDetail = WorkerDetail(
-                    workerName: user.userName,
-                    wage: 0,
-                    wageCalcMethod: "monthly",
-                    wageType: "",
-                    weeklyAllowance: false,
-                    payDay: 0,
-                    payWeekday: "",
-                    breakTimeMinutes: 0,
-                    employmentInsurance: false,
-                    healthInsurance: false,
-                    industrialAccident: false,
-                    nationalPension: false,
-                    incomeTax: false,
-                    nightAllowance: false,
-                    color: label
-                )
-
-                guard let self = self else { return }
-
-                let input = CreateWorkplaceViewModel.Input(
-                    createTrigger: Observable.just(()),
-                    workplace: Observable.just(workplace),
-                    workerDetail: Observable.just(workerDetail),
-                    uid: Observable.just(uid),
-                    color: Observable.just(label),
-                    role: Observable.just(Role.owner)
-                )
-
-                let output = self.viewModel.transform(input: input)
-
-                output.workplaceId
-                    .observe(on: MainScheduler.instance)
-                    .subscribe(onNext: { [weak self] id in
-                        print("매장 등록 완료: \(id)")
-                        self?.navigationController?.popViewController(animated: true)
-                    })
-                    .disposed(by: self.disposeBag)
-
-                output.error
-                    .observe(on: MainScheduler.instance)
-                    .subscribe(onNext: { error in
-                        print("에러 발생: \(error.localizedDescription)")
-                    })
-                    .disposed(by: self.disposeBag)
-
-            case .failure(let error):
-                print("사용자 이름 가져오기 실패: \(error.localizedDescription)")
-            }
-        }
+        
+        print(workplace,label)
+        //navigationController?.popViewController(animated: true)
     }
 }

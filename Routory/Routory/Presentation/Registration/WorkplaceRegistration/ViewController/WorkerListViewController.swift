@@ -14,7 +14,7 @@ final class WorkerListViewController: UIViewController, UIGestureRecognizerDeleg
 
     // MARK: - Properties
 
-    private let workerList: [WorkerDetailInfo]
+    private var workerList: [WorkerDetailInfo]
     private let tableView = UITableView()
     private let navigationBar = BaseNavigationBar(title: "알바생 관리")
     private let disposeBag = DisposeBag()
@@ -121,5 +121,16 @@ extension WorkerListViewController: UITableViewDataSource, UITableViewDelegate {
         )
 
         navigationController?.pushViewController(dummyVC, animated: true)
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            workerList.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+        }
+    }
+
+    func tableView(_ tableView: UITableView, titleForDeleteConfirmationButtonForRowAt indexPath: IndexPath) -> String? {
+        return "삭제"
     }
 }

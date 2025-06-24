@@ -1,5 +1,5 @@
 //
-//  BreakTimeMinutes.swift
+//  BreakTimeMinutesDecimal.swift
 //  Routory
 //
 //  Created by 서동환 on 6/25/25.
@@ -7,8 +7,8 @@
 
 import Foundation
 
-enum BreakTimeMinutes: Int {
-    case none = 0
+enum BreakTimeMinutesDecimal: Int {
+    case _none = 0
     case aHalf = 30
     case anHour = 60
     case anHourAndHalf = 90
@@ -16,9 +16,9 @@ enum BreakTimeMinutes: Int {
     case twoHourAndHalf = 150
     case threeHour = 180
     
-    var string: String {
+    var displayString: String {
         switch self {
-        case .none:
+        case ._none:
             return "없음"
         case .aHalf:
             return "30분"

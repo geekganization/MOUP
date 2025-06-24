@@ -65,6 +65,7 @@ struct WorkplaceWorkSummaryDaily {
 struct WorkplaceWorkSummaryDailySeparated {
     let workplaceId: String
     let workplaceName: String
+    let isOfficial: Bool
     let wage: Int
     let wageCalcMethod: String
     let wageType: String

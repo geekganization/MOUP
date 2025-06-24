@@ -27,7 +27,7 @@ final class CalendarViewModel {
     struct Input {
         /// 직전달, 이번달, 다음달 3개월치 불러옴
         let loadMonthEvent: Observable<(year: Int, month: Int)>
-        let filterWorkplace: Observable<String>
+        let filterModel: Observable<FilterModel>
         let eventCreatedBy: Observable<[String]>
     }
     
@@ -44,9 +44,9 @@ final class CalendarViewModel {
         let calendarModelListRelay = PublishRelay<(personal: [CalendarModel], shared: [CalendarModel])>()
         let workerNameRelay = PublishRelay<String>()
         
-        Observable.combineLatest(input.loadMonthEvent, input.filterWorkplace)
+        Observable.combineLatest(input.loadMonthEvent, input.filterModel)
             .subscribe(with: self, onNext: { owner, combined in
-                let ((year, month), workplace) = combined
+                let ((year, month), filterModel) = combined
                 
                 // TODO: 직전달, 이번달, 다음달 3개월씩 불러오기
                 guard let uid = UserManager.shared.firebaseUid else { return }
@@ -54,11 +54,15 @@ final class CalendarViewModel {
                 owner.eventUseCase.fetchMonthlyWorkSummaryDailySeparated(uid: uid, year: year, month: month)
                     .subscribe(with: self) { owner, workplaceWorkSummaryDailyList in
                         var calendarModelList: (personal: [CalendarModel], shared: [CalendarModel]) = ([], [])
+                        
                         for workplaceSummary in workplaceWorkSummaryDailyList {
+                            if filterModel.workplaceId == workplaceSummary.workplaceId { continue }
+                            
                             for personalEventList in workplaceSummary.personalSummary.values {
                                 for event in personalEventList.events {
                                     calendarModelList.personal.append(CalendarModel(workplaceId: workplaceSummary.workplaceId,
                                                                                     workplaceName: workplaceSummary.workplaceName,
+                                                                                    isOfficial: workplaceSummary.isOfficial,
                                                                                     wage: workplaceSummary.wage,
                                                                                     wageCalcMethod: workplaceSummary.wageCalcMethod,
                                                                                     wageType: workplaceSummary.wageType,
@@ -70,6 +74,7 @@ final class CalendarViewModel {
                                 for event in sharedEventList.events {
                                     calendarModelList.shared.append(CalendarModel(workplaceId: workplaceSummary.workplaceId,
                                                                                   workplaceName: workplaceSummary.workplaceName,
+                                                                                  isOfficial: workplaceSummary.isOfficial,
                                                                                   wage: workplaceSummary.wage,
                                                                                   wageCalcMethod: workplaceSummary.wageCalcMethod,
                                                                                   wageType: workplaceSummary.wageType,

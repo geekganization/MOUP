@@ -26,7 +26,7 @@ final class CalendarViewController: UIViewController {
     
     private let calendarMode = BehaviorRelay<CalendarMode>(value: .personal)
     
-    private let filterWorkplace = BehaviorRelay<String>(value: "전체 보기")
+    private let filterModelRelay = BehaviorRelay<FilterModel>(value: FilterModel(workplaceId: "", workplaceName: "전체 보기"))
     private let eventCreatedBy = PublishRelay<[String]>()
     
     /// `calendarView`에서 `dataSource` 관련 데이터의 연/월 형식을 만들기 위한 `DateFormatter`
@@ -147,7 +147,7 @@ private extension CalendarViewController {
         // MARK: - Input (ViewController ➡️ ViewModel)
         
         let input = CalendarViewModel.Input(loadMonthEvent: visibleYearMonth.asObservable(),
-                                            filterWorkplace: filterWorkplace.asObservable(),
+                                            filterModel: filterModelRelay.asObservable(),
                                             eventCreatedBy: eventCreatedBy.asObservable())
         
         // MARK: - Output (ViewModel ➡️ ViewController)
@@ -227,7 +227,7 @@ private extension CalendarViewController {
         let workplaceRepository = WorkplaceRepository(service: workplaceService)
         let workplaceUseCase = WorkplaceUseCase(repository: workplaceRepository)
         let filterVM = FilterViewModel(workplaceUseCase: workplaceUseCase)
-        let filterModalVC = FilterViewController(viewModel: filterVM, calendarMode: calendarMode.value, prevFilterWorkplace: filterWorkplace.value)
+        let filterModalVC = FilterViewController(viewModel: filterVM, calendarMode: calendarMode.value, prevFilterModel: filterModelRelay.value)
         filterModalVC.delegate = self
         
         if let sheet = filterModalVC.sheetPresentationController {
@@ -460,8 +460,8 @@ extension CalendarViewController: YearMonthPickerVCDelegate {
 // MARK: - FilterVCDelegate
 
 extension CalendarViewController: FilterVCDelegate {
-    func didApplyButtonTap(workplaceText: String) {
-        filterWorkplace.accept(workplaceText)
+    func didApplyButtonTap(selectedFilterModel: FilterModel) {
+        filterModelRelay.accept(selectedFilterModel)
     }
 }
 

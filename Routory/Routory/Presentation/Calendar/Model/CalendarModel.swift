@@ -10,6 +10,7 @@ import Foundation
 struct CalendarModel {
     let workplaceId: String
     let workplaceName: String
+    let isOfficial: Bool
     let wage: Int
     let wageCalcMethod: String
     let wageType: String

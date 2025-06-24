@@ -359,7 +359,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                                             let totalHours = events.reduce(0.0) { sum, event in
                                                 sum + Self.calculateWorkedHours(start: event.startTime, end: event.endTime)
                                             }
-
+                                            
                                             let totalWage: Int
                                             if wageCalcMethod == "monthly" {
                                                 totalWage = wage
@@ -441,7 +441,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                 if let error = error {
                     observer.onError(error)
                 } else {
-                    let ownerUid = doc?.data()?["ownerUid"] as? String
+                    let ownerUid = doc?.data()?["ownerId"] as? String
                     self.db.collection("calendars")
                         .whereField("workplaceId", isEqualTo: workplaceId)
                         .getDocuments { snap, err in
@@ -464,7 +464,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                 if ownerUid == uid {
                     return self.deleteWorkplaceAndReferences(workplaceId: workplaceId, calendarId: calendarId)
                 } else {
-                    // 워커 == 내 정보, 내가 만든 이벤트만 삭제
+                    // 워커 == 내 정보, 내가 만든 이벤트만 삭제 + 내 workplaces 문서도 삭제
                     let batch = self.db.batch()
                     
                     // 1. workplaces/{workplaceId}/workers/{myUid}
@@ -472,7 +472,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                         .collection("workers").document(uid)
                     batch.deleteDocument(workerRef)
                     
-                    // 2. users/{myUid}/workplaces/{workplaceId}
+                    // 2. users/{myUid}/workplaces/{workplaceId} (내 workplaces 문서 삭제)
                     let myWorkplaceRef = self.db.collection("users").document(uid)
                         .collection("workplaces").document(workplaceId)
                     batch.deleteDocument(myWorkplaceRef)
@@ -481,7 +481,6 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                     if let calendarId = calendarId {
                         let eventsRef = self.db.collection("calendars").document(calendarId).collection("events")
                         return Observable.create { observer in
-                            // 1, 2번 batch 먼저
                             batch.commit { error in
                                 if let error = error {
                                     observer.onError(error)
@@ -527,79 +526,88 @@ final class WorkplaceService: WorkplaceServiceProtocol {
             }
     }
     
-    /// 오너일 때 전체 삭제 처리 (기존 deleteWorkplaceAndReferences 함수)
+    /// 오너일 때 전체 삭제
     private func deleteWorkplaceAndReferences(workplaceId: String, calendarId: String?) -> Observable<Void> {
-        // 1. 워커 uid 리스트 조회
-        let workersObs = Observable<[String]>.create { observer in
-            self.db.collection("workplaces")
-                .document(workplaceId)
-                .collection("workers")
-                .getDocuments { snapshot, error in
-                    if let error = error {
-                        observer.onError(error)
-                    } else {
-                        let uids = snapshot?.documents.map { $0.documentID } ?? []
-                        observer.onNext(uids)
-                        observer.onCompleted()
+        // 1. workers 서브컬렉션 모든 문서 삭제 + uid 목록 수집
+        let workersRef = self.db.collection("workplaces").document(workplaceId).collection("workers")
+        let deleteWorkersObs = Observable<[String]>.create { observer in
+            workersRef.getDocuments { snapshot, error in
+                if let error = error {
+                    observer.onError(error)
+                    return
+                }
+                let workerDocs = snapshot?.documents ?? []
+                let uids = workerDocs.map { $0.documentID }
+                let group = DispatchGroup()
+                workerDocs.forEach { doc in
+                    group.enter()
+                    doc.reference.delete { _ in
+                        group.leave()
                     }
                 }
+                group.notify(queue: .main) {
+                    observer.onNext(uids)
+                    observer.onCompleted()
+                }
+            }
             return Disposables.create()
         }
         
-        return workersObs
-            .flatMap { uids -> Observable<Void> in
-                let batch = self.db.batch()
-                
-                // 1. workplaces/{workplaceId}
-                let workplaceRef = self.db.collection("workplaces").document(workplaceId)
-                batch.deleteDocument(workplaceRef)
-                
-                // 2. calendars/{calendarId}
-                if let calendarId = calendarId {
-                    let calendarRef = self.db.collection("calendars").document(calendarId)
-                    batch.deleteDocument(calendarRef)
-                }
-                
-                // 3. users/{uid}/workplaces/{workplaceId}
-                for uid in uids {
-                    let userWorkplaceRef = self.db.collection("users").document(uid)
-                        .collection("workplaces").document(workplaceId)
-                    batch.deleteDocument(userWorkplaceRef)
-                }
-                
-                // batch commit + events 서브컬렉션 삭제
-                return Observable.create { observer in
-                    batch.commit { error in
-                        if let error = error {
-                            observer.onError(error)
-                        } else {
-                            if let calendarId = calendarId {
-                                let eventsRef = self.db.collection("calendars").document(calendarId).collection("events")
-                                eventsRef.getDocuments { snapshot, error in
-                                    if let error = error {
-                                        observer.onError(error)
-                                        return
-                                    }
-                                    let group = DispatchGroup()
-                                    snapshot?.documents.forEach { doc in
-                                        group.enter()
-                                        doc.reference.delete { _ in
-                                            group.leave()
-                                        }
-                                    }
-                                    group.notify(queue: .main) {
-                                        observer.onNext(())
-                                        observer.onCompleted()
+        // 2. workers 삭제 후, workplace/캘린더/유저 workplaces 문서/이벤트 삭제
+        return deleteWorkersObs.flatMap { uids -> Observable<Void> in
+            let batch = self.db.batch()
+            
+            // workplaces/{workplaceId}
+            let workplaceRef = self.db.collection("workplaces").document(workplaceId)
+            batch.deleteDocument(workplaceRef)
+            
+            // calendars/{calendarId}
+            if let calendarId = calendarId {
+                let calendarRef = self.db.collection("calendars").document(calendarId)
+                batch.deleteDocument(calendarRef)
+            }
+            
+            // users/{uid}/workplaces/{workplaceId} (모든 워커의 workplaces 문서 삭제)
+            for uid in uids {
+                let userWorkplaceRef = self.db.collection("users").document(uid)
+                    .collection("workplaces").document(workplaceId)
+                batch.deleteDocument(userWorkplaceRef)
+            }
+            
+            // batch commit → 이후 events 서브컬렉션 삭제
+            return Observable.create { observer in
+                batch.commit { error in
+                    if let error = error {
+                        observer.onError(error)
+                    } else {
+                        // 캘린더 events 서브컬렉션 삭제 (있을 때만)
+                        if let calendarId = calendarId {
+                            let eventsRef = self.db.collection("calendars").document(calendarId).collection("events")
+                            eventsRef.getDocuments { snapshot, error in
+                                if let error = error {
+                                    observer.onError(error)
+                                    return
+                                }
+                                let group = DispatchGroup()
+                                snapshot?.documents.forEach { doc in
+                                    group.enter()
+                                    doc.reference.delete { _ in
+                                        group.leave()
                                     }
                                 }
-                            } else {
-                                observer.onNext(())
-                                observer.onCompleted()
+                                group.notify(queue: .main) {
+                                    observer.onNext(())
+                                    observer.onCompleted()
+                                }
                             }
+                        } else {
+                            observer.onNext(())
+                            observer.onCompleted()
                         }
                     }
-                    return Disposables.create()
                 }
+                return Disposables.create()
             }
+        }
     }
 }

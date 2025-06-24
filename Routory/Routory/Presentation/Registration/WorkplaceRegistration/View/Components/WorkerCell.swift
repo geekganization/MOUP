@@ -10,6 +10,12 @@ import UIKit
 final class WorkerCell: UITableViewCell {
     private let colorView = UIView()
     private let nameLabel = UILabel()
+    private let chevronImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = UIImage.chevronRight
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -23,15 +29,16 @@ final class WorkerCell: UITableViewCell {
     private func setupUI() {
         colorView.layer.cornerRadius = 6
         colorView.clipsToBounds = true
-        colorView.backgroundColor = .lightGray // fallback 색상
+        colorView.backgroundColor = .lightGray
 
         nameLabel.font = .systemFont(ofSize: 16)
         nameLabel.textColor = .label
 
+        accessoryType = .none
+        setupAccessoryView()
+
         contentView.addSubview(colorView)
         contentView.addSubview(nameLabel)
-
-        accessoryType = .disclosureIndicator
 
         colorView.translatesAutoresizingMaskIntoConstraints = false
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -46,6 +53,13 @@ final class WorkerCell: UITableViewCell {
             nameLabel.leadingAnchor.constraint(equalTo: colorView.trailingAnchor, constant: 8),
             nameLabel.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -32)
         ])
+    }
+
+    private func setupAccessoryView() {
+        let container = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 16))
+        chevronImageView.frame = container.bounds
+        container.addSubview(chevronImageView)
+        accessoryView = container
     }
 
     func configure(with info: WorkerDetailInfo) {

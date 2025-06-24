@@ -102,6 +102,9 @@ final class WorkerEditViewController: UIViewController, UIGestureRecognizerDeleg
         setup()
         setupNavigationBar()
         layout()
+        registerButton.addTarget(self, action: #selector(didTapRegisterButton), for: .touchUpInside)
+        registerButton.addTarget(self, action: #selector(buttonTouchDown), for: .touchDown)
+        registerButton.addTarget(self, action: #selector(buttonTouchUp), for: [.touchUpInside, .touchUpOutside, .touchCancel])
     }
 
     // MARK: - Setup
@@ -177,6 +180,50 @@ final class WorkerEditViewController: UIViewController, UIGestureRecognizerDeleg
             $0.height.equalTo(48)
             $0.bottom.equalToSuperview()
         }
+    }
+    
+    @objc private func didTapRegisterButton() {
+        handleRegisterButtonTapped()
+    }
+    
+    @objc func buttonTouchDown(_ sender: UIButton) {
+        UIView.animate(withDuration: 0.1) {
+            sender.alpha = 0.6
+        }
+    }
+
+    @objc func buttonTouchUp(_ sender: UIButton) {
+        UIView.animate(withDuration: 0.1) {
+            sender.alpha = 1.0
+        }
+    }
+    
+    private func handleRegisterButtonTapped() {
+        print("급여 유형:", salaryInfoView.getTypeValue())
+        print("급여 계산:", salaryInfoView.getCalcValue())
+        print("고정급:", salaryInfoView.getFixedSalaryValue())
+        print("시급:", salaryInfoView.getHourlyWageValue())
+        print("지급일:", salaryInfoView.getPayDateValue())
+        print("지급 요일:", salaryInfoView.getPayWeekdayValue())
+        
+        let selected = workConditionView.getSelectedConditions()
+
+        print("4대 보험 가입:", selected.contains("4대 보험"))
+        print("국민연금:", selected.contains("국민연금"))
+        print("건강보험:", selected.contains("건강보험"))
+        print("고용보험:", selected.contains("고용보험"))
+        print("산재보험:", selected.contains("산재보험"))
+        print("소득세 적용:", selected.contains("소득세"))
+        print("주휴수당 적용:", selected.contains("주휴수당"))
+        print("야간수당 적용:", selected.contains("야간수당*"))
+
+        let labelName = labelView.getColorLabelData()
+        let labelColor = labelView.getColorData()
+
+        print("레이블 이름:", labelName)
+        print("레이블 색상:", labelColor.description)
+        
+        navigationController?.popViewController(animated: true)
     }
 }
 

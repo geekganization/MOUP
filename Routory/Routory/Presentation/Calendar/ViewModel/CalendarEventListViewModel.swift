@@ -16,7 +16,7 @@ final class CalendarEventListViewModel {
     
     private let disposeBag = DisposeBag()
     
-    private var eventList: [CalendarEvent] = []
+    private var calendarModelList: [CalendarModel] = []
     
     // MARK: - Input (ViewController ➡️ ViewModel)
     
@@ -28,18 +28,17 @@ final class CalendarEventListViewModel {
     // MARK: - Output (ViewModel ➡️ ViewController)
     
     struct Output {
-        let eventListRelay: BehaviorRelay<[CalendarEvent]>
+        let calendarModelListRelay: BehaviorRelay<[CalendarModel]>
     }
     
     // MARK: - Transform (Input ➡️ Output)
     
     func tranform(input: Input) -> Output {
-        let eventListRelay = BehaviorRelay<[CalendarEvent]>(value: [])
+        let calendarModelListRelay = BehaviorRelay<[CalendarModel]>(value: [])
         
         input.loadEventList
             .subscribe(with: self) { owner, _ in
-                // TODO: API 호출로 갱신해야 함
-                eventListRelay.accept(owner.eventList)
+                calendarModelListRelay.accept(owner.calendarModelList)
             }.disposed(by: disposeBag)
         
         input.deleteEventIndexPath
@@ -47,12 +46,12 @@ final class CalendarEventListViewModel {
                 // TODO: UseCase를 통해 삭제
             }.disposed(by: disposeBag)
         
-        return Output(eventListRelay: eventListRelay)
+        return Output(calendarModelListRelay: calendarModelListRelay)
     }
     
     // MARK: - Initializer
     
-    init(eventList: [CalendarEvent]) {
-        self.eventList = eventList
+    init(calendarModelList: [CalendarModel]) {
+        self.calendarModelList = calendarModelList
     }
 }

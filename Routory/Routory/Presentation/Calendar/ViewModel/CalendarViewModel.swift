@@ -35,7 +35,7 @@ final class CalendarViewModel {
     
     struct Output {
         let calendarEventListRelay: PublishRelay<(personal: [CalendarEvent], shared: [CalendarEvent])>
-        let workplaceWorkSummaryDailyListRelay: PublishRelay<[WorkplaceWorkSummaryDailySeparated]>
+        let calendarModelListRelay: PublishRelay<(personal: [CalendarModel], shared: [CalendarModel])>
         let workerNameRelay: PublishRelay<String>
     }
     
@@ -43,7 +43,7 @@ final class CalendarViewModel {
     
     func tranform(input: Input) -> Output {
         let calendarEventListRelay = PublishRelay<(personal: [CalendarEvent], shared: [CalendarEvent])>()
-        let workplaceWorkSummaryDailyListRelay = PublishRelay<[WorkplaceWorkSummaryDailySeparated]>()
+        let calendarModelListRelay = PublishRelay<(personal: [CalendarModel], shared: [CalendarModel])>()
         let workerNameRelay = PublishRelay<String>()
         
         Observable.combineLatest(input.loadMonthEvent, input.filterWorkplace)
@@ -55,7 +55,28 @@ final class CalendarViewModel {
                 
                 owner.eventUseCase.fetchMonthlyWorkSummaryDailySeparated(uid: uid, year: year, month: month)
                     .subscribe(with: self) { owner, workplaceWorkSummaryDailyList in
-                        dump(workplaceWorkSummaryDailyList)
+                        var calendarModelList: (personal: [CalendarModel], shared: [CalendarModel]) = ([], [])
+                        for workplaceSummary in workplaceWorkSummaryDailyList {
+                            for personalEventList in workplaceSummary.personalSummary.values {
+                                for event in personalEventList.events {
+                                    calendarModelList.personal.append(CalendarModel(workplaceId: workplaceSummary.workplaceId,
+                                                                                    workplaceName: workplaceSummary.workplaceName,
+                                                                                    wage: workplaceSummary.wage,
+                                                                                    wageCalcMethod: workplaceSummary.wageCalcMethod,
+                                                                                    eventInfo: event))
+                                }
+                            }
+                            for sharedEventList in workplaceSummary.sharedSummary.values {
+                                for event in sharedEventList.events {
+                                    calendarModelList.shared.append(CalendarModel(workplaceId: workplaceSummary.workplaceId,
+                                                                                  workplaceName: workplaceSummary.workplaceName,
+                                                                                  wage: workplaceSummary.wage,
+                                                                                  wageCalcMethod: workplaceSummary.wageCalcMethod,
+                                                                                  eventInfo: event))
+                                }
+                            }
+                        }
+                        calendarModelListRelay.accept(calendarModelList)
                     }.disposed(by: owner.disposeBag)
                 
                 owner.eventUseCase.fetchAllEventsForUserInMonthSeparated(uid: uid, year: year, month: month)
@@ -85,7 +106,7 @@ final class CalendarViewModel {
 //            }.disposed(by: disposeBag)
         
         return Output(calendarEventListRelay: calendarEventListRelay,
-                      workplaceWorkSummaryDailyListRelay: workplaceWorkSummaryDailyListRelay,
+                      calendarModelListRelay: calendarModelListRelay,
                       workerNameRelay: workerNameRelay)
     }
     

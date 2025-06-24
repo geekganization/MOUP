@@ -7,16 +7,22 @@
 
 import Foundation
 
+import Then
+
 extension DateFormatter {
+    /// `calendarView`에서 `dataSource` 관련 데이터의 연/월 형식을 만들기 위한 `DateFormatter`
+    static let dataSourceDateFormatter = DateFormatter().then {
+        $0.dateFormat = "yyyy.MM.dd"
+        $0.locale = Locale(identifier: "ko_KR")
+        $0.timeZone = TimeZone(identifier: "Asia/Seoul")
+    }
+    
     /// 근무 시간 계산용 `DateFormatter`
-    static let workHourDateFormatter: DateFormatter = {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "HH:mm"
-        dateFormatter.locale = Locale(identifier: "ko_KR")
-        dateFormatter.timeZone = TimeZone(identifier: "Asia/Seoul")
-        
-        return dateFormatter
-    }()
+    static let workHourDateFormatter = DateFormatter().then() {
+        $0.dateFormat = "HH:mm"
+        $0.locale = Locale(identifier: "ko_KR")
+        $0.timeZone = TimeZone(identifier: "Asia/Seoul")
+    }
     
     static func hourDiffDecimal(from start: String, to end: String) -> (hours: Int, minutes: Int, decimal: Double)? {
         guard let startDate = workHourDateFormatter.date(from: start),

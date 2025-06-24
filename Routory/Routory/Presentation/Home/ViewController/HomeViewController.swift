@@ -187,7 +187,11 @@ private extension HomeViewController {
         expandedIndexPathRelay.skip(1)
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] _ in
-                self?.homeView.rx.reloadData.onNext(())
+                guard let self else { return }
+                let visibleRows = self.homeView.rx.indexPathsForVisibleRows
+                if !visibleRows.isEmpty {
+                    self.homeView.rx.reloadRows.onNext(visibleRows)
+                }
             })
             .disposed(by: disposeBag)
 

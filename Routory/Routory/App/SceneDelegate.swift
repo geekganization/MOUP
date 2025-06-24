@@ -20,9 +20,12 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let rootVC: UIViewController
         
-        if Auth.auth().currentUser != nil {
+        if let currentUser = Auth.auth().currentUser {
             // 로그인된 상태 → 메인(TabBar)으로
             rootVC = TabbarViewController(viewModel: TabBarViewModel())
+
+            let notificationService = DummyNotificationService()
+            notificationService.runNotificationPipeline(uid: currentUser.uid)
         } else {
             // 로그인 안 됨 → 로그인 화면
             let loginVC = LoginViewController(

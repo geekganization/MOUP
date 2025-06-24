@@ -170,9 +170,8 @@ private extension HomeViewController {
         homeView.rx.notificationButtonTapped
             .subscribe(onNext: { [weak self] in
                 guard let self else { return }
-                
-                let notificationService = DummyNotificationService()
-                let viewModel = NotificationViewModel(notificationService: notificationService)
+                guard let uid = UserManager.shared.firebaseUid else { return }
+                let viewModel = NotificationViewModel(uid: uid)
                 let vc = NotificationViewController(viewModel: viewModel)
                 
                 self.navigationController?.pushViewController(vc, animated: true)

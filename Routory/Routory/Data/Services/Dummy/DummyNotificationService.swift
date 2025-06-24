@@ -214,13 +214,14 @@ final class DummyNotificationService {
                             let title = data["title"] as? String,
                             let body = data["body"] as? String,
                             let isRead = data["read"] as? Bool,
-                            let timestamp = data["createdAt"] as? Timestamp,
+                            let createdAtString = data["createdAt"] as? String,
+                            let createdAt = ISO8601DateFormatter().date(from: createdAtString),
                             let typeString = data["type"] as? String
                         else {
                             return nil
                         }
 
-                        let timeAgo = DummyNotification.calculateTimeAgo(from: timestamp.dateValue())
+                        let timeAgo = DummyNotification.calculateTimeAgo(from: createdAt)
                         let type: NotificationType
 
                         switch typeString {

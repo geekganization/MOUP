@@ -39,6 +39,16 @@ final class TabbarViewController: UITabBarController {
         super.viewDidLoad()
         configure()
     }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+        let customHeight: CGFloat = 64 + self.view.safeAreaInsets.bottom
+        var tabBarFrame = self.tabBar.frame
+        tabBarFrame.size.height = customHeight
+        tabBarFrame.origin.y = self.view.frame.height - customHeight
+        self.tabBar.frame = tabBarFrame
+    }
 }
 
 // MARK: - UI Methods
@@ -54,9 +64,12 @@ private extension TabbarViewController {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         
-        let fontAttributes = [NSAttributedString.Key.font: UIFont.bodyMedium(12)]
-        appearance.stackedLayoutAppearance.normal.titleTextAttributes = fontAttributes
-        appearance.stackedLayoutAppearance.selected.titleTextAttributes = fontAttributes
+        let normalAttributes = [NSAttributedString.Key.font: UIFont.bodyMedium(12), NSAttributedString.Key.foregroundColor: UIColor.gray400]
+        let selectedAttributes = [NSAttributedString.Key.font: UIFont.bodyMedium(12)]
+        appearance.stackedLayoutAppearance.normal.titleTextAttributes = normalAttributes
+        appearance.stackedLayoutAppearance.selected.titleTextAttributes = selectedAttributes
+        appearance.stackedLayoutAppearance.normal.titlePositionAdjustment = .init(horizontal: 0.0, vertical: -8.0)
+        appearance.stackedLayoutAppearance.selected.titlePositionAdjustment = .init(horizontal: 0.0, vertical: -8.0)
         
         self.tabBar.standardAppearance = appearance
         self.tabBar.scrollEdgeAppearance = appearance

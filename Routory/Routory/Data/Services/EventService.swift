@@ -107,6 +107,7 @@ final class EventService: EventServiceProtocol {
                 let perWorkplaceObs = workplaceIds.map { workplaceId -> Observable<WorkplaceWorkSummaryDailySeparated?> in
                     Observable<WorkplaceWorkSummaryDailySeparated?>.create { o in
                         let workplaceDoc = self.db.collection("workplaces").document(workplaceId)
+                            .collection("worker").document(uid)
                         workplaceDoc.addSnapshotListener { doc, _ in
                             guard let doc, let wData = doc.data(),
                                   let workplaceName = wData["workplaceName"] as? String,
@@ -123,18 +124,19 @@ final class EventService: EventServiceProtocol {
                                     let sharedCalIds   = calSnap?.documents.filter { ($0.data()["isShared"] as? Bool) == true  }.map { $0.documentID } ?? []
                                     
                                     // 이벤트 조회 함수
-                                    func fetchEvents(calIds: [String]) -> Observable<[CalendarEvent]> {
+                                    func fetchEvents(calIds: [String]) -> Observable<[CalendarEventInfo]> {
                                         let eventObs = calIds.map { calId in
-                                            Observable<[CalendarEvent]>.create { eventObserver in
+                                            Observable<[CalendarEventInfo]>.create { eventObserver in
                                                 self.db.collection("calendars").document(calId)
                                                     .collection("events")
                                                     .whereField("year", isEqualTo: year)
                                                     .whereField("month", isEqualTo: month)
                                                     .addSnapshotListener { evtSnap, _ in
-                                                        let events: [CalendarEvent] = evtSnap?.documents.compactMap { doc in
+                                                        let events: [CalendarEventInfo] = evtSnap?.documents.compactMap { doc in
                                                             do {
                                                                 let data = try JSONSerialization.data(withJSONObject: doc.data())
-                                                                return try JSONDecoder().decode(CalendarEvent.self, from: data)
+                                                                let event = try JSONDecoder().decode(CalendarEvent.self, from: data)
+                                                                return CalendarEventInfo(id: doc.documentID, calendarEvent: event)
                                                             } catch { return nil }
                                                         } ?? []
                                                         eventObserver.onNext(events)
@@ -151,10 +153,10 @@ final class EventService: EventServiceProtocol {
                                     
                                     Observable.zip(personalEventsObs, sharedEventsObs)
                                         .subscribe(onNext: { personalEvents, sharedEvents in
-                                            func groupSummary(_ events: [CalendarEvent]) -> [String: (events: [CalendarEvent], totalHours: Double, totalWage: Int)] {
-                                                let groupedByDay = Dictionary(grouping: events) { $0.eventDate }
+                                            func groupSummary(_ events: [CalendarEventInfo]) -> [String: (events: [CalendarEventInfo], totalHours: Double, totalWage: Int)] {
+                                                let groupedByDay = Dictionary(grouping: events) { $0.calendarEvent.eventDate }
                                                 return groupedByDay.mapValues { events in
-                                                    let totalHours = events.reduce(0.0) { $0 + Self.calculateWorkedHours(start: $1.startTime, end: $1.endTime) }
+                                                    let totalHours = events.reduce(0.0) { $0 + EventService.calculateWorkedHours(start: $1.calendarEvent.startTime, end: $1.calendarEvent.endTime) }
                                                     let totalWage: Int
                                                     if wageCalcMethod == "monthly" {
                                                         let workDays = groupedByDay.count

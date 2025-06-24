@@ -28,7 +28,7 @@ final class RoutineService: RoutineServiceProtocol {
     /// - Firestore 경로: users/{userId}/routine
     func fetchAllRoutines(uid: String) -> Observable<[RoutineInfo]> {
         return Observable.create { observer in
-            self.db.collection("users").document(uid).collection("routine")
+            let listener = self.db.collection("users").document(uid).collection("routine")
                 .addSnapshotListener { snapshot, error in
                     if let error = error {
                         observer.onError(error)
@@ -36,10 +36,8 @@ final class RoutineService: RoutineServiceProtocol {
                     }
                     guard let documents = snapshot?.documents else {
                         observer.onNext([])
-                        observer.onCompleted()
                         return
                     }
-                    
                     let routines: [RoutineInfo] = documents.compactMap { doc in
                         do {
                             let jsonData = try JSONSerialization.data(withJSONObject: doc.data())
@@ -50,13 +48,14 @@ final class RoutineService: RoutineServiceProtocol {
                             return nil
                         }
                     }
-                    
                     observer.onNext(routines)
-                    observer.onCompleted()
                 }
-            return Disposables.create()
+            return Disposables.create {
+                listener.remove()
+            }
         }
     }
+
     
     /// 사용자의 루틴을 새로 등록합니다.
     ///

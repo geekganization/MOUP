@@ -79,7 +79,8 @@ final class HomeViewModel {
                 print("transform - user triggered")
                 switch refreshType {
                 case .normal:
-                    LoadingManager.start()
+                    //LoadingManager.start()
+                    break
                 case .silent: break
                 }
                 guard let self else { return .empty() }
@@ -103,7 +104,8 @@ final class HomeViewModel {
                 guard let self else { return }
                 switch refreshType {
                 case .normal:
-                    LoadingManager.stop()
+                    //LoadingManager.stop()
+                    break
                 case .silent:
                     break
                 }

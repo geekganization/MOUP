@@ -21,9 +21,6 @@ final class WorkplaceUseCase: WorkplaceUseCaseProtocol {
     func fetchAllWorkplacesForUser(uid: String) -> Observable<[WorkplaceInfo]> {
         return repository.fetchAllWorkplacesForUser1(uid: uid)
     }
-    func fetchAllWorkplacesForUser2(uid: String) -> Observable<[WorkplaceInfo]> {
-        return repository.fetchAllWorkplacesForUser2(uid: uid)
-    }
     func createWorkplaceWithCalendarAndMaybeWorker(
         uid: String,
         role: Role,

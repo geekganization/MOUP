@@ -48,7 +48,7 @@ final class CalendarService: CalendarServiceProtocol {
     /// - Returns: 연결된 캘린더의 calendarId (문서 ID) 또는 nil
     func fetchCalendarIdByWorkplaceId(workplaceId: String) -> Observable<String?> {
         return Observable.create { observer in
-            self.db.collection("calendars")
+            let listener = self.db.collection("calendars")
                 .whereField("workplaceId", isEqualTo: workplaceId)
                 .addSnapshotListener { snapshot, error in
                     if let error = error {
@@ -57,9 +57,8 @@ final class CalendarService: CalendarServiceProtocol {
                     }
                     let calendarId = snapshot?.documents.first?.documentID
                     observer.onNext(calendarId)
-                    observer.onCompleted()
                 }
-            return Disposables.create()
+            return Disposables.create { listener.remove() }
         }
     }
     

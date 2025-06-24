@@ -60,7 +60,7 @@ final class WorkplaceRegistrationContentView: UIView {
         self.workplaceInfoView = WorkplaceInfoView(
             nameValue: nameValue,
             categoryValue: categoryValue,
-            workplaceId: workplaceId,
+            workplaceId: workplaceId
         )
         
         self.salaryInfoView = SalaryInfoView(

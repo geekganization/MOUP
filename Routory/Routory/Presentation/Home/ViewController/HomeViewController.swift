@@ -220,7 +220,9 @@ extension HomeViewController: UITableViewDelegate {
             }).disposed(by: disposeBag)
         
         headerView.rx.plusButtonTapped
-            .subscribe(onNext: {
+            .subscribe(onNext: { [weak self] in
+                guard let self,
+                      self.presentedViewController == nil else { return }
                 let workplaceAddModalVC = WorkplaceAddModalViewController()
                 let nav = UINavigationController(rootViewController: workplaceAddModalVC)
                 nav.modalPresentationStyle = .overFullScreen

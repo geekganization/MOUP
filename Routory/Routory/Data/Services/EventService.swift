@@ -90,19 +90,16 @@ final class EventService: EventServiceProtocol {
         year: Int,
         month: Int
     ) -> Observable<[WorkplaceWorkSummaryDailySeparated]> {
-        print("🛠 fetchMonthlyWorkSummaryDailySeparated called with uid: \(uid), year: \(year), month: \(month)")
         let workplacesRef = db.collection("users").document(uid).collection("workplaces")
         
         return Observable.create { observer in
             // 최상위 workplaces 리스너
             let workplacesListener = workplacesRef.addSnapshotListener { snapshot, error in
-                print("🛠 workplaces snapshot received; error: \(String(describing: error)), documents: \(snapshot?.documents.map { $0.documentID } ?? [])")
                 if let error = error {
                     observer.onError(error)
                     return
                 }
                 let workplaceIds = snapshot?.documents.map { $0.documentID } ?? []
-                print("🛠 workplaceIds: \(workplaceIds)")
                 if workplaceIds.isEmpty {
                     observer.onNext([])
                     return
@@ -110,7 +107,6 @@ final class EventService: EventServiceProtocol {
                 
                 let perWorkplaceObs = workplaceIds.map { workplaceId -> Observable<WorkplaceWorkSummaryDailySeparated?> in
                     Observable<WorkplaceWorkSummaryDailySeparated?>.create { o in
-                        print("🛠 processing workplaceId: \(workplaceId)")
                         let workplaceDocRef = self.db.collection("workplaces").document(workplaceId)
                         let workerDocRef = workplaceDocRef.collection("worker").document(uid)
                         
@@ -120,12 +116,10 @@ final class EventService: EventServiceProtocol {
                         
                         // workplace 리스너
                         let workplaceListener = workplaceDocRef.addSnapshotListener { workplaceDoc, _ in
-                            print("🛠 workplaceDoc snapshot for \(workplaceId): \(String(describing: workplaceDoc?.data()))")
                             // worker 리스너
                             workerListener = workerDocRef.addSnapshotListener { workerDoc, _ in
-                                print("🛠 workerDoc snapshot for uid \(uid) in workplace \(workplaceId): \(String(describing: workerDoc?.data()))")
                                 guard let wData = workplaceDoc?.data(),
-                                      let workplaceName = wData["workplaceName"] as? String,
+                                      let workplaceName = wData["workplacesName"] as? String,
                                       let workerData = workerDoc?.data(),
                                       let wage = workerData["wage"] as? Int,
                                       let wageCalcMethod = workerData["wageCalcMethod"] as? String
@@ -136,10 +130,8 @@ final class EventService: EventServiceProtocol {
                                 calendarListener = self.db.collection("calendars")
                                     .whereField("workplaceId", isEqualTo: workplaceId)
                                     .addSnapshotListener { calSnap, _ in
-                                        print("🛠 calendars snapshot: \(String(describing: calSnap?.documents.map { $0.documentID }))")
                                         let personalCalIds = calSnap?.documents.filter { ($0.data()["isShared"] as? Bool) == false }.map { $0.documentID } ?? []
                                         let sharedCalIds   = calSnap?.documents.filter { ($0.data()["isShared"] as? Bool) == true  }.map { $0.documentID } ?? []
-                                        print("🛠 personalCalIds: \(personalCalIds), sharedCalIds: \(sharedCalIds)")
                                         
                                         func fetchEvents(calIds: [String]) -> Observable<[CalendarEventInfo]> {
                                             let eventObs = calIds.map { calId in
@@ -150,7 +142,6 @@ final class EventService: EventServiceProtocol {
                                                         .whereField("year", isEqualTo: year)
                                                         .whereField("month", isEqualTo: month)
                                                         .addSnapshotListener { evtSnap, _ in
-                                                            print("🛠 events snapshot for calendar \(calId): \(evtSnap?.documents.map { $0.documentID } ?? [])")
                                                             let events: [CalendarEventInfo] = evtSnap?.documents.compactMap { doc in
                                                                 do {
                                                                     let data = try JSONSerialization.data(withJSONObject: doc.data())
@@ -158,7 +149,6 @@ final class EventService: EventServiceProtocol {
                                                                     return CalendarEventInfo(id: doc.documentID, calendarEvent: event)
                                                                 } catch { return nil }
                                                             } ?? []
-                                                            print("🛠 decoded \(events.count) events for calendar \(calId)")
                                                             eventObserver.onNext(events)
                                                         }
                                                     // 이벤트 리스너 해제
@@ -189,7 +179,6 @@ final class EventService: EventServiceProtocol {
                                                         return (events, totalHours, totalWage)
                                                     }
                                                 }
-                                                print("🛠 emitting summary for workplace \(workplaceId): personalSummary days: \(Array(groupSummary(personalEvents).keys)), sharedSummary days: \(Array(groupSummary(sharedEvents).keys))")
                                                 o.onNext(WorkplaceWorkSummaryDailySeparated(
                                                     workplaceId: workplaceId,
                                                     workplaceName: workplaceName,

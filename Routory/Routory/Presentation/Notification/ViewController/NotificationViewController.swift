@@ -76,6 +76,16 @@ private extension NotificationViewController {
                 self.navigationController?.popViewController(animated: true)
             })
             .disposed(by: disposeBag)
+        
+        notificationView.rx.itemSelected
+            .withLatestFrom(output.notifications) { indexPath, notifications in
+                (indexPath, notifications[indexPath.row])
+            }
+            .subscribe(onNext: { [weak self] indexPath, notification in
+                guard let self else { return }
+                self.viewModel.markNotificationAsRead(referenceId: notification.referenceId)
+            })
+            .disposed(by: disposeBag)
     }
 }
 

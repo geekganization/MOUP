@@ -392,7 +392,8 @@ final class DummyNotificationService {
                             let body = data["body"] as? String,
                             let isRead = data["read"] as? Bool,
                             let timestamp = data["createdAt"] as? Timestamp,
-                            let typeString = data["type"] as? String
+                            let typeString = data["type"] as? String,
+                            let referenceId = data["referenceId"] as? String
                         else {
                             return nil // 필드가 누락된 경우 스킵
                         }
@@ -419,7 +420,8 @@ final class DummyNotificationService {
                             title: title,
                             content: body,
                             time: timeAgo,
-                            type: type
+                            type: type,
+                            referenceId: referenceId
                         )
                     } ?? []
 
@@ -429,6 +431,36 @@ final class DummyNotificationService {
                 }
 
             // 옵저버가 dispose될 때 정리 작업 수행
+            return Disposables.create()
+        }
+    }
+    
+    func markNotificationAsRead(uid: String, referenceId: String) -> Completable {
+        return Completable.create { completable in
+            let query = self.db.collection("users").document(uid)
+                .collection("notifications")
+                .whereField("referenceId", isEqualTo: referenceId)
+
+            query.getDocuments { snapshot, error in
+                if let error = error {
+                    completable(.error(error))
+                    return
+                }
+
+                guard let doc = snapshot?.documents.first else {
+                    completable(.completed)
+                    return
+                }
+
+                doc.reference.updateData(["read": true]) { error in
+                    if let error = error {
+                        completable(.error(error))
+                    } else {
+                        completable(.completed)
+                    }
+                }
+            }
+
             return Disposables.create()
         }
     }

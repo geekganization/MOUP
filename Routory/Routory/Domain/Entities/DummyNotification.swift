@@ -13,6 +13,7 @@ struct DummyNotification {
     let content: String
     let time: String // ex. 3분 전
     let type: NotificationType
+    let referenceId: String
 }
 
 enum NotificationType {

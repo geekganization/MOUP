@@ -45,4 +45,12 @@ final class NotificationViewModel {
 
         return Output(notifications: notificationsRelay.asObservable())
     }
+    
+    func markNotificationAsRead(referenceId: String) {
+        notificationService.markNotificationAsRead(uid: uid, referenceId: referenceId)
+            .andThen(notificationService.fetchUserNotifications(uid: uid))
+            .catchAndReturn([])
+            .bind(to: notificationsRelay)
+            .disposed(by: disposeBag)
+    }
 }

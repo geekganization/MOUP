@@ -92,7 +92,7 @@ final class EventCell: UITableViewCell {
         
         let startTime = calendarModel.eventInfo.calendarEvent.startTime
         let endTime = calendarModel.eventInfo.calendarEvent.endTime
-        let workHour = DateFormatter.hourDiffDecimal(from: startTime, to: endTime)
+        let workHour = DateFormatter.hourDiffDecimal(from: startTime, to: endTime, break: calendarModel.breakTimeMinutes.rawValue)
         if let hour = workHour?.hours,
            let min = workHour?.minutes {
             if min == 0 {
@@ -104,12 +104,19 @@ final class EventCell: UITableViewCell {
         
         if let userId = UserManager.shared.firebaseUid {
             ellipsisButton.isHidden = !(calendarModel.eventInfo.calendarEvent.createdBy == userId)
+            dailyWageLabel.isHidden = !(calendarModel.eventInfo.calendarEvent.createdBy == userId)
         } else {
             ellipsisButton.isHidden = true
+            dailyWageLabel.isHidden = true
         }
         
-        dailyWageLabel.isHidden = (calendarMode == .shared)
-        // TODO: dailyWage 계산 필요
+        if calendarModel.wageType == "시급" {
+            let dailyWage = Int(Double(calendarModel.wage) * (workHour?.decimal ?? 0.0))
+            let formatted = NumberFormatter.decimalFormatter.string(for: dailyWage) ?? "?"
+            dailyWageLabel.text = "\(formatted)원"
+        } else if calendarModel.wageType == "고정" {
+            dailyWageLabel.text = "고정급"
+        }
     }
 }
 
@@ -142,6 +149,10 @@ private extension EventCell {
             $0.leading.equalToSuperview().inset(16)
         }
         
+        workplaceLabel.snp.makeConstraints {
+            $0.height.equalTo(24)
+        }
+        
         sharedChipLabel.snp.makeConstraints {
             $0.width.equalTo(37)
             $0.height.equalTo(18)
@@ -154,9 +165,14 @@ private extension EventCell {
             $0.height.equalTo(30)
         }
         
+        workHourLabel.snp.makeConstraints {
+            $0.height.equalTo(24)
+        }
+        
         dailyWageLabel.snp.makeConstraints {
             $0.trailing.equalToSuperview().inset(16)
             $0.bottom.equalToSuperview().inset(8)
+            $0.height.equalTo(24)
         }
     }
 }

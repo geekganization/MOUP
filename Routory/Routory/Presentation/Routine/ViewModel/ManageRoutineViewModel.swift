@@ -19,24 +19,6 @@ final class ManageRoutineViewModel {
     private let disposeBag = DisposeBag()
     private let routineUseCase: RoutineUseCaseProtocol
 
-    // MARK: - Mock Data
-//    private let mockTodaysRoutine = [
-//        DummyTodaysRoutine(workplaceName: "맥도날드", routines: [
-//            RoutineInfo(id: "4", routine: Routine(routineName: "청소", alarmTime: "14:00", tasks: ["매장 청소"]))
-//        ]),
-//        DummyTodaysRoutine(workplaceName: "세븐일레븐", routines: []),
-//        DummyTodaysRoutine(workplaceName: "GS25", routines: [
-//            RoutineInfo(id: "5", routine: Routine(routineName: "청소", alarmTime: "14:00", tasks: ["매장 청소"])),
-//            RoutineInfo(id: "6", routine: Routine(routineName: "유통기한 검수", alarmTime: "13:30", tasks: ["pp 매대", "치킨 매대"]))
-//        ])
-//    ]
-
-    private let mockAllRoutine = [
-        RoutineInfo(id: "1", routine: Routine(routineName: "오픈", alarmTime: "09:00", tasks: [])),
-        RoutineInfo(id: "2", routine: Routine(routineName: "폐기", alarmTime: "13:30", tasks: [])),
-        RoutineInfo(id: "3", routine: Routine(routineName: "청소", alarmTime: "14:30", tasks: []))
-    ]
-
     // MARK: - Initializer
     init(type: RoutineType, routineUseCase: RoutineUseCaseProtocol) {
         self.routineType = type

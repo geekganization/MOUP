@@ -26,7 +26,7 @@ class WorkplaceRoutineViewController: UIViewController {
     }
 
     // MARK: - Initializer
-    init(routine: DummyTodaysRoutine) {
+    init(routine: TodaysRoutine) {
         self.viewModel = WorkplaceRoutineViewModel(workplaceRoutine: routine)
         self.input = WorkplaceRoutineViewModel.Input(viewDidLoad: viewDidLoadRelay)
         self.output = viewModel.transform(input: input)

@@ -79,8 +79,8 @@ final class HomeViewModel {
                 print("transform - user triggered")
                 switch refreshType {
                 case .normal:
-                    //LoadingManager.start()
-                    break
+                    LoadingManager.start()
+//                    break
                 case .silent: break
                 }
                 guard let self else { return .empty() }
@@ -104,8 +104,8 @@ final class HomeViewModel {
                 guard let self else { return }
                 switch refreshType {
                 case .normal:
-                    //LoadingManager.stop()
-                    break
+                    LoadingManager.stop()
+//                    break
                 case .silent:
                     break
                 }
@@ -181,7 +181,6 @@ final class HomeViewModel {
         .map { workplaces, currentSummaries, previousSummaries, todayRoutines in
             print("내 근무지들: \(workplaces)")
             print("내 유저타입: \(userType)")
-            print("내 루틴들: \(todayRoutines)")
 
             let currentAmount = currentSummaries.reduce(0) { $0 + $1.totalWage } // 이번 달 총액
             let previousAmount = previousSummaries.reduce(0) { $0 + $1.totalWage } // 이전 달 총액
@@ -226,7 +225,12 @@ final class HomeViewModel {
                 }
             }
 
-            let todayRoutinesCount = todayRoutines.values.reduce(0) { $0 + $1.count }
+            let todayRoutinesCount = Set(todayRoutines.values // 중복
+                .flatMap { $0 } // 이벤트 단위 평면화
+                .flatMap { $0.routineIds }) // 이벤트 내 routineId 평면화
+                .count
+
+            print("오늘의 루틴 개수: \(todayRoutinesCount)")
 
             let firstSectionData = HomeTableViewFirstSection(
                 header: userType == .worker ? "나의 근무지" : "나의 매장",

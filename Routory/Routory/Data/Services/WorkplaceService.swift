@@ -31,16 +31,17 @@ protocol WorkplaceServiceProtocol {
         month: Int
     ) -> Observable<[WorkplaceWorkSummaryDaily]>
     func deleteOrLeaveWorkplace(workplaceId: String, uid: String) -> Observable<Void>
-    func updateWorkerDetailAndColor(
+    func updateWorkerDetail(
         workplaceId: String,
         uid: String,
-        workerDetail: WorkerDetail,
-        color: String
+        workerDetail: WorkerDetail
     ) -> Observable<Void>
-    func updateWorkplaceNameAndCategory(
+    func updateWorkplaceNameCategoryAndColor(
         workplaceId: String,
         name: String,
-        category: String
+        category: String,
+        uid: String,
+        color: String
     ) -> Observable<Void>
 }
 
@@ -596,56 +597,58 @@ final class WorkplaceService: WorkplaceServiceProtocol {
         }
     }
     
-    func updateWorkerDetailAndColor(
+    func updateWorkerDetail(
         workplaceId: String,
         uid: String,
-        workerDetail: WorkerDetail,
-        color: String
+        workerDetail: WorkerDetail
     ) -> Observable<Void> {
         let workerRef = db.collection("workplaces").document(workplaceId)
             .collection("worker").document(uid)
-        let userWorkplaceRef = db.collection("users").document(uid)
-            .collection("workplaces").document(workplaceId)
         
         return Observable.create { observer in
-            let batch = self.db.batch()
             do {
                 let workerData = try Firestore.Encoder().encode(workerDetail)
-                batch.setData(workerData, forDocument: workerRef, merge: true)
+                workerRef.setData(workerData, merge: true) { error in
+                    if let error = error {
+                        observer.onError(error)
+                    } else {
+                        observer.onNext(())
+                        observer.onCompleted()
+                    }
+                }
             } catch {
                 observer.onError(error)
-                return Disposables.create()
-            }
-            // 컬러 업데이트
-            batch.setData(["color": color], forDocument: userWorkplaceRef, merge: true)
-            batch.commit { error in
-                if let error = error {
-                    observer.onError(error)
-                } else {
-                    observer.onNext(())
-                    observer.onCompleted()
-                }
             }
             return Disposables.create()
         }
     }
 
     
-    func updateWorkplaceNameAndCategory(
+    func updateWorkplaceNameCategoryAndColor(
         workplaceId: String,
         name: String,
-        category: String
+        category: String,
+        uid: String,
+        color: String
     ) -> Observable<Void> {
         let workplaceRef = db.collection("workplaces").document(workplaceId)
+        let userWorkplaceRef = db.collection("users").document(uid)
+            .collection("workplaces").document(workplaceId)
+        
         return Observable.create { observer in
-            workplaceRef.updateData([
+            let batch = self.db.batch()
+            
+            batch.updateData([
                 "workplacesName": name,
                 "category": category
-            ]) { error in
+            ], forDocument: workplaceRef)
+            
+            batch.setData(["color": color], forDocument: userWorkplaceRef, merge: true)
+            
+            batch.commit { error in
                 if let error = error as NSError? {
                     if error.domain == FirestoreErrorDomain,
                        error.code == FirestoreErrorCode.permissionDenied.rawValue {
-                        // 파이어스토어 권한 에러 (보안 규칙 위반)
                         observer.onError(
                             NSError(
                                 domain: "CustomErrorDomain",

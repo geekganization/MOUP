@@ -60,21 +60,21 @@ final class WorkplaceUseCase: WorkplaceUseCaseProtocol {
     }
     
     // 알바생 기준
-    func updateWorkerDetailAndColor(
+    func updateWorkerDetail(
         workplaceId: String,
         uid: String,
-        workerDetail: WorkerDetail,
-        color: String
+        workerDetail: WorkerDetail
     ) -> Observable<Void> {
-        return repository.updateWorkerDetailAndColor(workplaceId: workplaceId, uid: uid, workerDetail: workerDetail, color: color)
+        return repository.updateWorkerDetail(workplaceId: workplaceId, uid: uid, workerDetail: workerDetail)
     }
     
-    
-    func updateWorkplaceNameAndCategory(
+    func updateWorkplaceNameCategoryAndColor(
         workplaceId: String,
         name: String,
-        category: String
+        category: String,
+        uid: String,
+        color: String
     ) -> Observable<Void> {
-        return repository.updateWorkplaceNameAndCategory(workplaceId: workplaceId, name: name, category: category)
+        return repository.updateWorkplaceNameCategoryAndColor(workplaceId: workplaceId, name: name, category: category, uid: uid, color: color)
     }
 }

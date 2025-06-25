@@ -61,20 +61,20 @@ final class WorkplaceRepository: WorkplaceRepositoryProtocol {
         return service.deleteOrLeaveWorkplace(workplaceId: workplaceId, uid: uid)
     }
     
-    func updateWorkerDetailAndColor(
+    func updateWorkerDetail(
         workplaceId: String,
         uid: String,
-        workerDetail: WorkerDetail,
-        color: String
+        workerDetail: WorkerDetail
     ) -> Observable<Void> {
-        return service.updateWorkerDetailAndColor(workplaceId: workplaceId, uid: uid, workerDetail: workerDetail, color: color)
+        return service.updateWorkerDetail(workplaceId: workplaceId, uid: uid, workerDetail: workerDetail)
     }
-
-    func updateWorkplaceNameAndCategory(
+    func updateWorkplaceNameCategoryAndColor(
         workplaceId: String,
         name: String,
-        category: String
+        category: String,
+        uid: String,
+        color: String
     ) -> Observable<Void> {
-        return service.updateWorkplaceNameAndCategory(workplaceId: workplaceId, name: name, category: category)
+        return updateWorkplaceNameCategoryAndColor(workplaceId: workplaceId, name: name, category: category, uid: uid, color: color)
     }
 }

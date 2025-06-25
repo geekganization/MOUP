@@ -192,29 +192,54 @@ final class WorkerEditViewController: UIViewController, UIGestureRecognizerDeleg
     }
     
     private func handleRegisterButtonTapped() {
-        print("급여 유형:", salaryInfoView.getTypeValue())
-        print("급여 계산:", salaryInfoView.getCalcValue())
-        print("고정급:", salaryInfoView.getFixedSalaryValue())
-        print("시급:", salaryInfoView.getHourlyWageValue())
-        print("지급일:", salaryInfoView.getPayDateValue())
-        print("지급 요일:", salaryInfoView.getPayWeekdayValue())
         
         let selected = workConditionView.getSelectedConditions()
-
-        print("4대 보험 가입:", selected.contains("4대 보험"))
-        print("국민연금:", selected.contains("국민연금"))
-        print("건강보험:", selected.contains("건강보험"))
-        print("고용보험:", selected.contains("고용보험"))
-        print("산재보험:", selected.contains("산재보험"))
-        print("소득세 적용:", selected.contains("소득세"))
-        print("주휴수당 적용:", selected.contains("주휴수당"))
-        print("야간수당 적용:", selected.contains("야간수당*"))
-
-        let labelName = labelView.getColorLabelData()
-        let labelColor = labelView.getColorData()
-
-        print("레이블 이름:", labelName)
-        print("레이블 색상:", labelColor.description)
+        let salaryType = salaryInfoView.getTypeValue()
+        let salaryCalc = salaryInfoView.getCalcValue()
+        let fixedSalary = salaryInfoView.getFixedSalaryValue()
+        let hourlyWage = salaryInfoView.getHourlyWageValue()
+        let payWeekday = salaryInfoView.getPayWeekdayValue()
+        let payDate = salaryInfoView.getPayDateValue()
+        let selectedConditions = workConditionView.getSelectedConditions()
+        let label = labelView.getColorLabelData()
+        
+        let wage: Int = {
+            switch salaryCalc {
+            case "시급":
+                return (parseCurrencyStringToInt(hourlyWage))
+            case "고정":
+                return (parseCurrencyStringToInt(fixedSalary))
+            default:
+                return (0)
+            }
+        }()
+        
+        let employmentInsurance = selectedConditions.contains("고용보험")
+        let healthInsurance = selectedConditions.contains("건강보험")
+        let industrialAccident = selectedConditions.contains("산재보험")
+        let nationalPension = selectedConditions.contains("국민연금")
+        let incomeTax = selectedConditions.contains("소득세")
+        let weeklyAllowance = selectedConditions.contains("주휴수당")
+        let nightAllowance = selectedConditions.contains("야간수당*")
+        let breakTimeMinutes = 0
+        
+        let updated = WorkerDetail(
+            workerName: workerDetail.workerName,
+            wage: wage,
+            wageCalcMethod: salaryType,
+            wageType: salaryCalc,
+            weeklyAllowance: weeklyAllowance,
+            payDay: parseDateStringToInt(payDate),
+            payWeekday: payWeekday,
+            breakTimeMinutes: breakTimeMinutes,
+            employmentInsurance: employmentInsurance,
+            healthInsurance: healthInsurance,
+            industrialAccident: industrialAccident,
+            nationalPension: nationalPension,
+            incomeTax: incomeTax,
+            nightAllowance: nightAllowance,
+            color: label
+        )
         
         guard let uid = Auth.auth().currentUser?.uid, !uid.isEmpty else {
             print("유저 UID가 존재하지 않음")
@@ -223,7 +248,7 @@ final class WorkerEditViewController: UIViewController, UIGestureRecognizerDeleg
         
         // 데이터 업데이트 로직
         // updateWorkerDetail
-        print(workerPlaceId,uid,workerDetail)
+        print(workerPlaceId,uid,updated)
         
         navigationController?.popViewController(animated: true)
     }

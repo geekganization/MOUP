@@ -30,6 +30,7 @@ protocol UserServiceProtocol {
     ) -> Observable<String>
     func addWorkplaceToUser(uid: String, workplaceId: String) -> Observable<Void>
     func fetchUserNotRx(uid: String, completion: @escaping (Result<User, Error>) -> Void)
+    func fetchUserWorkplaceColor(uid: String, workplaceId: String) -> Observable<UserWorkplace?>
 }
 
 final class UserService: UserServiceProtocol {
@@ -415,6 +416,28 @@ final class UserService: UserServiceProtocol {
                         observer.onCompleted()
                     }
                 }
+            return Disposables.create()
+        }
+    }
+    func fetchUserWorkplaceColor(uid: String, workplaceId: String) -> Observable<UserWorkplace?> {
+        let docRef = self.db.collection("users").document(uid).collection("workplaces").document(workplaceId)
+        
+        return Observable.create { observer in
+            docRef.getDocument { snapshot, error in
+                if let error = error {
+                    observer.onError(error)
+                    return
+                }
+                guard let data = snapshot?.data(),
+                      let color = data["color"] as? String else {
+                    observer.onNext(nil)
+                    observer.onCompleted()
+                    return
+                }
+                let userWorkplace = UserWorkplace(color: color, memo: "")
+                observer.onNext(userWorkplace)
+                observer.onCompleted()
+            }
             return Disposables.create()
         }
     }

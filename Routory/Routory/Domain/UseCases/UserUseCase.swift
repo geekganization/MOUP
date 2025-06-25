@@ -48,4 +48,8 @@ final class UserUseCase: UserUseCaseProtocol {
     func fetchUserNotRx(uid: String, completion: @escaping (Result<User, Error>) -> Void) {
         return userRepository.fetchUserNotRx(uid: uid, completion: completion)
     }
+    
+    func fetchUserWorkplaceColor(uid: String, workplaceId: String) -> Observable<UserWorkplace?> {
+        return userRepository.fetchUserWorkplaceColor(uid: uid, workplaceId: workplaceId)
+    }
 }

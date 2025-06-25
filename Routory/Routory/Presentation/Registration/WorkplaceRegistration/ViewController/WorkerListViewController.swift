@@ -9,20 +9,34 @@ import UIKit
 import SnapKit
 import Then
 import RxSwift
+import RxCocoa
 
 final class WorkerListViewController: UIViewController, UIGestureRecognizerDelegate {
 
     // MARK: - Properties
 
-    private var workerList: [WorkerDetailInfo]
+    private var workerList: [WorkerDetailInfo] = []
+    private let workerPlaceId: String
+
     private let tableView = UITableView()
     private let navigationBar = BaseNavigationBar(title: "알바생 관리")
     private let disposeBag = DisposeBag()
 
+    private let fetchTrigger = PublishSubject<String>()
+    private let deleteTrigger = PublishSubject<(workplaceId: String, uid: String)>()
+
+    // ViewModel
+    private let viewModel = WorkerListViewModel(
+        workplaceUseCase: WorkplaceUseCase(
+            repository: WorkplaceRepository(service: WorkplaceService())
+        )
+    )
+
     // MARK: - Init
 
-    init(workerList: [WorkerDetailInfo],workerPlaceId: String) {
+    init(workerList: [WorkerDetailInfo], workerPlaceId: String) {
         self.workerList = workerList
+        self.workerPlaceId = workerPlaceId
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -32,17 +46,20 @@ final class WorkerListViewController: UIViewController, UIGestureRecognizerDeleg
 
     // MARK: - Lifecycle
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(true, animated: false)
-        navigationController?.interactivePopGestureRecognizer?.delegate = self
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
         setupNavigationBar()
         layout()
+        bindViewModel()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: false)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
+
+        fetchTrigger.onNext(workerPlaceId)
     }
 
     // MARK: - Setup
@@ -78,13 +95,62 @@ final class WorkerListViewController: UIViewController, UIGestureRecognizerDeleg
             $0.leading.trailing.bottom.equalToSuperview()
         }
     }
+
+    // MARK: - ViewModel Binding
+
+    private func bindViewModel() {
+        let input = WorkerListViewModel.Input(
+            deleteTrigger: deleteTrigger.asObservable(),
+            fetchTrigger: fetchTrigger.asObservable()
+        )
+
+        let output = viewModel.transform(input: input)
+
+        output.isLoading
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { isLoading in
+                print("로딩 중: \(isLoading)")
+            })
+            .disposed(by: disposeBag)
+
+        output.successMessage
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { message in
+                print(message)
+            })
+            .disposed(by: disposeBag)
+
+        output.errorMessage
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] message in
+                print("에러: \(message)")
+                self?.showAlert(message: message)
+            })
+            .disposed(by: disposeBag)
+
+        output.workerList
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] list in
+                self?.workerList = list
+                self?.tableView.reloadData()
+            })
+            .disposed(by: disposeBag)
+    }
+
+    // MARK: - Alert
+
+    private func showAlert(message: String) {
+        let alert = UIAlertController(title: "오류", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
+    }
 }
 
 // MARK: - UITableViewDataSource & Delegate
 
 extension WorkerListViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        workerList.count
+        return workerList.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -98,25 +164,13 @@ extension WorkerListViewController: UITableViewDataSource, UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        
-        // workerList[indexPath].WorkerDetail로 접근해서 데이터들로 WorkerEditViewController 생성하기
+
+        let worker = workerList[indexPath.row]
 
         let vc = WorkerEditViewController(
-            navigationTitle: "홍길동",
-            salaryTypeValue: "매월",
-            salaryCalcValue: "고정",
-            fixedSalaryValue: "3,000,000",
-            hourlyWageValue: "10,000",
-            payDateValue: "25일",
-            payWeekdayValue: "금요일",
-            isFourMajorSelected: true,
-            isNationalPensionSelected: true,
-            isHealthInsuranceSelected: true,
-            isEmploymentInsuranceSelected: true,
-            isIndustrialAccidentInsuranceSelected: true,
-            isIncomeTaxSelected: true,
-            isWeeklyAllowanceSelected: false,
-            isNightAllowanceSelected: true,
+            workerPlaceId: workerPlaceId,
+            workerUid: worker.id,
+            workerDetail: worker.detail,
             labelTitle: "빨간색",
             showDot: true,
             dotColor: UIColor(red: 1, green: 0.18, blue: 0.33, alpha: 1)
@@ -124,14 +178,17 @@ extension WorkerListViewController: UITableViewDataSource, UITableViewDelegate {
 
         navigationController?.pushViewController(vc, animated: true)
     }
-    
+
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
+            let worker = workerList[indexPath.row]
             workerList.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .automatic)
-            // 데이터(알바생) 삭제 로직
-            // deleteOrLeaveWorkplace에다
-            // workerplaceId랑 workerList[indexPath].id를 넘겨줘서 해당 데이터 삭제
+
+            deleteTrigger.onNext((
+                workplaceId: workerPlaceId,
+                uid: worker.id
+            ))
         }
     }
 

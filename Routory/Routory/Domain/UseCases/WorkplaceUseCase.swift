@@ -56,6 +56,7 @@ final class WorkplaceUseCase: WorkplaceUseCaseProtocol {
         return repository.fetchDailyWorkSummary(uid: uid, year: year, month: month)
     }
     func deleteOrLeaveWorkplace(workplaceId: String, uid: String) -> Observable<Void> {
+        print("deleteOrLeaveWorkplace",workplaceId,uid)
         return repository.deleteOrLeaveWorkplace(workplaceId: workplaceId, uid: uid)
     }
     

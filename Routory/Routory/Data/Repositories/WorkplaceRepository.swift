@@ -75,6 +75,6 @@ final class WorkplaceRepository: WorkplaceRepositoryProtocol {
         uid: String,
         color: String
     ) -> Observable<Void> {
-        return updateWorkplaceNameCategoryAndColor(workplaceId: workplaceId, name: name, category: category, uid: uid, color: color)
+        return service.updateWorkplaceNameCategoryAndColor(workplaceId: workplaceId, name: name, category: category, uid: uid, color: color)
     }
 }

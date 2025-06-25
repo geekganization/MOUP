@@ -170,14 +170,77 @@ final class HomeViewModel {
               let previousMonth = previousComponents.month else {
             return .empty()
         }
+        return Observable.combineLatest(
+                    // 1️⃣ 모든 근무지 정보
+                    self.workplaceUseCase.fetchAllWorkplacesForUser(uid: userId)
+                        .do(onNext: { workplaces in
+                            print("🏢 [근무지 데이터] 성공 - 개수: \(workplaces.count)")
+                            print("🏢 [근무지 데이터] 내용: \(workplaces)")
+                        })
+                        .do(onError: { error in
+                            print("💥 [근무지 데이터] 실패: \(error)")
+                        })
+                        .do(onSubscribe: {
+                            print("🔄 [근무지 데이터] 구독 시작")
+                        }),
 
-        return Observable.combineLatest (
-            self.workplaceUseCase.fetchAllWorkplacesForUser(uid: userId),
-            self.workplaceUseCase.fetchMonthlyWorkSummary(uid: userId, year: currentYear, month: currentMonth),
-            self.workplaceUseCase.fetchMonthlyWorkSummary(uid: userId, year: previousYear, month: previousMonth),
-            routineUseCase.fetchTodayRoutineEventsGroupedByWorkplace(uid: userId, date: Date())
-                .catchAndReturn([:])
-        )
+                    // 2️⃣ 현재 월 근무 요약
+                    self.workplaceUseCase.fetchMonthlyWorkSummary(uid: userId, year: currentYear, month: currentMonth)
+                        .do(onNext: { summary in
+                            print("📊 [현재 월 요약] 성공 - \(currentYear)년 \(currentMonth)월")
+                            print("📊 [현재 월 요약] 내용: \(summary)")
+                        })
+                        .do(onError: { error in
+                            print("💥 [현재 월 요약] 실패: \(error)")
+                        })
+                        .do(onSubscribe: {
+                            print("🔄 [현재 월 요약] 구독 시작 - \(currentYear)년 \(currentMonth)월")
+                        }),
+
+                    // 3️⃣ 이전 월 근무 요약
+                    self.workplaceUseCase.fetchMonthlyWorkSummary(uid: userId, year: previousYear, month: previousMonth)
+                        .do(onNext: { summary in
+                            print("📈 [이전 월 요약] 성공 - \(previousYear)년 \(previousMonth)월")
+                            print("📈 [이전 월 요약] 내용: \(summary)")
+                        })
+                        .do(onError: { error in
+                            print("💥 [이전 월 요약] 실패: \(error)")
+                        })
+                        .do(onSubscribe: {
+                            print("🔄 [이전 월 요약] 구독 시작 - \(previousYear)년 \(previousMonth)월")
+                        }),
+
+                    // 4️⃣ 오늘의 루틴 이벤트
+                    routineUseCase.fetchTodayRoutineEventsGroupedByWorkplace(uid: userId, date: Date())
+                        .do(onNext: { events in
+                            print("⏰ [오늘 루틴] 성공 - 근무지별 이벤트 개수: \(events.count)")
+                            for (workplaceName, eventList) in events {
+                                print("⏰ [오늘 루틴] \(workplaceName): \(eventList.count)개 이벤트")
+                                for event in eventList {
+                                    print("⏰ [오늘 루틴] - 이벤트: \(event)")
+                                }
+                            }
+                        })
+                        .do(onError: { error in
+                            print("💥 [오늘 루틴] 실패: \(error)")
+                        })
+                        .do(onSubscribe: {
+                            print("🔄 [오늘 루틴] 구독 시작")
+                        })
+                        .catchAndReturn([:])
+                        .do(onNext: { events in
+                            if events.isEmpty {
+                                print("⚠️ [오늘 루틴] catchAndReturn으로 빈 딕셔너리 반환됨")
+                            }
+                        })
+                )
+//        return Observable.combineLatest (
+//            self.workplaceUseCase.fetchAllWorkplacesForUser(uid: userId),
+//            self.workplaceUseCase.fetchMonthlyWorkSummary(uid: userId, year: currentYear, month: currentMonth),
+//            self.workplaceUseCase.fetchMonthlyWorkSummary(uid: userId, year: previousYear, month: previousMonth),
+//            routineUseCase.fetchTodayRoutineEventsGroupedByWorkplace(uid: userId, date: Date())
+//                .catchAndReturn([:])
+//        )
         .map { workplaces, currentSummaries, previousSummaries, todayRoutines in
             print("내 근무지들: \(workplaces)")
             print("내 유저타입: \(userType)")

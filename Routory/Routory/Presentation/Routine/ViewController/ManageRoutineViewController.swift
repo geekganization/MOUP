@@ -134,9 +134,11 @@ private extension ManageRoutineViewController {
                 .subscribe(onNext: { [weak self] routine in
                     print("\(routine) 루틴 탭")
                     let vc = NewRoutineViewController(mode: .read(
+                        routineId: routine.id,
                         existingTitle: routine.routine.routineName,
                         existingTime: routine.routine.alarmTime,
-                        existingTasks: routine.routine.tasks
+                        existingTasks: routine.routine.tasks,
+                        fromAll: true
                     ))
                     self?.navigationController?.pushViewController(vc, animated: true)
                 })

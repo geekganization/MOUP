@@ -15,7 +15,7 @@ import FirebaseAuth
 enum RoutineFormMode {
     case create
     case edit(routineId: String, existingTitle: String, existingTime: String, existingTasks: [String])
-    case read(existingTitle: String, existingTime: String, existingTasks: [String])
+    case read(routineId: String, existingTitle: String, existingTime: String, existingTasks: [String], fromAll: Bool)
 }
 
 final class NewRoutineViewController: UIViewController,UIGestureRecognizerDelegate {
@@ -30,7 +30,7 @@ final class NewRoutineViewController: UIViewController,UIGestureRecognizerDelega
     
     // MARK: - Mode & State
 
-    private let mode: RoutineFormMode
+    private var mode: RoutineFormMode
     private var tasks: [String] = []
 
     // MARK: - UI Components
@@ -121,7 +121,22 @@ final class NewRoutineViewController: UIViewController,UIGestureRecognizerDelega
         
         navigationBar.rx.rightBtnTapped
             .subscribe(onNext: { [weak self] in
-                self?.didTapSave()
+                guard let self else { return }
+                
+                switch self.mode {
+                case .read(let routineId, let title, let time, let tasks, let fromAll) where fromAll:
+                    self.mode = .edit(
+                        routineId: routineId,
+                        existingTitle: title,
+                        existingTime: time,
+                        existingTasks: tasks
+                    )
+                    self.navigationBar.configureRightButton(icon: nil, title: "저장")
+                    self.applyMode()
+                    
+                default:
+                    self.didTapSave()
+                }
             })
             .disposed(by: disposeBag)
     }
@@ -305,11 +320,18 @@ final class NewRoutineViewController: UIViewController,UIGestureRecognizerDelega
             titleTextField.text = existingTitle
             alarmField.update(text: existingTime)
             tasks = existingTasks
+            
+            titleTextField.isEnabled = true
+            alarmField.isUserInteractionEnabled = true
+            taskInputField.isEnabled = true
+            addTaskButton.isHidden = false
+            tableView.isEditing = true
+            
             tableView.reloadData()
             tableView.snp.updateConstraints {
                 $0.height.equalTo(44 * tasks.count)
             }
-        case .read(let existingTitle, let existingTime, let existingTasks):
+        case .read(let routineId, let existingTitle, let existingTime, let existingTasks, let fromAll):
             title = "루틴 보기"
             titleTextField.text = existingTitle
             alarmField.update(text: existingTime)
@@ -320,6 +342,12 @@ final class NewRoutineViewController: UIViewController,UIGestureRecognizerDelega
             taskInputField.isEnabled = false
             addTaskButton.isHidden = true
             tableView.isEditing = false
+            
+            if fromAll {
+                navigationBar.configureRightButton(icon: nil, title: "수정")
+            } else {
+                navigationBar.configureRightButton(icon: nil, title: nil)
+            }
         }
 
         tableView.snp.updateConstraints {

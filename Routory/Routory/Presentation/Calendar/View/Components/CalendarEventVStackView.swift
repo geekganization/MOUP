@@ -38,9 +38,23 @@ final class CalendarEventVStackView: UIStackView {
     
     // MARK: - Methods
     
-    func update(workHourOrName: String, dailyWage: String, calendarMode: CalendarMode, color: String) {
-        workHourOrNameLabel.text = (calendarMode == .shared) ? workHourOrName : "\(workHourOrName)시간"
-        dailyWageLabel.text = dailyWage
+    func update(workHour: Double, workerName: String, dailyWage: Int?, calendarMode: CalendarMode, color: String) {
+        let workHourStr = String(format: "%.1f", workHour)
+        if calendarMode == .shared {
+            workHourOrNameLabel.text = workerName
+        } else if workHourStr.last == "0" {
+            workHourOrNameLabel.text = "\(workHourStr.prefix(1))시간"
+        } else {
+            workHourOrNameLabel.text = "\(workHourStr)시간"
+        }
+        
+        if let dailyWage {
+            // 시급
+            dailyWageLabel.text = NumberFormatter.decimalFormatter.string(for: Int(dailyWage))
+        } else {
+            // 고정급
+            dailyWageLabel.text = "고정급"
+        }
         dailyWageLabel.isHidden = (calendarMode == .shared)
         
         // TODO: color 설정

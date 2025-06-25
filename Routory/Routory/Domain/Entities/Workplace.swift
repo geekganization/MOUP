@@ -65,8 +65,12 @@ struct WorkplaceWorkSummaryDaily {
 struct WorkplaceWorkSummaryDailySeparated {
     let workplaceId: String
     let workplaceName: String
+    let isOfficial: Bool
+    let workerName: String
     let wage: Int
     let wageCalcMethod: String
+    let wageType: String
+    let breakTimeMinutes: Int
     let personalSummary: [String: (events: [CalendarEventInfo], totalHours: Double, totalWage: Int)]
     let sharedSummary: [String: (events: [CalendarEventInfo], totalHours: Double, totalWage: Int)]
 }

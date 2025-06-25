@@ -119,10 +119,14 @@ final class EventService: EventServiceProtocol {
                             // worker 리스너
                             workerListener = workerDocRef.addSnapshotListener { workerDoc, _ in
                                 guard let wData = workplaceDoc?.data(),
-                                      let workplaceName = wData["workplaceName"] as? String,
+                                      let workplaceName = wData["workplacesName"] as? String,
+                                      let isOfficial = wData["isOfficial"] as? Bool,
                                       let workerData = workerDoc?.data(),
+                                      let workerName = workerData["workerName"] as? String,
                                       let wage = workerData["wage"] as? Int,
-                                      let wageCalcMethod = workerData["wageCalcMethod"] as? String
+                                      let wageCalcMethod = workerData["wageCalcMethod"] as? String,
+                                      let wageType = workerData["wageType"] as? String,
+                                      let breakTimeMinutes = workerData["breakTimeMinutes"] as? Int
                                 else {
                                     o.onNext(nil); o.onCompleted(); return
                                 }
@@ -182,8 +186,12 @@ final class EventService: EventServiceProtocol {
                                                 o.onNext(WorkplaceWorkSummaryDailySeparated(
                                                     workplaceId: workplaceId,
                                                     workplaceName: workplaceName,
+                                                    isOfficial: isOfficial,
+                                                    workerName: workerName,
                                                     wage: wage,
                                                     wageCalcMethod: wageCalcMethod,
+                                                    wageType: wageType,
+                                                    breakTimeMinutes: breakTimeMinutes,
                                                     personalSummary: groupSummary(personalEvents),
                                                     sharedSummary: groupSummary(sharedEvents)
                                                 ))

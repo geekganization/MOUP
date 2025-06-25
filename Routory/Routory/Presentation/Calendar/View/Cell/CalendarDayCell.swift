@@ -74,7 +74,7 @@ final class CalendarDayCell: JTACDayCell {
     
     // MARK: - Methods
     
-    func update(date: String, isSaturday: Bool, isSunday: Bool, isToday: Bool, calendarMode: CalendarMode, eventList: [CalendarEvent]?) {
+    func update(date: String, isSaturday: Bool, isSunday: Bool, isToday: Bool, calendarMode: CalendarMode, modelList: [CalendarModel]?) {
         dayLabel.text = date
         dayLabel.textColor = isSunday ? .sundayText : .gray900
         
@@ -91,27 +91,31 @@ final class CalendarDayCell: JTACDayCell {
         
         eventVStackView.subviews.forEach { $0.isHidden = true }
         
-        if let eventList {
-            if eventList.isEmpty {
+        if let modelList {
+            if modelList.isEmpty {
                 eventVStackView.isHidden = true
             } else {
                 eventVStackView.isHidden = false
                 
-                if (calendarMode == .shared) && eventList.count > 3 {
-                    otherEventLabel.text = "+\(eventList.count - 3)"
+                if (calendarMode == .shared) && modelList.count > 3 {
+                    otherEventLabel.text = "+\(modelList.count - 3)"
                     otherEventLabel.isHidden = false
                 }
-                for (index, event) in eventList.enumerated() {
+                for (index, model) in modelList.enumerated() {
                     if index > ((calendarMode == .shared) ? 2 : 1) {
                         break
                     } else {
                         guard let eventView = eventVStackView.subviews[index] as? CalendarEventVStackView else { continue }
                         
-                        let workHour = DateFormatter.hourDiffDecimal(from: event.startTime, to: event.endTime)
-                        // TODO: dailyWage 계산 필요
-                        // TODO: isShared == true일 때 이름 표시
+                        let event = model.eventInfo.calendarEvent
+                        let workHour = DateFormatter.hourDiffDecimal(from: event.startTime, to: event.endTime, break: model.breakTimeMinutes.rawValue)
                         // TODO: color 표시
-                        eventView.update(workHourOrName: "\(workHour?.hours ?? 0)", dailyWage: "100,000", calendarMode: calendarMode, color: "red")
+                        if model.wageType == "시급" {
+                            let dailyWage = Int(Double(model.wage) * (workHour?.decimal ?? 0.0))
+                            eventView.update(workHour: workHour?.decimal ?? 0, workerName: model.workerName, dailyWage: dailyWage, calendarMode: calendarMode, color: "red")
+                        } else if model.wageType == "고정" {
+                            eventView.update(workHour: workHour?.decimal ?? 0, workerName: model.workerName, dailyWage: nil, calendarMode: calendarMode, color: "red")
+                        }
                         eventView.isHidden = false
                     }
                 }

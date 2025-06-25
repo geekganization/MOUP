@@ -27,21 +27,19 @@ final class FilterView: UIView {
     }
     
     private let headerLabel = UILabel().then {
-        // TODO: 알바생인지 사장님인지에 따라 바뀌어야 함
-        $0.text = "나의 근무지"
         $0.textColor = .gray900
         $0.font = .headBold(16)
     }
     
-    private let workplaceTableView = UITableView().then {
-        $0.register(WorkplaceCell.self, forCellReuseIdentifier: WorkplaceCell.identifier)
+    private let filterTableView = UITableView().then {
+        $0.register(FilterCell.self, forCellReuseIdentifier: FilterCell.identifier)
         
         $0.separatorStyle = .none
         $0.rowHeight = 52  // 40 + 12(셀 간격)
         $0.sectionHeaderTopPadding = 0.0
     }
     
-    private let emptyNotiLabel = UILabel().then {
+    private let emptyLabel = UILabel().then {
         $0.text = "등록된 공유 캘린더가 없어요"
         $0.textColor = .gray500
         $0.font = .bodyMedium(16)
@@ -58,7 +56,8 @@ final class FilterView: UIView {
     
     // MARK: - Getter
     
-    var getWorkplaceTableView: UITableView { workplaceTableView }
+    var getHeaderLabel: UILabel { headerLabel }
+    var getFilterTableView: UITableView { filterTableView }
     var getApplyButton: UIButton { applyButton }
     
     // MARK: - Initializer
@@ -93,8 +92,8 @@ private extension FilterView {
                          titleLabel,
                          separatorView,
                          headerLabel,
-                         emptyNotiLabel,
-                         workplaceTableView,
+                         emptyLabel,
+                         filterTableView,
                          applyButton)
     }
     
@@ -126,11 +125,11 @@ private extension FilterView {
             $0.leading.equalTo(self.safeAreaLayoutGuide).inset(16)
         }
         
-        emptyNotiLabel.snp.makeConstraints {
-            $0.center.equalTo(workplaceTableView)
+        emptyLabel.snp.makeConstraints {
+            $0.center.equalTo(filterTableView)
         }
         
-        workplaceTableView.snp.makeConstraints {
+        filterTableView.snp.makeConstraints {
             $0.top.equalTo(headerLabel.snp.bottom).offset(12)
             $0.leading.trailing.equalTo(self.safeAreaLayoutGuide)
             $0.bottom.equalTo(applyButton.snp.top).offset(-12)

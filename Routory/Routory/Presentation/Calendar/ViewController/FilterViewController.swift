@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import OSLog
 
 import RxCocoa
 import RxSwift
@@ -14,6 +15,8 @@ final class FilterViewController: UIViewController {
     
     // MARK: - Properties
     
+    private lazy var logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: String(describing: self))
+    
     weak var delegate: FilterVCDelegate?
     
     private let viewModel: FilterViewModel
@@ -21,8 +24,9 @@ final class FilterViewController: UIViewController {
     private let disposeBag = DisposeBag()
     
     private let calendarMode: CalendarMode
-    private let prevFilterWorkplace: String
-    private var prevFilterIndex: Int?
+    private let prevFilterModel: FilterModel?
+    
+    private var selectedFilterModel = FilterModel(workplaceId: "", workplaceName: "전체 보기")
     
     // MARK: UI Components
     
@@ -30,10 +34,10 @@ final class FilterViewController: UIViewController {
     
     // MARK: - Initializer
     
-    init(viewModel: FilterViewModel, calendarMode: CalendarMode, prevFilterWorkplace: String) {
+    init(viewModel: FilterViewModel, calendarMode: CalendarMode, prevFilterModel: FilterModel?) {
         self.viewModel = viewModel
         self.calendarMode = calendarMode
-        self.prevFilterWorkplace = prevFilterWorkplace
+        self.prevFilterModel = prevFilterModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -65,61 +69,56 @@ private extension FilterViewController {
     
     func setStyles() {
         self.view.backgroundColor = .primaryBackground
+        
+        UserManager.shared.getUser { [weak self] result in
+            switch result {
+            case .success(let user):
+                if user.role == UserRole.worker.rawValue {
+                    self?.filterView.getHeaderLabel.text = "나의 근무지"
+                } else {
+                    self?.filterView.getHeaderLabel.text = "나의 매장"
+                }
+            case .failure(let error):
+                self?.logger.error("\(error.localizedDescription)")
+            }
+        }
     }
     
     func setActions() {
         filterView.getApplyButton.rx.tap
             .subscribe(with: self) { owner, _ in
-                guard let selectedIndexPath = owner.filterView.getWorkplaceTableView.indexPathForSelectedRow,
-                      let selectedCell = owner.filterView.getWorkplaceTableView.cellForRow(at: selectedIndexPath) as? WorkplaceCell else { return }
-                
-                owner.delegate?.didApplyButtonTap(workplaceText: selectedCell.getWorkplaceLabel.text ?? "전체 보기")
+                if owner.selectedFilterModel.workplaceId.isEmpty {
+                    owner.delegate?.didApplyButtonTap(model: nil)
+                } else {
+                    owner.delegate?.didApplyButtonTap(model: owner.selectedFilterModel)
+                }
                 owner.dismiss(animated: true)
             }.disposed(by: disposeBag)
     }
     
     func setBinding() {
+        filterView.getFilterTableView.rx.modelSelected(FilterModel.self)
+            .subscribe(with: self) { owner, model in
+                owner.selectedFilterModel = model
+            }.disposed(by: disposeBag)
+        
         let input = FilterViewModel.Input(calendarMode: Observable.just((calendarMode)))
         
         let output = viewModel.tranform(input: input)
         
-        output.workplaceInfoListRelay
-            .map { [weak self] in
-                if self?.calendarMode == .personal {
-                    let staticWorkplace = Workplace(workplacesName: "",
-                                                    category: "",
-                                                    ownerId: "",
-                                                    inviteCode: "",
-                                                    isOfficial: false)
-                    let staticWorkplaceInfo = WorkplaceInfo(id: "", workplace: staticWorkplace)
-                    return [staticWorkplaceInfo] + $0
-                } else {
-                    return $0
-                }
-            }
+        output.filterModelListRelay
             .asDriver(onErrorJustReturn: [])
             .do(afterNext: { [weak self] list in
-                self?.filterView.getWorkplaceTableView.isHidden = list.isEmpty
-                
-                if !list.isEmpty {
-                    if let prevFilterIndex = self?.prevFilterIndex {
-                        self?.filterView.getWorkplaceTableView.selectRow(at: IndexPath(row: prevFilterIndex, section: 0), animated: false, scrollPosition: .middle)
-                    } else {
-                        self?.filterView.getWorkplaceTableView.selectRow(at: IndexPath(row: 0, section: 0), animated: false, scrollPosition: .middle)
-                    }
-                }
+                self?.filterView.getFilterTableView.isHidden = list.isEmpty
             })
-            .drive(filterView.getWorkplaceTableView.rx.items(
-                cellIdentifier: WorkplaceCell.identifier, cellType: WorkplaceCell.self)) { [weak self] index, model, cell in
-                    guard let model = model as? WorkplaceInfo else { return }
-                    if self?.calendarMode == .personal && index == 0 {
-                        cell.update(workplace: "전체 보기")
-                    } else {
-                        cell.update(workplace: model.workplace.workplacesName)
-                    }
+            .drive(filterView.getFilterTableView.rx.items(
+                cellIdentifier: FilterCell.identifier, cellType: FilterCell.self)) { [weak self] index, model, cell in
+                    cell.update(workplace: model.workplaceName)
                     
-                    if model.workplace.workplacesName == self?.prevFilterWorkplace {
-                        self?.prevFilterIndex = index
+                    if self?.prevFilterModel == nil {
+                        self?.filterView.getFilterTableView.selectRow(at: IndexPath(row: 0, section: 0), animated: false, scrollPosition: .middle)
+                    } else if model.workplaceId == self?.prevFilterModel?.workplaceId {
+                        self?.filterView.getFilterTableView.selectRow(at: IndexPath(row: index, section: 0), animated: false, scrollPosition: .middle)
                     }
                 }.disposed(by: disposeBag)
     }

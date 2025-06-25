@@ -64,10 +64,11 @@ private extension TabbarViewController {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         
-        let normalAttributes = [NSAttributedString.Key.font: UIFont.bodyMedium(12), NSAttributedString.Key.foregroundColor: UIColor.gray400]
-        let selectedAttributes = [NSAttributedString.Key.font: UIFont.bodyMedium(12)]
-        appearance.stackedLayoutAppearance.normal.titleTextAttributes = normalAttributes
-        appearance.stackedLayoutAppearance.selected.titleTextAttributes = selectedAttributes
+        let normalTextAttributes = [NSAttributedString.Key.font: UIFont.bodyMedium(12), NSAttributedString.Key.foregroundColor: UIColor.gray400]
+        let selectedTextAttributes = [NSAttributedString.Key.font: UIFont.bodyMedium(12)]
+        appearance.stackedLayoutAppearance.normal.titleTextAttributes = normalTextAttributes
+        appearance.stackedLayoutAppearance.normal.iconColor = .gray400
+        appearance.stackedLayoutAppearance.selected.titleTextAttributes = selectedTextAttributes
         appearance.stackedLayoutAppearance.normal.titlePositionAdjustment = .init(horizontal: 0.0, vertical: -8.0)
         appearance.stackedLayoutAppearance.selected.titlePositionAdjustment = .init(horizontal: 0.0, vertical: -8.0)
         
@@ -97,7 +98,7 @@ private extension TabbarViewController {
         let eventService = EventService()
         let eventRepository = EventRepository(eventService: eventService)
         let eventUseCase = EventUseCase(repository: eventRepository)
-        let calendarVM = CalendarViewModel(eventUseCase: eventUseCase, workplaceUseCase: workplaceUseCase)
+        let calendarVM = CalendarViewModel(eventUseCase: eventUseCase)
         let calendarVC = CalendarViewController(viewModel: calendarVM)
         
         guard let userId = Auth.auth().currentUser?.uid else {

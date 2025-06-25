@@ -51,6 +51,7 @@ final class OwnerWorkplaceEditViewController: UIViewController, UIGestureRecogni
             workplaceId: workPlaceID,
             isEdit: false,
             isWorkerManagerShow: true,
+            isHideWorkplaceInfoViewArrow: false,
             nameValue: nameValue,
             categoryValue: categoryValue,
             salaryTypeValue: "매월",

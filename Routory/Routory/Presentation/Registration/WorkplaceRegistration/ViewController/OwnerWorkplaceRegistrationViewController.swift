@@ -65,6 +65,7 @@ final class OwnerWorkplaceRegistrationViewController: UIViewController, UIGestur
             workplaceId: "",
             isEdit: isEdit,
             isWorkerManagerShow: false,
+            isHideWorkplaceInfoViewArrow: false,
             nameValue: nameValue,
             categoryValue: categoryValue,
             salaryTypeValue: salaryTypeValue,

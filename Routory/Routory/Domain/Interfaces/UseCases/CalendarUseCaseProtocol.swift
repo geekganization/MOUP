@@ -11,4 +11,5 @@ protocol CalendarUseCaseProtocol {
     func fetchCalendarIdByWorkplaceId(workplaceId: String) -> Observable<String?>
     func addEventToCalendar(calendarId: String, event: CalendarEvent) -> Observable<Void>
     func deleteEventFromCalendarIfPermitted(calendarId: String, eventId: String, uid: String) -> Observable<Void>
+    func updateEventInCalendar(calendarId: String, eventId: String, event: CalendarEvent) -> Observable<Void>
 }

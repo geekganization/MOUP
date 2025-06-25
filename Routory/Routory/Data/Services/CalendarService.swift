@@ -13,6 +13,7 @@ protocol CalendarServiceProtocol {
     func fetchCalendarIdByWorkplaceId(workplaceId: String) -> Observable<String?>
     func addEventToCalendar(calendarId: String, event: CalendarEvent) -> Observable<Void>
     func deleteEventFromCalendarIfPermitted(calendarId: String, eventId: String, uid: String) -> Observable<Void>
+    func updateEventInCalendar(calendarId: String, eventId: String, event: CalendarEvent) -> Observable<Void>
 }
 
 final class CalendarService: CalendarServiceProtocol {
@@ -95,6 +96,42 @@ final class CalendarService: CalendarServiceProtocol {
             return Disposables.create()
         }
     }
+    
+    /// 특정 캘린더의 근무(이벤트)를 수정합니다.
+    ///
+    /// - Parameters:
+    ///   - calendarId: 캘린더 문서 ID
+    ///   - eventId: 수정할 이벤트의 문서 ID
+    ///   - event: 수정할 CalendarEvent 모델
+    /// - Returns: 성공 시 Void, 실패 시 에러 Observable
+    func updateEventInCalendar(calendarId: String, eventId: String, event: CalendarEvent) -> Observable<Void> {
+        let eventRef = db.collection("calendars").document(calendarId).collection("events").document(eventId)
+        let data: [String: Any] = [
+            "title": event.title,
+            "eventDate": event.eventDate,
+            "startTime": event.startTime,
+            "endTime": event.endTime,
+            "createdBy": event.createdBy,
+            "year": event.year,
+            "month": event.month,
+            "day": event.day,
+            "routineIds": event.routineIds,
+            "repeatDays": event.repeatDays,
+            "memo": event.memo
+        ]
+        return Observable.create { observer in
+            eventRef.updateData(data) { error in
+                if let error = error {
+                    observer.onError(error)
+                } else {
+                    observer.onNext(())
+                    observer.onCompleted()
+                }
+            }
+            return Disposables.create()
+        }
+    }
+
     
     /// 권한 체크 후 삭제 (owner, sharedWith, createdBy)
     func deleteEventFromCalendarIfPermitted(calendarId: String, eventId: String, uid: String) -> Observable<Void> {

@@ -149,17 +149,10 @@ final class OwnerWorkplaceEditViewController: UIViewController, UIGestureRecogni
             print("유저 UID가 존재하지 않음")
             return
         }
-
-        let workplace = Workplace(
-            workplacesName: name,
-            category: category,
-            ownerId: uid,
-            inviteCode: InviteCodeGenerator.generate(userID: uid), // 초대 코드 생성
-            isOfficial: true
-        )
         
         // 업데이트 로직
-        print(workplace,label)
+        // updateWorkplaceNameCategoryAndColor
+        print(workPlaceID,name,category,uid,label)
         
         //navigationController?.popViewController(animated: true)
     }

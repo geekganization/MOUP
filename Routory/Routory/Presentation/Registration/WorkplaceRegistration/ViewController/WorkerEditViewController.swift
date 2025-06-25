@@ -9,12 +9,15 @@ import UIKit
 import SnapKit
 import RxSwift
 import RxCocoa
+import FirebaseAuth
 
 final class WorkerEditViewController: UIViewController, UIGestureRecognizerDelegate {
 
     // MARK: - Subviews
-
+    private let workerPlaceId: String
+    
     private let navigationBar: BaseNavigationBar
+    private let workerDetail: WorkerDetail
 
     private let salaryInfoView: SalaryInfoView
     private let workConditionView: WorkConditionView
@@ -29,48 +32,36 @@ final class WorkerEditViewController: UIViewController, UIGestureRecognizerDeleg
     // MARK: - Initializer
 
     init(
-        navigationTitle: String,
+        workerPlaceId: String,
 
-        salaryTypeValue: String,
-        salaryCalcValue: String,
-        fixedSalaryValue: String,
-        hourlyWageValue: String,
-        payDateValue: String,
-        payWeekdayValue: String,
-
-        isFourMajorSelected: Bool,
-        isNationalPensionSelected: Bool,
-        isHealthInsuranceSelected: Bool,
-        isEmploymentInsuranceSelected: Bool,
-        isIndustrialAccidentInsuranceSelected: Bool,
-        isIncomeTaxSelected: Bool,
-        isWeeklyAllowanceSelected: Bool,
-        isNightAllowanceSelected: Bool,
+        workerDetail: WorkerDetail,
 
         labelTitle: String,
         showDot: Bool,
         dotColor: UIColor?
     ) {
-        self.navigationBar = BaseNavigationBar(title: navigationTitle)
+        self.workerDetail = workerDetail
+        
+        self.navigationBar = BaseNavigationBar(title: workerDetail.workerName)
 
         self.salaryInfoView = SalaryInfoView(
-            typeValue: salaryTypeValue,
-            calcValue: salaryCalcValue,
-            fixedSalaryValue: fixedSalaryValue,
-            hourlyWageValue: hourlyWageValue,
-            payDateValue: payDateValue,
-            payWeekdayValue: payWeekdayValue
+            typeValue: workerDetail.wageCalcMethod, // 매월
+            calcValue: workerDetail.wageType, // 고정 // 시급
+            fixedSalaryValue: String(workerDetail.wage), // 3000000000
+            hourlyWageValue: String(workerDetail.wage), // 10000
+            payDateValue: String(workerDetail.payDay)+"일", // 24일
+            payWeekdayValue: workerDetail.payWeekday // 금요일
         )
 
         self.workConditionView = WorkConditionView(
-            isFourMajorSelected: isFourMajorSelected,
-            isNationalPensionSelected: isNationalPensionSelected,
-            isHealthInsuranceSelected: isHealthInsuranceSelected,
-            isEmploymentInsuranceSelected: isEmploymentInsuranceSelected,
-            isIndustrialAccidentInsuranceSelected: isIndustrialAccidentInsuranceSelected,
-            isIncomeTaxSelected: isIncomeTaxSelected,
-            isWeeklyAllowanceSelected: isWeeklyAllowanceSelected,
-            isNightAllowanceSelected: isNightAllowanceSelected
+            isFourMajorSelected: workerDetail.employmentInsurance,
+            isNationalPensionSelected: workerDetail.nationalPension,
+            isHealthInsuranceSelected: workerDetail.healthInsurance,
+            isEmploymentInsuranceSelected: workerDetail.employmentInsurance,
+            isIndustrialAccidentInsuranceSelected: workerDetail.industrialAccident,
+            isIncomeTaxSelected: workerDetail.incomeTax,
+            isWeeklyAllowanceSelected: workerDetail.weeklyAllowance,
+            isNightAllowanceSelected: workerDetail.nightAllowance,
         )
 
         self.labelView = LabelView(
@@ -78,6 +69,8 @@ final class WorkerEditViewController: UIViewController, UIGestureRecognizerDeleg
             showDot: showDot,
             dotColor: dotColor
         )
+        
+        self.workerPlaceId = workerPlaceId
 
         super.init(nibName: nil, bundle: nil)
 
@@ -223,9 +216,16 @@ final class WorkerEditViewController: UIViewController, UIGestureRecognizerDeleg
         print("레이블 이름:", labelName)
         print("레이블 색상:", labelColor.description)
         
-        navigationController?.popViewController(animated: true)
+        guard let uid = Auth.auth().currentUser?.uid, !uid.isEmpty else {
+            print("유저 UID가 존재하지 않음")
+            return
+        }
         
-        // 데이터 업데이트 로직 
+        // 데이터 업데이트 로직
+        // updateWorkerDetail
+        print(workerPlaceId,uid,workerDetail)
+        
+        navigationController?.popViewController(animated: true)
     }
 }
 

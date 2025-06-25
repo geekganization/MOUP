@@ -15,6 +15,7 @@ final class WorkerListViewController: UIViewController, UIGestureRecognizerDeleg
     // MARK: - Properties
 
     private var workerList: [WorkerDetailInfo]
+    private let workerPlaceId: String
     private let tableView = UITableView()
     private let navigationBar = BaseNavigationBar(title: "알바생 관리")
     private let disposeBag = DisposeBag()
@@ -23,6 +24,7 @@ final class WorkerListViewController: UIViewController, UIGestureRecognizerDeleg
 
     init(workerList: [WorkerDetailInfo],workerPlaceId: String) {
         self.workerList = workerList
+        self.workerPlaceId = workerPlaceId
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -99,24 +101,11 @@ extension WorkerListViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
-        // workerList[indexPath].WorkerDetail로 접근해서 데이터들로 WorkerEditViewController 생성하기
-
         let vc = WorkerEditViewController(
-            navigationTitle: "홍길동",
-            salaryTypeValue: "매월",
-            salaryCalcValue: "고정",
-            fixedSalaryValue: "3,000,000",
-            hourlyWageValue: "10,000",
-            payDateValue: "25일",
-            payWeekdayValue: "금요일",
-            isFourMajorSelected: true,
-            isNationalPensionSelected: true,
-            isHealthInsuranceSelected: true,
-            isEmploymentInsuranceSelected: true,
-            isIndustrialAccidentInsuranceSelected: true,
-            isIncomeTaxSelected: true,
-            isWeeklyAllowanceSelected: false,
-            isNightAllowanceSelected: true,
+            workerPlaceId: workerPlaceId,
+            
+            workerDetail: workerList[indexPath.row].detail,
+            
             labelTitle: "빨간색",
             showDot: true,
             dotColor: UIColor(red: 1, green: 0.18, blue: 0.33, alpha: 1)
@@ -130,8 +119,8 @@ extension WorkerListViewController: UITableViewDataSource, UITableViewDelegate {
             workerList.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .automatic)
             // 데이터(알바생) 삭제 로직
-            // deleteOrLeaveWorkplace에다
-            // workerplaceId랑 workerList[indexPath].id를 넘겨줘서 해당 데이터 삭제
+            // deleteOrLeaveWorkplace
+            // workerplaceId랑 workerList[indexPath.row].id를 넘겨줘서 해당 데이터 삭제
         }
     }
 

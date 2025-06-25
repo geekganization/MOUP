@@ -122,9 +122,8 @@ final class WorkerListViewController: UIViewController, UIGestureRecognizerDeleg
 
         output.errorMessage
             .observe(on: MainScheduler.instance)
-            .subscribe(onNext: { [weak self] message in
+            .subscribe(onNext: { message in
                 print("에러: \(message)")
-                self?.showAlert(message: message)
             })
             .disposed(by: disposeBag)
 
@@ -135,14 +134,6 @@ final class WorkerListViewController: UIViewController, UIGestureRecognizerDeleg
                 self?.tableView.reloadData()
             })
             .disposed(by: disposeBag)
-    }
-
-    // MARK: - Alert
-
-    private func showAlert(message: String) {
-        let alert = UIAlertController(title: "오류", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "확인", style: .default))
-        present(alert, animated: true)
     }
 }
 
@@ -180,16 +171,30 @@ extension WorkerListViewController: UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            let worker = workerList[indexPath.row]
-            workerList.remove(at: indexPath.row)
-            tableView.deleteRows(at: [indexPath], with: .automatic)
+        guard editingStyle == .delete else { return }
 
-            deleteTrigger.onNext((
-                workplaceId: workerPlaceId,
+        let worker = workerList[indexPath.row]
+
+        let alertVC = DeleteAlertViewController(
+            alertTitle: "정말 삭제하시겠어요?",
+            alertMessage: "삭제된 정보는 되돌릴 수 없습니다."
+        )
+        alertVC.modalPresentationStyle = .overFullScreen
+        alertVC.modalTransitionStyle = .crossDissolve
+
+        alertVC.onDeleteConfirmed = { [weak self] in
+            guard let self = self else { return }
+
+            self.workerList.remove(at: indexPath.row)
+            self.tableView.deleteRows(at: [indexPath], with: .automatic)
+
+            self.deleteTrigger.onNext((
+                workplaceId: self.workerPlaceId,
                 uid: worker.id
             ))
         }
+
+        present(alertVC, animated: true, completion: nil)
     }
 
     func tableView(_ tableView: UITableView, titleForDeleteConfirmationButtonForRowAt indexPath: IndexPath) -> String? {

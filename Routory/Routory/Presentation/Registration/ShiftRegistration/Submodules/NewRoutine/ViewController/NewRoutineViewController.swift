@@ -22,7 +22,7 @@ final class NewRoutineViewController: UIViewController,UIGestureRecognizerDelega
 
     // MARK: - ViewModel & Rx
 
-    private let viewModel: NewRoutineViewModel
+    private var viewModel: NewRoutineViewModel
     private let saveTrigger = PublishSubject<Routine>()
     private let disposeBag = DisposeBag()
     
@@ -131,8 +131,18 @@ final class NewRoutineViewController: UIViewController,UIGestureRecognizerDelega
                         existingTime: time,
                         existingTasks: tasks
                     )
+
+                    let useCase = RoutineUseCase(repository: RoutineRepository(service: RoutineService()))
+                    let uid = Auth.auth().currentUser?.uid ?? ""
+                    self.viewModel = NewRoutineViewModel(
+                        useCase: useCase,
+                        uid: uid,
+                        mode: .edit(routineId: routineId)
+                    )
+
                     self.navigationBar.configureRightButton(icon: nil, title: "저장")
                     self.applyMode()
+                    self.bindViewModel()
                     
                 default:
                     self.didTapSave()

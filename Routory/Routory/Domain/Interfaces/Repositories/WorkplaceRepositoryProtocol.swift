@@ -29,4 +29,15 @@ protocol WorkplaceRepositoryProtocol {
         month: Int
     ) -> Observable<[WorkplaceWorkSummaryDaily]>
     func deleteOrLeaveWorkplace(workplaceId: String, uid: String) -> Observable<Void>
+    func updateWorkerDetailAndColor(
+        workplaceId: String,
+        uid: String,
+        workerDetail: WorkerDetail,
+        color: String
+    ) -> Observable<Void>
+    func updateWorkplaceNameAndCategory(
+        workplaceId: String,
+        name: String,
+        category: String
+    ) -> Observable<Void>
 }

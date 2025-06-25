@@ -58,4 +58,23 @@ final class WorkplaceUseCase: WorkplaceUseCaseProtocol {
     func deleteOrLeaveWorkplace(workplaceId: String, uid: String) -> Observable<Void> {
         return repository.deleteOrLeaveWorkplace(workplaceId: workplaceId, uid: uid)
     }
+    
+    // 알바생 기준
+    func updateWorkerDetailAndColor(
+        workplaceId: String,
+        uid: String,
+        workerDetail: WorkerDetail,
+        color: String
+    ) -> Observable<Void> {
+        return repository.updateWorkerDetailAndColor(workplaceId: workplaceId, uid: uid, workerDetail: workerDetail, color: color)
+    }
+    
+    
+    func updateWorkplaceNameAndCategory(
+        workplaceId: String,
+        name: String,
+        category: String
+    ) -> Observable<Void> {
+        return repository.updateWorkplaceNameAndCategory(workplaceId: workplaceId, name: name, category: category)
+    }
 }

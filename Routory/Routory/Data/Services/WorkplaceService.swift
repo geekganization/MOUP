@@ -31,6 +31,17 @@ protocol WorkplaceServiceProtocol {
         month: Int
     ) -> Observable<[WorkplaceWorkSummaryDaily]>
     func deleteOrLeaveWorkplace(workplaceId: String, uid: String) -> Observable<Void>
+    func updateWorkerDetailAndColor(
+        workplaceId: String,
+        uid: String,
+        workerDetail: WorkerDetail,
+        color: String
+    ) -> Observable<Void>
+    func updateWorkplaceNameAndCategory(
+        workplaceId: String,
+        name: String,
+        category: String
+    ) -> Observable<Void>
 }
 
 
@@ -421,7 +432,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
             }
             return Disposables.create()
         }
-
+        
         return workplaceObs
             .flatMap { (ownerUid, calendarId) -> Observable<Void> in
                 // 오너 == 전체 삭제
@@ -430,17 +441,17 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                 } else {
                     // 워커 == 내 정보, 내가 만든 이벤트만 삭제 + 내 workplaces 문서도 삭제 + sharedWith에서 uid 삭제
                     let batch = self.db.batch()
-
+                    
                     // 1. workplaces/{workplaceId}/workers/{myUid}
                     let workerRef = self.db.collection("workplaces").document(workplaceId)
                         .collection("workers").document(uid)
                     batch.deleteDocument(workerRef)
-
+                    
                     // 2. users/{myUid}/workplaces/{workplaceId} (내 workplaces 문서 삭제)
                     let myWorkplaceRef = self.db.collection("users").document(uid)
                         .collection("workplaces").document(workplaceId)
                     batch.deleteDocument(myWorkplaceRef)
-
+                    
                     // 3. calendars/{calendarId}/events 중 내가 만든(createdBy == myUid) 이벤트만 삭제
                     if let calendarId = calendarId {
                         let eventsRef = self.db.collection("calendars").document(calendarId).collection("events")
@@ -499,7 +510,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                 }
             }
     }
-
+    
     // 오너 전체 삭제
     private func deleteWorkplaceAndReferences(workplaceId: String, calendarId: String?) -> Observable<Void> {
         // 1. workers 서브컬렉션 모든 문서 삭제 + uid 목록 수집
@@ -526,28 +537,28 @@ final class WorkplaceService: WorkplaceServiceProtocol {
             }
             return Disposables.create()
         }
-
+        
         // 2. workers 삭제 후, workplace/캘린더/유저 workplaces 문서/이벤트 삭제
         return deleteWorkersObs.flatMap { uids -> Observable<Void> in
             let batch = self.db.batch()
-
+            
             // workplaces/{workplaceId}
             let workplaceRef = self.db.collection("workplaces").document(workplaceId)
             batch.deleteDocument(workplaceRef)
-
+            
             // calendars/{calendarId}
             if let calendarId = calendarId {
                 let calendarRef = self.db.collection("calendars").document(calendarId)
                 batch.deleteDocument(calendarRef)
             }
-
+            
             // users/{uid}/workplaces/{workplaceId} (모든 워커의 workplaces 문서 삭제)
             for uid in uids {
                 let userWorkplaceRef = self.db.collection("users").document(uid)
                     .collection("workplaces").document(workplaceId)
                 batch.deleteDocument(userWorkplaceRef)
             }
-
+            
             // batch commit → 이후 events 서브컬렉션 삭제
             return Observable.create { observer in
                 batch.commit { error in
@@ -584,4 +595,76 @@ final class WorkplaceService: WorkplaceServiceProtocol {
             }
         }
     }
+    
+    func updateWorkerDetailAndColor(
+        workplaceId: String,
+        uid: String,
+        workerDetail: WorkerDetail,
+        color: String
+    ) -> Observable<Void> {
+        let workerRef = db.collection("workplaces").document(workplaceId)
+            .collection("worker").document(uid)
+        let userWorkplaceRef = db.collection("users").document(uid)
+            .collection("workplaces").document(workplaceId)
+        
+        return Observable.create { observer in
+            let batch = self.db.batch()
+            do {
+                let workerData = try Firestore.Encoder().encode(workerDetail)
+                batch.setData(workerData, forDocument: workerRef, merge: true)
+            } catch {
+                observer.onError(error)
+                return Disposables.create()
+            }
+            // 컬러 업데이트
+            batch.setData(["color": color], forDocument: userWorkplaceRef, merge: true)
+            batch.commit { error in
+                if let error = error {
+                    observer.onError(error)
+                } else {
+                    observer.onNext(())
+                    observer.onCompleted()
+                }
+            }
+            return Disposables.create()
+        }
+    }
+
+    
+    func updateWorkplaceNameAndCategory(
+        workplaceId: String,
+        name: String,
+        category: String
+    ) -> Observable<Void> {
+        let workplaceRef = db.collection("workplaces").document(workplaceId)
+        return Observable.create { observer in
+            workplaceRef.updateData([
+                "workplacesName": name,
+                "category": category
+            ]) { error in
+                if let error = error as NSError? {
+                    if error.domain == FirestoreErrorDomain,
+                       error.code == FirestoreErrorCode.permissionDenied.rawValue {
+                        // 파이어스토어 권한 에러 (보안 규칙 위반)
+                        observer.onError(
+                            NSError(
+                                domain: "CustomErrorDomain",
+                                code: error.code,
+                                userInfo: [
+                                    NSLocalizedDescriptionKey: "권한이 없습니다. Firestore Security Rule에 의해 거부되었습니다."
+                                ]
+                            )
+                        )
+                    } else {
+                        observer.onError(error)
+                    }
+                } else {
+                    observer.onNext(())
+                    observer.onCompleted()
+                }
+            }
+            return Disposables.create()
+        }
+    }
+
 }

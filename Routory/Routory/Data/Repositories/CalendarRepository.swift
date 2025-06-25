@@ -25,4 +25,7 @@ final class CalendarRepository: CalendarRepositoryProtocol {
     func deleteEventFromCalendarIfPermitted(calendarId: String, eventId: String, uid: String) -> Observable<Void> {
         return calendarService.deleteEventFromCalendarIfPermitted(calendarId: calendarId, eventId: eventId, uid: uid)
     }
+    func updateEventInCalendar(calendarId: String, eventId: String, event: CalendarEvent) -> Observable<Void> {
+        return calendarService.updateEventInCalendar(calendarId: calendarId, eventId: eventId, event: event)
+    }
 }

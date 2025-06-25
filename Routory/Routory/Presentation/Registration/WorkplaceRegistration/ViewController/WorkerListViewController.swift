@@ -15,12 +15,15 @@ final class WorkerListViewController: UIViewController, UIGestureRecognizerDeleg
 
     // MARK: - Properties
 
-    private var workerList: [WorkerDetailInfo]
+    private var workerList: [WorkerDetailInfo] = []
     private let workerPlaceId: String
 
     private let tableView = UITableView()
     private let navigationBar = BaseNavigationBar(title: "알바생 관리")
     private let disposeBag = DisposeBag()
+
+    private let fetchTrigger = PublishSubject<String>()
+    private let deleteTrigger = PublishSubject<(workplaceId: String, uid: String)>()
 
     // ViewModel
     private let viewModel = WorkerListViewModel(
@@ -28,7 +31,6 @@ final class WorkerListViewController: UIViewController, UIGestureRecognizerDeleg
             repository: WorkplaceRepository(service: WorkplaceService())
         )
     )
-    private let deleteTrigger = PublishSubject<(workplaceId: String, uid: String)>()
 
     // MARK: - Init
 
@@ -56,6 +58,8 @@ final class WorkerListViewController: UIViewController, UIGestureRecognizerDeleg
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: false)
         navigationController?.interactivePopGestureRecognizer?.delegate = self
+
+        fetchTrigger.onNext(workerPlaceId)
     }
 
     // MARK: - Setup
@@ -95,7 +99,11 @@ final class WorkerListViewController: UIViewController, UIGestureRecognizerDeleg
     // MARK: - ViewModel Binding
 
     private func bindViewModel() {
-        let input = WorkerListViewModel.Input(deleteTrigger: deleteTrigger.asObservable())
+        let input = WorkerListViewModel.Input(
+            deleteTrigger: deleteTrigger.asObservable(),
+            fetchTrigger: fetchTrigger.asObservable()
+        )
+
         let output = viewModel.transform(input: input)
 
         output.isLoading
@@ -117,6 +125,14 @@ final class WorkerListViewController: UIViewController, UIGestureRecognizerDeleg
             .subscribe(onNext: { [weak self] message in
                 print("에러: \(message)")
                 self?.showAlert(message: message)
+            })
+            .disposed(by: disposeBag)
+
+        output.workerList
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] list in
+                self?.workerList = list
+                self?.tableView.reloadData()
             })
             .disposed(by: disposeBag)
     }

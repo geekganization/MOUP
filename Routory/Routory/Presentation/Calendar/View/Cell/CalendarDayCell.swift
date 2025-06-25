@@ -114,6 +114,9 @@ final class CalendarDayCell: JTACDayCell {
                             let dailyWage = Int(Double(model.wage ?? 0) * (workHour?.decimal ?? 0.0))
                             eventView.update(workHour: workHour?.decimal ?? 0, userName: model.userName, dailyWage: dailyWage, calendarMode: calendarMode, color: "red")
                         } else if model.wageType == "고정" {
+                            eventView.update(workHour: workHour?.decimal ?? 0, userName: model.userName, dailyWage: -1, calendarMode: calendarMode, color: "red")
+                        } else {
+                            // 사장님 개인 캘린더
                             eventView.update(workHour: workHour?.decimal ?? 0, userName: model.userName, dailyWage: nil, calendarMode: calendarMode, color: "red")
                         }
                         eventView.isHidden = false

@@ -53,17 +53,23 @@ final class CalendarEventVStackView: UIStackView {
             workHourOrNameLabel.text = "\(workHourStr)시간"
         }
         
-        if let dailyWage {
-            if dailyWage == 0 {
-                dailyWageLabel.isHidden = true
-            } else {
-                // 시급
-                dailyWageLabel.text = NumberFormatter.decimalFormatter.string(for: Int(dailyWage))
-                dailyWageLabel.isHidden = false
-            }
+        if calendarMode == .shared {
+            dailyWageLabel.isHidden = true
         } else {
-            // 고정급
-            dailyWageLabel.text = "고정급"
+            if let dailyWage {
+                if dailyWage == -1 {
+                    // 고정급
+                    dailyWageLabel.text = "고정급"
+                    dailyWageLabel.isHidden = false
+                } else {
+                    // 시급
+                    dailyWageLabel.text = NumberFormatter.decimalFormatter.string(for: Int(dailyWage))
+                    dailyWageLabel.isHidden = false
+                }
+            } else {
+                // 사장님 개인 캘린더
+                dailyWageLabel.isHidden = true
+            }
         }
         
         // TODO: color 설정

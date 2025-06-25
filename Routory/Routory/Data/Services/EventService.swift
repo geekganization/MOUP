@@ -107,6 +107,7 @@ final class EventService: EventServiceProtocol {
                 
                 let perWorkplaceObs = workplaceIds.map { workplaceId -> Observable<WorkplaceWorkSummaryDailySeparated?> in
                     Observable<WorkplaceWorkSummaryDailySeparated?>.create { o in
+                        let userDocRef = self.db.collection("users").document(uid)
                         let workplaceDocRef = self.db.collection("workplaces").document(workplaceId)
                         let workerDocRef = workplaceDocRef.collection("worker").document(uid)
                         
@@ -118,7 +119,7 @@ final class EventService: EventServiceProtocol {
                         // workplace 리스너
                         let workplaceListener = workplaceDocRef.addSnapshotListener { workplaceDoc, _ in
                             
-                            userListener = workerDocRef.addSnapshotListener({ userDoc, _ in
+                            userListener = userDocRef.addSnapshotListener({ userDoc, _ in
                                 // worker 리스너
                                 workerListener = workerDocRef.addSnapshotListener { workerDoc, _ in
                                     guard let wData = workplaceDoc?.data(),
@@ -131,7 +132,7 @@ final class EventService: EventServiceProtocol {
                                     }
                                     
                                     let workerData = workerDoc?.data()
-                                    let wage = workerData?["wage"] as? Int ?? 0
+                                    let wage = workerData?["wage"] as? Int
                                     let wageCalcMethod = workerData?["wageCalcMethod"] as? String
                                     let wageType = workerData?["wageType"] as? String
                                     let breakTimeMinutes = workerData?["breakTimeMinutes"] as? Int
@@ -182,9 +183,9 @@ final class EventService: EventServiceProtocol {
                                                             let totalWage: Int
                                                             if wageCalcMethod == "매월" {
                                                                 let workDays = groupedByDay.count
-                                                                totalWage = workDays > 0 ? wage / workDays : wage
+                                                                totalWage = workDays > 0 ? (wage ?? 0) / workDays : (wage ?? 0)
                                                             } else {
-                                                                totalWage = Int(Double(wage) * totalHours)
+                                                                totalWage = Int(Double(wage ?? 0) * totalHours)
                                                             }
                                                             return (events, totalHours, totalWage)
                                                         }

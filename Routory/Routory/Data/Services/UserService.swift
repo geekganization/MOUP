@@ -225,22 +225,30 @@ final class UserService: UserServiceProtocol {
                         }
                     }
                 
-                // 3. 내 users/{uid} 및 모든 서브컬렉션 삭제 (최후)
+                // 3. 내 users/{uid} 및 모든 서브컬렉션(루틴 포함) 삭제 (최후)
                 let userDelete = Observable<Void>.create { observer in
                     let userRef = self.db.collection("users").document(uid)
-                    userRef.collection("workplaces").getDocuments { snap, _ in
-                        let group = DispatchGroup()
-                        for doc in snap?.documents ?? [] {
+                    let group = DispatchGroup()
+                    
+                    userRef.collection("routine").getDocuments { routineSnap, _ in
+                        for doc in routineSnap?.documents ?? [] {
                             group.enter()
                             doc.reference.delete { _ in group.leave() }
                         }
-                        group.notify(queue: .main) {
-                            userRef.delete { error in
-                                if let error = error {
-                                    observer.onError(error)
-                                } else {
-                                    observer.onNext(())
-                                    observer.onCompleted()
+                        
+                        userRef.collection("workplaces").getDocuments { workSnap, _ in
+                            for doc in workSnap?.documents ?? [] {
+                                group.enter()
+                                doc.reference.delete { _ in group.leave() }
+                            }
+                            group.notify(queue: .main) {
+                                userRef.delete { error in
+                                    if let error = error {
+                                        observer.onError(error)
+                                    } else {
+                                        observer.onNext(())
+                                        observer.onCompleted()
+                                    }
                                 }
                             }
                         }
@@ -256,6 +264,7 @@ final class UserService: UserServiceProtocol {
                     .ifEmpty(switchTo: Observable.just(()))
             }
     }
+
 
     
     /// 사용자 정보를 조회합니다.

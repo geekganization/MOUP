@@ -107,105 +107,114 @@ final class EventService: EventServiceProtocol {
                 
                 let perWorkplaceObs = workplaceIds.map { workplaceId -> Observable<WorkplaceWorkSummaryDailySeparated?> in
                     Observable<WorkplaceWorkSummaryDailySeparated?>.create { o in
+                        let userDocRef = self.db.collection("users").document(uid)
                         let workplaceDocRef = self.db.collection("workplaces").document(workplaceId)
                         let workerDocRef = workplaceDocRef.collection("worker").document(uid)
                         
                         // 각각의 리스너 반환값 저장
+                        var userListener: ListenerRegistration?
                         var workerListener: ListenerRegistration?
                         var calendarListener: ListenerRegistration?
                         
                         // workplace 리스너
                         let workplaceListener = workplaceDocRef.addSnapshotListener { workplaceDoc, _ in
-                            // worker 리스너
-                            workerListener = workerDocRef.addSnapshotListener { workerDoc, _ in
-                                guard let wData = workplaceDoc?.data(),
-                                      let workplaceName = wData["workplacesName"] as? String,
-                                      let isOfficial = wData["isOfficial"] as? Bool,
-                                      let workerData = workerDoc?.data(),
-                                      let workerName = workerData["workerName"] as? String,
-                                      let wage = workerData["wage"] as? Int,
-                                      let wageCalcMethod = workerData["wageCalcMethod"] as? String,
-                                      let wageType = workerData["wageType"] as? String,
-                                      let breakTimeMinutes = workerData["breakTimeMinutes"] as? Int
-                                else {
-                                    o.onNext(nil); o.onCompleted(); return
-                                }
-                                // 캘린더(개인/공유) 리스너
-                                calendarListener = self.db.collection("calendars")
-                                    .whereField("workplaceId", isEqualTo: workplaceId)
-                                    .addSnapshotListener { calSnap, _ in
-                                        let personalCalIds = calSnap?.documents.filter { ($0.data()["isShared"] as? Bool) == false }.map { $0.documentID } ?? []
-                                        let sharedCalIds   = calSnap?.documents.filter { ($0.data()["isShared"] as? Bool) == true  }.map { $0.documentID } ?? []
-                                        
-                                        func fetchEvents(calIds: [String]) -> Observable<[CalendarEventInfo]> {
-                                            let eventObs = calIds.map { calId in
-                                                Observable<[CalendarEventInfo]>.create { eventObserver in
-                                                    // 이벤트 리스너 반환값
-                                                    let eventsListener = self.db.collection("calendars").document(calId)
-                                                        .collection("events")
-                                                        .whereField("year", isEqualTo: year)
-                                                        .whereField("month", isEqualTo: month)
-                                                        .addSnapshotListener { evtSnap, _ in
-                                                            let events: [CalendarEventInfo] = evtSnap?.documents.compactMap { doc in
-                                                                do {
-                                                                    let data = try JSONSerialization.data(withJSONObject: doc.data())
-                                                                    let event = try JSONDecoder().decode(CalendarEvent.self, from: data)
-                                                                    return CalendarEventInfo(id: doc.documentID, calendarEvent: event)
-                                                                } catch { return nil }
-                                                            } ?? []
-                                                            eventObserver.onNext(events)
-                                                        }
-                                                    // 이벤트 리스너 해제
-                                                    return Disposables.create {
-                                                        eventsListener.remove()
-                                                    }
-                                                }
-                                            }
-                                            return eventObs.isEmpty ? .just([]) : Observable.zip(eventObs).map { $0.flatMap { $0 } }
-                                        }
-                                        
-                                        let personalEventsObs = fetchEvents(calIds: personalCalIds)
-                                        let sharedEventsObs   = fetchEvents(calIds: sharedCalIds)
-                                        
-                                        Observable.zip(personalEventsObs, sharedEventsObs)
-                                            .subscribe(onNext: { personalEvents, sharedEvents in
-                                                func groupSummary(_ events: [CalendarEventInfo]) -> [String: (events: [CalendarEventInfo], totalHours: Double, totalWage: Int)] {
-                                                    let groupedByDay = Dictionary(grouping: events) { $0.calendarEvent.eventDate }
-                                                    return groupedByDay.mapValues { events in
-                                                        let totalHours = events.reduce(0.0) { $0 + WageHelper.calculateWorkedHours(start: $1.calendarEvent.startTime, end: $1.calendarEvent.endTime) }
-                                                        let totalWage: Int
-                                                        if wageCalcMethod == "monthly" {
-                                                            let workDays = groupedByDay.count
-                                                            totalWage = workDays > 0 ? wage / workDays : wage
-                                                        } else {
-                                                            totalWage = Int(Double(wage) * totalHours)
-                                                        }
-                                                        return (events, totalHours, totalWage)
-                                                    }
-                                                }
-                                                o.onNext(WorkplaceWorkSummaryDailySeparated(
-                                                    workplaceId: workplaceId,
-                                                    workplaceName: workplaceName,
-                                                    isOfficial: isOfficial,
-                                                    workerName: workerName,
-                                                    wage: wage,
-                                                    wageCalcMethod: wageCalcMethod,
-                                                    wageType: wageType,
-                                                    breakTimeMinutes: breakTimeMinutes,
-                                                    personalSummary: groupSummary(personalEvents),
-                                                    sharedSummary: groupSummary(sharedEvents)
-                                                ))
-                                                o.onCompleted()
-                                            }, onError: { error in
-                                                o.onError(error)
-                                            })
-                                            .disposed(by: self.disposeBag)
+                            
+                            userListener = userDocRef.addSnapshotListener({ userDoc, _ in
+                                // worker 리스너
+                                workerListener = workerDocRef.addSnapshotListener { workerDoc, _ in
+                                    guard let wData = workplaceDoc?.data(),
+                                          let workplaceName = wData["workplacesName"] as? String,
+                                          let isOfficial = wData["isOfficial"] as? Bool,
+                                          let uData = userDoc?.data(),
+                                          let userName = uData["userName"] as? String
+                                    else {
+                                        o.onNext(nil); o.onCompleted(); return
                                     }
-                            }
+                                    
+                                    let workerData = workerDoc?.data()
+                                    let wage = workerData?["wage"] as? Int
+                                    let wageCalcMethod = workerData?["wageCalcMethod"] as? String
+                                    let wageType = workerData?["wageType"] as? String
+                                    let breakTimeMinutes = workerData?["breakTimeMinutes"] as? Int
+                                    
+                                    // 캘린더(개인/공유) 리스너
+                                    calendarListener = self.db.collection("calendars")
+                                        .whereField("workplaceId", isEqualTo: workplaceId)
+                                        .addSnapshotListener { calSnap, _ in
+                                            let personalCalIds = calSnap?.documents.filter { ($0.data()["isShared"] as? Bool) == false }.map { $0.documentID } ?? []
+                                            let sharedCalIds   = calSnap?.documents.filter { ($0.data()["isShared"] as? Bool) == true  }.map { $0.documentID } ?? []
+                                            
+                                            func fetchEvents(calIds: [String]) -> Observable<[CalendarEventInfo]> {
+                                                let eventObs = calIds.map { calId in
+                                                    Observable<[CalendarEventInfo]>.create { eventObserver in
+                                                        // 이벤트 리스너 반환값
+                                                        let eventsListener = self.db.collection("calendars").document(calId)
+                                                            .collection("events")
+                                                            .whereField("year", isEqualTo: year)
+                                                            .whereField("month", isEqualTo: month)
+                                                            .addSnapshotListener { evtSnap, _ in
+                                                                let events: [CalendarEventInfo] = evtSnap?.documents.compactMap { doc in
+                                                                    do {
+                                                                        let data = try JSONSerialization.data(withJSONObject: doc.data())
+                                                                        let event = try JSONDecoder().decode(CalendarEvent.self, from: data)
+                                                                        return CalendarEventInfo(id: doc.documentID, calendarEvent: event)
+                                                                    } catch { return nil }
+                                                                } ?? []
+                                                                eventObserver.onNext(events)
+                                                            }
+                                                        // 이벤트 리스너 해제
+                                                        return Disposables.create {
+                                                            eventsListener.remove()
+                                                        }
+                                                    }
+                                                }
+                                                return eventObs.isEmpty ? .just([]) : Observable.zip(eventObs).map { $0.flatMap { $0 } }
+                                            }
+                                            
+                                            let personalEventsObs = fetchEvents(calIds: personalCalIds)
+                                            let sharedEventsObs   = fetchEvents(calIds: sharedCalIds)
+                                            
+                                            Observable.zip(personalEventsObs, sharedEventsObs)
+                                                .subscribe(onNext: { personalEvents, sharedEvents in
+                                                    func groupSummary(_ events: [CalendarEventInfo]) -> [String: (events: [CalendarEventInfo], totalHours: Double, totalWage: Int)] {
+                                                        let groupedByDay = Dictionary(grouping: events) { $0.calendarEvent.eventDate }
+                                                        return groupedByDay.mapValues { events in
+                                                            let totalHours = events.reduce(0.0) { $0 + WageHelper.calculateWorkedHours(start: $1.calendarEvent.startTime, end: $1.calendarEvent.endTime) }
+                                                            let totalWage: Int
+                                                            if wageCalcMethod == "매월" {
+                                                                let workDays = groupedByDay.count
+                                                                totalWage = workDays > 0 ? (wage ?? 0) / workDays : (wage ?? 0)
+                                                            } else {
+                                                                totalWage = Int(Double(wage ?? 0) * totalHours)
+                                                            }
+                                                            return (events, totalHours, totalWage)
+                                                        }
+                                                    }
+                                                    o.onNext(WorkplaceWorkSummaryDailySeparated(
+                                                        workplaceId: workplaceId,
+                                                        workplaceName: workplaceName,
+                                                        isOfficial: isOfficial,
+                                                        userName: userName,
+                                                        wage: wage,
+                                                        wageCalcMethod: wageCalcMethod,
+                                                        wageType: wageType,
+                                                        breakTimeMinutes: breakTimeMinutes,
+                                                        personalSummary: groupSummary(personalEvents),
+                                                        sharedSummary: groupSummary(sharedEvents)
+                                                    ))
+                                                    o.onCompleted()
+                                                }, onError: { error in
+                                                    o.onError(error)
+                                                })
+                                                .disposed(by: self.disposeBag)
+                                        }
+                                }
+                            })
                         }
                         // workplace Observable의 Disposables.create에서 모두 해제
                         return Disposables.create {
                             workplaceListener.remove()
+                            userListener?.remove()
                             workerListener?.remove()
                             calendarListener?.remove()
                         }

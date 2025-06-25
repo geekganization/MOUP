@@ -11,10 +11,10 @@ struct CalendarModel {
     let workplaceId: String
     let workplaceName: String
     let isOfficial: Bool
-    let workerName: String
-    let wage: Int
-    let wageCalcMethod: String
-    let wageType: String
+    let userName: String
+    let wage: Int?
+    let wageCalcMethod: String?
+    let wageType: String?
     let breakTimeMinutes: BreakTimeMinutesDecimal
     let eventInfo: CalendarEventInfo
 }

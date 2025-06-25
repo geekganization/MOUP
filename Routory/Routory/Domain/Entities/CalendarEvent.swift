@@ -13,7 +13,7 @@ struct CalendarEvent: Codable {
     /// 이벤트 제목
     let title: String
 
-    /// 날짜 전체 문자열 (예: "2025년 6월 9일")
+    /// 날짜 전체 문자열 (예: "2025.06.09")
     let eventDate: String
 
     /// 시작 시간 (예: "09:00")

@@ -16,10 +16,10 @@ struct WorkerDetail: Codable {
     /// 시급/고정급 (단위: 원)
     let wage: Int
 
-    /// 급여 계산 방식 ("hourly", "monthly")
+    /// 급여 계산 방식 ("매월", "매주", "매일")
     let wageCalcMethod: String
 
-    /// 급여 유형 (예: "시급제", "월급제")
+    /// 급여 유형 ("시급", "고정")
     let wageType: String
 
     /// 주휴 수당 지급 여부

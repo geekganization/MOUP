@@ -26,9 +26,7 @@ final class CalendarViewController: UIViewController {
     
     private let calendarMode = BehaviorRelay<CalendarMode>(value: .personal)
     
-    private let personalFilterModelRelay = BehaviorRelay<FilterModel?>(value: nil)
-    private let sharedFilterModelRelay = BehaviorRelay<FilterModel?>(value: nil)
-    private let eventCreatedBy = PublishRelay<[String]>()
+    private let filterModelRelay = BehaviorRelay<FilterModel?>(value: nil)
     
     /// `calendarView`에서 `dataSource` 관련 데이터의 연/월 형식을 만들기 위한 `DateFormatter`
     private let dataSourceDateFormatter = DateFormatter().then {
@@ -148,8 +146,7 @@ private extension CalendarViewController {
         // MARK: - Input (ViewController ➡️ ViewModel)
         
         let input = CalendarViewModel.Input(loadMonthEvent: visibleYearMonth.asObservable(),
-                                            filterModel: personalFilterModelRelay.asObservable(),
-                                            eventCreatedBy: eventCreatedBy.asObservable())
+                                            filterModel: filterModelRelay.asObservable())
         
         // MARK: - Output (ViewModel ➡️ ViewController)
         
@@ -242,7 +239,7 @@ private extension CalendarViewController {
         let filterVM = FilterViewModel(workplaceUseCase: workplaceUseCase)
         let filterModalVC = FilterViewController(viewModel: filterVM,
                                                  calendarMode: calendarMode.value,
-                                                 prevFilterModel: calendarMode.value == .personal ? personalFilterModelRelay.value : sharedFilterModelRelay.value)
+                                                 prevFilterModel: filterModelRelay.value)
         filterModalVC.delegate = self
         
         if let sheet = filterModalVC.sheetPresentationController {
@@ -492,11 +489,7 @@ extension CalendarViewController: YearMonthPickerVCDelegate {
 
 extension CalendarViewController: FilterVCDelegate {
     func didApplyButtonTap(model: FilterModel?) {
-        if calendarMode.value == .personal {
-            personalFilterModelRelay.accept(model)
-        } else {
-            sharedFilterModelRelay.accept(model)
-        }
+        filterModelRelay.accept(model)
     }
 }
 

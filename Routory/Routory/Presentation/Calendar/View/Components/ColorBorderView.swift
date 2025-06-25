@@ -11,11 +11,11 @@ final class ColorBorderView: UIView {
     
     // MARK: - Properties
     
-    private let borderColor: UIColor
+    private var borderColor: LabelColorString
     
     // MARK: - Initializer
     
-    init(frame: CGRect, borderColor: UIColor) {
+    init(frame: CGRect, borderColor: LabelColorString) {
         self.borderColor = borderColor
         
         super.init(frame: frame)
@@ -34,11 +34,17 @@ final class ColorBorderView: UIView {
         
         let borderPath = UIBezierPath(roundedRect: CGRect(x: 0, y: 0, width: rect.width, height: rect.height), cornerRadius: 12)
         let contentPath = UIBezierPath(roundedRect: CGRect(x: 2, y: 0, width: rect.width - 2, height: rect.height), cornerRadius: 10.5)
-        borderColor.setFill()
+        borderColor.labelColor.setFill()
         borderPath.fill()
         
         UIColor.gray100.setFill()
         contentPath.fill()
+    }
+    
+    func updateBorderColor(borderColor: LabelColorString) {
+        self.borderColor = borderColor
+        borderColor.labelColor.setFill()
+        setNeedsDisplay()
     }
 }
 

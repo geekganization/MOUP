@@ -18,6 +18,8 @@ final class EventCell: UITableViewCell {
     
     // MARK: - UI Components
     
+    private let colorBorderView = ColorBorderView(frame: .zero, borderColor: ._default)
+    
     private let workplaceOrNameLabel = UILabel().then {
         $0.textColor = .gray900
         $0.font = .bodyMedium(16)
@@ -78,13 +80,15 @@ final class EventCell: UITableViewCell {
         super.layoutSubviews()
         self.contentView.frame = self.contentView.frame.inset(by: UIEdgeInsets(top: 6, left: 16, bottom: 6, right: 16))
         
-        self.backgroundView = ColorBorderView(frame: self.contentView.bounds, borderColor: .primary600)
+        self.backgroundView = colorBorderView
         self.backgroundView?.frame = self.contentView.frame
     }
     
     // MARK: - Methods
     
     func update(model: CalendarModel, calendarMode: CalendarMode) {
+        colorBorderView.updateBorderColor(borderColor: model.color)
+        
         if calendarMode == .personal {
             workplaceOrNameLabel.text = model.workplaceName
             dailyWageLabel.isHidden = false

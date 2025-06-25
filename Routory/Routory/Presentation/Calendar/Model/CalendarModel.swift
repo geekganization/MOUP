@@ -12,6 +12,7 @@ struct CalendarModel {
     let workplaceName: String
     let isOfficial: Bool
     let userName: String
+    let color: LabelColorString
     let wage: Int?
     let wageCalcMethod: String?
     let wageType: String?

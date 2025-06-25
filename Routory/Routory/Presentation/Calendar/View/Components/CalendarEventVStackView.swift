@@ -43,7 +43,7 @@ final class CalendarEventVStackView: UIStackView {
     
     // MARK: - Methods
     
-    func update(workHour: Double, userName: String, dailyWage: Int?, calendarMode: CalendarMode, color: String) {
+    func update(workHour: Double, userName: String, dailyWage: Int?, calendarMode: CalendarMode, color: LabelColorString) {
         let workHourStr = String(format: "%.1f", workHour)
         if calendarMode == .shared {
             workHourOrNameLabel.text = userName
@@ -72,10 +72,9 @@ final class CalendarEventVStackView: UIStackView {
             }
         }
         
-        // TODO: color 설정
-        self.backgroundColor = .primary100
-        workHourOrNameLabel.textColor = .primary600
-        dailyWageLabel.textColor = .primary600
+        self.backgroundColor = color.backgroundColor
+        workHourOrNameLabel.textColor = color.textColor
+        dailyWageLabel.textColor = color.textColor
     }
 }
 

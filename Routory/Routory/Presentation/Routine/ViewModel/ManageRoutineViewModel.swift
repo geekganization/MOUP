@@ -11,30 +11,13 @@ import RxRelay
 
 final class ManageRoutineViewModel {
     // MARK: - Properties
-    private var userId: String? {
-        return UserManager.shared.firebaseUid
+    private var userId: String {
+        guard let userId = UserManager.shared.firebaseUid else { return "" }
+        return userId
     }
     private let routineType: RoutineType
     private let disposeBag = DisposeBag()
     private let routineUseCase: RoutineUseCaseProtocol
-
-    // MARK: - Mock Data
-    private let mockTodaysRoutine = [
-        DummyTodaysRoutine(workplaceName: "맥도날드", routines: [
-            RoutineInfo(id: "4", routine: Routine(routineName: "청소", alarmTime: "14:00", tasks: ["매장 청소"]))
-        ]),
-        DummyTodaysRoutine(workplaceName: "세븐일레븐", routines: []),
-        DummyTodaysRoutine(workplaceName: "GS25", routines: [
-            RoutineInfo(id: "5", routine: Routine(routineName: "청소", alarmTime: "14:00", tasks: ["매장 청소"])),
-            RoutineInfo(id: "6", routine: Routine(routineName: "유통기한 검수", alarmTime: "13:30", tasks: ["pp 매대", "치킨 매대"]))
-        ])
-    ]
-
-    private let mockAllRoutine = [
-        RoutineInfo(id: "1", routine: Routine(routineName: "오픈", alarmTime: "09:00", tasks: [])),
-        RoutineInfo(id: "2", routine: Routine(routineName: "폐기", alarmTime: "13:30", tasks: [])),
-        RoutineInfo(id: "3", routine: Routine(routineName: "청소", alarmTime: "14:30", tasks: []))
-    ]
 
     // MARK: - Initializer
     init(type: RoutineType, routineUseCase: RoutineUseCaseProtocol) {
@@ -48,7 +31,7 @@ final class ManageRoutineViewModel {
     }
 
     struct Output {
-        let todaysRoutine: Observable<[DummyTodaysRoutine]>
+        let todaysRoutine: Observable<[TodaysRoutine]>
         let allRoutine: Observable<[RoutineInfo]>
     }
 
@@ -59,13 +42,27 @@ final class ManageRoutineViewModel {
         case .today:
             print("오늘의 루틴 호출 시도")
             let todayRoutines = input.refreshTriggered
-                .flatMapLatest { [weak self] _ -> Observable<[DummyTodaysRoutine]> in
+                .flatMapLatest { [weak self] _ -> Observable<[TodaysRoutine]> in
                     print("flatMapLatest 진입")
                     guard let self else { print("self가 nil"); return .empty() }
-                    return self.fetchTodayRoutines()
+
+                    return Observable.combineLatest(
+                        self.fetchTodayRoutines(),
+                        self.fetchAllRoutines()
+                    )
+                    .map { [weak self] (todayEvents, allRoutines) in
+                        guard let self else { return [] }
+                        return todayEvents.map { (workplaceName, events) in
+                            let routineIds = events.flatMap { $0.routineIds }
+                            let matchedRoutines = allRoutines.filter { routineInfo in
+                                routineIds.contains(routineInfo.id)
+                            }
+
+                            return TodaysRoutine(workplaceName: workplaceName, routines: matchedRoutines)
+                        }
+                    }
                 }
                 .share(replay: 1, scope: .whileConnected)
-
             return Output(
                 todaysRoutine: todayRoutines,
                 allRoutine: .just([])
@@ -93,12 +90,15 @@ final class ManageRoutineViewModel {
 
 private extension ManageRoutineViewModel {
     func fetchAllRoutines() -> Observable<[RoutineInfo]> {
-        guard let userId else { return .empty() }
         return routineUseCase.fetchAllRoutines(uid: userId)
     }
 
-    func fetchTodayRoutines() -> Observable<[DummyTodaysRoutine]> {
-        guard let userId else { return .empty() }
-        return .just(mockTodaysRoutine) // TODO: - API 호출 로직으로 수정 필요
+    func fetchTodayRoutines() -> Observable<[String : [CalendarEvent]]> {
+        print("fetchTodayRoutines 초기 진입(함수)")
+        let result = routineUseCase.fetchTodayRoutineEventsGroupedByWorkplace(uid: userId, date: Date())
+        return result
+
+//        return .just(mockTodaysRoutine) // TODO: - API 호출 로직으로 수정 필요
     }
+
 }

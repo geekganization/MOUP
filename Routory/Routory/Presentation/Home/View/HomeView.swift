@@ -27,7 +27,7 @@ final class HomeView: UIView {
     
     fileprivate let notificationButton = UIButton().then {
         var config = UIButton.Configuration.plain()
-        config.image = .bellWithDot.withTintColor(.gray700, renderingMode: .alwaysOriginal)
+        config.image = .bellWithDot
         config.contentInsets = .init(top: 13.75, leading: 12.98, bottom: 13.75, trailing: 12.98)
         $0.configuration = config
     }
@@ -92,7 +92,7 @@ private extension HomeView {
         }
 
         refreshButton.snp.makeConstraints {
-            $0.trailing.equalTo(notificationButton.snp.leading).inset(7)
+            $0.trailing.equalTo(notificationButton.snp.leading)
             $0.centerY.equalToSuperview()
             $0.size.equalTo(44)
         }
@@ -141,13 +141,15 @@ extension Reactive where Base: HomeView {
             view.tableView.reloadData()
         }
     }
-    
-    var cellForRow: Binder<(IndexPath, (MyWorkSpaceCell?) -> Void)> {
-        Binder(base) { view, tuple in
-            let (indexPath, completion) = tuple
-            let cell = view.tableView.cellForRow(at: indexPath) as? MyWorkSpaceCell
-            completion(cell)
+
+    var reloadRows: Binder<[IndexPath]> {
+        Binder(base) { view, indexPaths in
+            view.tableView.reloadRows(at: indexPaths, with: .none)
         }
+    }
+
+    var indexPathsForVisibleRows: [IndexPath] {
+        return base.tableView.indexPathsForVisibleRows ?? []
     }
 
     var refreshButtonTapped: ControlEvent<Void> {

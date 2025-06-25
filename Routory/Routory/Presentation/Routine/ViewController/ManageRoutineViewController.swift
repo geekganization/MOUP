@@ -58,12 +58,13 @@ class ManageRoutineViewController: UIViewController {
         super.viewDidLoad()
 
         configure()
+
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        refreshTriggeredRelay.accept(())
+
     }
 
 }
@@ -95,6 +96,7 @@ private extension ManageRoutineViewController {
                     cellIdentifier: TodaysRoutineCell.identifier,
                     cellType: TodaysRoutineCell.self
                 )) { index, routine, cell in
+                    print("오늘의 루틴: \(routine)")
                     cell.update(with: routine)
                 }
                 .disposed(by: disposeBag)
@@ -145,9 +147,7 @@ private extension ManageRoutineViewController {
                 .disposed(by: disposeBag)
         }
 
-        refreshTriggeredRelay.accept(()) // Output이 Observable들로 구성되어 있어서 미리 연결을 해두어야 함.
-
-
+        refreshTriggeredRelay.accept(())
     }
 }
 

@@ -282,8 +282,9 @@ private extension MyWorkSpaceCell {
         boldContainer.foregroundColor = .gray900
 
         attributedString.setAttributes(baseContainer)
-
-        if let range = attributedString.range(of: amount) {
+        
+        let boldText = "\(amount)원"
+        if let range = attributedString.range(of: boldText) {
             attributedString[range].setAttributes(boldContainer)
         }
 

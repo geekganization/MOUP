@@ -12,11 +12,11 @@ import RxRelay
 final class WorkplaceRoutineViewModel {
     // MARK: - Properties
     private let disposeBag = DisposeBag()
-    private let workplaceRoutine: DummyTodaysRoutine
+    private let workplaceRoutine: TodaysRoutine
     private let routinesRelay = BehaviorRelay<[RoutineInfo]>(value: [])
 
     // MARK: - Initializer
-    init(workplaceRoutine: DummyTodaysRoutine) {
+    init(workplaceRoutine: TodaysRoutine) {
         self.workplaceRoutine = workplaceRoutine
         print("workplaceRoutineVM - \(workplaceRoutine)")
     }

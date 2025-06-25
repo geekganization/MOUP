@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct DummyTodaysRoutine {
+struct TodaysRoutine {
     let workplaceName: String
     let routines: [RoutineInfo]
 }

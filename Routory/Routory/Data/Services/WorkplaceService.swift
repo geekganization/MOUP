@@ -58,7 +58,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
         return Observable.create { observer in
             self.db.collection("workplaces")
                 .whereField("inviteCode", isEqualTo: inviteCode)
-                .addSnapshotListener { snapshot, error in
+                .getDocuments { snapshot, error in
                     if let error = error {
                         observer.onError(error)
                         return
@@ -117,30 +117,26 @@ final class WorkplaceService: WorkplaceServiceProtocol {
     /// - Returns: WorkplaceInfo 배열
     /// - Firestore 경로: users/{uid}/workplaces → workplaces/{workplaceId}
     func fetchAllWorkplacesForUser(uid: String) -> Observable<[WorkplaceInfo]> {
-        let userWorkplaceRef = Firestore.firestore().collection("users").document(uid).collection("workplaces")
-        
-        // 1. users/{uid}/workplaces 조회
+        let userWorkplaceRef = db.collection("users").document(uid).collection("workplaces")
         return Observable<[String]>.create { observer in
-            userWorkplaceRef.getDocuments { snapshot, error in
+            let listener = userWorkplaceRef.addSnapshotListener { snapshot, error in
                 if let error = error {
                     observer.onError(error)
                     return
                 }
                 let ids = snapshot?.documents.map { $0.documentID } ?? []
                 observer.onNext(ids)
-                observer.onCompleted()
             }
-            return Disposables.create()
+            return Disposables.create { listener.remove() }
         }
-        .flatMap { ids -> Observable<[WorkplaceInfo]> in
-            // 2. workplaceId가 없으면 바로 []
+        .flatMapLatest { ids -> Observable<[WorkplaceInfo]> in
             if ids.isEmpty {
                 return Observable.just([])
             }
             let db = Firestore.firestore()
-            let observables: [Observable<WorkplaceInfo>] = ids.map { workplaceId in
-                Observable<WorkplaceInfo>.create { detailObserver in
-                    db.collection("workplaces").document(workplaceId).addSnapshotListener { doc, error in
+            let observables: [Observable<WorkplaceInfo?>] = ids.map { workplaceId in
+                Observable<WorkplaceInfo?>.create { detailObserver in
+                    db.collection("workplaces").document(workplaceId).getDocument { doc, error in
                         if let doc = doc, let data = doc.data() {
                             do {
                                 let jsonData = try JSONSerialization.data(withJSONObject: data)
@@ -151,16 +147,17 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                                 detailObserver.onError(error)
                             }
                         } else {
+                            detailObserver.onNext(nil)
                             detailObserver.onCompleted()
                         }
                     }
                     return Disposables.create()
                 }
             }
-            // 3. zip([Observable])을 그대로 반환 (subscribe 없이!)
-            return Observable.zip(observables)
+            return Observable.zip(observables).map { $0.compactMap { $0 } }
         }
     }
+
     
     /// 근무지, 캘린더를 동시에 생성(필요시 워커 등록)합니다.
     ///
@@ -191,7 +188,6 @@ final class WorkplaceService: WorkplaceServiceProtocol {
         return Observable.create { observer in
             let batch = self.db.batch()
             
-            // 1. 근무지 저장
             batch.setData([
                 "workplacesName": workplace.workplacesName,
                 "category": workplace.category,
@@ -200,7 +196,6 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                 "isOfficial": (role == .owner)
             ], forDocument: workplaceRef)
             
-            // 2. 캘린더 저장 (조건에 맞게 필드 세팅)
             batch.setData([
                 "calendarName": workplace.workplacesName,
                 "isShared": (role == .owner),
@@ -209,7 +204,6 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                 "workplaceId": workplaceId
             ], forDocument: calendarRef)
             
-            // 3. 알바일 때 워커 서브컬렉션 등록
             if role == .worker, let workerDetail {
                 let workerRef = workplaceRef.collection("worker").document(uid)
                 do {
@@ -221,7 +215,6 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                 }
             }
             
-            // 4. 사장이든 알바든 users/{uid}/workplace/{workplaceId}에 color 저장
             batch.setData([
                 "color": color
             ], forDocument: userWorkplaceRef)
@@ -246,7 +239,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
     func fetchWorkerListForWorkplace(workplaceId: String) -> Observable<[WorkerDetailInfo]> {
         let workerRef = db.collection("workplaces").document(workplaceId).collection("worker")
         return Observable.create { observer in
-            workerRef.addSnapshotListener { snapshot, error in
+            workerRef.getDocuments { snapshot, error in
                 if let error = error {
                     observer.onError(error)
                     return
@@ -278,7 +271,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
     ) -> Observable<[WorkplaceWorkSummary]> {
         let userWorkplaceRef = db.collection("users").document(uid).collection("workplaces")
         return Observable.create { observer in
-            userWorkplaceRef.addSnapshotListener { snap, err in
+            let listener = userWorkplaceRef.addSnapshotListener { snap, err in
                 if let err = err {
                     observer.onError(err)
                     return
@@ -293,14 +286,14 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                 let perWorkplaceObservables = ids.map { workplaceId -> Observable<WorkplaceWorkSummary?> in
                     Observable<WorkplaceWorkSummary?>.create { o in
                         let workplaceDoc = self.db.collection("workplaces").document(workplaceId)
-                        workplaceDoc.addSnapshotListener { doc, _ in
+                        workplaceDoc.getDocument { doc, _ in
                             guard let doc, let wData = doc.data(),
                                   let workplaceName = wData["workplacesName"] as? String else {
                                 o.onNext(nil)
                                 o.onCompleted()
                                 return
                             }
-                            workplaceDoc.collection("worker").document(uid).addSnapshotListener { workerDoc, _ in
+                            workplaceDoc.collection("worker").document(uid).getDocument { workerDoc, _ in
                                 guard let workerDoc, let wDetail = workerDoc.data(),
                                       let wage = wDetail["wage"] as? Int else {
                                     o.onNext(nil)
@@ -312,50 +305,51 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                                 let payWeekday = wDetail["payWeekday"] as? String
                                 
                                 // 캘린더 아이디
-                                self.db.collection("calendars").whereField("workplaceId", isEqualTo: workplaceId).addSnapshotListener { calSnap, _ in
-                                    guard let calId = calSnap?.documents.first?.documentID else {
-                                        o.onNext(nil)
-                                        o.onCompleted()
-                                        return
-                                    }
-                                    // 월간 이벤트 모두 조회
-                                    self.db.collection("calendars").document(calId)
-                                        .collection("events")
-                                        .whereField("year", isEqualTo: year)
-                                        .whereField("month", isEqualTo: month)
-                                        .addSnapshotListener { evtSnap, _ in
-                                            let events: [CalendarEvent] = evtSnap?.documents.compactMap { doc in
-                                                do {
-                                                    let data = try JSONSerialization.data(withJSONObject: doc.data())
-                                                    let event = try JSONDecoder().decode(CalendarEvent.self, from: data)
-                                                    return event.createdBy == uid ? event : nil
-                                                } catch { return nil }
-                                            } ?? []
-                                            
-                                            let totalHours = events.reduce(0.0) { sum, event in
-                                                sum + Self.calculateWorkedHours(start: event.startTime, end: event.endTime)
-                                            }
-                                            
-                                            let totalWage: Int
-                                            if wageCalcMethod == "monthly" {
-                                                totalWage = wage
-                                            } else {
-                                                totalWage = Int(Double(wage) * totalHours)
-                                            }
-                                            
-                                            o.onNext(WorkplaceWorkSummary(
-                                                workplaceId: workplaceId,
-                                                workplaceName: workplaceName,
-                                                wage: wage,
-                                                wageCalcMethod: wageCalcMethod,
-                                                payDay: payDay,
-                                                payWeekday: payWeekday,
-                                                events: events,
-                                                totalWage: totalWage
-                                            ))
+                                self.db.collection("calendars")
+                                    .whereField("workplaceId", isEqualTo: workplaceId)
+                                    .getDocuments { calSnap, _ in
+                                        guard let calId = calSnap?.documents.first?.documentID else {
+                                            o.onNext(nil)
                                             o.onCompleted()
+                                            return
                                         }
-                                }
+                                        // 월간 이벤트 모두 조회 (단발성)
+                                        self.db.collection("calendars").document(calId)
+                                            .collection("events")
+                                            .whereField("year", isEqualTo: year)
+                                            .whereField("month", isEqualTo: month)
+                                            .getDocuments { evtSnap, _ in
+                                                let events: [CalendarEvent] = evtSnap?.documents.compactMap { doc in
+                                                    do {
+                                                        let data = try JSONSerialization.data(withJSONObject: doc.data())
+                                                        let event = try JSONDecoder().decode(CalendarEvent.self, from: data)
+                                                        return event.createdBy == uid ? event : nil
+                                                    } catch { return nil }
+                                                } ?? []
+                                                
+                                                let totalHours = events.reduce(0.0) { sum, event in
+                                                    sum + WageHelper.calculateWorkedHours(start: event.startTime, end: event.endTime)
+                                                }
+                                                let totalWage: Int
+                                                if wageCalcMethod == "monthly" {
+                                                    totalWage = wage
+                                                } else {
+                                                    totalWage = Int(Double(wage) * totalHours)
+                                                }
+                                                
+                                                o.onNext(WorkplaceWorkSummary(
+                                                    workplaceId: workplaceId,
+                                                    workplaceName: workplaceName,
+                                                    wage: wage,
+                                                    wageCalcMethod: wageCalcMethod,
+                                                    payDay: payDay,
+                                                    payWeekday: payWeekday,
+                                                    events: events,
+                                                    totalWage: totalWage
+                                                ))
+                                                o.onCompleted()
+                                            }
+                                    }
                             }
                         }
                         return Disposables.create()
@@ -366,14 +360,14 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                     .map { $0.compactMap { $0 } }
                     .subscribe(onNext: { summaries in
                         observer.onNext(summaries)
-                        observer.onCompleted()
                     }, onError: { error in
                         observer.onError(error)
                     })
             }
-            return Disposables.create()
+            return Disposables.create { listener.remove() }
         }
     }
+
     
     /// 일간 단위로 근무지별 근무 집계
     func fetchDailyWorkSummary(
@@ -387,7 +381,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                     // 날짜별로 그룹화
                     let groupedByDay = Dictionary(grouping: summary.events) { $0.eventDate }
                     let dailySummary: [String: (events: [CalendarEvent], totalHours: Double, totalWage: Int)] = groupedByDay.mapValues { events in
-                        let totalHours = events.reduce(0.0) { $0 + Self.calculateWorkedHours(start: $1.startTime, end: $1.endTime) }
+                        let totalHours = events.reduce(0.0) { $0 + WageHelper.calculateWorkedHours(start: $1.startTime, end: $1.endTime) }
                         let totalWage = Int(Double(summary.wage) * totalHours)
                         return (events, totalHours, totalWage)
                     }
@@ -399,15 +393,6 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                     )
                 }
             }
-    }
-    /// "09:00", "18:30" → Double(시간)
-    private static func calculateWorkedHours(start: String, end: String) -> Double {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
-        guard let s = formatter.date(from: start),
-              let e = formatter.date(from: end) else { return 0 }
-        let diff = e.timeIntervalSince(s) / 3600
-        return max(0, diff)
     }
     
     func deleteOrLeaveWorkplace(workplaceId: String, uid: String) -> Observable<Void> {
@@ -443,7 +428,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                     // 워커 == 내 정보, 내가 만든 이벤트만 삭제 + 내 workplaces 문서도 삭제 + sharedWith에서 uid 삭제
                     let batch = self.db.batch()
                     
-                    // 1. workplaces/{workplaceId}/workers/{myUid}
+                    // 1. workplaces/{workplaceId}/worker/{myUid}
                     let workerRef = self.db.collection("workplaces").document(workplaceId)
                         .collection("worker").document(uid)
                     batch.deleteDocument(workerRef)
@@ -458,33 +443,42 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                         let eventsRef = self.db.collection("calendars").document(calendarId).collection("events")
                         let calendarRef = self.db.collection("calendars").document(calendarId)
                         return Observable.create { observer in
+                            print("batch.commit 호출 전")
                             batch.commit { error in
                                 if let error = error {
+                                    print("batch.commit 에러:", error)
                                     observer.onError(error)
                                 } else {
+                                    print("batch.commit 성공, sharedWith arrayRemove 실행")
                                     // 3-1. sharedWith에서 uid 제거
                                     calendarRef.updateData([
                                         "sharedWith": FieldValue.arrayRemove([uid])
                                     ]) { err in
                                         if let err = err {
+                                            print("sharedWith arrayRemove 에러:", err)
                                             observer.onError(err)
                                             return
                                         }
+                                        print("sharedWith arrayRemove 성공, 내가 만든 이벤트 삭제 시도")
                                         // 3-2. 내가 만든 이벤트 삭제
                                         eventsRef.whereField("createdBy", isEqualTo: uid)
                                             .getDocuments { snap, err in
                                                 if let err = err {
+                                                    print("내가 만든 이벤트 getDocuments 에러:", err)
                                                     observer.onError(err)
                                                     return
                                                 }
+                                                let docs = snap?.documents ?? []
+                                                print("내가 만든 이벤트 개수:", docs.count)
                                                 let group = DispatchGroup()
-                                                snap?.documents.forEach { doc in
+                                                docs.forEach { doc in
                                                     group.enter()
                                                     doc.reference.delete { _ in
                                                         group.leave()
                                                     }
                                                 }
                                                 group.notify(queue: .main) {
+                                                    print("내가 만든 이벤트 전부 삭제 완료")
                                                     observer.onNext(())
                                                     observer.onCompleted()
                                                 }
@@ -515,7 +509,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
     // 오너 전체 삭제
     private func deleteWorkplaceAndReferences(workplaceId: String, calendarId: String?) -> Observable<Void> {
         // 1. workers 서브컬렉션 모든 문서 삭제 + uid 목록 수집
-        let workersRef = self.db.collection("workplaces").document(workplaceId).collection("workers")
+        let workersRef = self.db.collection("workplaces").document(workplaceId).collection("worker")
         let deleteWorkersObs = Observable<[String]>.create { observer in
             workersRef.getDocuments { snapshot, error in
                 if let error = error {
@@ -525,11 +519,9 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                 let workerDocs = snapshot?.documents ?? []
                 let uids = workerDocs.map { $0.documentID }
                 let group = DispatchGroup()
-                workerDocs.forEach { doc in
+                for doc in workerDocs {
                     group.enter()
-                    doc.reference.delete { _ in
-                        group.leave()
-                    }
+                    doc.reference.delete { _ in group.leave() }
                 }
                 group.notify(queue: .main) {
                     observer.onNext(uids)
@@ -538,7 +530,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
             }
             return Disposables.create()
         }
-        
+
         // 2. workers 삭제 후, workplace/캘린더/유저 workplaces 문서/이벤트 삭제
         return deleteWorkersObs.flatMap { uids -> Observable<Void> in
             let batch = self.db.batch()
@@ -575,11 +567,9 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                                     return
                                 }
                                 let group = DispatchGroup()
-                                snapshot?.documents.forEach { doc in
+                                for doc in snapshot?.documents ?? [] {
                                     group.enter()
-                                    doc.reference.delete { _ in
-                                        group.leave()
-                                    }
+                                    doc.reference.delete { _ in group.leave() }
                                 }
                                 group.notify(queue: .main) {
                                     observer.onNext(())
@@ -596,6 +586,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
             }
         }
     }
+
     
     func updateWorkerDetail(
         workplaceId: String,
@@ -622,7 +613,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
             return Disposables.create()
         }
     }
-
+    
     
     func updateWorkplaceNameCategoryAndColor(
         workplaceId: String,
@@ -634,40 +625,60 @@ final class WorkplaceService: WorkplaceServiceProtocol {
         let workplaceRef = db.collection("workplaces").document(workplaceId)
         let userWorkplaceRef = db.collection("users").document(uid)
             .collection("workplaces").document(workplaceId)
+        let calendarsRef = db.collection("calendars")
         
         return Observable.create { observer in
-            let batch = self.db.batch()
-            
-            batch.updateData([
-                "workplacesName": name,
-                "category": category
-            ], forDocument: workplaceRef)
-            
-            batch.setData(["color": color], forDocument: userWorkplaceRef, merge: true)
-            
-            batch.commit { error in
-                if let error = error as NSError? {
-                    if error.domain == FirestoreErrorDomain,
-                       error.code == FirestoreErrorCode.permissionDenied.rawValue {
-                        observer.onError(
-                            NSError(
-                                domain: "CustomErrorDomain",
-                                code: error.code,
-                                userInfo: [
-                                    NSLocalizedDescriptionKey: "권한이 없습니다. Firestore Security Rule에 의해 거부되었습니다."
-                                ]
+            // 1. 먼저 calendars 컬렉션에서 workplaceId로 해당 캘린더 찾기
+            calendarsRef.whereField("workplaceId", isEqualTo: workplaceId).getDocuments { snap, error in
+                if let error = error {
+                    observer.onError(error)
+                    return
+                }
+                
+                let batch = self.db.batch()
+                
+                // 1) workplaces/{workplaceId} 이름, 카테고리 업데이트
+                batch.updateData([
+                    "workplacesName": name,
+                    "category": category
+                ], forDocument: workplaceRef)
+                
+                // 2) users/{uid}/workplaces/{workplaceId} 색상 업데이트
+                batch.setData(["color": color], forDocument: userWorkplaceRef, merge: true)
+                
+                // 3) calendars에서 찾은 문서의 calendarName 업데이트
+                snap?.documents.forEach { doc in
+                    let calendarRef = calendarsRef.document(doc.documentID)
+                    batch.updateData([
+                        "calendarName": name
+                    ], forDocument: calendarRef)
+                }
+                
+                batch.commit { error in
+                    if let error = error as NSError? {
+                        if error.domain == FirestoreErrorDomain,
+                           error.code == FirestoreErrorCode.permissionDenied.rawValue {
+                            observer.onError(
+                                NSError(
+                                    domain: "CustomErrorDomain",
+                                    code: error.code,
+                                    userInfo: [
+                                        NSLocalizedDescriptionKey: "권한이 없습니다. Firestore Security Rule에 의해 거부되었습니다."
+                                    ]
+                                )
                             )
-                        )
+                        } else {
+                            observer.onError(error)
+                        }
                     } else {
-                        observer.onError(error)
+                        observer.onNext(())
+                        observer.onCompleted()
                     }
-                } else {
-                    observer.onNext(())
-                    observer.onCompleted()
                 }
             }
             return Disposables.create()
         }
     }
-
+    
+    
 }

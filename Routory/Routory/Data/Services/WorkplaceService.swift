@@ -642,8 +642,22 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                 "workplacesName": name,
                 "category": category
             ]) { error in
-                if let error = error {
-                    observer.onError(error)
+                if let error = error as NSError? {
+                    if error.domain == FirestoreErrorDomain,
+                       error.code == FirestoreErrorCode.permissionDenied.rawValue {
+                        // 파이어스토어 권한 에러 (보안 규칙 위반)
+                        observer.onError(
+                            NSError(
+                                domain: "CustomErrorDomain",
+                                code: error.code,
+                                userInfo: [
+                                    NSLocalizedDescriptionKey: "권한이 없습니다. Firestore Security Rule에 의해 거부되었습니다."
+                                ]
+                            )
+                        )
+                    } else {
+                        observer.onError(error)
+                    }
                 } else {
                     observer.onNext(())
                     observer.onCompleted()
@@ -652,4 +666,5 @@ final class WorkplaceService: WorkplaceServiceProtocol {
             return Disposables.create()
         }
     }
+
 }

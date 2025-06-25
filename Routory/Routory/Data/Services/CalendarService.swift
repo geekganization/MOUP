@@ -104,7 +104,13 @@ final class CalendarService: CalendarServiceProtocol {
     ///   - eventId: 수정할 이벤트의 문서 ID
     ///   - event: 수정할 CalendarEvent 모델
     /// - Returns: 성공 시 Void, 실패 시 에러 Observable
-    func updateEventInCalendar(calendarId: String, eventId: String, event: CalendarEvent) -> Observable<Void> {
+    import FirebaseFirestore
+
+    func updateEventInCalendar(
+        calendarId: String,
+        eventId: String,
+        event: CalendarEvent
+    ) -> Observable<Void> {
         let eventRef = db.collection("calendars").document(calendarId).collection("events").document(eventId)
         let data: [String: Any] = [
             "title": event.title,
@@ -121,8 +127,21 @@ final class CalendarService: CalendarServiceProtocol {
         ]
         return Observable.create { observer in
             eventRef.updateData(data) { error in
-                if let error = error {
-                    observer.onError(error)
+                if let error = error as NSError? {
+                    if error.domain == FirestoreErrorDomain,
+                       error.code == FirestoreErrorCode.permissionDenied.rawValue {
+                        // 파이어스토어 권한 에러 (보안 규칙 위반)
+                        print("권한 없음: Firestore Security Rule에 의해 거부됨")
+                        observer.onError(
+                            NSError(
+                                domain: "CustomErrorDomain",
+                                code: error.code,
+                                userInfo: [NSLocalizedDescriptionKey: "권한이 없습니다. Security Rule에 의해 거부되었습니다."]
+                            )
+                        )
+                    } else {
+                        observer.onError(error)
+                    }
                 } else {
                     observer.onNext(())
                     observer.onCompleted()
@@ -131,6 +150,7 @@ final class CalendarService: CalendarServiceProtocol {
             return Disposables.create()
         }
     }
+
 
     
     /// 권한 체크 후 삭제 (owner, sharedWith, createdBy)

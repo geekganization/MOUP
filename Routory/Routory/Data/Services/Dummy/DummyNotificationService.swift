@@ -43,16 +43,16 @@ final class DummyNotificationService {
             })
             
             // 4. 각 workplace에 해당하는 calendarId 조회
-            .flatMap { (workplaceId, _) in
-                self.fetchCalendarId(workplaceId: workplaceId)
-                    .asObservable()
-            }
+//            .flatMap { (workplaceId, _) in
+//                self.fetchCalendarId(workplaceId: workplaceId)
+//                    .asObservable()
+//            }
             
             // 5. calendarId 기반으로 오늘 날짜 이벤트 조회 및 1시간 전 알림 조건 검사
-            .flatMap { calendarId in
-                self.checkTodayEventNotifications(uid: uid, calendarId: calendarId)
-                    .andThen(Observable.just(())) // Completable → Observable 변환
-            }
+//            .flatMap { calendarId in
+//                self.checkTodayEventNotifications(uid: uid, calendarId: calendarId)
+//                    .andThen(Observable.just(())) // Completable → Observable 변환
+//            }
             
             // 6. 최종 subscribe로 파이프라인 실행
             .subscribe()
@@ -174,29 +174,29 @@ final class DummyNotificationService {
     /// - Parameter workplaceId: 캘린더와 연결된 근무지의 고유 ID
     /// - Returns: 캘린더 document의 ID를 포함한 `Single<String>`
     ///   (성공 시 캘린더 ID, 실패 시 `NoCalendar` 또는 Firestore 오류 반환)
-    private func fetchCalendarId(workplaceId: String) -> Single<String> {
-        return Single.create { single in
-            self.db.collection("calendars")
-                // 필드 'workplaceId'가 주어진 값과 동일한 문서 필터링
-                .whereField("workplaceId", isEqualTo: workplaceId)
-                .getDocuments { snapshot, error in
-                    // Firestore 쿼리 중 에러가 발생한 경우 에러 반환
-                    if let error = error {
-                        single(.failure(error))
-                    }
-                    // 쿼리 결과에서 첫 번째 문서가 존재할 경우, 해당 문서의 ID 반환
-                    else if let id = snapshot?.documents.first?.documentID {
-                        single(.success(id))
-                    }
-                    // 쿼리 결과가 비어있거나 문서가 없는 경우 사용자 정의 에러 반환
-                    else {
-                        single(.failure(NSError(domain: "NoCalendar", code: 0)))
-                    }
-                }
-            // Observable 생명주기 종료 처리를 위한 disposable 반환
-            return Disposables.create()
-        }
-    }
+//    private func fetchCalendarId(workplaceId: String) -> Single<String> {
+//        return Single.create { single in
+//            self.db.collection("calendars")
+//                // 필드 'workplaceId'가 주어진 값과 동일한 문서 필터링
+//                .whereField("workplaceId", isEqualTo: workplaceId)
+//                .getDocuments { snapshot, error in
+//                    // Firestore 쿼리 중 에러가 발생한 경우 에러 반환
+//                    if let error = error {
+//                        single(.failure(error))
+//                    }
+//                    // 쿼리 결과에서 첫 번째 문서가 존재할 경우, 해당 문서의 ID 반환
+//                    else if let id = snapshot?.documents.first?.documentID {
+//                        single(.success(id))
+//                    }
+//                    // 쿼리 결과가 비어있거나 문서가 없는 경우 사용자 정의 에러 반환
+//                    else {
+//                        single(.failure(NSError(domain: "NoCalendar", code: 0)))
+//                    }
+//                }
+//            // Observable 생명주기 종료 처리를 위한 disposable 반환
+//            return Disposables.create()
+//        }
+//    }
 
     /// 오늘 날짜 기준으로 등록된 근무 이벤트 중 "시작 1시간 전"인 이벤트에 대해 알림을 생성합니다.
     /// 이 함수는 사용자의 알림 중복 여부를 확인하고, 중복되지 않은 경우에만 알림을 Firestore에 저장합니다.

@@ -25,12 +25,12 @@ final class HomeView: UIView {
         $0.configuration = config
     }
     
-    fileprivate let notificationButton = UIButton().then {
-        var config = UIButton.Configuration.plain()
-        config.image = .bellWithDot
-        config.contentInsets = .init(top: 13.75, leading: 12.98, bottom: 13.75, trailing: 12.98)
-        $0.configuration = config
-    }
+//    fileprivate let notificationButton = UIButton().then {
+//        var config = UIButton.Configuration.plain()
+//        config.image = .bellWithDot
+//        config.contentInsets = .init(top: 13.75, leading: 12.98, bottom: 13.75, trailing: 12.98)
+//        $0.configuration = config
+//    }
 
     private let homeHeaderView = HomeHeaderView()
     
@@ -70,7 +70,7 @@ private extension HomeView {
 
     func setHierarchy() {
         addSubviews(homeNavigationBar, tableView)
-        homeNavigationBar.addSubviews(logoImageView, refreshButton, notificationButton)
+        homeNavigationBar.addSubviews(logoImageView, refreshButton)
     }
 
     func setStyles() {
@@ -92,16 +92,17 @@ private extension HomeView {
         }
 
         refreshButton.snp.makeConstraints {
-            $0.trailing.equalTo(notificationButton.snp.leading)
+//            $0.trailing.equalTo(notificationButton.snp.leading)
+            $0.trailing.equalToSuperview().inset(6)
             $0.centerY.equalToSuperview()
             $0.size.equalTo(44)
         }
         
-        notificationButton.snp.makeConstraints {
-            $0.trailing.equalToSuperview().inset(7)
-            $0.centerY.equalToSuperview()
-            $0.size.equalTo(44)
-        }
+//        notificationButton.snp.makeConstraints {
+//            $0.trailing.equalToSuperview().inset(7)
+//            $0.centerY.equalToSuperview()
+//            $0.size.equalTo(44)
+//        }
 
         tableView.snp.makeConstraints {
             $0.top.equalTo(homeNavigationBar.snp.bottom)
@@ -156,7 +157,7 @@ extension Reactive where Base: HomeView {
         return base.refreshButton.rx.tap
     }
     
-    var notificationButtonTapped: ControlEvent<Void> {
-        return base.notificationButton.rx.tap
-    }
+//    var notificationButtonTapped: ControlEvent<Void> {
+//        return base.notificationButton.rx.tap
+//    }
 }

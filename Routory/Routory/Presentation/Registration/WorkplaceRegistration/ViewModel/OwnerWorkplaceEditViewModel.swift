@@ -9,11 +9,15 @@ import RxSwift
 import RxCocoa
 
 final class OwnerWorkplaceEditViewModel {
-
-    // MARK: - Input / Output
-
+    
     struct Input {
-        let updateTrigger: Observable<(workplaceId: String, name: String, category: String, uid: String, color: String)>
+        let updateTrigger: Observable<(
+            workplaceId: String,
+            name: String,
+            category: String,
+            uid: String,
+            color: String
+        )>
     }
 
     struct Output {
@@ -22,29 +26,21 @@ final class OwnerWorkplaceEditViewModel {
         let errorMessage: Observable<String>
     }
 
-    // MARK: - Private
-
     private let workplaceUseCase: WorkplaceUseCaseProtocol
     private let loadingSubject = BehaviorSubject<Bool>(value: false)
     private let successSubject = PublishSubject<String>()
     private let errorSubject = PublishSubject<String>()
     private let disposeBag = DisposeBag()
 
-    // MARK: - Init
-
     init(workplaceUseCase: WorkplaceUseCaseProtocol) {
         self.workplaceUseCase = workplaceUseCase
     }
 
-    // MARK: - Transform
-
     func transform(input: Input) -> Output {
-
         input.updateTrigger
             .do(onNext: { [weak self] _ in self?.loadingSubject.onNext(true) })
             .flatMapLatest { [weak self] params -> Observable<Event<Void>> in
                 guard let self else { return .empty() }
-
                 return self.workplaceUseCase
                     .updateWorkplaceNameCategoryAndColor(
                         workplaceId: params.workplaceId,

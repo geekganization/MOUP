@@ -15,9 +15,9 @@ final class WorkerEditViewController: UIViewController, UIGestureRecognizerDeleg
 
     // MARK: - Subviews
     private let workerPlaceId: String
-    
     private let navigationBar: BaseNavigationBar
     private let workerDetail: WorkerDetail
+    private let workerUid: String
 
     private let salaryInfoView: SalaryInfoView
     private let workConditionView: WorkConditionView
@@ -26,6 +26,15 @@ final class WorkerEditViewController: UIViewController, UIGestureRecognizerDeleg
 
     private let scrollView = UIScrollView()
     private let contentView = UIView()
+    
+    private let viewModel = WorkerEditViewModel(
+        workplaceUseCase: WorkplaceUseCase(
+            repository: WorkplaceRepository(
+                service: WorkplaceService()
+            )
+        )
+    )
+    private let updateTrigger = PublishSubject<(workplaceId: String, uid: String, workerDetail: WorkerDetail)>()
 
     private let disposeBag = DisposeBag()
 
@@ -33,24 +42,23 @@ final class WorkerEditViewController: UIViewController, UIGestureRecognizerDeleg
 
     init(
         workerPlaceId: String,
-
+        workerUid: String,
         workerDetail: WorkerDetail,
-
         labelTitle: String,
         showDot: Bool,
         dotColor: UIColor?
     ) {
+        self.workerUid = workerUid
         self.workerDetail = workerDetail
-        
         self.navigationBar = BaseNavigationBar(title: workerDetail.workerName)
 
         self.salaryInfoView = SalaryInfoView(
-            typeValue: workerDetail.wageCalcMethod, // 매월
-            calcValue: workerDetail.wageType, // 고정 // 시급
-            fixedSalaryValue: String(workerDetail.wage), // 3000000000
-            hourlyWageValue: String(workerDetail.wage), // 10000
-            payDateValue: String(workerDetail.payDay)+"일", // 24일
-            payWeekdayValue: workerDetail.payWeekday // 금요일
+            typeValue: workerDetail.wageCalcMethod,
+            calcValue: workerDetail.wageType,
+            fixedSalaryValue: String(workerDetail.wage),
+            hourlyWageValue: String(workerDetail.wage),
+            payDateValue: String(workerDetail.payDay) + "일",
+            payWeekdayValue: workerDetail.payWeekday
         )
 
         self.workConditionView = WorkConditionView(
@@ -61,7 +69,7 @@ final class WorkerEditViewController: UIViewController, UIGestureRecognizerDeleg
             isIndustrialAccidentInsuranceSelected: workerDetail.industrialAccident,
             isIncomeTaxSelected: workerDetail.incomeTax,
             isWeeklyAllowanceSelected: workerDetail.weeklyAllowance,
-            isNightAllowanceSelected: workerDetail.nightAllowance,
+            isNightAllowanceSelected: workerDetail.nightAllowance
         )
 
         self.labelView = LabelView(
@@ -69,7 +77,7 @@ final class WorkerEditViewController: UIViewController, UIGestureRecognizerDeleg
             showDot: showDot,
             dotColor: dotColor
         )
-        
+
         self.workerPlaceId = workerPlaceId
 
         super.init(nibName: nil, bundle: nil)
@@ -95,9 +103,41 @@ final class WorkerEditViewController: UIViewController, UIGestureRecognizerDeleg
         setup()
         setupNavigationBar()
         layout()
+        bindViewModel()
         registerButton.addTarget(self, action: #selector(didTapRegisterButton), for: .touchUpInside)
         registerButton.addTarget(self, action: #selector(buttonTouchDown), for: .touchDown)
         registerButton.addTarget(self, action: #selector(buttonTouchUp), for: [.touchUpInside, .touchUpOutside, .touchCancel])
+    }
+    
+    // MARK: - Bindings
+    
+    private func bindViewModel() {
+        let input = WorkerEditViewModel.Input(updateTrigger: updateTrigger.asObservable())
+        let output = viewModel.transform(input: input)
+
+        output.isLoading
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { isLoading in
+                print("로딩 상태:", isLoading)
+                // 필요한 경우 로딩 indicator 처리
+            })
+            .disposed(by: disposeBag)
+
+        output.successMessage
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] message in
+                print(message)
+                self?.navigationController?.popViewController(animated: true)
+            })
+            .disposed(by: disposeBag)
+
+        output.errorMessage
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { message in
+                print(message)
+                // 필요한 경우 에러 얼럿 처리
+            })
+            .disposed(by: disposeBag)
     }
 
     // MARK: - Setup
@@ -174,11 +214,11 @@ final class WorkerEditViewController: UIViewController, UIGestureRecognizerDeleg
             $0.bottom.equalToSuperview()
         }
     }
-    
+
     @objc private func didTapRegisterButton() {
         handleRegisterButtonTapped()
     }
-    
+
     @objc func buttonTouchDown(_ sender: UIButton) {
         UIView.animate(withDuration: 0.1) {
             sender.alpha = 0.6
@@ -190,10 +230,8 @@ final class WorkerEditViewController: UIViewController, UIGestureRecognizerDeleg
             sender.alpha = 1.0
         }
     }
-    
+
     private func handleRegisterButtonTapped() {
-        
-        let selected = workConditionView.getSelectedConditions()
         let salaryType = salaryInfoView.getTypeValue()
         let salaryCalc = salaryInfoView.getCalcValue()
         let fixedSalary = salaryInfoView.getFixedSalaryValue()
@@ -202,18 +240,18 @@ final class WorkerEditViewController: UIViewController, UIGestureRecognizerDeleg
         let payDate = salaryInfoView.getPayDateValue()
         let selectedConditions = workConditionView.getSelectedConditions()
         let label = labelView.getColorLabelData()
-        
+
         let wage: Int = {
             switch salaryCalc {
             case "시급":
-                return (parseCurrencyStringToInt(hourlyWage))
+                return parseCurrencyStringToInt(hourlyWage)
             case "고정":
-                return (parseCurrencyStringToInt(fixedSalary))
+                return parseCurrencyStringToInt(fixedSalary)
             default:
-                return (0)
+                return 0
             }
         }()
-        
+
         let employmentInsurance = selectedConditions.contains("고용보험")
         let healthInsurance = selectedConditions.contains("건강보험")
         let industrialAccident = selectedConditions.contains("산재보험")
@@ -222,7 +260,7 @@ final class WorkerEditViewController: UIViewController, UIGestureRecognizerDeleg
         let weeklyAllowance = selectedConditions.contains("주휴수당")
         let nightAllowance = selectedConditions.contains("야간수당*")
         let breakTimeMinutes = 0
-        
+
         let updated = WorkerDetail(
             workerName: workerDetail.workerName,
             wage: wage,
@@ -241,15 +279,8 @@ final class WorkerEditViewController: UIViewController, UIGestureRecognizerDeleg
             color: label
         )
         
-        guard let uid = Auth.auth().currentUser?.uid, !uid.isEmpty else {
-            print("유저 UID가 존재하지 않음")
-            return
-        }
-        
-        // 데이터 업데이트 로직
-        // updateWorkerDetail
-        print(workerPlaceId,uid,updated)
-        
+        updateTrigger.onNext((workplaceId: workerPlaceId, uid: workerUid, workerDetail: updated))
+
         navigationController?.popViewController(animated: true)
     }
 }
@@ -261,7 +292,6 @@ extension WorkerEditViewController: SalaryInfoViewDelegate {
         let items = ["매월", "매주", "매일"].map {
             SelectionViewController<String>.Item(title: $0, icon: nil, value: $0)
         }
-
         let vc = SelectionViewController<String>(
             title: "급여 유형",
             description: "급여 유형을 선택해주세요",
@@ -271,7 +301,6 @@ extension WorkerEditViewController: SalaryInfoViewDelegate {
         vc.onSelect = { [weak self] selected in
             self?.salaryInfoView.updateTypeValue(selected)
         }
-
         navigationController?.pushViewController(vc, animated: true)
     }
 
@@ -279,7 +308,6 @@ extension WorkerEditViewController: SalaryInfoViewDelegate {
         let items = ["시급", "고정"].map {
             SelectionViewController<String>.Item(title: $0, icon: nil, value: $0)
         }
-
         let vc = SelectionViewController<String>(
             title: "급여 계산",
             description: "급여 계산방법을 선택해주세요",
@@ -289,7 +317,6 @@ extension WorkerEditViewController: SalaryInfoViewDelegate {
         vc.onSelect = { [weak self] selected in
             self?.salaryInfoView.updateCalcValue(selected)
         }
-
         navigationController?.pushViewController(vc, animated: true)
     }
 
@@ -341,12 +368,10 @@ extension WorkerEditViewController: SalaryInfoViewDelegate {
             let index = selected[0]
             self?.salaryInfoView.updatePayDateValue(days[index])
         }
-
         if let sheet = vc.sheetPresentationController {
             sheet.detents = [.medium()]
             sheet.prefersGrabberVisible = true
         }
-
         vc.modalPresentationStyle = .custom
         vc.modalTransitionStyle = .coverVertical
         present(vc, animated: true)
@@ -358,12 +383,10 @@ extension WorkerEditViewController: SalaryInfoViewDelegate {
             let index = selected[0]
             self?.salaryInfoView.updatePayWeekdayValue(weekDays[index])
         }
-
         if let sheet = vc.sheetPresentationController {
             sheet.detents = [.medium()]
             sheet.prefersGrabberVisible = true
         }
-
         vc.modalPresentationStyle = .custom
         vc.modalTransitionStyle = .coverVertical
         present(vc, animated: true)

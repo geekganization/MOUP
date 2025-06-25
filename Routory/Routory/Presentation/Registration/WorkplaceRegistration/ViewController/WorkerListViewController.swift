@@ -153,6 +153,7 @@ extension WorkerListViewController: UITableViewDataSource, UITableViewDelegate {
 
         let vc = WorkerEditViewController(
             workerPlaceId: workerPlaceId,
+            workerUid: worker.id,
             workerDetail: worker.detail,
             labelTitle: "빨간색",
             showDot: true,

@@ -21,6 +21,7 @@ final class WorkplaceRegistrationContentView: UIView {
     let registerBtnTitle: String
     let workplaceId: String
     let isWorkerManagerShow: Bool
+    let isHideWorkplaceInfoViewArrow: Bool
 
     private let stackView = UIStackView().then {
         $0.axis = .vertical
@@ -33,6 +34,7 @@ final class WorkplaceRegistrationContentView: UIView {
         workplaceId: String,
         isEdit: Bool,
         isWorkerManagerShow: Bool,
+        isHideWorkplaceInfoViewArrow: Bool,
         
         nameValue: String?,
         categoryValue: String?,
@@ -60,6 +62,7 @@ final class WorkplaceRegistrationContentView: UIView {
         registerBtnTitle: String
     ) {
         self.isWorkerManagerShow = isWorkerManagerShow
+        self.isHideWorkplaceInfoViewArrow = isHideWorkplaceInfoViewArrow
         
         self.workplaceInfoView = WorkplaceInfoView(
             nameValue: nameValue,
@@ -157,6 +160,9 @@ extension WorkplaceRegistrationContentView {
             }
             salaryInfoView.enableEditing()
             labelView.enableEditing()
+            if isHideWorkplaceInfoViewArrow {
+                workplaceInfoView.disableEditing()
+            }
         }
     }
 }

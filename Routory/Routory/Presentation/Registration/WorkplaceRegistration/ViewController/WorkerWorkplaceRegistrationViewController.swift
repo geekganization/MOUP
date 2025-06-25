@@ -31,7 +31,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
     private var delegateHandler: WorkplaceRegistrationDelegateHandler?
     private var actionHandler: RegistrationActionHandler?
         
-    fileprivate lazy var navigationBar = BaseNavigationBar(title: "새 근무지 등록") //*2
+    fileprivate var navigationBar: BaseNavigationBar //*2
     
     private let viewModel = CreateWorkplaceViewModel(
         useCase: WorkplaceUseCase(
@@ -40,12 +40,23 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
             )
         )
     )
+    
+    private let editViewModel = WorkerWorkplaceRegistrationViewModel(
+        useCase: WorkplaceUseCase(
+            repository: WorkplaceRepository(
+                service: WorkplaceService()
+            )
+        )
+    )
+    
     private let disposeBag = DisposeBag()
     
     private let isRegisterMode: Bool
     
     private var isEdit: Bool
     
+    private let workplaceId: String
+        
     /// 근무지 등록 방식 (직접 입력 or 초대코드 기반)
     private let mode: WorkplaceRegistrationMode
     
@@ -76,6 +87,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
     ///   - presetWorkplaceName: `.inputOnly` 모드에서 사용할 근무지 이름 (기본값: nil)
     ///   - presetCategory: `.inputOnly` 모드에서 사용할 카테고리 (기본값: nil)
     init(
+        workplaceId: String,
         isRegisterMode: Bool,
         isEdit: Bool,
         mode: WorkplaceRegistrationMode,
@@ -99,14 +111,18 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
         showDot: Bool,
         dotColor: UIColor?
     ) {
+        self.workplaceId = workplaceId
         self.mode = mode
         self.isRegisterMode = isRegisterMode
         self.isEdit = isEdit
+        
+        self.navigationBar = BaseNavigationBar(title: isEdit ? (nameValue ?? "근무지 이름 없음") : "새 근무지 등록")
 
         self.contentView = WorkplaceRegistrationContentView(
             workplaceId: "",
             isEdit: isEdit,
             isWorkerManagerShow: false,
+            isHideWorkplaceInfoViewArrow: true,
             nameValue: nameValue,
             categoryValue: categoryValue,
             salaryTypeValue: salaryTypeValue,
@@ -183,7 +199,11 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
         contentView.workplaceInfoView.delegate = delegateHandler
         contentView.labelView.delegate = delegateHandler
         
-        contentView.registerButton.addTarget(self, action: #selector(didTapRegister), for: .touchUpInside)
+        if isEdit {
+            contentView.registerButton.addTarget(self, action: #selector(didTapEdit), for: .touchUpInside)
+        } else {
+            contentView.registerButton.addTarget(self, action: #selector(didTapRegister), for: .touchUpInside)
+        }
         contentView.registerButton.addTarget(actionHandler, action: #selector(RegistrationActionHandler.buttonTouchDown(_:)), for: .touchDown)
         contentView.registerButton.addTarget(actionHandler, action: #selector(RegistrationActionHandler.buttonTouchUp(_:)), for: [.touchUpInside, .touchUpOutside, .touchCancel])
         
@@ -212,6 +232,96 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
     }
     
     // MARK: - Actions
+    
+    @objc func didTapEdit() {
+        let name = contentView.workplaceInfoView.getName()
+        let category = contentView.workplaceInfoView.getCategory()
+        let salaryType = contentView.salaryInfoView.getTypeValue()
+        let salaryCalc = contentView.salaryInfoView.getCalcValue()
+        let fixedSalary = contentView.salaryInfoView.getFixedSalaryValue()
+        let hourlyWage = contentView.salaryInfoView.getHourlyWageValue()
+        let payWeekday = contentView.salaryInfoView.getPayWeekdayValue()
+        let payDate = contentView.salaryInfoView.getPayDateValue()
+        let selectedConditions = contentView.workConditionView.getSelectedConditions()
+        let label = contentView.labelView.getColorLabelData()
+
+        let wage: Int = {
+            switch salaryCalc {
+            case "시급": return parseCurrencyStringToInt(hourlyWage)
+            case "고정": return parseCurrencyStringToInt(fixedSalary)
+            default: return 0
+            }
+        }()
+
+        let employmentInsurance = selectedConditions.contains("고용보험")
+        let healthInsurance = selectedConditions.contains("건강보험")
+        let industrialAccident = selectedConditions.contains("산재보험")
+        let nationalPension = selectedConditions.contains("국민연금")
+        let incomeTax = selectedConditions.contains("소득세")
+        let weeklyAllowance = selectedConditions.contains("주휴수당")
+        let nightAllowance = selectedConditions.contains("야간수당*")
+        let breakTimeMinutes = 0
+
+        guard let uid = Auth.auth().currentUser?.uid, !uid.isEmpty else {
+            print("유저 UID가 존재하지 않음")
+            return
+        }
+
+        UserManager.shared.getUser { [weak self] result in
+            guard let self = self else { return }
+
+            switch result {
+            case .success(let user):
+                let workerDetail = WorkerDetail(
+                    workerName: user.userName,
+                    wage: wage,
+                    wageCalcMethod: salaryType,
+                    wageType: salaryCalc,
+                    weeklyAllowance: weeklyAllowance,
+                    payDay: parseDateStringToInt(payDate),
+                    payWeekday: payWeekday,
+                    breakTimeMinutes: breakTimeMinutes,
+                    employmentInsurance: employmentInsurance,
+                    healthInsurance: healthInsurance,
+                    industrialAccident: industrialAccident,
+                    nationalPension: nationalPension,
+                    incomeTax: incomeTax,
+                    nightAllowance: nightAllowance,
+                    color: label
+                )
+
+                print("didTapEdit: ", self.workplaceId, uid, workerDetail)
+
+                // ViewModel 업데이트 처리
+                let input = WorkerWorkplaceRegistrationViewModel.Input(
+                    workplaceId: Observable.just(self.workplaceId),
+                    uid: Observable.just(uid),
+                    workerDetail: Observable.just(workerDetail),
+                    updateTrigger: Observable.just(())
+                )
+
+                let output = self.editViewModel.transform(input: input)
+
+                output.updateSuccess
+                    .observe(on: MainScheduler.instance)
+                    .subscribe(onNext: {
+                        print("근무지 정보 수정 완료")
+                        self.navigationController?.popViewController(animated: true)
+                    })
+                    .disposed(by: self.disposeBag)
+
+                output.updateError
+                    .observe(on: MainScheduler.instance)
+                    .subscribe(onNext: { error in
+                        print("업데이트 실패: \(error.localizedDescription)")
+                    })
+                    .disposed(by: self.disposeBag)
+
+            case .failure(let error):
+                print("사용자 이름 가져오기 실패: \(error.localizedDescription)")
+            }
+        }
+    }
     
     @objc func didTapRegister() {
         let name = contentView.workplaceInfoView.getName()

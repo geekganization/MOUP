@@ -31,7 +31,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
     private var delegateHandler: WorkplaceRegistrationDelegateHandler?
     private var actionHandler: RegistrationActionHandler?
         
-    fileprivate lazy var navigationBar = BaseNavigationBar(title: "새 근무지 등록") //*2
+    fileprivate var navigationBar: BaseNavigationBar //*2
     
     private let viewModel = CreateWorkplaceViewModel(
         useCase: WorkplaceUseCase(
@@ -115,6 +115,8 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
         self.mode = mode
         self.isRegisterMode = isRegisterMode
         self.isEdit = isEdit
+        
+        self.navigationBar = BaseNavigationBar(title: isEdit ? (nameValue ?? "근무지 이름 없음") : "새 근무지 등록")
 
         self.contentView = WorkplaceRegistrationContentView(
             workplaceId: "",

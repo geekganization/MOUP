@@ -107,7 +107,6 @@ final class EventService: EventServiceProtocol {
                 
                 let perWorkplaceObs = workplaceIds.map { workplaceId -> Observable<WorkplaceWorkSummaryDailySeparated?> in
                     Observable<WorkplaceWorkSummaryDailySeparated?>.create { o in
-                        let userDocRef = self.db.collection("users").document(uid)
                         let workplaceDocRef = self.db.collection("workplaces").document(workplaceId)
                         let workerDocRef = workplaceDocRef.collection("worker").document(uid)
                         
@@ -119,10 +118,9 @@ final class EventService: EventServiceProtocol {
                         // workplace 리스너
                         let workplaceListener = workplaceDocRef.addSnapshotListener { workplaceDoc, _ in
                             
-                            userListener = userDocRef.addSnapshotListener { userDoc, _ in
-                                
+                            userListener = workerDocRef.addSnapshotListener({ userDoc, _ in
+                                // worker 리스너
                                 workerListener = workerDocRef.addSnapshotListener { workerDoc, _ in
-                                
                                     guard let wData = workplaceDoc?.data(),
                                           let workplaceName = wData["workplacesName"] as? String,
                                           let isOfficial = wData["isOfficial"] as? Bool,
@@ -131,11 +129,12 @@ final class EventService: EventServiceProtocol {
                                     else {
                                         o.onNext(nil); o.onCompleted(); return
                                     }
+                                    
                                     let workerData = workerDoc?.data()
                                     let wage = workerData?["wage"] as? Int ?? 0
-                                    let wageCalcMethod = workerData?["wageCalcMethod"] as? String ?? "매월"
-                                    let wageType = workerData?["wageType"] as? String ?? "시급"
-                                    let breakTimeMinutes = workerData?["breakTimeMinutes"] as? Int ?? 0
+                                    let wageCalcMethod = workerData?["wageCalcMethod"] as? String
+                                    let wageType = workerData?["wageType"] as? String
+                                    let breakTimeMinutes = workerData?["breakTimeMinutes"] as? Int
                                     
                                     // 캘린더(개인/공유) 리스너
                                     calendarListener = self.db.collection("calendars")
@@ -170,24 +169,24 @@ final class EventService: EventServiceProtocol {
                                                 }
                                                 return eventObs.isEmpty ? .just([]) : Observable.zip(eventObs).map { $0.flatMap { $0 } }
                                             }
-                                            return eventObs.isEmpty ? .just([]) : Observable.zip(eventObs).map { $0.flatMap { $0 } }
-                                        }
-                                        
-                                        let personalEventsObs = fetchEvents(calIds: personalCalIds)
-                                        let sharedEventsObs   = fetchEvents(calIds: sharedCalIds)
-                                        
-                                        Observable.zip(personalEventsObs, sharedEventsObs)
-                                            .subscribe(onNext: { personalEvents, sharedEvents in
-                                                func groupSummary(_ events: [CalendarEventInfo]) -> [String: (events: [CalendarEventInfo], totalHours: Double, totalWage: Int)] {
-                                                    let groupedByDay = Dictionary(grouping: events) { $0.calendarEvent.eventDate }
-                                                    return groupedByDay.mapValues { events in
-                                                        let totalHours = events.reduce(0.0) { $0 + WageHelper.calculateWorkedHours(start: $1.calendarEvent.startTime, end: $1.calendarEvent.endTime) }
-                                                        let totalWage: Int
-                                                        if wageCalcMethod == "monthly" {
-                                                            let workDays = groupedByDay.count
-                                                            totalWage = workDays > 0 ? wage / workDays : wage
-                                                        } else {
-                                                            totalWage = Int(Double(wage) * totalHours)
+                                            
+                                            let personalEventsObs = fetchEvents(calIds: personalCalIds)
+                                            let sharedEventsObs   = fetchEvents(calIds: sharedCalIds)
+                                            
+                                            Observable.zip(personalEventsObs, sharedEventsObs)
+                                                .subscribe(onNext: { personalEvents, sharedEvents in
+                                                    func groupSummary(_ events: [CalendarEventInfo]) -> [String: (events: [CalendarEventInfo], totalHours: Double, totalWage: Int)] {
+                                                        let groupedByDay = Dictionary(grouping: events) { $0.calendarEvent.eventDate }
+                                                        return groupedByDay.mapValues { events in
+                                                            let totalHours = events.reduce(0.0) { $0 + WageHelper.calculateWorkedHours(start: $1.calendarEvent.startTime, end: $1.calendarEvent.endTime) }
+                                                            let totalWage: Int
+                                                            if wageCalcMethod == "매월" {
+                                                                let workDays = groupedByDay.count
+                                                                totalWage = workDays > 0 ? wage / workDays : wage
+                                                            } else {
+                                                                totalWage = Int(Double(wage) * totalHours)
+                                                            }
+                                                            return (events, totalHours, totalWage)
                                                         }
                                                     }
                                                     o.onNext(WorkplaceWorkSummaryDailySeparated(
@@ -209,10 +208,7 @@ final class EventService: EventServiceProtocol {
                                                 .disposed(by: self.disposeBag)
                                         }
                                 }
-                            }
-                            
-                            
-                            // worker 리스너
+                            })
                         }
                         // workplace Observable의 Disposables.create에서 모두 해제
                         return Disposables.create {

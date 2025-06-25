@@ -75,7 +75,7 @@ private extension FilterViewController {
             case .success(let user):
                 if user.role == UserRole.worker.rawValue {
                     self?.filterView.getHeaderLabel.text = "나의 근무지"
-                } else {
+                } else if user.role == UserRole.owner.rawValue {
                     self?.filterView.getHeaderLabel.text = "나의 매장"
                 }
             case .failure(let error):

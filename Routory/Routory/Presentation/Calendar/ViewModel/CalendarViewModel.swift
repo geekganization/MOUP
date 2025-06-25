@@ -24,24 +24,20 @@ final class CalendarViewModel {
     // MARK: - Input (ViewController ➡️ ViewModel)
     
     struct Input {
-        /// 직전달, 이번달, 다음달 3개월치 불러옴
         let loadMonthEvent: Observable<(year: Int, month: Int)>
         let filterModel: Observable<FilterModel?>
-        let eventCreatedBy: Observable<[String]>
     }
     
     // MARK: - Output (ViewModel ➡️ ViewController)
     
     struct Output {
         let calendarModelListRelay: PublishRelay<(personal: [CalendarModel], shared: [CalendarModel])>
-        let workerNameRelay: PublishRelay<String>
     }
     
     // MARK: - Transform (Input ➡️ Output)
     
     func tranform(input: Input) -> Output {
         let calendarModelListRelay = PublishRelay<(personal: [CalendarModel], shared: [CalendarModel])>()
-        let workerNameRelay = PublishRelay<String>()
         
         Observable.combineLatest(input.loadMonthEvent, input.filterModel)
             .subscribe(with: self, onNext: { owner, combined in
@@ -63,11 +59,11 @@ final class CalendarViewModel {
                                     calendarModelList.personal.append(CalendarModel(workplaceId: workplaceSummary.workplaceId,
                                                                                     workplaceName: workplaceSummary.workplaceName,
                                                                                     isOfficial: workplaceSummary.isOfficial,
-                                                                                    workerName: workplaceSummary.workerName,
+                                                                                    userName: workplaceSummary.userName,
                                                                                     wage: workplaceSummary.wage,
                                                                                     wageCalcMethod: workplaceSummary.wageCalcMethod,
                                                                                     wageType: workplaceSummary.wageType,
-                                                                                    breakTimeMinutes: BreakTimeMinutesDecimal(rawValue: workplaceSummary.breakTimeMinutes) ?? ._none,
+                                                                                    breakTimeMinutes: BreakTimeMinutesDecimal(rawValue: workplaceSummary.breakTimeMinutes ?? 0) ?? ._none,
                                                                                     eventInfo: event))
                                 }
                             }
@@ -76,11 +72,11 @@ final class CalendarViewModel {
                                     calendarModelList.shared.append(CalendarModel(workplaceId: workplaceSummary.workplaceId,
                                                                                   workplaceName: workplaceSummary.workplaceName,
                                                                                   isOfficial: workplaceSummary.isOfficial,
-                                                                                  workerName: workplaceSummary.workerName,
+                                                                                  userName: workplaceSummary.userName,
                                                                                   wage: workplaceSummary.wage,
                                                                                   wageCalcMethod: workplaceSummary.wageCalcMethod,
                                                                                   wageType: workplaceSummary.wageType,
-                                                                                  breakTimeMinutes: BreakTimeMinutesDecimal(rawValue: workplaceSummary.breakTimeMinutes) ?? ._none,
+                                                                                  breakTimeMinutes: BreakTimeMinutesDecimal(rawValue: workplaceSummary.breakTimeMinutes ?? 0) ?? ._none,
                                                                                   eventInfo: event))
                                 }
                             }
@@ -90,23 +86,12 @@ final class CalendarViewModel {
                 
             }).disposed(by: disposeBag)
         
-        return Output(calendarModelListRelay: calendarModelListRelay,
-                      workerNameRelay: workerNameRelay)
+        return Output(calendarModelListRelay: calendarModelListRelay)
     }
     
     // MARK: - Initializer
     
     init(eventUseCase: EventUseCaseProtocol) {
         self.eventUseCase = eventUseCase
-    }
-}
-
-// MARK: - Private Methods
-
-private extension CalendarViewModel {
-    func calendarEventInfoSort(_ lhs: CalendarEventInfo, _ rhs: CalendarEventInfo ) -> Bool {
-        return lhs.calendarEvent.eventDate < rhs.calendarEvent.eventDate
-        || lhs.calendarEvent.startTime < rhs.calendarEvent.startTime
-        || lhs.calendarEvent.endTime < rhs.calendarEvent.endTime
     }
 }

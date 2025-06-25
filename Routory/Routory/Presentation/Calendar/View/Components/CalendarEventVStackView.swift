@@ -6,11 +6,16 @@
 //
 
 import UIKit
+import OSLog
 
 import SnapKit
 import Then
 
 final class CalendarEventVStackView: UIStackView {
+    
+    // MARK: - Properties
+    
+    private lazy var logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: String(describing: self))
     
     // MARK: - UI Components
     
@@ -38,10 +43,10 @@ final class CalendarEventVStackView: UIStackView {
     
     // MARK: - Methods
     
-    func update(workHour: Double, workerName: String, dailyWage: Int?, calendarMode: CalendarMode, color: String) {
+    func update(workHour: Double, userName: String, dailyWage: Int?, calendarMode: CalendarMode, color: String) {
         let workHourStr = String(format: "%.1f", workHour)
         if calendarMode == .shared {
-            workHourOrNameLabel.text = workerName
+            workHourOrNameLabel.text = userName
         } else if workHourStr.last == "0" {
             workHourOrNameLabel.text = "\(workHourStr.prefix(1))시간"
         } else {
@@ -49,13 +54,17 @@ final class CalendarEventVStackView: UIStackView {
         }
         
         if let dailyWage {
-            // 시급
-            dailyWageLabel.text = NumberFormatter.decimalFormatter.string(for: Int(dailyWage))
+            if dailyWage == 0 {
+                dailyWageLabel.isHidden = true
+            } else {
+                // 시급
+                dailyWageLabel.text = NumberFormatter.decimalFormatter.string(for: Int(dailyWage))
+                dailyWageLabel.isHidden = false
+            }
         } else {
             // 고정급
             dailyWageLabel.text = "고정급"
         }
-        dailyWageLabel.isHidden = (calendarMode == .shared)
         
         // TODO: color 설정
         self.backgroundColor = .primary100

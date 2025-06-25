@@ -104,7 +104,6 @@ final class CalendarService: CalendarServiceProtocol {
     ///   - eventId: 수정할 이벤트의 문서 ID
     ///   - event: 수정할 CalendarEvent 모델
     /// - Returns: 성공 시 Void, 실패 시 에러 Observable
-    import FirebaseFirestore
 
     func updateEventInCalendar(
         calendarId: String,

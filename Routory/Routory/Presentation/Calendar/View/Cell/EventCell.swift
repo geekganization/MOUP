@@ -148,10 +148,6 @@ private extension EventCell {
             $0.leading.equalToSuperview().inset(16)
         }
         
-        workplaceOrNameLabel.snp.makeConstraints {
-            $0.height.equalTo(24)
-        }
-        
         sharedChipLabel.snp.makeConstraints {
             $0.width.equalTo(37)
             $0.height.equalTo(18)
@@ -162,10 +158,6 @@ private extension EventCell {
             $0.trailing.equalToSuperview().inset(6)
             $0.width.equalTo(44)
             $0.height.equalTo(30)
-        }
-        
-        workHourLabel.snp.makeConstraints {
-            $0.height.equalTo(24)
         }
         
         dailyWageLabel.snp.makeConstraints {

@@ -193,7 +193,7 @@ private extension CalendarViewController {
 // MARK: - Private Methods
 
 private extension CalendarViewController {
-    func calendarEventInfoSort(_ lhs: CalendarModel, _ rhs: CalendarModel ) -> Bool {
+    func calendarModelSort(_ lhs: CalendarModel, _ rhs: CalendarModel ) -> Bool {
         let lhsEvent = lhs.eventInfo.calendarEvent
         let rhsEvent = rhs.eventInfo.calendarEvent
         return lhsEvent.startTime < rhsEvent.startTime || lhsEvent.endTime < rhsEvent.endTime
@@ -272,7 +272,7 @@ private extension CalendarViewController {
         }
         
         personalEventDataSource.keys.forEach { eventDate in
-            personalEventDataSource[eventDate]?.sort(by: calendarEventInfoSort)
+            personalEventDataSource[eventDate]?.sort(by: calendarModelSort)
         }
         
         calendarView.getJTACalendar.reloadData()
@@ -307,8 +307,6 @@ extension CalendarViewController: JTACMonthViewDelegate {
         case .personal:
             calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarMode: calendarMode.value, modelList: personalEventDataSource[date] ?? [])
         case .shared:
-//            let workerIdList = sharedEventDataSource[date, default: []].map { $0.createdBy }
-//            eventCreatedBy.accept(workerIdList)
             calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarMode: calendarMode.value, modelList: sharedEventDataSource[date] ?? [])
         }
     }
@@ -449,7 +447,7 @@ extension CalendarViewController: CalendarEventListVCDelegate {
                     let ownerShiftRegisterVC = OwnerShiftRegistrationViewController(
                         isRegisterMode: true,
                         isRead: false,
-                        workPlaceTitle: "근무지 선택",
+                        workPlaceTitle: "매장 선택",
                         workerTitle: "알바 선택",
                         routineTitle: "루틴 추가",
                         dateValue: DateFormatter.dataSourceDateFormatter.string(from: self?.selectedDate ?? .now),
@@ -494,7 +492,11 @@ extension CalendarViewController: YearMonthPickerVCDelegate {
 
 extension CalendarViewController: FilterVCDelegate {
     func didApplyButtonTap(model: FilterModel?) {
-        calendarMode.value == .personal ? personalFilterModelRelay.accept(model) : sharedFilterModelRelay.accept(model)
+        if calendarMode.value == .personal {
+            personalFilterModelRelay.accept(model)
+        } else {
+            sharedFilterModelRelay.accept(model)
+        }
     }
 }
 

@@ -172,7 +172,7 @@ final class EventService: EventServiceProtocol {
                                                 func groupSummary(_ events: [CalendarEventInfo]) -> [String: (events: [CalendarEventInfo], totalHours: Double, totalWage: Int)] {
                                                     let groupedByDay = Dictionary(grouping: events) { $0.calendarEvent.eventDate }
                                                     return groupedByDay.mapValues { events in
-                                                        let totalHours = events.reduce(0.0) { $0 + EventService.calculateWorkedHours(start: $1.calendarEvent.startTime, end: $1.calendarEvent.endTime) }
+                                                        let totalHours = events.reduce(0.0) { $0 + WageHelper.calculateWorkedHours(start: $1.calendarEvent.startTime, end: $1.calendarEvent.endTime) }
                                                         let totalWage: Int
                                                         if wageCalcMethod == "monthly" {
                                                             let workDays = groupedByDay.count
@@ -228,10 +228,7 @@ final class EventService: EventServiceProtocol {
             }
         }
     }
-    
-    
-    
-    
+
     /**
      내부 공통 함수 (월/일 단위 모두 여기서 분기 처리)
      - uid: 사용자 UID
@@ -337,16 +334,5 @@ final class EventService: EventServiceProtocol {
             }
             return Disposables.create { workplacesListener.remove() }
         }
-    }
-
-    
-    static func calculateWorkedHours(start: String, end: String) -> Double {
-        // 예: "09:00" ~ "18:00" -> Double 시간 반환
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "HH:mm"
-        guard let startDate = dateFormatter.date(from: start),
-              let endDate = dateFormatter.date(from: end) else { return 0 }
-        let interval = endDate.timeIntervalSince(startDate)
-        return max(interval / 3600, 0)
     }
 }

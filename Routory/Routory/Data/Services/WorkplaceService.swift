@@ -445,7 +445,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                     
                     // 1. workplaces/{workplaceId}/workers/{myUid}
                     let workerRef = self.db.collection("workplaces").document(workplaceId)
-                        .collection("workers").document(uid)
+                        .collection("worker").document(uid)
                     batch.deleteDocument(workerRef)
                     
                     // 2. users/{myUid}/workplaces/{workplaceId} (내 workplaces 문서 삭제)

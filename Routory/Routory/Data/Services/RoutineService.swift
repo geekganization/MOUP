@@ -95,6 +95,9 @@ final class RoutineService: RoutineServiceProtocol {
     ///   - routineId: 삭제할 루틴의 ID
     /// - Returns: 성공 시 완료(Void)를 방출하는 Observable
     /// - Firestore 경로: users/{userId}/routine/{routineId}
+    /// 루틴을 삭제합니다.
+    /// 1. 내가 오너 또는 공유자로 포함된 모든 캘린더의 이벤트 중 해당 routineId를 제거
+    /// 2. 실제 루틴 문서(users/{uid}/routine/{routineId})도 삭제
     func deleteRoutine(uid: String, routineId: String) -> Observable<Void> {
         let db = self.db
         
@@ -112,9 +115,9 @@ final class RoutineService: RoutineServiceProtocol {
             return Disposables.create()
         }
         
-        // 2. 쉐어윗에 내가 들어간 캘린더 id들 조회
+        // 2. sharedWith에 내가 들어간 캘린더 id들 조회
         let sharedCalendarsObs = Observable<[String]>.create { observer in
-            db.collection("calendars").whereField("shareWith", arrayContains: uid).getDocuments { snap, err in
+            db.collection("calendars").whereField("sharedWith", arrayContains: uid).getDocuments { snap, err in
                 if let err = err {
                     observer.onError(err)
                     return
@@ -126,18 +129,18 @@ final class RoutineService: RoutineServiceProtocol {
             return Disposables.create()
         }
         
-        // 3. 두 결과 합치기
+        // 3. 두 결과 합치기 후, routineId 배열에서 값 삭제 → 실제 루틴 문서 삭제
         return Observable.zip(ownerCalendarsObs, sharedCalendarsObs)
             .flatMap { (ownerIds, sharedIds) -> Observable<Void> in
                 let calendarIds = Set(ownerIds).union(sharedIds) // 중복 제거
                 
-                // 4. 각 캘린더에서, 이벤트 컬렉션을 순회하며 내가 만든 이벤트 중 routineId == 삭제할 routineId인 것의 routineId 필드를 삭제
+                // 4. 각 캘린더에서, 이벤트 컬렉션을 순회하며 내가 만든 이벤트 중 routineIds에 routineId가 포함된 문서에서만 해당 routineId 배열값 삭제
                 let eventsUpdates = calendarIds.map { calendarId in
                     Observable<Void>.create { observer in
                         let eventsRef = db.collection("calendars").document(calendarId).collection("events")
                         eventsRef
                             .whereField("createdBy", isEqualTo: uid)
-                            .whereField("routineId", isEqualTo: routineId)
+                            .whereField("routineIds", arrayContains: routineId)  // <-- 배열 포함 쿼리!
                             .getDocuments { snap, err in
                                 if let err = err {
                                     observer.onError(err)
@@ -152,7 +155,10 @@ final class RoutineService: RoutineServiceProtocol {
                                 let group = DispatchGroup()
                                 for doc in docs {
                                     group.enter()
-                                    doc.reference.updateData(["routineId": FieldValue.delete()]) { _ in
+                                    // 배열에서 routineId만 삭제
+                                    doc.reference.updateData([
+                                        "routineIds": FieldValue.arrayRemove([routineId])
+                                    ]) { _ in
                                         group.leave()
                                     }
                                 }
@@ -164,11 +170,29 @@ final class RoutineService: RoutineServiceProtocol {
                         return Disposables.create()
                     }
                 }
-                // 5. 모든 이벤트 업데이트가 끝나면 완료
+                // 5. 모든 이벤트 업데이트 후 → 루틴 문서 삭제까지 이어서 처리
                 return Observable.zip(eventsUpdates)
-                    .map { _ in () }
+                    .flatMap { _ in
+                        Observable<Void>.create { observer in
+                            db.collection("users")
+                                .document(uid)
+                                .collection("routine")
+                                .document(routineId)
+                                .delete { error in
+                                    if let error = error {
+                                        observer.onError(error)
+                                    } else {
+                                        observer.onNext(())
+                                        observer.onCompleted()
+                                    }
+                                }
+                            return Disposables.create()
+                        }
+                    }
             }
     }
+    
+    
     
     /// 사용자의 특정 루틴 정보를 수정합니다.
     ///

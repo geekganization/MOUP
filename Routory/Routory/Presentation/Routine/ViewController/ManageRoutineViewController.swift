@@ -29,6 +29,7 @@ class ManageRoutineViewController: UIViewController {
     private let routineType: RoutineType
     private let disposeBag = DisposeBag()
     private let refreshTriggeredRelay = PublishRelay<Void>()
+    private let deleteRoutineRelay = PublishRelay<String>()
 
     private let input: ManageRoutineViewModel.Input
     private let output: ManageRoutineViewModel.Output
@@ -44,7 +45,10 @@ class ManageRoutineViewController: UIViewController {
         self.routineType = routineType
         self.viewModel = viewModel
 
-        self.input = ManageRoutineViewModel.Input(refreshTriggered: refreshTriggeredRelay.asObservable())
+        self.input = ManageRoutineViewModel.Input(
+            refreshTriggered: refreshTriggeredRelay.asObservable(),
+            deleteRoutineTriggered: deleteRoutineRelay.asObservable()
+        )
         self.output = viewModel.transform(input: input)
         super.init(nibName: nil, bundle: nil)
     }
@@ -154,5 +158,33 @@ private extension ManageRoutineViewController {
 extension ManageRoutineViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 48
+    }
+
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        guard routineType == .all else { return nil }
+
+        let deleteAction = UIContextualAction(style: .destructive, title: "삭제") { [weak self] _, _, completion in
+            guard let self else {
+                completion(false)
+                return
+            }
+            self.output.allRoutine
+                .take(1)
+                .subscribe(onNext: { [weak self] routines in
+                    guard let self else {
+                        completion(false)
+                        return
+                    }
+                    let routine = routines[indexPath.row]
+                    self.deleteRoutineRelay.accept(routine.id)
+
+                    completion(true)
+                })
+                .disposed(by: disposeBag)
+        }
+
+        let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
+
+        return configuration
     }
 }

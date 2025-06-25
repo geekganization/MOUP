@@ -28,6 +28,7 @@ final class ManageRoutineViewModel {
     // MARK: - Input, Output
     struct Input {
         let refreshTriggered: Observable<Void>
+        let deleteRoutineTriggered: Observable<String>
     }
 
     struct Output {
@@ -38,6 +39,20 @@ final class ManageRoutineViewModel {
     func transform(input: Input) -> Output {
         print("transform - ManageVC")
         print("현재 루틴 타입 - \(routineType)")
+        input.deleteRoutineTriggered
+            .flatMapLatest { [weak self] routineId -> Observable<Void> in
+                guard let self else { return .empty() }
+                return self.routineUseCase.deleteRoutine(uid: userId, routineId: routineId)
+                    .do(onNext: {
+                        print("삭제 완료")
+                    })
+                    .do(onError: { error in
+                        print(error)
+                    })
+            }
+            .subscribe()
+            .disposed(by: disposeBag)
+
         switch routineType {
         case .today:
             print("오늘의 루틴 호출 시도")
@@ -50,8 +65,7 @@ final class ManageRoutineViewModel {
                         self.fetchTodayRoutines(),
                         self.fetchAllRoutines()
                     )
-                    .map { [weak self] (todayEvents, allRoutines) in
-                        guard let self else { return [] }
+                    .map { (todayEvents, allRoutines) in
                         return todayEvents.map { (workplaceName, events) in
                             let routineIds = events.flatMap { $0.routineIds }
                             let matchedRoutines = allRoutines.filter { routineInfo in

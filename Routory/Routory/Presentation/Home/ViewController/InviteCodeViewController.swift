@@ -111,7 +111,7 @@ private extension InviteCodeViewController {
     /// 사용자가 추가 정보를 입력하고 돌아오면 클로저를 통해 `Workplace`와 `WorkerDetail`을 전달받아 상태를 `.result`로 업데이트합니다.
     @objc func workplaceSelectViewDidTap() {
         let workerWorkplaceRegistrationVC = WorkerWorkplaceRegistrationViewController(
-            workplaceId: "workplaceId123",
+            workplaceId: selectedWorkplace?.id ?? "",
             isRegisterMode: false,
             isEdit: true,
             isHideWorkplaceInfoViewArrow: false,

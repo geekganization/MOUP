@@ -18,6 +18,25 @@ final class LoginView: UIView {
 
     // MARK: - UI Components
     
+    private let logoImageView = UIImageView().then {
+        $0.contentMode = .scaleAspectFit
+        $0.image = UIImage.logo
+    }
+    
+    private let appTitleImageView = UIImageView().then {
+        $0.contentMode = .scaleAspectFit
+        $0.image = UIImage.appTitle
+    }
+    
+    private let sloganLabel = UILabel().then {
+        $0.text = "근무 시간, 일정, 급여까지\n알바의 모든 것을 한 곳에서 관리해요!"
+        $0.font = .bodyMedium(16)
+        $0.setLineSpacing(.bodyMedium)
+        $0.textColor = .gray700
+        $0.textAlignment = .center
+        $0.numberOfLines = 0
+    }
+    
     private let appleLoginButton = UIButton().then {
         $0.setImage(.appleSignIn, for: .normal)
     }
@@ -49,20 +68,42 @@ private extension LoginView {
     }
 
     func setHierarchy() {
-        addSubviews(appleLoginButton,
-                    googleLoginButton)
+        addSubviews(
+            logoImageView,
+            appTitleImageView,
+            sloganLabel,
+            appleLoginButton,
+            googleLoginButton
+        )
     }
 
     func setConstraints() {
+        logoImageView.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(190)
+            $0.horizontalEdges.equalToSuperview().inset(88)
+            $0.height.equalTo(200)
+        }
+        
+        appTitleImageView.snp.makeConstraints {
+            $0.top.equalTo(logoImageView.snp.bottom)
+            $0.centerX.equalTo(logoImageView.snp.centerX)
+            $0.height.equalTo(39)
+        }
+        
+        sloganLabel.snp.makeConstraints {
+            $0.top.equalTo(appTitleImageView.snp.bottom).offset(16)
+            $0.horizontalEdges.equalToSuperview().inset(71)
+        }
+        
         appleLoginButton.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(16)
-            $0.bottom.equalTo(googleLoginButton.snp.top).offset(-24)
             $0.height.equalTo(44)
+            $0.top.equalTo(sloganLabel.snp.bottom).offset(100)
         }
         
         googleLoginButton.snp.makeConstraints {
+            $0.top.equalTo(appleLoginButton.snp.bottom).offset(12)
             $0.leading.trailing.equalToSuperview().inset(16)
-            $0.bottom.equalTo(self.safeAreaLayoutGuide).inset(96)
         }
     }
 

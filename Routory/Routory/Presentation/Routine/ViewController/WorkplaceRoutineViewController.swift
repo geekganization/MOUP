@@ -84,9 +84,11 @@ private extension WorkplaceRoutineViewController {
             }
             .subscribe(onNext: { [weak self] routine in
                 let vc = NewRoutineViewController(mode: .read(
+                    routineId: routine.id,
                     existingTitle: routine.routine.routineName,
                     existingTime: routine.routine.alarmTime,
-                    existingTasks: routine.routine.tasks
+                    existingTasks: routine.routine.tasks,
+                    fromAll: false
                 ))
                 self?.navigationController?.pushViewController(vc, animated: true)
             })

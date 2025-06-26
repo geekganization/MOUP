@@ -374,6 +374,8 @@ extension CalendarViewController: CalendarEventListVCDelegate {
                     let workShiftRegisterVC = WorkShiftRegistrationViewController(
                         isRegisterMode: false,
                         isRead: true,
+                        eventId: "eventId",
+                        editWorkplaceId: "editWorkplaceId",
                         workPlaceTitle: model.workplaceName,
                         workerTitle: "",
                         routineTitle: "",
@@ -394,6 +396,7 @@ extension CalendarViewController: CalendarEventListVCDelegate {
                         isRegisterMode: false,
                         isEdit: true,
                         eventId: "eventId",
+                        editWorkplaceId: "editWorkplaceId",
                         workPlaceTitle: "근무지 선택",
                         workerTitle: "알바 선택",
                         routineTitle: "루틴 입력",
@@ -426,6 +429,8 @@ extension CalendarViewController: CalendarEventListVCDelegate {
                     let workShiftRegisterVC = WorkShiftRegistrationViewController(
                         isRegisterMode: true,
                         isRead: false,
+                        eventId: "",
+                        editWorkplaceId: "",
                         workPlaceTitle: "근무지 선택",
                         workerTitle: "",
                         routineTitle: "루틴 추가",
@@ -446,6 +451,7 @@ extension CalendarViewController: CalendarEventListVCDelegate {
                         isRegisterMode: true,
                         isEdit: false,
                         eventId: "",
+                        editWorkplaceId: "",
                         workPlaceTitle: "매장 선택",
                         workerTitle: "알바 선택",
                         routineTitle: "루틴 추가",

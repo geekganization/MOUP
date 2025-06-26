@@ -29,6 +29,9 @@ final class CalendarUseCase: CalendarUseCaseProtocol {
     }
     
     func updateEventInCalendar(calendarId: String, eventId: String, event: CalendarEvent) -> Observable<Void> {
+        print("#####################################")
+        print("CalendarUseCase updateEventInCalendar")
+        print(calendarId,eventId,event)
         return repository.updateEventInCalendar(calendarId: calendarId, eventId: eventId, event: event)
     }
 }

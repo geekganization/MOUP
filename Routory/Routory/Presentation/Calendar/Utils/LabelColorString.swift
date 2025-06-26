@@ -8,6 +8,7 @@
 import UIKit
 
 enum LabelColorString: String, CaseIterable {
+    case _default = "기본색"
     case red = "빨간색"
     case orange = "주황색"
     case yellow = "노란색"
@@ -18,6 +19,8 @@ enum LabelColorString: String, CaseIterable {
     
     var labelColor: UIColor {
         switch self {
+        case ._default:
+            return .primary500
         case .red:
             return .systemRed
         case .orange:
@@ -37,6 +40,8 @@ enum LabelColorString: String, CaseIterable {
     
     var backgroundColor: UIColor {
         switch self {
+        case ._default:
+            return .primary100
         case .red:
             return .redBackground
         case .orange:
@@ -56,6 +61,8 @@ enum LabelColorString: String, CaseIterable {
     
     var textColor: UIColor {
         switch self {
+        case ._default:
+            return .primary600
         case .red:
             return .redText
         case .orange:

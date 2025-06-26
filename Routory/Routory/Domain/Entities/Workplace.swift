@@ -66,10 +66,12 @@ struct WorkplaceWorkSummaryDailySeparated {
     let workplaceId: String
     let workplaceName: String
     let isOfficial: Bool
+    let color: String
     let userName: String
     let wage: Int?
     let wageCalcMethod: String?
     let wageType: String?
+    // TODO: CalendarEvent로 옮겨지면 옵셔널 해제
     let breakTimeMinutes: Int?
     let personalSummary: [String: (events: [CalendarEventInfo], totalHours: Double, totalWage: Int)]
     let sharedSummary: [String: (events: [CalendarEventInfo], totalHours: Double, totalWage: Int)]

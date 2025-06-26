@@ -423,7 +423,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
             .flatMap { (ownerUid, calendarId) -> Observable<Void> in
                 // 오너 == 전체 삭제
                 if ownerUid == uid {
-                    return self.deleteWorkplaceAndReferences(workplaceId: workplaceId, calendarId: calendarId)
+                    return self.deleteWorkplaceAndReferences(workplaceId: workplaceId, calendarId: calendarId, ownerUid: String?)
                 } else {
                     // 워커 == 내 정보, 내가 만든 이벤트만 삭제 + 내 workplaces 문서도 삭제 + sharedWith에서 uid 삭제
                     let batch = self.db.batch()
@@ -507,7 +507,11 @@ final class WorkplaceService: WorkplaceServiceProtocol {
     }
     
     // 오너 전체 삭제
-    private func deleteWorkplaceAndReferences(workplaceId: String, calendarId: String?) -> Observable<Void> {
+    private func deleteWorkplaceAndReferences(
+        workplaceId: String,
+        calendarId: String?,
+        ownerUid: String?
+    ) -> Observable<Void> {
         // 1. workers 서브컬렉션 모든 문서 삭제 + uid 목록 수집
         let workersRef = self.db.collection("workplaces").document(workplaceId).collection("worker")
         let deleteWorkersObs = Observable<[String]>.create { observer in
@@ -545,8 +549,12 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                 batch.deleteDocument(calendarRef)
             }
             
-            // users/{uid}/workplaces/{workplaceId} (모든 워커의 workplaces 문서 삭제)
-            for uid in uids {
+            // users/{uid}/workplaces/{workplaceId} (모든 워커+오너의 workplaces 문서 삭제)
+            var allUids = uids
+            if let ownerUid = ownerUid, !uids.contains(ownerUid) {
+                allUids.append(ownerUid)
+            }
+            for uid in allUids {
                 let userWorkplaceRef = self.db.collection("users").document(uid)
                     .collection("workplaces").document(workplaceId)
                 batch.deleteDocument(userWorkplaceRef)
@@ -586,6 +594,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
             }
         }
     }
+
 
     
     func updateWorkerDetail(

@@ -117,6 +117,7 @@ private extension WorkplaceAddModalViewController {
                 workplaceId: "",
                 isRegisterMode: true,
                 isEdit: false,
+                isHideWorkplaceInfoViewArrow: false,
                 mode: .fullRegistration,
                 
                 

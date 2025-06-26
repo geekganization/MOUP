@@ -114,6 +114,7 @@ private extension InviteCodeViewController {
             workplaceId: "workplaceId123",
             isRegisterMode: false,
             isEdit: true,
+            isHideWorkplaceInfoViewArrow: false,
             mode: .inputOnly,
             
             nameValue: selectedWorkplace?.workplace.workplacesName,

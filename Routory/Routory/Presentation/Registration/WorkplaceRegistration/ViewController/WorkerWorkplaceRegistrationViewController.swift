@@ -55,6 +55,8 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
     
     private var isEdit: Bool
     
+    private let isHideWorkplaceInfoViewArrow: Bool
+    
     private let workplaceId: String
         
     /// 근무지 등록 방식 (직접 입력 or 초대코드 기반)
@@ -90,6 +92,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
         workplaceId: String,
         isRegisterMode: Bool,
         isEdit: Bool,
+        isHideWorkplaceInfoViewArrow: Bool,
         mode: WorkplaceRegistrationMode,
         nameValue: String?,
         categoryValue: String?,
@@ -115,6 +118,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
         self.mode = mode
         self.isRegisterMode = isRegisterMode
         self.isEdit = isEdit
+        self.isHideWorkplaceInfoViewArrow = isHideWorkplaceInfoViewArrow
         
         self.navigationBar = BaseNavigationBar(title: isEdit ? (nameValue ?? "근무지 이름 없음") : "새 근무지 등록")
 
@@ -122,7 +126,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
             workplaceId: "",
             isEdit: isEdit,
             isWorkerManagerShow: false,
-            isHideWorkplaceInfoViewArrow: true,
+            isHideWorkplaceInfoViewArrow: isHideWorkplaceInfoViewArrow,
             nameValue: nameValue,
             categoryValue: categoryValue,
             salaryTypeValue: salaryTypeValue,

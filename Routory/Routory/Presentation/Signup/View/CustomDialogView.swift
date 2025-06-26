@@ -16,6 +16,9 @@ final class CustomDialogView: UIView {
     var onYes: (() -> Void)?
     var onNo: (() -> Void)?
     var getTitleLabel: UILabel { titleLabel }
+    var getDescLabel: UILabel { descLabel }
+    var getNoButton: UIButton { noButton }
+    var getYesButton: UIButton { yesButton }
 
     // MARK: - UI Components
 

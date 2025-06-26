@@ -79,31 +79,32 @@ private extension LoginView {
 
     func setConstraints() {
         logoImageView.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(190)
-            $0.horizontalEdges.equalToSuperview().inset(88)
+            $0.centerY.equalTo(self.safeAreaLayoutGuide).offset(-100)
+            $0.centerX.equalTo(self.safeAreaLayoutGuide)
             $0.height.equalTo(200)
         }
         
         appTitleImageView.snp.makeConstraints {
             $0.top.equalTo(logoImageView.snp.bottom)
-            $0.centerX.equalTo(logoImageView.snp.centerX)
+            $0.centerX.equalTo(self.safeAreaLayoutGuide)
             $0.height.equalTo(39)
         }
         
         sloganLabel.snp.makeConstraints {
             $0.top.equalTo(appTitleImageView.snp.bottom).offset(16)
-            $0.horizontalEdges.equalToSuperview().inset(71)
+            $0.centerX.equalTo(self.safeAreaLayoutGuide)
         }
         
         appleLoginButton.snp.makeConstraints {
-            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.leading.trailing.equalTo(self.safeAreaLayoutGuide).inset(16)
+            $0.bottom.equalTo(googleLoginButton.snp.top).offset(-12)
             $0.height.equalTo(44)
-            $0.top.equalTo(sloganLabel.snp.bottom).offset(100)
         }
         
         googleLoginButton.snp.makeConstraints {
-            $0.top.equalTo(appleLoginButton.snp.bottom).offset(12)
-            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.leading.trailing.equalTo(self.safeAreaLayoutGuide).inset(16)
+            $0.bottom.equalTo(self.safeAreaLayoutGuide).inset(86)
+            $0.height.equalTo(44)
         }
     }
 

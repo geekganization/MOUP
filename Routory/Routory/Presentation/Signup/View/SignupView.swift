@@ -64,9 +64,11 @@ final class SignupView: UIView {
 
     @objc
     private func ownerTapped() {
-        ownerCardButton.isSelected = true
+//        ownerCardButton.isSelected = true
+        showOwnerWIPDialog(title: "조금만 기다려 주세요!",
+                           description: "사장님 기능은 다음 업데이트때 제공될 예정입니다!")
         workerCardButton.isSelected = false
-        updateStartButtonState()
+//        updateStartButtonState()
     }
 
     @objc
@@ -87,7 +89,9 @@ final class SignupView: UIView {
             role = nil
         }
         guard let selectedRole = role else { return }
-        showCustomDialog(role: selectedRole)
+        showCustomDialog(title: "\(selectedRole)이신가요?",
+                         description: "역할 선택은 한 번만 가능합니다.\n선택 후에는 변경이 불가하니 신중하게 선택해 주세요!",
+                         role: selectedRole)
     }
 }
 
@@ -138,10 +142,22 @@ private extension SignupView {
             startButton.setTitleColor(.gray500, for: .normal)
         }
     }
-
-    func showCustomDialog(role: String) {
+    
+    func showOwnerWIPDialog(title: String, description: String) {
         let dialog = CustomDialogView()
-        dialog.getTitleLabel.text = "\(role)이신가요?"
+        dialog.getTitleLabel.text = title
+        dialog.getDescLabel.text = description
+        dialog.getNoButton.isHidden = true
+        dialog.getYesButton.setTitle("확인", for: .normal)
+        dialog.onYes = { dialog.removeFromSuperview() }
+        self.addSubview(dialog)
+        dialog.snp.makeConstraints { $0.edges.equalToSuperview() }
+    }
+
+    func showCustomDialog(title: String, description: String, role: String) {
+        let dialog = CustomDialogView()
+        dialog.getTitleLabel.text = title
+        dialog.getDescLabel.text = description
         dialog.onNo = { [weak dialog] in
             dialog?.removeFromSuperview()
         }

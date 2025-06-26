@@ -423,7 +423,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
             .flatMap { (ownerUid, calendarId) -> Observable<Void> in
                 // 오너 == 전체 삭제
                 if ownerUid == uid {
-                    return self.deleteWorkplaceAndReferences(workplaceId: workplaceId, calendarId: calendarId, ownerUid: String)
+                    return self.deleteWorkplaceAndReferences(workplaceId: workplaceId, calendarId: calendarId, ownerUid: ownerUid)
                 } else {
                     // 워커 == 내 정보, 내가 만든 이벤트만 삭제 + 내 workplaces 문서도 삭제 + sharedWith에서 uid 삭제
                     let batch = self.db.batch()

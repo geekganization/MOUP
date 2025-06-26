@@ -51,48 +51,65 @@ final class CalendarViewModel {
                     .subscribe(with: self) { owner, workplaceWorkSummaryDailyList in
                         
                         var calendarModelList: (personal: [CalendarModel], shared: [CalendarModel]) = ([], [])
+                        let dispatchGroup = DispatchGroup()
                         
                         for workplaceSummary in workplaceWorkSummaryDailyList {
                             if filterModel != nil && filterModel?.workplaceId != workplaceSummary.workplaceId { continue }
                             
                             for personalEventList in workplaceSummary.personalSummary.values {
                                 for event in personalEventList.events {
-                                    let model = CalendarModel(workplaceId: workplaceSummary.workplaceId,
-                                                              workplaceName: workplaceSummary.workplaceName,
-                                                              isOfficial: workplaceSummary.isOfficial,
-                                                              workerName: workplaceSummary.userName,
-                                                              color: LabelColorString(rawValue: workplaceSummary.color) ?? ._default,
-                                                              wage: workplaceSummary.wage,
-                                                              wageCalcMethod: workplaceSummary.wageCalcMethod,
-                                                              wageType: workplaceSummary.wageType,
-                                                              breakTimeMinutes: BreakTimeMinutesDecimal(rawValue: workplaceSummary.breakTimeMinutes ?? 0) ?? ._none,
-                                                              eventInfo: event)
-                                    calendarModelList.personal.append(model)
+                                    dispatchGroup.enter()
+                                    owner.userUseCase.fetchUser(uid: event.calendarEvent.createdBy)
+                                        .subscribe(onNext: { user in
+                                            let model = CalendarModel(workplaceId: workplaceSummary.workplaceId,
+                                                                      workplaceName: workplaceSummary.workplaceName,
+                                                                      isOfficial: workplaceSummary.isOfficial,
+                                                                      workerName: user.userName,
+                                                                      color: LabelColorString(rawValue: workplaceSummary.color) ?? ._default,
+                                                                      wage: workplaceSummary.wage,
+                                                                      wageCalcMethod: workplaceSummary.wageCalcMethod,
+                                                                      wageType: workplaceSummary.wageType,
+                                                                      breakTimeMinutes: BreakTimeMinutesDecimal(rawValue: workplaceSummary.breakTimeMinutes ?? 0) ?? ._none,
+                                                                      eventInfo: event)
+                                            calendarModelList.personal.append(model)
+                                            dispatchGroup.leave()
+                                        }, onError: { error in
+                                            dispatchGroup.leave()
+                                        }).disposed(by: owner.disposeBag)
+                                    
                                 }
                             }
                             for sharedEventList in workplaceSummary.sharedSummary.values {
                                 for event in sharedEventList.events  {
-                                    let model = CalendarModel(workplaceId: workplaceSummary.workplaceId,
-                                                              workplaceName: workplaceSummary.workplaceName,
-                                                              isOfficial: workplaceSummary.isOfficial,
-                                                              workerName: workplaceSummary.userName,
-                                                              color: LabelColorString(rawValue: workplaceSummary.color) ?? ._default,
-                                                              wage: workplaceSummary.wage,
-                                                              wageCalcMethod: workplaceSummary.wageCalcMethod,
-                                                              wageType: workplaceSummary.wageType,
-                                                              breakTimeMinutes: BreakTimeMinutesDecimal(rawValue: workplaceSummary.breakTimeMinutes ?? 0) ?? ._none,
-                                                              eventInfo: event)
-                                    if event.calendarEvent.createdBy == uid {
-                                        calendarModelList.personal.append(model)
-                                    }
-                                    calendarModelList.shared.append(model)
+                                    dispatchGroup.enter()
+                                    owner.userUseCase.fetchUser(uid: event.calendarEvent.createdBy)
+                                        .subscribe(onNext: { user in
+                                            let model = CalendarModel(workplaceId: workplaceSummary.workplaceId,
+                                                                      workplaceName: workplaceSummary.workplaceName,
+                                                                      isOfficial: workplaceSummary.isOfficial,
+                                                                      workerName: user.userName,
+                                                                      color: LabelColorString(rawValue: workplaceSummary.color) ?? ._default,
+                                                                      wage: workplaceSummary.wage,
+                                                                      wageCalcMethod: workplaceSummary.wageCalcMethod,
+                                                                      wageType: workplaceSummary.wageType,
+                                                                      breakTimeMinutes: BreakTimeMinutesDecimal(rawValue: workplaceSummary.breakTimeMinutes ?? 0) ?? ._none,
+                                                                      eventInfo: event)
+                                            if event.calendarEvent.createdBy == uid {
+                                                calendarModelList.personal.append(model)
+                                            }
+                                            calendarModelList.shared.append(model)
+                                            dispatchGroup.leave()
+                                        }, onError: { error in
+                                            dispatchGroup.leave()
+                                        }).disposed(by: owner.disposeBag)
                                 }
                             }
                         }
-                        calendarModelList.personal.sort(by: owner.calendarModelSort)
-                        calendarModelList.shared.sort(by: owner.calendarModelSort)
-                        
-                        calendarModelListRelay.accept(calendarModelList)
+                        dispatchGroup.notify(queue: .main) {
+                            calendarModelList.personal.sort(by: owner.calendarModelSort)
+                            calendarModelList.shared.sort(by: owner.calendarModelSort)
+                            calendarModelListRelay.accept(calendarModelList)
+                        }
                     } onError: { owner, error in
                         owner.logger.error("\(error.localizedDescription)")
                     }.disposed(by: owner.disposeBag)

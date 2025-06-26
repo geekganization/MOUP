@@ -65,11 +65,11 @@ final class SignupView: UIView {
     @objc
     private func ownerTapped() {
         // 사장님 역할 비활성화 코드
-//        showOwnerWIPDialog(title: "조금만 기다려 주세요!",
-//                           description: "사장님 기능은 다음 업데이트때 제공될 예정입니다!")
-        ownerCardButton.isSelected = true
-        workerCardButton.isSelected = false
-        updateStartButtonState()
+        showOwnerWIPDialog(title: "조금만 기다려 주세요!",
+                           description: "사장님 기능은 다음 업데이트때 제공될 예정입니다!")
+//        ownerCardButton.isSelected = true
+//        workerCardButton.isSelected = false
+//        updateStartButtonState()
     }
 
     @objc

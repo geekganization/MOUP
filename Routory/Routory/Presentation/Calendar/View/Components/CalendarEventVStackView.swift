@@ -43,7 +43,7 @@ final class CalendarEventVStackView: UIStackView {
     
     // MARK: - Methods
     
-    func update(workHour: Double, userName: String, dailyWage: Int?, calendarMode: CalendarMode, color: LabelColorString) {
+    func update(workHour: Double, userName: String, wageType: String?, dailyWage: Int, calendarMode: CalendarMode, color: LabelColorString) {
         let workHourStr = String(format: "%.1f", workHour)
         if calendarMode == .shared {
             workHourOrNameLabel.text = userName
@@ -56,16 +56,14 @@ final class CalendarEventVStackView: UIStackView {
         if calendarMode == .shared {
             dailyWageLabel.isHidden = true
         } else {
-            if let dailyWage {
-                if dailyWage == -1 {
-                    // 고정급
-                    dailyWageLabel.text = "고정급"
-                    dailyWageLabel.isHidden = false
-                } else {
-                    // 시급
-                    dailyWageLabel.text = NumberFormatter.decimalFormatter.string(for: Int(dailyWage))
-                    dailyWageLabel.isHidden = false
-                }
+            if wageType == "시급" {
+                // 시급
+                dailyWageLabel.text = NumberFormatter.decimalFormatter.string(for: Int(dailyWage))
+                dailyWageLabel.isHidden = false
+            } else if wageType == "고정" {
+                // 고정급
+                dailyWageLabel.text = "고정급"
+                dailyWageLabel.isHidden = false
             } else {
                 // 사장님 개인 캘린더
                 dailyWageLabel.isHidden = true

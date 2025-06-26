@@ -94,7 +94,6 @@ final class EventCell: UITableViewCell {
             dailyWageLabel.isHidden = false
         } else if calendarMode == .shared {
             workplaceOrNameLabel.text = model.userName
-            dailyWageLabel.isHidden = true
         }
         
         sharedChipLabel.isHidden = !model.isOfficial
@@ -113,16 +112,21 @@ final class EventCell: UITableViewCell {
         
         if let userId = UserManager.shared.firebaseUid {
             ellipsisButton.isHidden = !(model.eventInfo.calendarEvent.createdBy == userId)
+            
+            if model.wageType == "시급" {
+                let dailyWage = Int(Double(model.wage ?? 0) * (workHour?.decimal ?? 0.0))
+                let formatted = NumberFormatter.decimalFormatter.string(for: dailyWage) ?? "?"
+                dailyWageLabel.text = "\(formatted)원"
+                dailyWageLabel.isHidden = !(model.eventInfo.calendarEvent.createdBy == userId)
+            } else if model.wageType == "고정" {
+                dailyWageLabel.text = "고정급"
+                dailyWageLabel.isHidden = !(model.eventInfo.calendarEvent.createdBy == userId)
+            } else {
+                dailyWageLabel.isHidden = true
+            }
         } else {
             ellipsisButton.isHidden = true
-        }
-        
-        if model.wageType == "시급" {
-            let dailyWage = Int(Double(model.wage ?? 0) * (workHour?.decimal ?? 0.0))
-            let formatted = NumberFormatter.decimalFormatter.string(for: dailyWage) ?? "?"
-            dailyWageLabel.text = "\(formatted)원"
-        } else if model.wageType == "고정" {
-            dailyWageLabel.text = "고정급"
+            dailyWageLabel.isHidden = true
         }
     }
 }

@@ -130,9 +130,9 @@ final class EventService: EventServiceProtocol {
                                               let workplaceName = wData["workplacesName"] as? String,
                                               let isOfficial = wData["isOfficial"] as? Bool,
                                               let uData = userDoc?.data(),
-                                              let userName = uData["userName"] as? String,
-                                              let userWData = userWorkplaceDoc?.data(),
-                                              let color = userWData["color"] as? String
+                                              let userName = uData["userName"] as? String
+//                                              let userWData = userWorkplaceDoc?.data(),
+//                                              let color = userWData["color"] as? String
                                         else {
                                             o.onNext(nil); o.onCompleted(); return
                                         }
@@ -200,7 +200,8 @@ final class EventService: EventServiceProtocol {
                                                             workplaceId: workplaceId,
                                                             workplaceName: workplaceName,
                                                             isOfficial: isOfficial,
-                                                            color: color,
+//                                                            color: color,
+                                                            color: "",
                                                             userName: userName,
                                                             wage: wage,
                                                             wageCalcMethod: wageCalcMethod,

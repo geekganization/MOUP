@@ -331,7 +331,7 @@ final class WorkplaceService: WorkplaceServiceProtocol {
                                                     sum + WageHelper.calculateWorkedHours(start: event.startTime, end: event.endTime)
                                                 }
                                                 let totalWage: Int
-                                                if wageCalcMethod == "monthly" {
+                                                if wageCalcMethod == "고정" {
                                                     totalWage = wage
                                                 } else {
                                                     totalWage = Int(Double(wage) * totalHours)

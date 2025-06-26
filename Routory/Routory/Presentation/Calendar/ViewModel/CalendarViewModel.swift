@@ -51,13 +51,14 @@ final class CalendarViewModel {
                     .subscribe(with: self) { owner, workplaceWorkSummaryDailyList in
                         
                         var calendarModelList: (personal: [CalendarModel], shared: [CalendarModel]) = ([], [])
+                        // TODO: DispatchGroup에서 RxSwift로 변경
                         let dispatchGroup = DispatchGroup()
                         
                         for workplaceSummary in workplaceWorkSummaryDailyList {
                             if filterModel != nil && filterModel?.workplaceId != workplaceSummary.workplaceId { continue }
-                            
                             for personalEventList in workplaceSummary.personalSummary.values {
                                 for event in personalEventList.events {
+                                    
                                     dispatchGroup.enter()
                                     owner.userUseCase.fetchUser(uid: event.calendarEvent.createdBy)
                                         .subscribe(onNext: { user in
@@ -74,13 +75,14 @@ final class CalendarViewModel {
                                             calendarModelList.personal.append(model)
                                             dispatchGroup.leave()
                                         }, onError: { error in
+                                            owner.logger.error("\(error.localizedDescription)")
                                             dispatchGroup.leave()
                                         }).disposed(by: owner.disposeBag)
-                                    
                                 }
                             }
                             for sharedEventList in workplaceSummary.sharedSummary.values {
                                 for event in sharedEventList.events  {
+                                    
                                     dispatchGroup.enter()
                                     owner.userUseCase.fetchUser(uid: event.calendarEvent.createdBy)
                                         .subscribe(onNext: { user in
@@ -100,11 +102,13 @@ final class CalendarViewModel {
                                             calendarModelList.shared.append(model)
                                             dispatchGroup.leave()
                                         }, onError: { error in
+                                            owner.logger.error("\(error.localizedDescription)")
                                             dispatchGroup.leave()
                                         }).disposed(by: owner.disposeBag)
                                 }
                             }
                         }
+                        
                         dispatchGroup.notify(queue: .main) {
                             calendarModelList.personal.sort(by: owner.calendarModelSort)
                             calendarModelList.shared.sort(by: owner.calendarModelSort)

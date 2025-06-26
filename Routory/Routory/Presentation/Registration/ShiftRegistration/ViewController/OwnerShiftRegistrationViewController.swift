@@ -21,6 +21,8 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
     private let eventId: String
     
     private let editWorkplaceId: String
+    
+    private let editRoutineIDs: [String]
 
     private let scrollView = UIScrollView()
     private let stackView = UIStackView()
@@ -81,6 +83,7 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
         workPlaceTitle: String,
         workerTitle: String,
         routineTitle: String,
+        editRoutineIDs: [String],
         dateValue: String,
         repeatValue: String,
         startTime: String,
@@ -91,6 +94,7 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
         self.isRegisterMode = isRegisterMode
         self.isEdit = isEdit
         self.editWorkplaceId = editWorkplaceId
+        self.editRoutineIDs = editRoutineIDs
         self.contentView = ShiftRegistrationContentView(
             isRead: isEdit,
             workPlaceTitle: workPlaceTitle,
@@ -308,7 +312,6 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
         switch registrationMode {
         case .owner:
             let workPlace = contentView.simpleRowView.getData()
-            let routineIDs = contentView.routineView.getSelectedRoutineIDs()
 
             let event = CalendarEvent(
                 title: workPlace,
@@ -319,7 +322,7 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
                 year: dateComponents.year,
                 month: dateComponents.month,
                 day: dateComponents.day,
-                routineIds: routineIDs,
+                routineIds: editRoutineIDs,
                 repeatDays: repeatDays,
                 memo: memo
             )

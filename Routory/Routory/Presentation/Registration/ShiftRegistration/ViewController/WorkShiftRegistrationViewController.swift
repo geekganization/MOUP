@@ -21,6 +21,8 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
     private let eventId: String
     
     private let editWorkplaceId: String
+    
+    private let editRoutineIDs: [String]
 
     private let scrollView = UIScrollView()
     private let contentView: ShiftRegistrationContentView
@@ -57,6 +59,7 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
         workPlaceTitle: String,
         workerTitle: String,
         routineTitle: String,
+        editRoutineIDs: [String],
         dateValue: String,
         repeatValue: String,
         startTime: String,
@@ -68,6 +71,7 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
         self.isEdit = isRead
         self.eventId = eventId
         self.editWorkplaceId = editWorkplaceId
+        self.editRoutineIDs = editRoutineIDs
         self.contentView = ShiftRegistrationContentView(
             isRead: isRead,
             workPlaceTitle: workPlaceTitle,
@@ -247,7 +251,6 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
         let eventDate = contentView.workDateView.getdateRowData()
         let startTime = contentView.workTimeView.getstartRowData()
         let endTime = contentView.workTimeView.getendRowData()
-        let routineIDs = contentView.routineView.getSelectedRoutineIDs()
         let repeatDays = contentView.workDateView.getRepeatData()
         let memo = contentView.memoBoxView.getData()
 
@@ -270,7 +273,7 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
             year: dateComponents.year,
             month: dateComponents.month,
             day: dateComponents.day,
-            routineIds: routineIDs,
+            routineIds: editRoutineIDs,
             repeatDays: repeatDays,
             memo: memo
         )

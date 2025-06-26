@@ -468,41 +468,55 @@ final class HomeViewModel {
             // 근무지 당 나온 총 인건비와 근무 시간 (한 달, 한 근무지, 근무지 내 모든 근무자 기준)
             var currentTotalLaborCost: Int = 0
             var currentTotalWorkMinutes: Int = 0
-            var firstWorkerPayday: Int = 1
 
-            /// 다음 버전 사장님 홈에 expand 될 때 쓰여질 알바생들의 근무 시간(분) 및 총 급여 데이터
+            /// 다음 버전 사장님 홈에 expand 될 때 쓰여질 알바생들의 근무 시간(분) 및 총 급여 데이터 - (workerId, value) 형태
             /// 단, 실사용 시 데이터 부정합이 이뤄질 수 있어 테스트 후 문제 생길 경우 id를 통한 일치하게 만드는 작업 필요
-            var workersWorkMinutesArray: [Int] = []
-            var workersPayrollData: [Int] = []
+            var workersWorkMinutesArray: [(String, Int)] = []
+            var workersPayrollData: [(String, Int)] = []
 
-            for workerSummary in currentSummaries {
-                if workerSummary.workplaceId == workplaceInfo.id {
-                    if firstWorkerPayday == 1 {
-                        firstWorkerPayday = workerSummary.worker.detail.payDay
+            let firstWorkerPayday = currentSummaries
+                .first { $0.workplaceId == workplaceInfo.id }?
+                .worker.detail.payDay ?? 1
+
+            let currentWorkplaceSummaries = currentSummaries.filter {
+                $0.workplaceId == workplaceInfo.id
+            }
+            let previousWorkplaceSummaries = previousSummaries.filter {
+                $0.workplaceId == workplaceInfo.id
+            }
+
+            for workerSummary in currentWorkplaceSummaries {
+                if workerSummary.worker.detail.wageCalcMethod == "시급" {
+                    for summary in workerSummary.summaries {
+                        let payInfo = calculateWorkerPay(
+                            summary: summary,
+                            workerDetail: workerSummary.worker.detail,
+                            nightAllowance: workerSummary.worker.detail.nightAllowance,
+                            insuranceSettings: InsuranceSettings(
+                                hasEmploymentInsurance: workerSummary.worker.detail.employmentInsurance,
+                                hasHealthInsurance: workerSummary.worker.detail.healthInsurance,
+                                hasIndustrialAccident: workerSummary.worker.detail.industrialAccident,
+                                hasNationalPension: workerSummary.worker.detail.nationalPension
+                            )
+                        )
+
+                        currentTotalLaborCost += payInfo.netPay
+                        currentMonthlyAmount += payInfo.netPay
+                        currentTotalWorkMinutes += calculateTotalWorkMinutes(summary: summary)
+                    }
+                } else { // 고정급일 때
+                    currentTotalLaborCost += workerSummary.worker.detail.wage
+                    currentMonthlyAmount += workerSummary.worker.detail.wage
+
+                    for summary in workerSummary.summaries {
+                        currentTotalWorkMinutes += calculateTotalWorkMinutes(summary: summary)
                     }
                 }
 
-                for summary in workerSummary.summaries {
-                    let payInfo = calculateWorkerPay(
-                        summary: summary,
-                        workerDetail: workerSummary.worker.detail,
-                        nightAllowance: workerSummary.worker.detail.nightAllowance,
-                        insuranceSettings: InsuranceSettings(
-                            hasEmploymentInsurance: workerSummary.worker.detail.employmentInsurance,
-                            hasHealthInsurance: workerSummary.worker.detail.healthInsurance,
-                            hasIndustrialAccident: workerSummary.worker.detail.industrialAccident,
-                            hasNationalPension: workerSummary.worker.detail.nationalPension
-                        )
-                    )
-
-                    currentTotalLaborCost += payInfo.netPay
-                    currentMonthlyAmount += payInfo.netPay
-                    currentTotalWorkMinutes += calculateTotalWorkMinutes(summary: summary)
-                }
             }
 
-            for workerSummary in previousSummaries {
-                if workerSummary.workplaceId == workplaceInfo.id {
+            for workerSummary in previousWorkplaceSummaries {
+                if workerSummary.worker.detail.wageCalcMethod == "시급" {
                     for summary in workerSummary.summaries {
                         let payInfo = calculateWorkerPay(
                             summary: summary,
@@ -518,10 +532,12 @@ final class HomeViewModel {
 
                         previousMonthlyAmount += payInfo.netPay
                     }
+                } else {
+                    previousMonthlyAmount += workerSummary.worker.detail.wage
                 }
             }
 
-            let workplaceColor = workplaceColors[index]
+            let workplaceColor = index < workplaceColors.count ? workplaceColors[index] : "노란색"
             let homeSectionItem = HomeSectionItem.store(
                 StoreCellInfo(
                     id: workplaceInfo.id,
@@ -531,7 +547,7 @@ final class HomeViewModel {
                     showDot: true,
                     dotColor: workplaceColor,
                     storeName: workplaceInfo.workplace.workplacesName,
-                    daysUntilPayday: PaydayCalculator.calculateDaysUntilPayday(payDay: currentTotalWorkMinutes), // 근무자들 중 첫번째 근무자의 급여일을 대표로 보여줌
+                    daysUntilPayday: PaydayCalculator.calculateDaysUntilPayday(payDay: firstWorkerPayday), // 근무자들 중 첫번째 근무자의 급여일을 대표로 보여줌
                     totalLaborCost: currentTotalLaborCost,
                     inviteCode: workplaceInfo.workplace.inviteCode
                 )

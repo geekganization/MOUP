@@ -43,10 +43,10 @@ final class CalendarEventVStackView: UIStackView {
     
     // MARK: - Methods
     
-    func update(workHour: Double, userName: String, wageType: String?, dailyWage: Int, calendarMode: CalendarMode, color: LabelColorString) {
+    func update(workHour: Double, workerName: String, wageType: String?, dailyWage: Int, calendarMode: CalendarMode, color: LabelColorString) {
         let workHourStr = String(format: "%.1f", workHour)
         if calendarMode == .shared {
-            workHourOrNameLabel.text = userName
+            workHourOrNameLabel.text = workerName
         } else if workHourStr.last == "0" {
             workHourOrNameLabel.text = "\(workHourStr.prefix(1))시간"
         } else {

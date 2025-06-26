@@ -187,16 +187,6 @@ private extension CalendarViewController {
     }
 }
 
-// MARK: - Private Methods
-
-private extension CalendarViewController {
-    func calendarModelSort(_ lhs: CalendarModel, _ rhs: CalendarModel ) -> Bool {
-        let lhsEvent = lhs.eventInfo.calendarEvent
-        let rhsEvent = rhs.eventInfo.calendarEvent
-        return lhsEvent.startTime < rhsEvent.startTime || lhsEvent.endTime < rhsEvent.endTime
-    }
-}
-
 // MARK: - CalendarView Methods
 
 private extension CalendarViewController {
@@ -264,12 +254,7 @@ private extension CalendarViewController {
         for model in calendarModelLists.shared {
             let event = model.eventInfo.calendarEvent
             guard let eventDate = dataSourceDateFormatter.date(from: event.eventDate) else { continue }
-            personalEventDataSource[eventDate, default: []].append(model)
             sharedEventDataSource[eventDate, default: []].append(model)
-        }
-        
-        personalEventDataSource.keys.forEach { eventDate in
-            personalEventDataSource[eventDate]?.sort(by: calendarModelSort)
         }
         
         calendarView.getJTACalendar.reloadData()

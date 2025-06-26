@@ -93,7 +93,7 @@ final class EventCell: UITableViewCell {
             workplaceOrNameLabel.text = model.workplaceName
             dailyWageLabel.isHidden = false
         } else if calendarMode == .shared {
-            workplaceOrNameLabel.text = model.userName
+            workplaceOrNameLabel.text = model.workerName
         }
         
         sharedChipLabel.isHidden = !model.isOfficial

@@ -137,11 +137,11 @@ final class EventService: EventServiceProtocol {
                                             o.onNext(nil); o.onCompleted(); return
                                         }
                                         
-                                        let workerData = workerDoc?.data()
-                                        let wage = workerData?["wage"] as? Int
-                                        let wageCalcMethod = workerData?["wageCalcMethod"] as? String
-                                        let wageType = workerData?["wageType"] as? String
-                                        let breakTimeMinutes = workerData?["breakTimeMinutes"] as? Int
+                                        let userWorkerData = workerDoc?.data()
+                                        let wage = userWorkerData?["wage"] as? Int
+                                        let wageCalcMethod = userWorkerData?["wageCalcMethod"] as? String
+                                        let wageType = userWorkerData?["wageType"] as? String
+                                        let breakTimeMinutes = userWorkerData?["breakTimeMinutes"] as? Int
                                         
                                         // 캘린더(개인/공유) 리스너
                                         calendarListener = self.db.collection("calendars")
@@ -200,8 +200,8 @@ final class EventService: EventServiceProtocol {
                                                             workplaceId: workplaceId,
                                                             workplaceName: workplaceName,
                                                             isOfficial: isOfficial,
-                                                            userName: userName,
                                                             color: color,
+                                                            userName: userName,
                                                             wage: wage,
                                                             wageCalcMethod: wageCalcMethod,
                                                             wageType: wageType,

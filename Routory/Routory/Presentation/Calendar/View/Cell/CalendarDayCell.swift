@@ -111,7 +111,7 @@ final class CalendarDayCell: JTACDayCell {
                         let workHour = DateFormatter.hourDiffDecimal(from: event.startTime, to: event.endTime, break: model.breakTimeMinutes.rawValue)
                         let dailyWage = Int(Double(model.wage ?? 0) * (workHour?.decimal ?? 0.0))
                         eventView.update(workHour: workHour?.decimal ?? 0,
-                                         userName: model.userName,
+                                         workerName: model.workerName,
                                          wageType: model.wageType,
                                          dailyWage: dailyWage,
                                          calendarMode: calendarMode,

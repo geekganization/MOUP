@@ -20,6 +20,7 @@ final class CalendarViewModel {
     private let disposeBag = DisposeBag()
     
     private let eventUseCase: EventUseCaseProtocol
+    private let userUseCase: UserUseCaseProtocol
     
     // MARK: - Input (ViewController ➡️ ViewModel)
     
@@ -44,11 +45,11 @@ final class CalendarViewModel {
                 let ((year, month), filterModel) = combined
                 
                 // TODO: 직전달, 이번달, 다음달 3개월씩 불러오기
-                // TODO: 요일반복 로직 생각해야 함
                 guard let uid = UserManager.shared.firebaseUid else { return }
                 
                 owner.eventUseCase.fetchMonthlyWorkSummaryDailySeparated(uid: uid, year: year, month: month)
                     .subscribe(with: self) { owner, workplaceWorkSummaryDailyList in
+                        
                         var calendarModelList: (personal: [CalendarModel], shared: [CalendarModel]) = ([], [])
                         
                         for workplaceSummary in workplaceWorkSummaryDailyList {
@@ -56,34 +57,44 @@ final class CalendarViewModel {
                             
                             for personalEventList in workplaceSummary.personalSummary.values {
                                 for event in personalEventList.events {
-                                    calendarModelList.personal.append(CalendarModel(workplaceId: workplaceSummary.workplaceId,
-                                                                                    workplaceName: workplaceSummary.workplaceName,
-                                                                                    isOfficial: workplaceSummary.isOfficial,
-                                                                                    userName: workplaceSummary.userName,
-                                                                                    color: LabelColorString(rawValue: workplaceSummary.color) ?? ._default,
-                                                                                    wage: workplaceSummary.wage,
-                                                                                    wageCalcMethod: workplaceSummary.wageCalcMethod,
-                                                                                    wageType: workplaceSummary.wageType,
-                                                                                    breakTimeMinutes: BreakTimeMinutesDecimal(rawValue: workplaceSummary.breakTimeMinutes ?? 0) ?? ._none,
-                                                                                    eventInfo: event))
+                                    let model = CalendarModel(workplaceId: workplaceSummary.workplaceId,
+                                                              workplaceName: workplaceSummary.workplaceName,
+                                                              isOfficial: workplaceSummary.isOfficial,
+                                                              workerName: workplaceSummary.userName,
+                                                              color: LabelColorString(rawValue: workplaceSummary.color) ?? ._default,
+                                                              wage: workplaceSummary.wage,
+                                                              wageCalcMethod: workplaceSummary.wageCalcMethod,
+                                                              wageType: workplaceSummary.wageType,
+                                                              breakTimeMinutes: BreakTimeMinutesDecimal(rawValue: workplaceSummary.breakTimeMinutes ?? 0) ?? ._none,
+                                                              eventInfo: event)
+                                    calendarModelList.personal.append(model)
                                 }
                             }
                             for sharedEventList in workplaceSummary.sharedSummary.values {
                                 for event in sharedEventList.events  {
-                                    calendarModelList.shared.append(CalendarModel(workplaceId: workplaceSummary.workplaceId,
-                                                                                  workplaceName: workplaceSummary.workplaceName,
-                                                                                  isOfficial: workplaceSummary.isOfficial,
-                                                                                  userName: workplaceSummary.userName,
-                                                                                  color: LabelColorString(rawValue: workplaceSummary.color) ?? ._default,
-                                                                                  wage: workplaceSummary.wage,
-                                                                                  wageCalcMethod: workplaceSummary.wageCalcMethod,
-                                                                                  wageType: workplaceSummary.wageType,
-                                                                                  breakTimeMinutes: BreakTimeMinutesDecimal(rawValue: workplaceSummary.breakTimeMinutes ?? 0) ?? ._none,
-                                                                                  eventInfo: event))
+                                    let model = CalendarModel(workplaceId: workplaceSummary.workplaceId,
+                                                              workplaceName: workplaceSummary.workplaceName,
+                                                              isOfficial: workplaceSummary.isOfficial,
+                                                              workerName: workplaceSummary.userName,
+                                                              color: LabelColorString(rawValue: workplaceSummary.color) ?? ._default,
+                                                              wage: workplaceSummary.wage,
+                                                              wageCalcMethod: workplaceSummary.wageCalcMethod,
+                                                              wageType: workplaceSummary.wageType,
+                                                              breakTimeMinutes: BreakTimeMinutesDecimal(rawValue: workplaceSummary.breakTimeMinutes ?? 0) ?? ._none,
+                                                              eventInfo: event)
+                                    if event.calendarEvent.createdBy == uid {
+                                        calendarModelList.personal.append(model)
+                                    }
+                                    calendarModelList.shared.append(model)
                                 }
                             }
                         }
+                        calendarModelList.personal.sort(by: owner.calendarModelSort)
+                        calendarModelList.shared.sort(by: owner.calendarModelSort)
+                        
                         calendarModelListRelay.accept(calendarModelList)
+                    } onError: { owner, error in
+                        owner.logger.error("\(error.localizedDescription)")
                     }.disposed(by: owner.disposeBag)
                 
             }).disposed(by: disposeBag)
@@ -93,7 +104,16 @@ final class CalendarViewModel {
     
     // MARK: - Initializer
     
-    init(eventUseCase: EventUseCaseProtocol) {
+    init(eventUseCase: EventUseCaseProtocol, userUseCase: UserUseCaseProtocol) {
         self.eventUseCase = eventUseCase
+        self.userUseCase = userUseCase
+    }
+}
+
+private extension CalendarViewModel {
+    func calendarModelSort(_ lhs: CalendarModel, _ rhs: CalendarModel ) -> Bool {
+        let lhsEvent = lhs.eventInfo.calendarEvent
+        let rhsEvent = rhs.eventInfo.calendarEvent
+        return lhsEvent.startTime < rhsEvent.startTime || lhsEvent.endTime < rhsEvent.endTime
     }
 }

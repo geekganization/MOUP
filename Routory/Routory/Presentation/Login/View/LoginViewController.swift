@@ -65,13 +65,13 @@ private extension LoginViewController {
                 case .goToMain:
                     print("로그인 성공 - 메인 화면 이동")
                     let tabBarVM = TabBarViewModel()
-                    let tabbarVC = TabbarViewController(viewModel: tabBarVM)
+                    let tabBarVC = TabBarViewController(viewModel: tabBarVM)
                     
                     guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                           let sceneDelegate = scene.delegate as? SceneDelegate,
                           let window = sceneDelegate.window else { return }
                     
-                    window.rootViewController = tabbarVC
+                    window.rootViewController = tabBarVC
                     window.makeKeyAndVisible()
                 case .goToSignup(let nickname, let credential):
                     print("신규 사용자 - 회원가입 화면 이동")

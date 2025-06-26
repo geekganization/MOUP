@@ -69,13 +69,13 @@ private extension SignupViewController {
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] in
                 print("회원가입 성공!")
-                let tabbarVC = TabbarViewController(viewModel: TabBarViewModel())
+                let tabBarVC = TabBarViewController(viewModel: TabBarViewModel())
                 
                 guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                       let sceneDelegate = scene.delegate as? SceneDelegate,
                       let window = sceneDelegate.window else { return }
                 
-                window.rootViewController = tabbarVC
+                window.rootViewController = tabBarVC
                 window.makeKeyAndVisible()
             })
             .disposed(by: disposeBag)

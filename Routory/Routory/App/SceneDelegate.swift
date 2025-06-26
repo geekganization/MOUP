@@ -36,7 +36,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         if let currentUser = Auth.auth().currentUser {
             // 로그인된 상태 → 메인(TabBar)으로
-            rootVC = TabbarViewController(viewModel: TabBarViewModel())
+            rootVC = TabBarViewController(viewModel: TabBarViewModel())
             
             //            let notificationService = DummyNotificationService()
             //            notificationService.runNotificationPipeline(uid: currentUser.uid)

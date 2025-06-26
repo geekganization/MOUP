@@ -17,6 +17,8 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
     private var isEdit: Bool
         
     private let isRegisterMode: Bool
+    
+    private let eventId: String
 
     private let scrollView = UIScrollView()
     private let stackView = UIStackView()
@@ -61,9 +63,18 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
 
     private let submitTrigger = PublishSubject<(String, CalendarEvent)>()
     
+    private let editViewModel = ShiftEditViewModel(
+        calendarUseCase: CalendarUseCase(
+            repository: CalendarRepository(calendarService: CalendarService())
+        )
+    )
+
+    private let editTrigger = PublishSubject<(String, String, CalendarEvent)>()
+    
     init(
         isRegisterMode: Bool,
         isEdit: Bool,
+        eventId: String,
         workPlaceTitle: String,
         workerTitle: String,
         routineTitle: String,
@@ -89,6 +100,7 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
             memoPlaceholder: memoPlaceholder,
             registerBtnTitle: isEdit ? "적용하기" : "등록하기"
         )
+        self.eventId = eventId
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -153,6 +165,21 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
                     self.navigationController?.popViewController(animated: true)
                 case .failure(let error):
                     print("근무 등록 실패: \(error)")
+                }
+            })
+            .disposed(by: disposeBag)
+        
+        let editInput = ShiftEditViewModel.Input(submitTrigger: editTrigger)
+        let editOutput = editViewModel.transform(input: editInput)
+
+        editOutput.submissionResult
+            .subscribe(onNext: { result in
+                switch result {
+                case .success:
+                    print("근무 수정 성공")
+                    self.navigationController?.popViewController(animated: true)
+                case .failure(let error):
+                    print("근무 수정 실패: \(error)")
                 }
             })
             .disposed(by: disposeBag)
@@ -294,7 +321,8 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
                 memo: memo
             )
 
-            print("owner: ",workPlaceID, event)
+            print("owner: ",workPlaceID, event, eventId)
+            editTrigger.onNext((workPlaceID, eventId, event))
 
 
         case .employee:
@@ -318,7 +346,8 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
                     memo: memo
                 )
                 
-                print("employee: ",workPlaceID, event)
+                print("employee: ",workPlaceID, event, eventId)
+                editTrigger.onNext((workPlaceID, eventId, event))
 
             }
         }

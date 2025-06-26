@@ -393,6 +393,7 @@ extension CalendarViewController: CalendarEventListVCDelegate {
                     let ownerShiftRegisterVC = OwnerShiftRegistrationViewController(
                         isRegisterMode: false,
                         isEdit: true,
+                        eventId: "eventId",
                         workPlaceTitle: "근무지 선택",
                         workerTitle: "알바 선택",
                         routineTitle: "루틴 입력",
@@ -444,6 +445,7 @@ extension CalendarViewController: CalendarEventListVCDelegate {
                     let ownerShiftRegisterVC = OwnerShiftRegistrationViewController(
                         isRegisterMode: true,
                         isEdit: false,
+                        eventId: "",
                         workPlaceTitle: "매장 선택",
                         workerTitle: "알바 선택",
                         routineTitle: "루틴 추가",

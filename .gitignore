@@ -145,3 +145,4 @@ xcuserdata
 # Start of SNMac custom gitignore
 .xcuserstate
 GoogleService-Info.plist
+Secrets.xcconfig

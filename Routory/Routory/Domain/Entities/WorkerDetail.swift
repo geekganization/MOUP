@@ -9,19 +9,17 @@
 
 /// Firestore의 workplaces/{workplaceId}/worker/{userId} 문서에 대응되는 알바 정보 모델
 struct WorkerDetail: Codable {
-    /// Firebase UID (문서 ID)
-    let id: String
 
     /// 알바 이름 (표시용)
     let workerName: String
 
-    /// 시급 (단위: 원)
-    let hourlyWage: Int
+    /// 시급/고정급 (단위: 원)
+    let wage: Int
 
-    /// 급여 계산 방식 ("hourly", "monthly")
+    /// 급여 계산 방식 ("매월", "매주", "매일")
     let wageCalcMethod: String
 
-    /// 급여 유형 (예: "시급제", "월급제")
+    /// 급여 유형 ("시급", "고정")
     let wageType: String
 
     /// 주휴 수당 지급 여부
@@ -36,10 +34,13 @@ struct WorkerDetail: Codable {
     /// 휴게 시간 (단위: 분)
     let breakTimeMinutes: Int
 
-    /// 4대 보험 가입 여부
+    /// 4대 보험 - 고용보험 가입 여부
     let employmentInsurance: Bool
+    /// 4대 보험 - 건강보험 가입 여부
     let healthInsurance: Bool
+    /// 4대 보험 - 산재보험 가입 여부
     let industrialAccident: Bool
+    /// 4대 보험 - 국민연금 가입 여부
     let nationalPension: Bool
 
     /// 소득세 납부 여부
@@ -47,11 +48,13 @@ struct WorkerDetail: Codable {
 
     /// 야간 수당 지급 여부
     let nightAllowance: Bool
+    
+    /// 컬러
+    let color: String
 
-    init(id: String, workerName: String, hourlyWage: Int, wageCalcMethod: String, wageType: String, weeklyAllowance: Bool, payDay: Int, payWeekday: String, breakTimeMinutes: Int, employmentInsurance: Bool, healthInsurance: Bool, industrialAccident: Bool, nationalPension: Bool, incomeTax: Bool, nightAllowance: Bool) {
-        self.id = id
+    init(workerName: String, wage: Int, wageCalcMethod: String, wageType: String, weeklyAllowance: Bool, payDay: Int, payWeekday: String, breakTimeMinutes: Int, employmentInsurance: Bool, healthInsurance: Bool, industrialAccident: Bool, nationalPension: Bool, incomeTax: Bool, nightAllowance: Bool, color: String) {
         self.workerName = workerName
-        self.hourlyWage = hourlyWage
+        self.wage = wage
         self.wageCalcMethod = wageCalcMethod
         self.wageType = wageType
         self.weeklyAllowance = weeklyAllowance
@@ -64,6 +67,12 @@ struct WorkerDetail: Codable {
         self.nationalPension = nationalPension
         self.incomeTax = incomeTax
         self.nightAllowance = nightAllowance
+        self.color = color
     }
 }
 
+struct WorkerDetailInfo {
+    
+    let id: String
+    let detail: WorkerDetail
+}

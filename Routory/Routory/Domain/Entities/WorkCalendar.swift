@@ -9,8 +9,6 @@
 
 /// Firestore의 calendars/{calendarId} 문서에 대응되는 캘린더 정보 모델
 struct WorkCalendar: Codable {
-    /// 캘린더 ID (Firestore 문서 ID)
-    let id: String
 
     /// 캘린더 이름
     let calendarName: String
@@ -23,12 +21,15 @@ struct WorkCalendar: Codable {
 
     /// 연결된 근무지 ID
     let workplaceId: String
+    
+    /// 캘린더를 공유하는 사용자 ID 배열
+    let sharedWith: [String]
 
-    init(id: String, calendarName: String, isShared: Bool, ownerId: String, workplaceId: String) {
-        self.id = id
+    init(calendarName: String, isShared: Bool, ownerId: String, workplaceId: String, sharedWith: [String]) {
         self.calendarName = calendarName
         self.isShared = isShared
         self.ownerId = ownerId
         self.workplaceId = workplaceId
+        self.sharedWith = sharedWith
     }
 }

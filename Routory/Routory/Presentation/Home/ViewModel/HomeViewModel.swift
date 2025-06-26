@@ -98,15 +98,19 @@ final class HomeViewModel {
                 switch refreshType {
                 case .normal:
                     LoadingManager.start()
-                    //                    break
                 case .silent: break
                 }
                 guard let self else { return .empty() }
                 return self.userUseCase.fetchUser(uid: userId)
             }
+            .do(onError: { error in
+                print("HomeVM - fetchUser error: \(error)")
+                LoadingManager.stop()
+            })
             .do(onNext: { user in
                 print("user: \(user)")
             })
+            .catchAndReturn(User(userName: "", role: "worker", workplaceList: []))
             .flatMapLatest { [weak self] user -> Observable<(HomeHeaderInfo, [HomeTableViewFirstSection])> in
                 guard let self else { return .empty() }
 
@@ -114,6 +118,14 @@ final class HomeViewModel {
                 self.userTypeRelay.accept(userType)
 
                 return self.fetchHomeData(userType: userType)
+                    .do(onError: { error in
+                        print("fetchHomeData error: \(error)") // TODO: - 사용자에게 커스텀 alert 띄워줘야함
+                        LoadingManager.stop()
+                    })
+                    .catchAndReturn((
+                        HomeHeaderInfo(monthlyAmount: 0, amountDifference: 0, todayRoutineCount: 0),
+                        [HomeTableViewFirstSection(header: "나의 근무지", items: [])]
+                    ))
             }
             .withLatestFrom(refreshTypeRelay) { homeData, refreshType in
                 return (homeData, refreshType)
@@ -123,7 +135,6 @@ final class HomeViewModel {
                 switch refreshType {
                 case .normal:
                     LoadingManager.stop()
-                    //                    break
                 case .silent:
                     break
                 }

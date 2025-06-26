@@ -449,8 +449,13 @@ final class HomeViewModel {
         }
         let todayRoutinesCount = Set(todayRoutines.values
             .flatMap{$0}
+            .filter { event in event.createdBy == self.userId }
             .flatMap{$0.routineIds})
             .count
+
+        print("🔍 [WORKER] 루틴 계산 과정:")
+        print("   - todayRoutines 키: \(Array(todayRoutines.keys))")
+        print("   - todayRoutines.values: \(todayRoutines.values)")
 
         let headerInfo = HomeHeaderInfo(
             monthlyAmount: currentMonthlyAmount,
@@ -568,8 +573,13 @@ final class HomeViewModel {
 
         let todayRoutinesCount = Set(todayRoutines.values
             .flatMap{$0}
+            .filter { event in event.createdBy == self.userId }
             .flatMap{$0.routineIds})
             .count
+
+        print("🔍 [WORKER] 루틴 계산 과정:")
+        print("   - todayRoutines 키: \(Array(todayRoutines.keys))")
+        print("   - todayRoutines.values: \(todayRoutines.values)")
 
         let headerInfo = HomeHeaderInfo(
             monthlyAmount: currentMonthlyAmount,

@@ -16,7 +16,7 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
     
     private let isRegisterMode: Bool
     
-    private var isRead: Bool
+    private var isEdit: Bool
 
     private let scrollView = UIScrollView()
     private let contentView: ShiftRegistrationContentView
@@ -51,7 +51,7 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
         memoPlaceholder: String
     ) {
         self.isRegisterMode = isRegisterMode
-        self.isRead = isRead
+        self.isEdit = isRead
         self.contentView = ShiftRegistrationContentView(
             isRead: isRead,
             workPlaceTitle: workPlaceTitle,
@@ -112,13 +112,13 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
             return
         }
         
-        let title = isRead ? "수정" : ""
+        let title = isEdit ? "수정" : ""
         navigationBar.configureRightButton(icon: nil, title: title)
     }
     
     private func toggleReadMode() {
-        isRead.toggle()
-        contentView.setReadMode(isRead)
+        isEdit.toggle()
+        contentView.setReadMode(isEdit)
         updateRightBarButtonTitle()
     }
 

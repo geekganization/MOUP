@@ -14,9 +14,11 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
     
     weak var delegate: RegistrationVCDelegate?
     
-    private var isRead: Bool
-    
+    private var isEdit: Bool
+        
     private let isRegisterMode: Bool
+    
+    private let eventId: String
 
     private let scrollView = UIScrollView()
     private let stackView = UIStackView()
@@ -61,9 +63,18 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
 
     private let submitTrigger = PublishSubject<(String, CalendarEvent)>()
     
+    private let editViewModel = ShiftEditViewModel(
+        calendarUseCase: CalendarUseCase(
+            repository: CalendarRepository(calendarService: CalendarService())
+        )
+    )
+
+    private let editTrigger = PublishSubject<(String, String, CalendarEvent)>()
+    
     init(
         isRegisterMode: Bool,
-        isRead: Bool,
+        isEdit: Bool,
+        eventId: String,
         workPlaceTitle: String,
         workerTitle: String,
         routineTitle: String,
@@ -75,9 +86,9 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
         memoPlaceholder: String
     ) {
         self.isRegisterMode = isRegisterMode
-        self.isRead = isRead
+        self.isEdit = isEdit
         self.contentView = ShiftRegistrationContentView(
-            isRead: isRead,
+            isRead: isEdit,
             workPlaceTitle: workPlaceTitle,
             workerTitle: workerTitle,
             routineTitle: routineTitle,
@@ -87,8 +98,9 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
             endTime: endTime,
             restTime: restTime,
             memoPlaceholder: memoPlaceholder,
-            registerBtnTitle: isRead ? "적용하기" : "등록하기"
+            registerBtnTitle: isEdit ? "적용하기" : "등록하기"
         )
+        self.eventId = eventId
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -98,13 +110,13 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
             return
         }
         
-        let title = isRead ? "수정" : ""
+        let title = isEdit ? "수정" : ""
         navigationBar.configureRightButton(icon: nil, title: title)
     }
     
     private func toggleReadMode() {
-        isRead.toggle()
-        contentView.setReadMode(isRead)
+        isEdit.toggle()
+        contentView.setReadMode(isEdit)
         updateRightBarButtonTitle()
     }
 
@@ -153,6 +165,21 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
                     self.navigationController?.popViewController(animated: true)
                 case .failure(let error):
                     print("근무 등록 실패: \(error)")
+                }
+            })
+            .disposed(by: disposeBag)
+        
+        let editInput = ShiftEditViewModel.Input(submitTrigger: editTrigger)
+        let editOutput = editViewModel.transform(input: editInput)
+
+        editOutput.submissionResult
+            .subscribe(onNext: { result in
+                switch result {
+                case .success:
+                    print("근무 수정 성공")
+                    self.navigationController?.popViewController(animated: true)
+                case .failure(let error):
+                    print("근무 수정 실패: \(error)")
                 }
             })
             .disposed(by: disposeBag)
@@ -223,7 +250,12 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
         contentView.workTimeView.delegate = delegateHandler
         contentView.workerSelectionView.delegate = delegateHandler
 
-        contentView.registerButton.addTarget(self, action: #selector(didTapRegister), for: .touchUpInside)
+        if isEdit {
+            contentView.registerButton.addTarget(self, action: #selector(didTapEdit), for: .touchUpInside)
+        } else {
+            contentView.registerButton.addTarget(self, action: #selector(didTapRegister), for: .touchUpInside)
+        }
+        
         contentView.registerButton.addTarget(actionHandler, action: #selector(RegistrationActionHandler.buttonTouchDown(_:)), for: .touchDown)
         contentView.registerButton.addTarget(actionHandler, action: #selector(RegistrationActionHandler.buttonTouchUp(_:)), for: [.touchUpInside, .touchUpOutside, .touchCancel])
     }
@@ -250,7 +282,77 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
             $0.height.equalTo(48)
         }
     }
+    
+    @objc private func didTapEdit() {
+        let workPlaceID = contentView.simpleRowView.getID()
+        let eventDate = contentView.workDateView.getdateRowData()
+        let startTime = contentView.workTimeView.getstartRowData()
+        let endTime = contentView.workTimeView.getendRowData()
+        let breakTime = contentView.workTimeView.getrestRowData()
+        let repeatDays = contentView.workDateView.getRepeatData()
+        let memo = contentView.memoBoxView.getData()
+        
+        guard let dateComponents = parseDateComponents(from: eventDate) else {
+            print("날짜 파싱 실패: \(eventDate)")
+            return
+        }
+        
+        guard let userId = Auth.auth().currentUser?.uid else {
+              print("유저 ID를 찾을 수 없습니다.")
+              return
+        }
+        
+        switch registrationMode {
+        case .owner:
+            let workPlace = contentView.simpleRowView.getData()
+            let routineIDs = contentView.routineView.getSelectedRoutineIDs()
 
+            let event = CalendarEvent(
+                title: workPlace,
+                eventDate: eventDate,
+                startTime: startTime,
+                endTime: endTime,
+                createdBy: userId,
+                year: dateComponents.year,
+                month: dateComponents.month,
+                day: dateComponents.day,
+                routineIds: routineIDs,
+                repeatDays: repeatDays,
+                memo: memo
+            )
+
+            print("owner: ",workPlaceID, event, eventId)
+            editTrigger.onNext((workPlaceID, eventId, event))
+
+
+        case .employee:
+            let workPlaceID = contentView.simpleRowView.getID()
+            let workPlace = contentView.simpleRowView.getData()
+            let workers = contentView.workerSelectionView.getSelectedWorkerData()
+            let routineIDs = contentView.routineView.getSelectedRoutineIDs()
+            
+            workers.forEach { worker in
+                let event = CalendarEvent(
+                    title: workPlace,
+                    eventDate: eventDate,
+                    startTime: startTime,
+                    endTime: endTime,
+                    createdBy: worker.id,
+                    year: dateComponents.year,
+                    month: dateComponents.month,
+                    day: dateComponents.day,
+                    routineIds: routineIDs,
+                    repeatDays: repeatDays,
+                    memo: memo
+                )
+                
+                print("employee: ",workPlaceID, event, eventId)
+                editTrigger.onNext((workPlaceID, eventId, event))
+
+            }
+        }
+    }
+    
     @objc private func didTapRegister() {
         let workPlaceID = contentView.simpleRowView.getID()
         let eventDate = contentView.workDateView.getdateRowData()
@@ -291,6 +393,7 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
 
             submitTrigger.onNext((workPlaceID, event))
 
+
         case .employee:
             let workPlaceID = contentView.simpleRowView.getID()
             let workPlace = contentView.simpleRowView.getData()
@@ -299,7 +402,7 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
             
             workers.forEach { worker in
                 let event = CalendarEvent(
-                title: workPlace,
+                    title: workPlace,
                     eventDate: eventDate,
                     startTime: startTime,
                     endTime: endTime,
@@ -313,6 +416,7 @@ final class OwnerShiftRegistrationViewController: UIViewController, UIGestureRec
                 )
                 
                 submitTrigger.onNext((workPlaceID, event))
+                
             }
         }
     }

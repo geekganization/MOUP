@@ -27,6 +27,10 @@ final class ShiftRegistrationContentView: UIView {
         $0.axis = .vertical
         $0.spacing = 24
     }
+    
+    // MARK: - Getter
+    
+    var getWorkDateView: WorkDateView { workDateView }
 
     // MARK: - Initializer
 

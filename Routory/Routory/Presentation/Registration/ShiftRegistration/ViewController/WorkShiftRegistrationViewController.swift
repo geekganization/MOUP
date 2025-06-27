@@ -122,7 +122,7 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
         super.viewDidDisappear(animated)
         
         if self.isMovingFromParent {
-            delegate?.registrationVCIsMovingFromParent()
+            delegate?.registrationVCIsMovingFromParent(dateValue: contentView.getWorkDateView.getDateValue)
         }
     }
     

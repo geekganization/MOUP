@@ -493,8 +493,8 @@ extension CalendarViewController: FilterVCDelegate {
 // MARK: - RegistrationVCDelegate
 
 extension CalendarViewController: RegistrationVCDelegate {
-    func registrationVCIsMovingFromParent() {
-        guard let selectedDate else { return }
-        calendarView.getJTACalendar.selectDates([selectedDate])
+    func registrationVCIsMovingFromParent(dateValue: String) {
+        guard let assignedDate = DateFormatter.dataSourceDateFormatter.date(from: dateValue) else { return }
+        calendarView.getJTACalendar.selectDates([assignedDate])
     }
 }

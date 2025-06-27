@@ -28,7 +28,7 @@ struct WorkerDetail: Codable {
     /// 급여일 (1~31)
     let payDay: Int
 
-    /// 급여 요일 (예: "금요일")
+    /// 급여 요일 (예: "금")
     let payWeekday: String
 
     /// 휴게 시간 (단위: 분)

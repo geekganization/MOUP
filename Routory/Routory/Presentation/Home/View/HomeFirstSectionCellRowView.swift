@@ -52,7 +52,7 @@ final class HomeFirstSectionCellRowView: UIView {
         titleLabel.textAlignment = titleLabel.text == "-" ? .center : .left
         timeLabel.text = (time?.isEmpty ?? true) ? "-" : time // TODO: - timeFormatter 이용해 시간, 분 표시 필요
         timeLabel.textAlignment = timeLabel.text == "-" ? .center : .right
-        amountLabel.text = amount == 0 ? "-" : "\(amount.withComma)원"
+        amountLabel.text = amount <= 0 ? "-" : "\(amount.withComma)원"
         amountLabel.textAlignment = amountLabel.text == "-" ? .center : .right
         [titleLabel, timeLabel, amountLabel].forEach { label in
             label.font = isLabelBold ? .headBold(12) : .bodyMedium(12)

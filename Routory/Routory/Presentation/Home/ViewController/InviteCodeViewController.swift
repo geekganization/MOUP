@@ -114,7 +114,7 @@ private extension InviteCodeViewController {
             workplaceId: selectedWorkplace?.id ?? "",
             isRegisterMode: false,
             isEdit: true,
-            isHideWorkplaceInfoViewArrow: false,
+            isHideWorkplaceInfoViewArrow: true,
             mode: .inputOnly,
             
             nameValue: selectedWorkplace?.workplace.workplacesName,
@@ -133,7 +133,7 @@ private extension InviteCodeViewController {
             isEmploymentInsuranceSelected: false,
             isIndustrialAccidentInsuranceSelected: false,
             isIncomeTaxSelected: false,
-            isWeeklyAllowanceSelected: true,
+            isWeeklyAllowanceSelected: false,
             isNightAllowanceSelected: false,
             
             labelTitle: "초록색",

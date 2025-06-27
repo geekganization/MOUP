@@ -70,14 +70,12 @@ class MyWorkSpaceCell: UITableViewCell {
 
     // 급여 상세 요소들
     private let totalWorkRow = HomeFirstSectionCellRowView()
-    private let normalWorkRow = HomeFirstSectionCellRowView()
-    private let nightWorkRow = HomeFirstSectionCellRowView()
-    private let substituteWorkRow = HomeFirstSectionCellRowView()
-    private let substituteNormalWorkRow = HomeFirstSectionCellRowView()
-    private let substituteNightWorkRow = HomeFirstSectionCellRowView()
-    private let weeklyAllowancePayRow = HomeFirstSectionCellRowView()
     private let insuranceDeductionRow = HomeFirstSectionCellRowView()
-    private let taxDeductionRow = HomeFirstSectionCellRowView()
+    private let employmentInsuranceRow = HomeFirstSectionCellRowView()
+    private let healthInsuranceRow = HomeFirstSectionCellRowView()
+    private let industrialAccidentRow = HomeFirstSectionCellRowView()
+    private let nationalPensionRow = HomeFirstSectionCellRowView()
+    private let incomeTaxRow = HomeFirstSectionCellRowView()
 
     // MARK: - Initializer
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -106,22 +104,17 @@ class MyWorkSpaceCell: UITableViewCell {
         officialChip.isHidden = !workplaceInfo.isOfficial
         daysUntilPaydayLabel.text = "급여일까지 D-\(workplaceInfo.daysUntilPayday)"
         setTotalEarnedLabel(amount: workplaceInfo.totalEarned.withComma)
-//        totalEarnedLabel.text = "현재까지 \(workplaceInfo.totalEarned.withComma)원"
 
-//        totalWorkRow.update(title: "총 근무", time: workplaceInfo.totalWorkTime, amount: workplaceInfo.totalWorkPay, isLabelBold: true, showBottomLine: true, useDarkBottomLine: true)
-//
-//        normalWorkRow.update(title: "주간", time: workplaceInfo.normalWorkTime, amount: workplaceInfo.normalWorkPay)
-//        nightWorkRow.update(title: "야간", time: workplaceInfo.nightWorkTime, amount: workplaceInfo.nightWorkPay,
-//                            showBottomLine: true)
-//
-//        substituteWorkRow.update(title: "대타 근무", time: workplaceInfo.substituteWorkTime, amount: workplaceInfo.substituteWorkPay, isLabelBold: true)
-//        substituteNormalWorkRow.update(title: "주간", time: workplaceInfo.substituteNormalWorkTime, amount: workplaceInfo.substituteNormalWorkPay)
-//        substituteNightWorkRow.update(title: "야간", time: workplaceInfo.substituteNightWorkTime, amount: workplaceInfo.substituteNightWorkPay, showBottomLine: true)
-//
-//        weeklyAllowancePayRow.update(title: "주휴 수당", time: nil, amount: workplaceInfo.weeklyAllowancePay, isLabelBold: true, showTimeLabel: false, showBottomLine: true)
-//
-//        insuranceDeductionRow.update(title: "4대 보험", time: nil, amount: workplaceInfo.insuranceDeduction, isLabelBold: true, showTimeLabel: false)
-//        taxDeductionRow.update(title: "소득세", time: nil, amount: workplaceInfo.taxDeduction, isLabelBold: true, showTimeLabel: false)
+        let totalInsurance = workplaceInfo.employmentInsurance + workplaceInfo.healthInsurance + workplaceInfo.industrialAccident + workplaceInfo.nationalPension
+
+
+        totalWorkRow.update(title: "총 근무", time: workplaceInfo.totalWorkTime, amount: workplaceInfo.totalEarned, isLabelBold: true, showBottomLine: true, useDarkBottomLine: true)
+        insuranceDeductionRow.update(title: "4대 보험", time: nil, amount: totalInsurance, isLabelBold: true, showTimeLabel: false)
+        employmentInsuranceRow.update(title: "고용 보험", time: nil, amount: workplaceInfo.employmentInsurance, isLabelBold: false, showTimeLabel: false)
+        healthInsuranceRow.update(title: "건강 보험", time: nil, amount: workplaceInfo.healthInsurance, isLabelBold: false, showTimeLabel: false)
+        industrialAccidentRow.update(title: "산재 보험", time: nil, amount: workplaceInfo.industrialAccident, isLabelBold: false, showTimeLabel: false)
+        nationalPensionRow.update(title: "국민 연금", time: nil, amount: workplaceInfo.nationalPension, isLabelBold: false, showTimeLabel: false)
+        incomeTaxRow.update(title: "소득세", time: nil, amount: workplaceInfo.incomeTax, isLabelBold: true, showTimeLabel: false)
 
         toggleDetailView(isExpanded: isExpanded)
         setupButtonMenu(with: menuActions)
@@ -152,14 +145,12 @@ private extension MyWorkSpaceCell {
         )
         detailStackView.addArrangedSubviews(
             totalWorkRow,
-            normalWorkRow,
-            nightWorkRow,
-            substituteWorkRow,
-            substituteNormalWorkRow,
-            substituteNightWorkRow,
-            weeklyAllowancePayRow,
             insuranceDeductionRow,
-            taxDeductionRow
+            employmentInsuranceRow,
+            healthInsuranceRow,
+            industrialAccidentRow,
+            nationalPensionRow,
+            incomeTaxRow
         )
     }
 

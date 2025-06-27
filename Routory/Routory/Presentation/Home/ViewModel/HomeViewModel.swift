@@ -391,34 +391,47 @@ final class HomeViewModel {
                 hasNationalPension: workerDetail?.nationalPension ?? false
             )
 
-            var currentTotalWorkMinutes = 0 // 근무지에서 일한 총 시간(분 기준)
-            var currentTotalPayInfo = initialPayrollResult // 근무지의 총 급여에 관한 정보
-            var previousTotalPayInfo = initialPayrollResult // 지난 달 총 급여에 관한 정보
+            var currentTotalWorkMinutes = 0
+            var currentTotalPayInfo = initialPayrollResult
+            var previousTotalPayInfo = initialPayrollResult
 
-            // 이번 달 근무 요약을 이용한 급여 계산
-            for summary in currentSummaries {
-                if summary.workplaceId == workplaceInfo.id {
-                    if workerDetail?.wageType == "시급" { // 시급일 때
+            // 수정: 고정급이면 먼저 처리
+            if workerDetail?.wageType != "시급" {
+                let fixedSalary = workerDetail?.wage ?? 0
+                currentMonthlyAmount += fixedSalary  // 이번 달은 무조건 포함
+
+                // 이전 달은 근무기록 있을 때만 포함
+                let hasPreviousRecord = previousSummaries.contains { $0.workplaceId == workplaceInfo.id }
+                if hasPreviousRecord {
+                    previousMonthlyAmount += fixedSalary
+                }
+
+                currentTotalPayInfo = PayrollResult(
+                    employmentInsurance: -1,
+                    healthInsurance: -1,
+                    industrialAccident: -1,
+                    nationalPension: -1,
+                    incomeTax: -1,
+                    netPay: fixedSalary
+                )
+            } else {
+                // 시급인 경우에만 기존 로직 실행
+                for summary in currentSummaries {
+                    if summary.workplaceId == workplaceInfo.id {
                         currentTotalPayInfo = calculateWorkerPay(
                             summary: summary,
                             workerDetail: workerDetail,
                             nightAllowance: workerDetail?.nightAllowance,
                             insuranceSettings: insuranceSettings
                         )
-                        // 근무지의 총 급여를 저장
                         currentMonthlyAmount += currentTotalPayInfo.netPay
-                    } else { // 고정 급여일 때
-                        currentMonthlyAmount += workerDetail?.wage ?? 0
+                        currentTotalWorkMinutes = calculateTotalWorkMinutes(summary: summary)
+                        break
                     }
-                    currentTotalWorkMinutes = calculateTotalWorkMinutes(summary: summary)
-                    // 월 총 급여에 한 근무지의 급여를 추가
-                    break
                 }
-            }
 
-            for summary in previousSummaries {
-                if summary.workplaceId == workplaceInfo.id {
-                    if workerDetail?.wageType == "시급" {
+                for summary in previousSummaries {
+                    if summary.workplaceId == workplaceInfo.id {
                         previousTotalPayInfo = calculateWorkerPay(
                             summary: summary,
                             workerDetail: workerDetail,
@@ -426,10 +439,8 @@ final class HomeViewModel {
                             insuranceSettings: insuranceSettings
                         )
                         previousMonthlyAmount += previousTotalPayInfo.netPay
-                    } else {
-                        previousMonthlyAmount += workerDetail?.wage ?? 0
+                        break
                     }
-                    break
                 }
             }
 
@@ -455,13 +466,14 @@ final class HomeViewModel {
             )
             items.append(homeSectionItem)
         }
+
         let todayRoutinesCount = Set(todayRoutines.values
             .flatMap{$0}
             .filter { event in event.createdBy == self.userId }
             .flatMap{$0.routineIds})
             .count
 
-        print("🔍 [WORKER] 루틴 계산 과정:")
+        print(" [WORKER] 루틴 계산 과정:")
         print("   - todayRoutines 키: \(Array(todayRoutines.keys))")
         print("   - todayRoutines.values: \(todayRoutines.values)")
 
@@ -509,12 +521,20 @@ final class HomeViewModel {
                 $0.workplaceId == workplaceInfo.id
             }
 
+            // 🔥 현재 달 급여 계산
             for workerSummary in currentWorkplaceSummaries {
-                let thisWorkplaceSummaries = workerSummary.summaries.filter {
-                    $0.workplaceId == workplaceInfo.id
-                }
-                guard !thisWorkplaceSummaries.isEmpty else { continue }
-                if workerSummary.worker.detail.wageType == "시급" {
+                // 🔥 고정급이면 근무기록 상관없이 먼저 처리
+                if workerSummary.worker.detail.wageType != "시급" {
+                    print("급여 방식이 고정입니다")
+                    currentTotalLaborCost += workerSummary.worker.detail.wage
+                    currentMonthlyAmount += workerSummary.worker.detail.wage
+                } else {
+                    // 시급인 경우만 기존 로직 실행
+                    let thisWorkplaceSummaries = workerSummary.summaries.filter {
+                        $0.workplaceId == workplaceInfo.id
+                    }
+                    guard !thisWorkplaceSummaries.isEmpty else { continue }
+
                     print("급여 방식이 시급입니다")
                     for summary in thisWorkplaceSummaries {
                         let payInfo = calculateWorkerPay(
@@ -531,25 +551,35 @@ final class HomeViewModel {
 
                         currentTotalLaborCost += payInfo.netPay
                         currentMonthlyAmount += payInfo.netPay
-                        currentTotalWorkMinutes += calculateTotalWorkMinutes(summary: summary)
                     }
-                } else { // 고정급일 때
-                    print("급여 방식이 고정입니다")
-                    currentTotalLaborCost += workerSummary.worker.detail.wage
-                    currentMonthlyAmount += workerSummary.worker.detail.wage
+                }
+
+                // 근무시간은 근무기록이 있는 경우에만 계산
+                let thisWorkplaceSummaries = workerSummary.summaries.filter {
+                    $0.workplaceId == workplaceInfo.id
                 }
                 for summary in thisWorkplaceSummaries {
                     currentTotalWorkMinutes += calculateTotalWorkMinutes(summary: summary)
                 }
             }
 
+            // 이전 달 급여 계산 - 근무기록 있는 고정급만 포함
             for workerSummary in previousWorkplaceSummaries {
-                let thisWorkplaceSummaries = workerSummary.summaries.filter {
-                    $0.workplaceId == workplaceInfo.id
-                }
-                guard !thisWorkplaceSummaries.isEmpty else { continue }
-                if workerSummary.worker.detail.wageType == "시급" {
-                    for summary in thisWorkplaceSummaries { // 그 근무자의 요약들
+                if workerSummary.worker.detail.wageType != "시급" {
+                    // 이전 달은 실제 근무기록이 있을 때만 고정급 포함
+                    let thisWorkplaceSummaries = workerSummary.summaries.filter {
+                        $0.workplaceId == workplaceInfo.id
+                    }
+                    if !thisWorkplaceSummaries.isEmpty {
+                        previousMonthlyAmount += workerSummary.worker.detail.wage
+                    }
+                } else {
+                    let thisWorkplaceSummaries = workerSummary.summaries.filter {
+                        $0.workplaceId == workplaceInfo.id
+                    }
+                    guard !thisWorkplaceSummaries.isEmpty else { continue }
+
+                    for summary in thisWorkplaceSummaries {
                         let payInfo = calculateWorkerPay(
                             summary: summary,
                             workerDetail: workerSummary.worker.detail,
@@ -563,8 +593,6 @@ final class HomeViewModel {
                         )
                         previousMonthlyAmount += payInfo.netPay
                     }
-                } else {
-                    previousMonthlyAmount += workerSummary.worker.detail.wage
                 }
             }
 
@@ -592,7 +620,7 @@ final class HomeViewModel {
             .flatMap{$0.routineIds})
             .count
 
-        print("🔍 [WORKER] 루틴 계산 과정:")
+        print(" [OWNER] 루틴 계산 과정:")
         print("   - todayRoutines 키: \(Array(todayRoutines.keys))")
         print("   - todayRoutines.values: \(todayRoutines.values)")
 

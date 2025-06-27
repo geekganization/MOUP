@@ -100,13 +100,11 @@ private extension CalendarEventListViewController {
                     cell.update(model: model, calendarMode: calendarMode)
                     
                     let deleteAction = UIAction(title: "삭제하기", attributes: .destructive) { _ in
-                        let alert = UIAlertController(title: "근무 삭제", message: "\(model.workplaceName) 근무를 삭제할까요?", preferredStyle: .alert)
-                        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
-                        alert.addAction(UIAlertAction(title: "삭제", style: .destructive, handler: { _ in
+                        let deleteVC = DeleteAlertViewController(alertTitle: "정말 삭제하시겠어요?", alertMessage: "삭제된 근무는 되돌릴 수 없습니다.")
+                        deleteVC.onDeleteConfirmed = {
                             deleteEventIndexPathRelay.accept(IndexPath(row: index, section: 0))
-                        }))
-                        self.present(alert, animated: true)
-                        
+                        }
+                        self.present(deleteVC, animated: true)
                     }
                     let menu = UIMenu(children: [deleteAction])
                     cell.getEllipsisButton.menu = menu

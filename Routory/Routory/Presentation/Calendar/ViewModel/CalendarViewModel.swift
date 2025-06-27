@@ -20,6 +20,7 @@ final class CalendarViewModel {
     private let disposeBag = DisposeBag()
     
     private let eventUseCase: EventUseCaseProtocol
+    private let routineUseCase: RoutineUseCaseProtocol
     private let userUseCase: UserUseCaseProtocol
     
     // MARK: - Input (ViewController ➡️ ViewModel)
@@ -27,18 +28,21 @@ final class CalendarViewModel {
     struct Input {
         let loadMonthEvent: Observable<(year: Int, month: Int)>
         let filterModel: Observable<FilterModel?>
+        let searchRoutineId: Observable<String>
     }
     
     // MARK: - Output (ViewModel ➡️ ViewController)
     
     struct Output {
         let calendarModelListRelay: PublishRelay<(personal: [CalendarModel], shared: [CalendarModel])>
+        let searchedRoutineTitleRelay: PublishRelay<String>
     }
     
     // MARK: - Transform (Input ➡️ Output)
     
     func tranform(input: Input) -> Output {
         let calendarModelListRelay = PublishRelay<(personal: [CalendarModel], shared: [CalendarModel])>()
+        let searchedRoutineTitleRelay = PublishRelay<String>()
         
         Observable.combineLatest(input.loadMonthEvent, input.filterModel)
             .withUnretained(self)
@@ -100,13 +104,30 @@ final class CalendarViewModel {
                 calendarModelListRelay.accept(mutableList)
             }.disposed(by: disposeBag)
         
-        return Output(calendarModelListRelay: calendarModelListRelay)
+        input.searchRoutineId
+            .withUnretained(self)
+            .flatMap({ owner, searchId -> Observable<(searchId: String, routineInfoList: [RoutineInfo])> in
+                
+                guard let uid = UserManager.shared.firebaseUid else { return .empty() }
+                return owner.routineUseCase.fetchAllRoutines(uid: uid)
+                    .map { return (searchId: searchId, routineInfoList: $0) }
+            })
+            .subscribe(with: self) { owner, routineTuple in
+                let (searchRoutineId, routineInfoList) = routineTuple
+                
+                guard let searchedRoutineInfo = routineInfoList.first(where: { $0.id == searchRoutineId }) else { return }
+                searchedRoutineTitleRelay.accept(searchedRoutineInfo.routine.routineName)
+            }.disposed(by: disposeBag)
+        
+        return Output(calendarModelListRelay: calendarModelListRelay,
+                      searchedRoutineTitleRelay: searchedRoutineTitleRelay)
     }
     
     // MARK: - Initializer
     
-    init(eventUseCase: EventUseCaseProtocol, userUseCase: UserUseCaseProtocol) {
+    init(eventUseCase: EventUseCaseProtocol, routineUseCase: RoutineUseCaseProtocol, userUseCase: UserUseCaseProtocol) {
         self.eventUseCase = eventUseCase
+        self.routineUseCase = routineUseCase
         self.userUseCase = userUseCase
     }
 }
@@ -114,7 +135,7 @@ final class CalendarViewModel {
 // MARK: - Private Methods
 
 private extension CalendarViewModel {
-    // 중복 코드를 줄이기 위한 Helper 메서드
+    /// 중복 코드를 줄이기 위한 Helper 메서드
     func createCalendarModelObservable(for event: CalendarEventInfo, with workplaceSummary: WorkplaceWorkSummaryDailySeparated) -> Observable<CalendarModel> {
         return self.userUseCase.fetchUser(uid: event.calendarEvent.createdBy)
             .map { user in
@@ -138,6 +159,7 @@ private extension CalendarViewModel {
             }
     }
     
+    /// `CalendarModel` 정렬 메서드
     func calendarModelSort(_ lhs: CalendarModel, _ rhs: CalendarModel ) -> Bool {
         let lhsEvent = lhs.eventInfo.calendarEvent
         let rhsEvent = rhs.eventInfo.calendarEvent

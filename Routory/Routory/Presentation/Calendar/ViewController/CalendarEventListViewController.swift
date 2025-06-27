@@ -85,7 +85,7 @@ private extension CalendarEventListViewController {
         
         calendarEventListView.getAssignButton.rx.tap
             .subscribe(with: self) { owner, _ in
-                owner.delegate?.didTapAssignButton()
+                owner.delegate?.didTapRegisterButton()
             }.disposed(by: disposeBag)
         
         let input = CalendarEventListViewModel.Input(loadEventList: Observable.just(()),

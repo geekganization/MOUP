@@ -37,6 +37,7 @@ final class WorkDateView: UIView, FieldRowViewDelegate, ValueRowViewDelegate {
         super.init(frame: .zero)
         titleLabel.attributedText = makeTitleAttributedString(from: "근무 날짜 *")
         setup()
+        hiddenRepeatRow()
     }
 
     required init?(coder: NSCoder) {
@@ -85,6 +86,10 @@ final class WorkDateView: UIView, FieldRowViewDelegate, ValueRowViewDelegate {
 
     func getRepeatData() -> [String] {
         return repeatDays
+    }
+    
+    func hiddenRepeatRow() {
+        repeatRow.isHidden = true
     }
 
     func updateRepeatValue(_ value: String) {

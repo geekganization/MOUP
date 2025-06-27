@@ -37,7 +37,7 @@ final class WorkConditionView: UIView {
     ) {
         self.items = [
             "4대 보험", "국민연금", "건강보험", "고용보험",
-            "산재보험", "소득세", "주휴수당", "야간수당*"
+            "산재보험", "소득세", "야간수당*"
         ]
 
         self.initialCheckedItems = [
@@ -47,7 +47,6 @@ final class WorkConditionView: UIView {
             "고용보험": isEmploymentInsuranceSelected,
             "산재보험": isIndustrialAccidentInsuranceSelected,
             "소득세": isIncomeTaxSelected,
-            "주휴수당": isWeeklyAllowanceSelected,
             "야간수당*": isNightAllowanceSelected
         ]
 

@@ -16,7 +16,6 @@ struct InsuranceSettings {
 
 // 급여 계산 결과
 typealias PayrollResult = (
-    grossPay: Int,           // 세전 급여
     employmentInsurance: Int, // 고용보험
     healthInsurance: Int,     // 건강보험
     industrialAccident: Int,  // 산재보험
@@ -64,7 +63,6 @@ final class PayrollCalculator {
         let netPay = grossPay - totalDeductions
 
         return (
-            grossPay: grossPay,
             employmentInsurance: employmentInsurance,
             healthInsurance: healthInsurance,
             industrialAccident: industrialAccident,

@@ -1,5 +1,5 @@
 //
-//  TabbarViewController.swift
+//  TabBarViewController.swift
 //  Routory
 //
 //  Created by 서동환 on 6/9/25.
@@ -10,7 +10,7 @@ import RxSwift
 import RxRelay
 import FirebaseAuth
 
-final class TabbarViewController: UITabBarController {
+final class TabBarViewController: UITabBarController {
     
     // MARK: - Properties
     private let disposeBag = DisposeBag()
@@ -53,7 +53,7 @@ final class TabbarViewController: UITabBarController {
 
 // MARK: - UI Methods
 
-private extension TabbarViewController {
+private extension TabBarViewController {
     func configure() {
         setStyles()
         setTabBarItems()
@@ -98,7 +98,7 @@ private extension TabbarViewController {
         let eventService = EventService()
         let eventRepository = EventRepository(eventService: eventService)
         let eventUseCase = EventUseCase(repository: eventRepository)
-        let calendarVM = CalendarViewModel(eventUseCase: eventUseCase)
+        let calendarVM = CalendarViewModel(eventUseCase: eventUseCase, userUseCase: userUseCase)
         let calendarVC = CalendarViewController(viewModel: calendarVM)
         
         guard let userId = Auth.auth().currentUser?.uid else {

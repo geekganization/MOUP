@@ -78,7 +78,9 @@ private extension CalendarEventListViewController {
         
         calendarEventListView.getEventTableView.rx.modelSelected(CalendarModel.self)
             .subscribe(with: self) { owner, model in
-                owner.delegate?.didTapEventCell(model: model)
+                if owner.calendarMode == .personal {
+                    owner.delegate?.didTapEventCell(model: model)
+                }
             }.disposed(by: disposeBag)
         
         calendarEventListView.getAssignButton.rx.tap

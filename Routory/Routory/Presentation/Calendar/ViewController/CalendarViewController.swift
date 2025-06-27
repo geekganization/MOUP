@@ -187,16 +187,6 @@ private extension CalendarViewController {
     }
 }
 
-// MARK: - Private Methods
-
-private extension CalendarViewController {
-    func calendarModelSort(_ lhs: CalendarModel, _ rhs: CalendarModel ) -> Bool {
-        let lhsEvent = lhs.eventInfo.calendarEvent
-        let rhsEvent = rhs.eventInfo.calendarEvent
-        return lhsEvent.startTime < rhsEvent.startTime || lhsEvent.endTime < rhsEvent.endTime
-    }
-}
-
 // MARK: - CalendarView Methods
 
 private extension CalendarViewController {
@@ -264,12 +254,7 @@ private extension CalendarViewController {
         for model in calendarModelLists.shared {
             let event = model.eventInfo.calendarEvent
             guard let eventDate = dataSourceDateFormatter.date(from: event.eventDate) else { continue }
-            personalEventDataSource[eventDate, default: []].append(model)
             sharedEventDataSource[eventDate, default: []].append(model)
-        }
-        
-        personalEventDataSource.keys.forEach { eventDate in
-            personalEventDataSource[eventDate]?.sort(by: calendarModelSort)
         }
         
         calendarView.getJTACalendar.reloadData()
@@ -374,9 +359,12 @@ extension CalendarViewController: CalendarEventListVCDelegate {
                     let workShiftRegisterVC = WorkShiftRegistrationViewController(
                         isRegisterMode: false,
                         isRead: true,
+                        eventId: model.eventInfo.id,
+                        editWorkplaceId: model.workplaceId,
                         workPlaceTitle: model.workplaceName,
-                        workerTitle: "",
+                        workerTitle: model.workerName,
                         routineTitle: "",
+                        editRoutineIDs: event.routineIds,
                         dateValue: DateFormatter.dataSourceDateFormatter.string(from: self?.selectedDate ?? .now),
                         repeatValue: repeatValue,
                         startTime: event.startTime,
@@ -393,10 +381,12 @@ extension CalendarViewController: CalendarEventListVCDelegate {
                     let ownerShiftRegisterVC = OwnerShiftRegistrationViewController(
                         isRegisterMode: false,
                         isEdit: true,
-                        eventId: "eventId",
-                        workPlaceTitle: "근무지 선택",
-                        workerTitle: "알바 선택",
-                        routineTitle: "루틴 입력",
+                        eventId: model.eventInfo.id,
+                        editWorkplaceId: model.workplaceId,
+                        workPlaceTitle: model.workplaceName,
+                        workerTitle: model.workerName,
+                        routineTitle: "",
+                        editRoutineIDs: event.routineIds,
                         dateValue: DateFormatter.dataSourceDateFormatter.string(from: self?.selectedDate ?? .now),
                         repeatValue: repeatValue,
                         startTime: event.startTime,
@@ -426,9 +416,12 @@ extension CalendarViewController: CalendarEventListVCDelegate {
                     let workShiftRegisterVC = WorkShiftRegistrationViewController(
                         isRegisterMode: true,
                         isRead: false,
+                        eventId: "",
+                        editWorkplaceId: "",
                         workPlaceTitle: "근무지 선택",
                         workerTitle: "",
                         routineTitle: "루틴 추가",
+                        editRoutineIDs: [],
                         dateValue: DateFormatter.dataSourceDateFormatter.string(from: self?.selectedDate ?? .now),
                         repeatValue: "없음",
                         startTime: "\(String(format: "%02d", currentHour)):00",
@@ -446,9 +439,11 @@ extension CalendarViewController: CalendarEventListVCDelegate {
                         isRegisterMode: true,
                         isEdit: false,
                         eventId: "",
+                        editWorkplaceId: "",
                         workPlaceTitle: "매장 선택",
                         workerTitle: "알바 선택",
                         routineTitle: "루틴 추가",
+                        editRoutineIDs: [],
                         dateValue: DateFormatter.dataSourceDateFormatter.string(from: self?.selectedDate ?? .now),
                         repeatValue: "없음",
                         startTime: "\(String(format: "%02d", currentHour)):00",

@@ -27,7 +27,7 @@ extension WorkplaceRegistrationDelegateHandler: WorkplaceInfoViewDelegate {
         useCase.fetchWorkerListForWorkplace(workplaceId: workplaceId)
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] workerList in
-                let vc = WorkerListViewController(workerList: workerList,workerPlaceId: workplaceId)
+                let vc = WorkerListViewController(workerList: workerList, workerPlaceId: workplaceId)
                 self?.navigationController?.pushViewController(vc, animated: true)
             }, onError: { error in
                 print("알바생 목록 불러오기 실패: \(error.localizedDescription)")

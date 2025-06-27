@@ -17,6 +17,12 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
     private let isRegisterMode: Bool
     
     private var isEdit: Bool
+    
+    private let eventId: String
+    
+    private let editWorkplaceId: String
+    
+    private let editRoutineIDs: [String]
 
     private let scrollView = UIScrollView()
     private let contentView: ShiftRegistrationContentView
@@ -37,12 +43,23 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
 
     private let submitTrigger = PublishSubject<(String, CalendarEvent)>()
     
+    private let editViewModel = ShiftEditViewModel(
+        calendarUseCase: CalendarUseCase(
+            repository: CalendarRepository(calendarService: CalendarService())
+        )
+    )
+
+    private let editTrigger = PublishSubject<(String, String, CalendarEvent)>()
+    
     init(
         isRegisterMode: Bool,
         isRead: Bool,
+        eventId: String,
+        editWorkplaceId: String,
         workPlaceTitle: String,
         workerTitle: String,
         routineTitle: String,
+        editRoutineIDs: [String],
         dateValue: String,
         repeatValue: String,
         startTime: String,
@@ -52,6 +69,9 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
     ) {
         self.isRegisterMode = isRegisterMode
         self.isEdit = isRead
+        self.eventId = eventId
+        self.editWorkplaceId = editWorkplaceId
+        self.editRoutineIDs = editRoutineIDs
         self.contentView = ShiftRegistrationContentView(
             isRead: isRead,
             workPlaceTitle: workPlaceTitle,
@@ -137,6 +157,21 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
                 }
             })
             .disposed(by: disposeBag)
+        
+        let editInput = ShiftEditViewModel.Input(submitTrigger: editTrigger)
+        let editOutput = editViewModel.transform(input: editInput)
+
+        editOutput.submissionResult
+            .subscribe(onNext: { result in
+                switch result {
+                case .success:
+                    print("근무 수정 성공")
+                    self.navigationController?.popViewController(animated: true)
+                case .failure(let error):
+                    print("근무 수정 실패:", error)
+                }
+            })
+            .disposed(by: disposeBag)
     }
 
     deinit {
@@ -166,7 +201,11 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
 
         contentView.workerSelectionView.isHidden = true
 
-        contentView.registerButton.addTarget(self, action: #selector(didTapRegister), for: .touchUpInside)
+        if isEdit {
+            contentView.registerButton.addTarget(self, action: #selector(didTapEdit), for: .touchUpInside)
+        } else {
+            contentView.registerButton.addTarget(self, action: #selector(didTapRegister), for: .touchUpInside)
+        }
         contentView.registerButton.addTarget(actionHandler, action: #selector(RegistrationActionHandler.buttonTouchDown(_:)), for: .touchDown)
         contentView.registerButton.addTarget(actionHandler, action: #selector(RegistrationActionHandler.buttonTouchUp(_:)), for: [.touchUpInside, .touchUpOutside, .touchCancel])
     }
@@ -205,6 +244,41 @@ final class WorkShiftRegistrationViewController: UIViewController, UIGestureReco
             $0.edges.equalTo(scrollView.contentLayoutGuide).inset(16)
             $0.width.equalTo(scrollView.frameLayoutGuide).inset(16)
         }
+    }
+    
+    @objc func didTapEdit() {
+        let workPlace = contentView.simpleRowView.getData()
+        let eventDate = contentView.workDateView.getdateRowData()
+        let startTime = contentView.workTimeView.getstartRowData()
+        let endTime = contentView.workTimeView.getendRowData()
+        let repeatDays = contentView.workDateView.getRepeatData()
+        let memo = contentView.memoBoxView.getData()
+
+        guard let dateComponents = parseDateComponents(from: eventDate) else {
+            print("날짜 파싱 실패: \(eventDate)")
+            return
+        }
+        
+        guard let userId = Auth.auth().currentUser?.uid else {
+              print("유저 ID를 찾을 수 없습니다.")
+              return
+        }
+
+        let event = CalendarEvent(
+            title: workPlace,
+            eventDate: eventDate,
+            startTime: startTime,
+            endTime: endTime,
+            createdBy: userId,
+            year: dateComponents.year,
+            month: dateComponents.month,
+            day: dateComponents.day,
+            routineIds: editRoutineIDs,
+            repeatDays: repeatDays,
+            memo: memo
+        )
+        
+        editTrigger.onNext((editWorkplaceId, eventId, event))
     }
 
     @objc func didTapRegister() {

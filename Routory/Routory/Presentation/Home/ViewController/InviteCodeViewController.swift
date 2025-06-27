@@ -133,7 +133,7 @@ private extension InviteCodeViewController {
             isEmploymentInsuranceSelected: false,
             isIndustrialAccidentInsuranceSelected: false,
             isIncomeTaxSelected: false,
-            isWeeklyAllowanceSelected: true,
+            isWeeklyAllowanceSelected: false,
             isNightAllowanceSelected: false,
             
             labelTitle: "초록색",
@@ -142,6 +142,7 @@ private extension InviteCodeViewController {
         )
         
         workerWorkplaceRegistrationVC.onWorkplaceInfoPrepared = { [weak self] workerDetail in
+            print("근무지 정보 등록완료 직후: \(workerDetail)")
             self?.selectedWorkerDetail = workerDetail
             self?.updateState(to: .result)
         }
@@ -180,11 +181,13 @@ private extension InviteCodeViewController {
                 case .input:
                     searchTrigger.onNext(())
                 case .result:
+                    print("result:")
                     guard let workplaceInfo = selectedWorkplace,
                           let workerDetail = selectedWorkerDetail else {
+                        print("workerDetail 없음")
                         return
                     }
-
+                    print("workplaceInfo: \(workplaceInfo), \(workerDetail)")
                     guard let user = Auth.auth().currentUser else {
                         print("로그인이 필요합니다.")
                         return

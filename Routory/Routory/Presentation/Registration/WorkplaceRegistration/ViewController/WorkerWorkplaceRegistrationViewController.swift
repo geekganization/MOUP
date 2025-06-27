@@ -212,8 +212,8 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
         contentView.registerButton.addTarget(actionHandler, action: #selector(RegistrationActionHandler.buttonTouchUp(_:)), for: [.touchUpInside, .touchUpOutside, .touchCancel])
         
         // 숨김 처리 - 기능 완성되면 나중에 지워야 함
-        contentView.workConditionView.isHidden = true
-        contentView.labelView.isHidden = true
+        contentView.workConditionView.isHidden = false
+        contentView.labelView.isHidden = false
     }
     
     private func layout() {
@@ -296,7 +296,6 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
 
                 print("didTapEdit: ", self.workplaceId, uid, workerDetail)
 
-                // ViewModel 업데이트 처리
                 let input = WorkerWorkplaceRegistrationViewModel.Input(
                     workplaceId: Observable.just(self.workplaceId),
                     uid: Observable.just(uid),
@@ -321,6 +320,16 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
                     })
                     .disposed(by: self.disposeBag)
 
+//                switch mode {
+//                case .fullRegistration:
+//                    // ViewModel 업데이트 처리
+//
+//                case .inputOnly:
+//                    print("현재 모드: inputOnly")
+//                    self.onWorkplaceInfoPrepared?(workerDetail)
+//                    self.navigationController?.popViewController(animated: true)
+//                }
+                
             case .failure(let error):
                 print("사용자 이름 가져오기 실패: \(error.localizedDescription)")
             }
@@ -425,6 +434,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
                         .disposed(by: self.disposeBag)
                     
                 case .inputOnly:
+                    print("현재 모드: inputOnly")
                     self.onWorkplaceInfoPrepared?(workerDetail)
                     self.navigationController?.popViewController(animated: true)
                 }

@@ -28,7 +28,7 @@ protocol UserServiceProtocol {
         workerDetail: WorkerDetail?,
         uid: String
     ) -> Observable<String>
-    func addWorkplaceToUser(uid: String, workplaceId: String) -> Observable<Void>
+    func addWorkplaceToUser(uid: String, workplaceId: String, color: String) -> Observable<Void>
     func fetchUserNotRx(uid: String, completion: @escaping (Result<User, Error>) -> Void)
     func fetchUserWorkplaceColor(uid: String, workplaceId: String) -> Observable<UserWorkplace?>
 }
@@ -404,11 +404,11 @@ final class UserService: UserServiceProtocol {
     ///   - uid: 사용자 UID.
     ///   - workplaceId: 연동할 근무지 ID.
     /// - Returns: 성공 시 완료(Void)를 방출하는 Observable.
-    func addWorkplaceToUser(uid: String, workplaceId: String) -> Observable<Void> {
+    func addWorkplaceToUser(uid: String, workplaceId: String, color: String) -> Observable<Void> {
         return Observable.create { observer in
             self.db.collection("users").document(uid)
                 .collection("workplaces").document(workplaceId)
-                .setData([:]) { error in
+                .setData(["color": color]) { error in
                     if let error = error {
                         observer.onError(error)
                     } else {

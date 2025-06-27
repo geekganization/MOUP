@@ -61,7 +61,7 @@ final class MyPageView: UIView {
         $0.backgroundColor = .primary50
         $0.layer.cornerRadius = 12
         $0.layer.borderWidth = 1
-        $0.layer.borderColor = UIColor.primary600.cgColor
+        $0.layer.borderColor = UIColor.primary500.cgColor
         $0.clipsToBounds = true
     }
     

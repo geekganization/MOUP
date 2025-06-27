@@ -27,6 +27,7 @@ final class CalendarViewModel {
     
     struct Input {
         let loadMonthEvent: Observable<(year: Int, month: Int)>
+        let calendarMode: Observable<CalendarMode>
         let filterModel: Observable<FilterModel?>
         let searchRoutineId: Observable<String>
     }
@@ -44,10 +45,10 @@ final class CalendarViewModel {
         let calendarModelListRelay = PublishRelay<(personal: [CalendarModel], shared: [CalendarModel])>()
         let searchedRoutineTitleRelay = PublishRelay<String>()
         
-        Observable.combineLatest(input.loadMonthEvent, input.filterModel)
+        Observable.combineLatest(input.loadMonthEvent, input.calendarMode, input.filterModel)
             .withUnretained(self)
             .flatMap { owner, combined -> Observable<(personal: [CalendarModel], shared: [CalendarModel])> in
-                let ((year, month), filterModel) = combined
+                let ((year, month), calendarMode, filterModel) = combined
                 guard let uid = UserManager.shared.firebaseUid else { return .empty() }
                 
                 // TODO: 직전달, 이번달, 다음달 3개월씩 불러오기
@@ -56,9 +57,21 @@ final class CalendarViewModel {
                         
                         var personalModelObservables: [Observable<CalendarModel>] = []
                         var sharedModelObservables: [Observable<CalendarModel>] = []
-                        
-                        for workplaceSummary in workplaceWorkSummaryDailyList {
-                            if filterModel != nil && filterModel?.workplaceId != workplaceSummary.workplaceId { continue }
+                        let sortedWorkplaceWorkSummaryList = workplaceWorkSummaryDailyList.sorted(by: { $0.workplaceName < $1.workplaceName })
+                        for (index, workplaceSummary) in sortedWorkplaceWorkSummaryList.enumerated() {
+                            if calendarMode == .personal {
+                                if filterModel != nil && filterModel?.workplaceId != workplaceSummary.workplaceId { continue }
+                            } else {
+                                if filterModel == nil {
+                                    if index > 0 {
+                                        // 공유 캘린더 모드 최초 진입 시 근무지 목록(가나다순) 중 제일 처음 근무지로 필터 걸림
+                                        continue
+                                    }
+                                } else if filterModel?.workplaceId != workplaceSummary.workplaceId {
+                                    continue
+                                }
+                            }
+                            
                             
                             // Personal Events 처리
                             for personalEventList in workplaceSummary.personalSummary.values {

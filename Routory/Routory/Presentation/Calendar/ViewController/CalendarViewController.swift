@@ -54,6 +54,7 @@ final class CalendarViewController: UIViewController {
     init(viewModel: CalendarViewModel) {
         self.viewModel = viewModel
         let input = CalendarViewModel.Input(loadMonthEvent: visibleYearMonth.asObservable(),
+                                            calendarMode: calendarModeRelay.asObservable(),
                                             filterModel: filterModelRelay.asObservable(),
                                             searchRoutineId: searchRoutineIdRelay.asObservable())
         self.output = viewModel.tranform(input: input)

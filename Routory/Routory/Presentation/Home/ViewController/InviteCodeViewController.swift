@@ -133,7 +133,7 @@ private extension InviteCodeViewController {
             isEmploymentInsuranceSelected: false,
             isIndustrialAccidentInsuranceSelected: false,
             isIncomeTaxSelected: false,
-            isWeeklyAllowanceSelected: true,
+            isWeeklyAllowanceSelected: false,
             isNightAllowanceSelected: false,
             
             labelTitle: "초록색",

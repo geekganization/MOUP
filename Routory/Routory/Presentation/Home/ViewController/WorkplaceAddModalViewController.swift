@@ -120,8 +120,6 @@ private extension WorkplaceAddModalViewController {
                 isHideWorkplaceInfoViewArrow: false,
                 mode: .fullRegistration,
                 
-                
-                
                 nameValue: "세븐일레븐 평촌점",
                 categoryValue: "편의점",
                 
@@ -132,15 +130,15 @@ private extension WorkplaceAddModalViewController {
                 payDateValue: "15일",
                 payWeekdayValue: "금요일",
                 
-                isFourMajorSelected: true,
+                isFourMajorSelected: false,
                 isNationalPensionSelected: false,
-                isHealthInsuranceSelected: true,
-                isEmploymentInsuranceSelected: true,
+                isHealthInsuranceSelected: false,
+                isEmploymentInsuranceSelected: false,
                 isIndustrialAccidentInsuranceSelected: false,
-                isIncomeTaxSelected: true,
+                isIncomeTaxSelected: false,
                 isWeeklyAllowanceSelected: false,
-                isNightAllowanceSelected: true,
-                
+                isNightAllowanceSelected: false,
+
                 labelTitle: "노란색",
                 showDot: true,
                 dotColor: .systemYellow

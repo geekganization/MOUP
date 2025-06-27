@@ -212,7 +212,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
         contentView.registerButton.addTarget(actionHandler, action: #selector(RegistrationActionHandler.buttonTouchUp(_:)), for: [.touchUpInside, .touchUpOutside, .touchCancel])
         
         // 숨김 처리 - 기능 완성되면 나중에 지워야 함
-        contentView.workConditionView.isHidden = true
+        contentView.workConditionView.isHidden = false
         contentView.labelView.isHidden = true
     }
     

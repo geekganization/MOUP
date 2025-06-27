@@ -107,6 +107,7 @@ final class HomeViewController: UIViewController {
                         showDot: info.showDot,
                         dotColor: LabelColorString(rawValue: info.dotColor)?.labelColor
                     )
+                    vc.hidesBottomBarWhenPushed = true
                     self.navigationController?.pushViewController(vc, animated: true)
                 }
                 let deleteAction = UIAction(title: "삭제하기", attributes: .destructive) { [weak self] _ in
@@ -129,6 +130,7 @@ final class HomeViewController: UIViewController {
                         showDot: info.showDot,
                         dotColor: LabelColorString(rawValue: info.dotColor)?.labelColor
                     )
+                    vc.hidesBottomBarWhenPushed = true
                     self.navigationController?.pushViewController(vc, animated: true)
                 }
                 let deleteAction = UIAction(title: "삭제하기", attributes: .destructive) { [weak self] _ in

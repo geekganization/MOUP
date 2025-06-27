@@ -64,23 +64,7 @@ final class WorkerCell: UITableViewCell {
 
     func configure(with info: WorkerDetailInfo) {
         nameLabel.text = info.detail.workerName
-        colorView.backgroundColor = UIColor(hexString: info.detail.color) ?? .lightGray
-    }
-}
-
-extension UIColor {
-    convenience init?(hexString: String) {
-        var hex = hexString.trimmingCharacters(in: .whitespacesAndNewlines)
-        hex = hex.replacingOccurrences(of: "#", with: "")
-
-        guard hex.count == 6, let intCode = Int(hex, radix: 16) else {
-            return nil
-        }
-
-        let r = CGFloat((intCode >> 16) & 0xFF) / 255.0
-        let g = CGFloat((intCode >> 8) & 0xFF) / 255.0
-        let b = CGFloat(intCode & 0xFF) / 255.0
-
-        self.init(red: r, green: g, blue: b, alpha: 1.0)
+        print("info.detail.color: \(info.detail.color)")
+        colorView.backgroundColor = LabelColorString(rawValue: info.detail.color)?.labelColor ?? LabelColorString._default.labelColor
     }
 }

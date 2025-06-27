@@ -46,7 +46,11 @@ final class HomeViewController: UIViewController {
     private lazy var output = homeViewModel.transform(input: input)
 
     private lazy var dataSource = RxTableViewSectionedReloadDataSource<HomeTableViewFirstSection> (
-        configureCell: { [weak self] dataSource, tableView, indexPath, item in
+        configureCell: {
+            [weak self] dataSource,
+            tableView,
+            indexPath,
+            item in
             switch item {
             case .workplace(let info):
                 guard let cell = tableView.dequeueReusableCell(
@@ -57,7 +61,7 @@ final class HomeViewController: UIViewController {
                 }
                 let isExpanded = self?.expandedIndexPathRelay.value.contains(indexPath) ?? false
                 cell.update(with: info, isExpanded: isExpanded, menuActions: createWorkspaceMenuActions(with: info))
-
+                
                 return cell
             case .store(let info):
                 guard let cell = tableView.dequeueReusableCell(
@@ -70,25 +74,65 @@ final class HomeViewController: UIViewController {
                 self?.inviteCode = info.inviteCode
                 return cell
             }
-
+            
             // MARK: - 셀 내 메뉴에 대한 Action 정의
             func createWorkspaceMenuActions(with info: WorkplaceCellInfo) -> [UIAction] { // TODO: - 실제 수정 삭제가 이뤄질 시 과정에 필요한 데이터 입력
-        //        let editAction = UIAction(title: "수정하기") { _ in
-        //            print("근무지 수정")
-        //        }
+                let editAction = UIAction(title: "수정하기") { [weak self] _ in
+                    print("근무지 수정")
+                    guard let self else { return }
+                    let vc = WorkerWorkplaceRegistrationViewController(
+                        workplaceId: info.id,
+                        isRegisterMode: false,
+                        isEdit: true,
+                        isHideWorkplaceInfoViewArrow: false,
+                        // 공유 근무지일 경우 초대받아 등록된 입장이므로 이름, 카테고리 고정
+                        mode: .fullRegistration,
+                        nameValue: info.storeName,
+                        categoryValue: info.category,
+                        salaryTypeValue: info.workerDetail?.wageCalcMethod ?? "매월",
+                        salaryCalcValue: info.workerDetail?.wageType ?? "고정",
+                        fixedSalaryValue: String(info.workerDetail?.wage ?? 0),
+                        hourlyWageValue: String(info.workerDetail?.wage ?? 0),
+                        payDateValue: String(info.workerDetail?.payDay ?? 0) + "일",
+                        payWeekdayValue: info.workerDetail?.payWeekday ?? "금",
+                        isFourMajorSelected: info.workerDetail?.employmentInsurance ?? false,
+                        isNationalPensionSelected: info.workerDetail?.nationalPension ?? false,
+                        isHealthInsuranceSelected: info.workerDetail?.healthInsurance ?? false,
+                        isEmploymentInsuranceSelected: info.workerDetail?.employmentInsurance ?? false,
+                        isIndustrialAccidentInsuranceSelected: info.workerDetail?.industrialAccident ?? false,
+                        isIncomeTaxSelected: info.workerDetail?.incomeTax ?? false,
+                        isWeeklyAllowanceSelected: info.workerDetail?.weeklyAllowance ?? false,
+                        isNightAllowanceSelected: info.workerDetail?.nightAllowance ?? false,
+                        labelTitle: info.labelTitle,
+                        showDot: info.showDot,
+                        dotColor: LabelColorString(rawValue: info.dotColor)?.labelColor
+                    )
+                    vc.hidesBottomBarWhenPushed = true
+                    self.navigationController?.pushViewController(vc, animated: true)
+                }
                 let deleteAction = UIAction(title: "삭제하기", attributes: .destructive) { [weak self] _ in
                     guard let self else { return }
                     self.deleteWorkplaceBtnRelay.accept(info.id)
                 }
 
-                return [deleteAction]
+                return [editAction, deleteAction]
             }
 
             func createStoreMenuActions(with info: StoreCellInfo) -> [UIAction] { // TODO: - 실제 수정 삭제가 이뤄질 시 과정에 필요한 데이터 입력
-        //        let editAction = UIAction(title: "수정하기") { _ in
-        //            print("매장 수정")
-        //
-        //        }
+                let editAction = UIAction(title: "수정하기") { [weak self] _ in
+                    print("매장 수정")
+                    guard let self else { return }
+                    let vc = OwnerWorkplaceEditViewController(
+                        workPlaceID: info.id,
+                        nameValue: info.storeName,
+                        categoryValue: info.category,
+                        labelTitle: info.labelTitle,
+                        showDot: info.showDot,
+                        dotColor: LabelColorString(rawValue: info.dotColor)?.labelColor
+                    )
+                    vc.hidesBottomBarWhenPushed = true
+                    self.navigationController?.pushViewController(vc, animated: true)
+                }
                 let deleteAction = UIAction(title: "삭제하기", attributes: .destructive) { [weak self] _ in
                     guard let self else { return }
                     self.deleteWorkplaceBtnRelay.accept(info.id)
@@ -102,7 +146,7 @@ final class HomeViewController: UIViewController {
                     self.present(shareInviteCodeVC, animated: true, completion: nil)
                 }
 
-                return [deleteAction, copyInviteCode]
+                return [editAction, copyInviteCode, deleteAction]
             }
         }
     )

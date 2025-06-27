@@ -162,9 +162,9 @@ extension WorkerListViewController: UITableViewDataSource, UITableViewDelegate {
             workerPlaceId: workerPlaceId,
             workerUid: worker.id,
             workerDetail: worker.detail,
-            labelTitle: "빨간색",
+            labelTitle: worker.detail.color,
             showDot: true,
-            dotColor: UIColor(red: 1, green: 0.18, blue: 0.33, alpha: 1)
+            dotColor: LabelColorString(rawValue: worker.detail.color)?.labelColor ?? .lightGray
         )
 
         navigationController?.pushViewController(vc, animated: true)

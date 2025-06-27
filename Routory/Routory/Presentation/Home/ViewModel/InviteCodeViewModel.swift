@@ -91,7 +91,7 @@ final class InviteCodeViewModel {
                         return self.calendarUseCase.shareCalendarWithUser(calendarId: calendarId, uid: userId)
                     }
                     .flatMap {
-                        self.userUseCase.addWorkplaceToUser(uid: userId, workplaceId: workplaceId)
+                        self.userUseCase.addWorkplaceToUser(uid: userId, workplaceId: workplaceId, color: detail.color)
                     }
                     .map { _ in true }
                     .catch { error in

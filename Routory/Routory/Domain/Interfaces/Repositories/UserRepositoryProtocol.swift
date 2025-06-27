@@ -18,7 +18,7 @@ protocol UserRepositoryProtocol {
             workerDetail: WorkerDetail?,
             uid: String
         ) -> Observable<String>
-    func addWorkplaceToUser(uid: String, workplaceId: String) -> Observable<Void>
+    func addWorkplaceToUser(uid: String, workplaceId: String, color: String) -> Observable<Void>
     func fetchUserNotRx(uid: String, completion: @escaping (Result<User, Error>) -> Void)
     func fetchUserWorkplaceColor(uid: String, workplaceId: String) -> Observable<UserWorkplace?>
 }

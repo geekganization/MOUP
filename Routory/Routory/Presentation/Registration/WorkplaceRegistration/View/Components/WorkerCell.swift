@@ -65,6 +65,6 @@ final class WorkerCell: UITableViewCell {
     func configure(with info: WorkerDetailInfo) {
         nameLabel.text = info.detail.workerName
         print("info.detail.color: \(info.detail.color)")
-        colorView.backgroundColor = LabelColorString(rawValue: info.detail.color)?.labelColor ?? .lightGray
+        colorView.backgroundColor = LabelColorString(rawValue: info.detail.color)?.labelColor ?? LabelColorString._default.labelColor
     }
 }

@@ -25,13 +25,13 @@ final class ColorSelectionViewController: UIViewController,UIGestureRecognizerDe
     // MARK: - Properties
 
     private let colors: [LabelColor] = [
-        LabelColor(name: "빨간색", color: UIColor(red: 1, green: 0.18, blue: 0.33, alpha: 1)),
-        LabelColor(name: "주황색", color: UIColor(red: 1, green: 0.58, blue: 0, alpha: 1)),
-        LabelColor(name: "노란색", color: UIColor(red: 1, green: 0.8, blue: 0, alpha: 1)),
-        LabelColor(name: "초록색", color: UIColor(red: 0.2, green: 0.78, blue: 0.35, alpha: 1)),
-        LabelColor(name: "파란색", color: UIColor(red: 0, green: 0.48, blue: 1, alpha: 1)),
-        LabelColor(name: "보라색", color: UIColor(red: 0.69, green: 0.32, blue: 0.87, alpha: 1)),
-        LabelColor(name: "남색", color: UIColor.systemIndigo)
+        LabelColor(name: "빨간색", color: .systemRed),
+        LabelColor(name: "주황색", color: .systemOrange),
+        LabelColor(name: "노란색", color: .systemYellow),
+        LabelColor(name: "초록색", color: .systemGreen),
+        LabelColor(name: "파란색", color: .systemBlue),
+        LabelColor(name: "보라색", color: .systemPurple),
+        LabelColor(name: "남색", color: .systemIndigo)
     ]
     
     // *1

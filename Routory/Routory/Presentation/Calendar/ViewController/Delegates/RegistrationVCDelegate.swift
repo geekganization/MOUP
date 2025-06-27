@@ -8,5 +8,5 @@
 import Foundation
 
 protocol RegistrationVCDelegate: AnyObject {
-    func registrationVCIsMovingFromParent()
+    func registrationVCIsMovingFromParent(dateValue: String)
 }

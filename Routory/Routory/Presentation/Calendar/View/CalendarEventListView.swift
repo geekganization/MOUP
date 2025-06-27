@@ -30,7 +30,7 @@ final class CalendarEventListView: UIView {
         $0.separatorStyle = .none
     }
     
-    private let assignButton = UIButton().then {
+    private let registerButton = UIButton().then {
         var config = UIButton.Configuration.filled()
         config.attributedTitle = AttributedString("근무 등록하기", attributes: .init([.font: UIFont.buttonSemibold(18), .foregroundColor: UIColor.white]))
         
@@ -43,7 +43,7 @@ final class CalendarEventListView: UIView {
     
     var getTitleLabel: UILabel { titleLabel }
     var getEventTableView: UITableView { eventTableView }
-    var getAssignButton: UIButton { assignButton }
+    var getAssignButton: UIButton { registerButton }
     
     // MARK: - Initializer
     
@@ -71,7 +71,7 @@ private extension CalendarEventListView {
         self.addSubviews(grabberView,
                          titleLabel,
                          eventTableView,
-                         assignButton)
+                         registerButton)
     }
     
     func setStyles() {
@@ -96,10 +96,10 @@ private extension CalendarEventListView {
         eventTableView.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(12)
             $0.leading.trailing.equalTo(self.safeAreaLayoutGuide)
-            $0.bottom.equalTo(assignButton.snp.top).offset(-12)
+            $0.bottom.equalTo(registerButton.snp.top).offset(-12)
         }
         
-        assignButton.snp.makeConstraints {
+        registerButton.snp.makeConstraints {
             $0.leading.trailing.equalTo(self.safeAreaLayoutGuide).inset(16)
             $0.bottom.equalTo(self.safeAreaLayoutGuide).inset(12)
             $0.height.equalTo(44)

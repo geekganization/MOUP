@@ -86,7 +86,7 @@ final class HomeViewController: UIViewController {
                         isEdit: true,
                         isHideWorkplaceInfoViewArrow: false,
                         // 공유 근무지일 경우 초대받아 등록된 입장이므로 이름, 카테고리 고정
-                        mode: info.isOfficial == true ? .inputOnly : .fullRegistration,
+                        mode: .fullRegistration,
                         nameValue: info.storeName,
                         categoryValue: info.category,
                         salaryTypeValue: info.workerDetail?.wageCalcMethod ?? "매월",

@@ -296,39 +296,38 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
 
                 print("didTapEdit: ", self.workplaceId, uid, workerDetail)
 
-                let input = WorkerWorkplaceRegistrationViewModel.Input(
-                    workplaceId: Observable.just(self.workplaceId),
-                    uid: Observable.just(uid),
-                    workerDetail: Observable.just(workerDetail),
-                    updateTrigger: Observable.just(())
-                )
+                switch mode {
+                case .fullRegistration:
+                    print("fullRegistration workerDetail: \(workerDetail)")
+                    let input = WorkerWorkplaceRegistrationViewModel.Input(
+                        workplaceId: Observable.just(self.workplaceId),
+                        uid: Observable.just(uid),
+                        workerDetail: Observable.just(workerDetail),
+                        updateTrigger: Observable.just(())
+                    )
 
-                let output = self.editViewModel.transform(input: input)
+                    let output = self.editViewModel.transform(input: input)
 
-                output.updateSuccess
-                    .observe(on: MainScheduler.instance)
-                    .subscribe(onNext: {
-                        print("근무지 정보 수정 완료")
-                        self.navigationController?.popViewController(animated: true)
-                    })
-                    .disposed(by: self.disposeBag)
+                    output.updateSuccess
+                        .observe(on: MainScheduler.instance)
+                        .subscribe(onNext: {
+                            print("근무지 정보 수정 완료")
+                            self.navigationController?.popViewController(animated: true)
+                        })
+                        .disposed(by: self.disposeBag)
 
-                output.updateError
-                    .observe(on: MainScheduler.instance)
-                    .subscribe(onNext: { error in
-                        print("업데이트 실패: \(error.localizedDescription)")
-                    })
-                    .disposed(by: self.disposeBag)
+                    output.updateError
+                        .observe(on: MainScheduler.instance)
+                        .subscribe(onNext: { error in
+                            print("업데이트 실패: \(error.localizedDescription)")
+                        })
+                        .disposed(by: self.disposeBag)
 
-//                switch mode {
-//                case .fullRegistration:
-//                    // ViewModel 업데이트 처리
-//
-//                case .inputOnly:
-//                    print("현재 모드: inputOnly")
-//                    self.onWorkplaceInfoPrepared?(workerDetail)
-//                    self.navigationController?.popViewController(animated: true)
-//                }
+                case .inputOnly:
+                    print("inputOnly workerDetail: \(workerDetail)")
+                    self.onWorkplaceInfoPrepared?(workerDetail)
+                    self.navigationController?.popViewController(animated: true)
+                }
                 
             case .failure(let error):
                 print("사용자 이름 가져오기 실패: \(error.localizedDescription)")
@@ -407,6 +406,7 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
                 
                 switch self.mode {
                 case .fullRegistration:
+                    print("fullRegistration workerDetail: \(workerDetail)")
                     let input = CreateWorkplaceViewModel.Input(
                         createTrigger: Observable.just(()),
                         workplace: Observable.just(workplace),

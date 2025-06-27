@@ -31,7 +31,7 @@ final class ColorSelectionViewController: UIViewController,UIGestureRecognizerDe
         LabelColor(name: "초록색", color: UIColor(red: 0.2, green: 0.78, blue: 0.35, alpha: 1)),
         LabelColor(name: "파란색", color: UIColor(red: 0, green: 0.48, blue: 1, alpha: 1)),
         LabelColor(name: "보라색", color: UIColor(red: 0.69, green: 0.32, blue: 0.87, alpha: 1)),
-        LabelColor(name: "갈색", color: UIColor(red: 0.64, green: 0.52, blue: 0.37, alpha: 1))
+        LabelColor(name: "남색", color: UIColor.systemIndigo)
     ]
     
     // *1

@@ -20,9 +20,19 @@ final class WorkplaceInfoInput: UIView {
         ["빨간색"]
     ]
     
+    private let inputValues: [IndexPath: (text: String, showsArrow: Bool)] = [
+        IndexPath(item: 0, section: 0): ("GS25 분당이매역점", false),
+        IndexPath(item: 1, section: 0): ("편의점", false),
+        
+        IndexPath(item: 0, section: 1): ("매월", true),
+        IndexPath(item: 1, section: 1): ("고정", true),
+        IndexPath(item: 2, section: 1): ("1,000,000원", false),
+        IndexPath(item: 3, section: 1): ("25일", false)
+    ]
+    
     // MARK: - UI Components
     
-    private let navigationBar = MyPageNavigationBar(title: "새 근무지 등록")
+    private let navigationBar = MyPageNavigationBar(title: "GS25 분당이매역점")
     
     private lazy var collectionView = UICollectionView(
         frame: .zero,
@@ -183,8 +193,17 @@ extension WorkplaceInfoInput: UICollectionViewDataSource {
         }
 
         let title = sections[indexPath.section][indexPath.item]
-        cell.configure(with: title)
-        
+        let (text, arrow) = inputValues[indexPath] ?? ("", false)
+
+        let isPayday = (title == "급여일")
+
+        cell.update(
+            with: title,
+            content: text,
+            showsArrow: arrow,
+            isPayday: isPayday
+        )
+
         let isLast = indexPath.item == sections[indexPath.section].count - 1
         cell.setIsLastCell(isLast)
         

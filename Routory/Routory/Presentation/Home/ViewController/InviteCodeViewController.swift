@@ -110,44 +110,46 @@ private extension InviteCodeViewController {
     /// preset된 이름/카테고리를 전달하여 `WorkerWorkplaceRegistrationViewController`를 `.inputOnly` 모드로 push합니다.
     /// 사용자가 추가 정보를 입력하고 돌아오면 클로저를 통해 `Workplace`와 `WorkerDetail`을 전달받아 상태를 `.result`로 업데이트합니다.
     @objc func workplaceSelectViewDidTap() {
-        let workerWorkplaceRegistrationVC = WorkerWorkplaceRegistrationViewController(
-            workplaceId: selectedWorkplace?.id ?? "",
-            isRegisterMode: false,
-            isEdit: true,
-            isHideWorkplaceInfoViewArrow: true,
-            mode: .inputOnly,
-            
-            nameValue: selectedWorkplace?.workplace.workplacesName,
-            categoryValue: selectedWorkplace?.workplace.category,
-
-            salaryTypeValue: "매주",
-            salaryCalcValue: "시급",
-            fixedSalaryValue: "0",
-            hourlyWageValue: "9,500",
-            payDateValue: "금요일",
-            payWeekdayValue: "금요일",
-            
-            isFourMajorSelected: false,
-            isNationalPensionSelected: false,
-            isHealthInsuranceSelected: false,
-            isEmploymentInsuranceSelected: false,
-            isIndustrialAccidentInsuranceSelected: false,
-            isIncomeTaxSelected: false,
-            isWeeklyAllowanceSelected: false,
-            isNightAllowanceSelected: false,
-            
-            labelTitle: "초록색",
-            showDot: true,
-            dotColor: .systemGreen
-        )
-        
-        workerWorkplaceRegistrationVC.onWorkplaceInfoPrepared = { [weak self] workerDetail in
-            print("근무지 정보 등록완료 직후: \(workerDetail)")
-            self?.selectedWorkerDetail = workerDetail
-            self?.updateState(to: .result)
-        }
-        
-        navigationController?.pushViewController(workerWorkplaceRegistrationVC, animated: true)
+        let workplaceInfoInputVC = WorkplaceInfoInputViewController()
+        navigationController?.pushViewController(workplaceInfoInputVC, animated: true)
+//        let workerWorkplaceRegistrationVC = WorkerWorkplaceRegistrationViewController(
+//            workplaceId: selectedWorkplace?.id ?? "",
+//            isRegisterMode: false,
+//            isEdit: true,
+//            isHideWorkplaceInfoViewArrow: true,
+//            mode: .inputOnly,
+//            
+//            nameValue: selectedWorkplace?.workplace.workplacesName,
+//            categoryValue: selectedWorkplace?.workplace.category,
+//
+//            salaryTypeValue: "매주",
+//            salaryCalcValue: "시급",
+//            fixedSalaryValue: "0",
+//            hourlyWageValue: "9,500",
+//            payDateValue: "금요일",
+//            payWeekdayValue: "금요일",
+//            
+//            isFourMajorSelected: false,
+//            isNationalPensionSelected: false,
+//            isHealthInsuranceSelected: false,
+//            isEmploymentInsuranceSelected: false,
+//            isIndustrialAccidentInsuranceSelected: false,
+//            isIncomeTaxSelected: false,
+//            isWeeklyAllowanceSelected: false,
+//            isNightAllowanceSelected: false,
+//            
+//            labelTitle: "초록색",
+//            showDot: true,
+//            dotColor: .systemGreen
+//        )
+//        
+//        workerWorkplaceRegistrationVC.onWorkplaceInfoPrepared = { [weak self] workerDetail in
+//            print("근무지 정보 등록완료 직후: \(workerDetail)")
+//            self?.selectedWorkerDetail = workerDetail
+//            self?.updateState(to: .result)
+//        }
+//        
+//        navigationController?.pushViewController(workerWorkplaceRegistrationVC, animated: true)
     }
     
     // MARK: - setBindings

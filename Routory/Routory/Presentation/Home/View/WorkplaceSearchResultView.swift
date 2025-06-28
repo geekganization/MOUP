@@ -32,7 +32,7 @@ final class WorkplaceSearchResultView: UIView {
     }
     
     private let selectWorkplaceLabel = UILabel().then {
-        $0.text = "근무지 정보 등록하기"
+        $0.text = "근무지 정보 입력하기"
         $0.font = .bodyMedium(16)
         $0.textColor = .gray900
     }

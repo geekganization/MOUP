@@ -10,7 +10,7 @@ import SnapKit
 import Then
 import RxSwift
 
-final class TextInputViewController: UIViewController,UIGestureRecognizerDelegate {
+final class TextInputViewController: UIViewController,UIGestureRecognizerDelegate, UITextFieldDelegate {
 
     // MARK: - Public Props
 
@@ -89,6 +89,8 @@ final class TextInputViewController: UIViewController,UIGestureRecognizerDelegat
         textField.do {
             $0.font = .bodyMedium(16)
             $0.keyboardType = keyboardType
+            $0.returnKeyType = .done
+            $0.delegate = self
             $0.textAlignment = .left
             $0.layer.cornerRadius = 8
             $0.layer.borderWidth = 1
@@ -169,5 +171,10 @@ final class TextInputViewController: UIViewController,UIGestureRecognizerDelegat
         guard let text = textField.text else { return }
         onComplete?(text)
         navigationController?.popViewController(animated: true)
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder() 
+        return true
     }
 }

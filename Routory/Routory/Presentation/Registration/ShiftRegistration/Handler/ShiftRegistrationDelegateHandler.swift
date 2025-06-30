@@ -110,32 +110,26 @@ extension ShiftRegistrationDelegateHandler: WorkDateViewDelegate {
 
 extension ShiftRegistrationDelegateHandler: WorkTimeViewDelegate {
     func workTimeViewDidRequestTimePicker(for type: WorkTimeView.TimeType, current: String) {
-        let alert = UIAlertController(title: "\n\n\n\n\n\n\n\n\n", message: nil, preferredStyle: .actionSheet)
-        let picker = UIDatePicker().then {
-            $0.datePickerMode = .time
-            $0.preferredDatePickerStyle = .wheels
-            $0.locale = Locale(identifier: "ko_KR")
-        }
-
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm"
+
+        let vc = TimePickerViewController()
         if let date = formatter.date(from: current) {
-            picker.date = date
+            vc.setInitialDate(date)
         }
 
-        alert.view.addSubview(picker)
-        picker.snp.makeConstraints {
-            $0.centerX.equalToSuperview()
-            $0.top.equalToSuperview().offset(8)
-        }
-
-        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
-        alert.addAction(UIAlertAction(title: "확인", style: .default, handler: { [weak self] _ in
-            let newValue = formatter.string(from: picker.date)
+        vc.onConfirm = { [weak self] newDate in
+            let newValue = formatter.string(from: newDate)
             self?.contentView?.workTimeView.updateValue(for: type, newValue: newValue)
-        }))
+        }
 
-        navigationController?.present(alert, animated: true)
+        if let sheet = vc.sheetPresentationController {
+            sheet.detents = [.medium()]
+            sheet.prefersGrabberVisible = true
+            sheet.preferredCornerRadius = 16
+        }
+
+        navigationController?.present(vc, animated: true)
     }
 
     func workTimeViewDidRequestBreakTimePicker(current: String) {
@@ -159,7 +153,7 @@ extension ShiftRegistrationDelegateHandler: WorkTimeViewDelegate {
             sheet.preferredCornerRadius = 16
         }
 
-        navigationController?.present(vc, animated: true, completion: nil)
+        navigationController?.present(vc, animated: true)
     }
 }
 

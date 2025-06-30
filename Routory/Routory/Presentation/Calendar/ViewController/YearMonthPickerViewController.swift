@@ -79,6 +79,8 @@ private extension YearMonthPickerViewController {
     }
 }
 
+// MARK: - Private Methods
+
 private extension YearMonthPickerViewController {
     func setDefaultSelect() {
         let yearRow = currYear - CalendarRange.startYear.rawValue

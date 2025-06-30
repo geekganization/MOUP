@@ -33,25 +33,10 @@ final class YearMonthPickerView: UIView {
     }
     
     /// 연/월 선택 이동 취소 `UIButton`
-    private let cancelButton = UIButton().then {
-        var config = UIButton.Configuration.filled()
-        config.attributedTitle = .init("취소", attributes: .init([.font: UIFont.buttonSemibold(18), .foregroundColor: UIColor.gray600]))
-        config.baseBackgroundColor = .gray200
-        $0.configuration = config
-        
-        $0.clipsToBounds = true
-        $0.layer.cornerRadius = 12
-    }
+    private let cancelButton = BaseButton(title: "취소", isSecondary: true)
     
     /// 연/월 선택 이동 `UIButton`
-    private let gotoButton = UIButton().then {
-        var config = UIButton.Configuration.filled()
-        config.attributedTitle = .init("이동", attributes: .init([.font: UIFont.buttonSemibold(18), .foregroundColor: UIColor.white]))
-        $0.configuration = config
-        
-        $0.clipsToBounds = true
-        $0.layer.cornerRadius = 12
-    }
+    private let gotoButton = BaseButton(title: "이동")
     
     /// `UIButton`을 담는 수평 `UIStackView`
     private let buttonHStackView = UIStackView().then {
@@ -63,8 +48,8 @@ final class YearMonthPickerView: UIView {
     // MARK: - Getter
     
     var getSelectedYearMonth: (year: Int, month: Int) { (focusedYear, focusedMonth) }
-    var getCancelButton: UIButton { cancelButton }
-    var getGotoButton: UIButton { gotoButton }
+    var getCancelButton: BaseButton { cancelButton }
+    var getGotoButton: BaseButton { gotoButton }
     var getPickerView: UIPickerView { pickerView }
     
     // MARK: - Initializer

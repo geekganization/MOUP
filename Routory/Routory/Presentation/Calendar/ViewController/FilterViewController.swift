@@ -28,7 +28,7 @@ final class FilterViewController: UIViewController {
     
     private var selectedFilterModel = FilterModel(workplaceId: "", workplaceName: "전체 보기")
     
-    // MARK: UI Components
+    // MARK: - UI Components
     
     private let filterView = FilterView()
     
@@ -109,7 +109,10 @@ private extension FilterViewController {
         output.filterModelListRelay
             .asDriver(onErrorJustReturn: [])
             .do(afterNext: { [weak self] list in
-                self?.filterView.getFilterTableView.isHidden = list.isEmpty
+                if self?.calendarMode == .shared {
+                    self?.filterView.getFilterTableView.isHidden = list.isEmpty
+                    self?.filterView.getApplyButton.isEnabled = !list.isEmpty
+                }
             })
             .drive(filterView.getFilterTableView.rx.items(
                 cellIdentifier: FilterCell.identifier, cellType: FilterCell.self)) { [weak self] index, model, cell in

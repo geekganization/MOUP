@@ -18,18 +18,19 @@ final class DeleteAlertViewController: UIViewController {
     private let alertMessage: String
     var onDeleteConfirmed: (() -> Void)?
     private let disposeBag = DisposeBag()
+    private let deleteButtonTitle: String
     
     // MARK: - UI Components
     
-    private let titleLabel = UILabel().then {
-        $0.text = "정말 삭제하시겠어요?"
+    private lazy var titleLabel = UILabel().then {
+        $0.text = alertTitle
         $0.font = .headBold(18)
         $0.setLineSpacing(.bodyMedium)
         $0.textColor = .gray900
     }
     
-    private let messageLabel = UILabel().then {
-        $0.text = "삭제된 정보는 되돌릴 수 없습니다."
+    private lazy var messageLabel = UILabel().then {
+        $0.text = alertMessage
         $0.font = .bodyMedium(14)
         $0.setLineSpacing(.bodyMedium)
         $0.textColor = .gray700
@@ -43,7 +44,7 @@ final class DeleteAlertViewController: UIViewController {
     )
 
     private lazy var deleteButton = makeFilledButton(
-        title: "삭제하기"
+        title: deleteButtonTitle
     )
     
     private let buttonStackView = UIStackView().then {
@@ -60,9 +61,14 @@ final class DeleteAlertViewController: UIViewController {
     
     // MARK: - Initializer
     
-    init(alertTitle: String, alertMessage: String) {
+    init(
+        alertTitle: String = "정말 삭제하시겠어요?",
+        alertMessage: String = "삭제된 정보는 되돌릴 수 없습니다.",
+        deleteButtonTitle: String = "삭제하기"
+    ) {
         self.alertTitle = alertTitle
         self.alertMessage = alertMessage
+        self.deleteButtonTitle = deleteButtonTitle
         super.init(nibName: nil, bundle: nil)
         
         modalPresentationStyle = .overFullScreen

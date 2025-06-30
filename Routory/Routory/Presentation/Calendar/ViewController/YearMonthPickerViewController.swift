@@ -85,7 +85,7 @@ private extension YearMonthPickerViewController {
     func setDefaultSelect() {
         let yearRow = currYear - CalendarRange.startYear.rawValue
         let monthRow = currMonth - 1
-        yearMonthPickerView.getPickerView.selectRow(yearRow, inComponent: PickerViewComponents.year.rawValue, animated: false)
-        yearMonthPickerView.getPickerView.selectRow(monthRow, inComponent: PickerViewComponents.month.rawValue, animated: false)
+        yearMonthPickerView.getPickerView.selectRow(yearRow, inComponent: YearMonthPickerViewComponents.year.rawValue, animated: false)
+        yearMonthPickerView.getPickerView.selectRow(monthRow, inComponent: YearMonthPickerViewComponents.month.rawValue, animated: false)
     }
 }

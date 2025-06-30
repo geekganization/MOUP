@@ -20,6 +20,12 @@ final class BaseButton: UIButton {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented.")
     }
+    
+    // MARK: - Methods
+    
+    func update(title: String, isSecondary: Bool = false) {
+        setConfiguration(title: title, isSecondary: isSecondary)
+    }
 }
 
 // MARK: - UI Methods
@@ -30,6 +36,13 @@ private extension BaseButton {
     }
     
     func setStyles(title: String, isSecondary: Bool) {
+        setConfiguration(title: title, isSecondary: isSecondary)
+        
+        self.clipsToBounds = true
+        self.layer.cornerRadius = 12
+    }
+    
+    func setConfiguration(title: String, isSecondary: Bool) {
         var config = UIButton.Configuration.filled()
         
         let normalAttribute = AttributeContainer([.font: UIFont.buttonSemibold(18),
@@ -59,8 +72,5 @@ private extension BaseButton {
         
         self.configuration = config
         self.configurationUpdateHandler = handler
-        
-        self.clipsToBounds = true
-        self.layer.cornerRadius = 12
     }
 }

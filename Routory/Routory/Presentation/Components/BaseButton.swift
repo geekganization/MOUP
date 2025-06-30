@@ -36,19 +36,21 @@ private extension BaseButton {
                                                   .foregroundColor: isSecondary ? UIColor.gray600 : UIColor.white])
         let disableAttribute = AttributeContainer([.font: UIFont.buttonSemibold(18),
                                                    .foregroundColor: UIColor.gray500])
+        let baseBackgroundColor: UIColor = isSecondary ? .gray200 : .accent
         config.attributedTitle = AttributedString(title, attributes: normalAttribute)
+        config.baseBackgroundColor = baseBackgroundColor
         
         let handler: UIButton.ConfigurationUpdateHandler = { button in
             switch button.state {
             case .normal:
                 button.configuration?.attributedTitle = AttributedString(title, attributes: normalAttribute)
-                button.configuration?.baseBackgroundColor = isSecondary ? .gray200 : .accent
+                button.configuration?.baseBackgroundColor = baseBackgroundColor
             case .disabled:
                 button.configuration?.attributedTitle = AttributedString(title, attributes: disableAttribute)
                 button.configuration?.baseBackgroundColor = .gray300
             case .highlighted:
                 button.configuration?.attributedTitle = AttributedString(title, attributes: normalAttribute)
-                button.configuration?.baseBackgroundColor = isSecondary ? .gray200 : .accent
+                button.configuration?.baseBackgroundColor = baseBackgroundColor
             default:
                 button.configuration?.attributedTitle = AttributedString(title, attributes: normalAttribute)
                 button.configuration?.baseBackgroundColor = .accent

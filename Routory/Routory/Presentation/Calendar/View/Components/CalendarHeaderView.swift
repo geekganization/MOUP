@@ -19,10 +19,9 @@ final class CalendarHeaderView: UIView {
     private let yearMonthButton = UIButton().then {
         var config = UIButton.Configuration.plain()
         config.attributedTitle = AttributedString("2001.01", attributes: .init([.font: UIFont.headBold(20), .foregroundColor: UIColor.gray900]))
-        config.image = .chevronRight.withTintColor(.gray900, renderingMode: .alwaysOriginal)
+        config.image = .chevronDown.withTintColor(.gray900, renderingMode: .alwaysOriginal)
         config.imagePlacement = .trailing
         config.imagePadding = 8
-        
         config.contentInsets = .zero
         
         $0.configuration = config

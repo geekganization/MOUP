@@ -127,8 +127,10 @@ private extension CalendarViewController {
         calendarView.addGestureRecognizer(calendarViewTapRecognizer)
         
         // 캘린더 연/월 이동 피커
-        let yearMonthLabelTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didYearMonthLabelTap(_:)))
-        calendarView.getCalendarHeaderView.getYearMonthLabel.addGestureRecognizer(yearMonthLabelTapRecognizer)
+        calendarView.getCalendarHeaderView.getYearMonthButton.rx.tap
+            .subscribe(with: self) { owner, _ in
+                owner.didYearMonthButtonTap()
+            }.disposed(by: disposeBag)
         
         // 개인/공유 캘린더 토글 스위치
         calendarView.getCalendarHeaderView.getToggleSwitch.addAction(UIAction(handler: { [weak self] action in
@@ -171,19 +173,16 @@ private extension CalendarViewController {
     }
 }
 
-// MARK: - @objc Methods
+// MARK: - Private Methods
 
-@objc private extension CalendarViewController {
-    func didCalendarViewTap(_ sender: UITapGestureRecognizer) {
-        deselectCell()
-    }
-    
-    func didYearMonthLabelTap(_ sender: UITapGestureRecognizer) {
+private extension CalendarViewController {
+    func didYearMonthButtonTap() {
         deselectCell()
         
-        guard let yearMonthText = calendarView.getCalendarHeaderView.getYearMonthLabel.text,
-              let currYear = Int(yearMonthText.prefix(4)),
-              let currMonth = Int(yearMonthText.suffix(2)) else { return }
+        guard let config = calendarView.getCalendarHeaderView.getYearMonthButton.configuration,
+              let title = config.title,
+              let currYear = Int(title.prefix(4)),
+              let currMonth = Int(title.suffix(2)) else { return }
         
         let pickerModalVC = YearMonthPickerViewController(currYear: currYear, currMonth: currMonth)
         pickerModalVC.delegate = self
@@ -195,6 +194,14 @@ private extension CalendarViewController {
         }
         
         self.present(pickerModalVC, animated: true)
+    }
+}
+
+// MARK: - @objc Methods
+
+@objc private extension CalendarViewController {
+    func didCalendarViewTap(_ sender: UITapGestureRecognizer) {
+        deselectCell()
     }
 }
 

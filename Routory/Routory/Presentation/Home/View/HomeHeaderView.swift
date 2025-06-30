@@ -266,7 +266,7 @@ private extension HomeHeaderView {
         if let range = text.range(of: countString) {
             let nsRange = NSRange(range, in: text)
             attributedString.addAttribute(.foregroundColor,
-                                          value: UIColor.primary500,
+                                          value: UIColor.primary600,
                                           range: nsRange)
             attributedString.addAttribute(.font,
                                           value: UIFont.headBold(12),

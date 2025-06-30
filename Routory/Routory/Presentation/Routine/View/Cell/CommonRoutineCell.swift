@@ -70,15 +70,15 @@ private extension CommonRoutineCell {
             $0.leading.equalToSuperview().inset(16)
             $0.centerY.equalToSuperview()
         }
-        routineAlarmLabel.snp.makeConstraints {
-            $0.leading.equalTo(routineTitleLabel.snp.trailing).offset(12)
-            $0.centerY.equalToSuperview()
-        }
         chevronIcon.snp.makeConstraints {
             $0.trailing.equalToSuperview().inset(16)
             $0.centerY.equalToSuperview()
             $0.width.equalTo(7)
             $0.height.equalTo(12)
+        }
+        routineAlarmLabel.snp.makeConstraints {
+            $0.trailing.equalTo(chevronIcon.snp.leading).offset(-12)
+            $0.centerY.equalToSuperview()
         }
     }
 }

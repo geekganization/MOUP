@@ -35,12 +35,18 @@ class HeaderCardView: CardView {
             setTotalCardType(startColor: startColor, endColor: endColor)
 
             let logoImageView = UIImageView().then {
-                $0.image = .defaultLogo
+                $0.image = .logo
                 $0.alpha = 0.14
                 $0.contentMode = .scaleAspectFit
             }
             addSubview(logoImageView)
             // TODO: - 제약조건 추가
+            logoImageView.snp.makeConstraints {
+                $0.centerX.equalTo(self.snp.trailing).inset(62)
+                $0.centerY.equalTo(self.snp.bottom).inset(46)
+                $0.size.equalTo(186.98)
+            }
+            logoImageView.transform = CGAffineTransform(rotationAngle: CGFloat(-33.68 * .pi / 180))
 
         case .routine(let background):
             backgroundColor = background
@@ -49,6 +55,7 @@ class HeaderCardView: CardView {
 
     private func setTotalCardType(startColor: CGColor, endColor: CGColor) {
         backgroundColor = .clear
+        self.clipsToBounds = true
         let gradient = CAGradientLayer()
         gradient.colors = [startColor, endColor]
         gradient.startPoint = CGPoint(x: 0.5, y: 0)

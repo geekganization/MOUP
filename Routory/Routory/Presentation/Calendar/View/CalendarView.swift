@@ -127,7 +127,10 @@ extension CalendarView {
     ///
     /// - Parameter date: 레이블에 표시할 날짜.
     func setMonthLabel(date: Date) {
-        calendarHeaderView.getYearMonthLabel.text = yearMonthDateFormatter.string(from: date)
+        let dateStr = yearMonthDateFormatter.string(from: date)
+        var config = calendarHeaderView.getYearMonthButton.configuration
+        config?.attributedTitle = AttributedString(dateStr, attributes: .init([.font: UIFont.headBold(20), .foregroundColor: UIColor.gray900]))
+        calendarHeaderView.getYearMonthButton.configuration = config
     }
     
     /// 셀의 색상 및 선택 상태를 종합적으로 구성하는 진입점 메서드입니다.

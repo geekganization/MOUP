@@ -17,7 +17,7 @@ final class YearMonthPickerViewController: UIViewController {
     
     private let disposeBag = DisposeBag()
     
-    weak var delegate: YearMonthPickerVCDelegate?
+    weak var delegate: YearMonthPickerDelegate?
     
     private let currYear: Int
     private let currMonth: Int

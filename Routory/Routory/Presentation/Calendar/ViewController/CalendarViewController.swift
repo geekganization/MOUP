@@ -184,7 +184,8 @@ private extension CalendarViewController {
               let currYear = Int(title.prefix(4)),
               let currMonth = Int(title.suffix(2)) else { return }
         
-        let pickerModalVC = BasePickerViewController(mode: .yearMonth, focusedYear: currYear, focusedMonth: currMonth)
+        let pickerModalVC = BasePickerViewController(mode: .yearMonth, currYear: currYear, currMonth: currMonth)
+        pickerModalVC.yearMonthPickerdelegate = self
 //        let pickerModalVC = YearMonthPickerViewController(currYear: currYear, currMonth: currMonth)
 //        pickerModalVC.delegate = self
         
@@ -504,7 +505,7 @@ extension CalendarViewController: CalendarEventListVCDelegate {
 
 // MARK: - YearMonthPickerVCDelegate
 
-extension CalendarViewController: YearMonthPickerVCDelegate {
+extension CalendarViewController: YearMonthPickerDelegate {
     func didTapGotoButton(year: Int, month: Int) {
         let yearMonthText = "\(year). \(month)"
         guard let date = calendarView.getDateFormatter.date(from: yearMonthText) else { return }

@@ -365,7 +365,7 @@ extension CalendarViewController: JTACMonthViewDelegate {
 // MARK: - CalendarEventListVCDelegate
 
 extension CalendarViewController: CalendarEventListVCDelegate {
-    func didTapEventCell(model: CalendarModel) {
+    func didTapEventCellOrEditMenu(model: CalendarModel) {
         if let routineId = model.eventInfo.calendarEvent.routineIds.first {
             pendingEventSelection = (selectedDate: selectedDate ?? .now, model: model)
             searchRoutineIdRelay.accept(routineId)

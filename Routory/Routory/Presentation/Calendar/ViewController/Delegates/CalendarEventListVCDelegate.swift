@@ -8,8 +8,8 @@
 import Foundation
 
 protocol CalendarEventListVCDelegate: AnyObject {
-    /// `eventTableView`의 셀을 탭했을 때 호출되는 메서드
-    func didTapEventCell(model: CalendarModel)
+    /// `eventTableView`의 셀 또는 셀 내부 메뉴의 수정하기 버튼을 탭했을 때 호출되는 메서드
+    func didTapEventCellOrEditMenu(model: CalendarModel)
     /// `registerButton`을 탭했을 때 호출되는 메서드
     func didTapRegisterButton()
     /// 근무가 삭제되었을 때 호출되는 메서드

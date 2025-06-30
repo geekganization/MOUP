@@ -48,8 +48,9 @@ final class MyPageView: UIView {
     }
     
     private let editButton = UIButton().then {
-        $0.setImage(UIImage.editButton, for: .normal)
-        $0.contentMode = .scaleAspectFit
+        var config = UIButton.Configuration.plain()
+        config.image = UIImage.editButton
+        $0.configuration = config
     }
     
     private let menuList = MyPageMenuListView()

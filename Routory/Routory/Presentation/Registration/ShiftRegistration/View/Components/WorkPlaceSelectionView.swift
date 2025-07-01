@@ -48,7 +48,7 @@ final class WorkPlaceSelectionView: UIView {
 
     init(title: String) {
         super.init(frame: .zero)
-        titleLabel.text = title
+        titleLabel.attributedText = makeTitleAttributedString(from: title)
         setupLayout()
         setupGesture()
     }

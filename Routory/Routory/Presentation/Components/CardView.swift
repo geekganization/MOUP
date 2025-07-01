@@ -29,7 +29,7 @@ private extension CardView {
     // MARK: - setStyles
     func setStyles() {
         layer.shadowColor = UIColor.gray900.cgColor
-        layer.shadowOpacity = 0.1
+        layer.shadowOpacity = 0.085
         layer.shadowOffset = CGSize(width: 0, height: 1)
         layer.shadowRadius = 5
         layer.masksToBounds = false

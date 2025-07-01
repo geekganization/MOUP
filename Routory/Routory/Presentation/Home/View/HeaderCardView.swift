@@ -34,12 +34,21 @@ class HeaderCardView: CardView {
         case .total(let startColor, let endColor):
             setTotalCardType(startColor: startColor, endColor: endColor)
 
+            let logoContainer = UIView()
+            logoContainer.clipsToBounds = true
+            logoContainer.layer.cornerRadius = 12
+            addSubview(logoContainer)
+
+            logoContainer.snp.makeConstraints {
+                $0.edges.equalToSuperview()
+            }
+
             let logoImageView = UIImageView().then {
                 $0.image = .logo
                 $0.alpha = 0.14
                 $0.contentMode = .scaleAspectFit
             }
-            addSubview(logoImageView)
+            logoContainer.addSubview(logoImageView)
             // TODO: - 제약조건 추가
             logoImageView.snp.makeConstraints {
                 $0.centerX.equalTo(self.snp.trailing).inset(62)
@@ -55,7 +64,6 @@ class HeaderCardView: CardView {
 
     private func setTotalCardType(startColor: CGColor, endColor: CGColor) {
         backgroundColor = .clear
-        self.clipsToBounds = true
         let gradient = CAGradientLayer()
         gradient.colors = [startColor, endColor]
         gradient.startPoint = CGPoint(x: 0.5, y: 0)

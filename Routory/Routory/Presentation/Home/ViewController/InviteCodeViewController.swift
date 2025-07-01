@@ -238,9 +238,21 @@ private extension InviteCodeViewController {
         output.registrationSuccess
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] success in
+                guard let self else { return }
+                
                 if success {
-                    print("등록 완료")
-                    self?.navigationController?.popViewController(animated: true)
+                    let wpName = self.selectedWorkplace?.workplace.workplacesName ?? ""
+                    let vc = DeleteAlertViewController(
+                        alertTitle: "등록하기",
+                        alertMessage: "\(wpName) 근무지를 등록할까요?",
+                        deleteButtonTitle: "확인"
+                    )
+                    
+                    vc.onDeleteConfirmed = {
+                        self.view.window?.rootViewController?.dismiss(animated: true)
+                    }
+                    
+                    present(vc, animated: true)
                 } else {
                     print("등록 실패")
                 }

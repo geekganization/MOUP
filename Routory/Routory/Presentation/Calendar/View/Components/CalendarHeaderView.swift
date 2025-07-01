@@ -15,12 +15,16 @@ final class CalendarHeaderView: UIView {
     
     // MARK: - UI Components
     
-    /// 연.월 표시 및 `UIPickerView` 사용을 위한 `UILabel`
-    private let yearMonthLabel = UILabel().then {
-        $0.text = "2001. 01월"
-        $0.textColor = .gray900
-        $0.font = .headBold(20)
-        $0.isUserInteractionEnabled = true
+    /// 연.월 표시 및 `UIPickerView` 사용을 위한 `UIButton`
+    private let yearMonthButton = UIButton().then {
+        var config = UIButton.Configuration.plain()
+        config.attributedTitle = AttributedString("2001.01", attributes: .init([.font: UIFont.headBold(20), .foregroundColor: UIColor.gray900]))
+        config.image = .chevronDown.withTintColor(.gray900, renderingMode: .alwaysOriginal)
+        config.imagePlacement = .trailing
+        config.imagePadding = 8
+        config.contentInsets = .zero
+        
+        $0.configuration = config
     }
     
     /// 토글 스위치 `BetterSegmentedControl` 라이브러리
@@ -48,7 +52,7 @@ final class CalendarHeaderView: UIView {
     
     // MARK: - Getter
     
-    var getYearMonthLabel: UILabel { yearMonthLabel }
+    var getYearMonthButton: UIButton { yearMonthButton }
     var getToggleSwitch: BetterSegmentedControl { toggleSwitch }
     var getFilterButton: UIButton { filterButton }
     
@@ -75,7 +79,7 @@ private extension CalendarHeaderView {
     }
     
     func setHierarchy() {
-        self.addSubviews(yearMonthLabel, toggleSwitch, filterButton)
+        self.addSubviews(yearMonthButton, toggleSwitch, filterButton)
     }
     
     func setStyles() {
@@ -92,7 +96,7 @@ private extension CalendarHeaderView {
     }
     
     func setConstraints() {
-        yearMonthLabel.snp.makeConstraints {
+        yearMonthButton.snp.makeConstraints {
             $0.leading.equalToSuperview().inset(16)
             $0.centerY.equalToSuperview()
         }

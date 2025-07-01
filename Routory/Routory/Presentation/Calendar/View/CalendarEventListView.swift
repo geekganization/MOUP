@@ -30,20 +30,13 @@ final class CalendarEventListView: UIView {
         $0.separatorStyle = .none
     }
     
-    private let registerButton = UIButton().then {
-        var config = UIButton.Configuration.filled()
-        config.attributedTitle = AttributedString("근무 등록하기", attributes: .init([.font: UIFont.buttonSemibold(18), .foregroundColor: UIColor.white]))
-        
-        $0.configuration = config
-        $0.clipsToBounds = true
-        $0.layer.cornerRadius = 12
-    }
+    private let registerButton = BaseButton(title: "근무 등록하기")
     
     // MARK: - Getter
     
     var getTitleLabel: UILabel { titleLabel }
     var getEventTableView: UITableView { eventTableView }
-    var getAssignButton: UIButton { registerButton }
+    var getAssignButton: BaseButton { registerButton }
     
     // MARK: - Initializer
     

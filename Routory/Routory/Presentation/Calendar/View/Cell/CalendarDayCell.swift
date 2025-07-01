@@ -50,8 +50,8 @@ final class CalendarDayCell: JTACDayCell {
     // MARK: - Getter
     
     var getSelectedView: UIView { selectedView }
-    
     var getDateLabel: UILabel { dayLabel }
+    var getEventVStackView: UIStackView { eventVStackView }
     
     // MARK: - Initializer
     
@@ -92,32 +92,26 @@ final class CalendarDayCell: JTACDayCell {
         eventVStackView.subviews.forEach { $0.isHidden = true }
         
         if let modelList {
-            if modelList.isEmpty {
-                eventVStackView.isHidden = true
-            } else {
-                eventVStackView.isHidden = false
-                
-                if (calendarMode == .shared) && modelList.count > 3 {
-                    otherEventLabel.text = "+\(modelList.count - 3)"
-                    otherEventLabel.isHidden = false
-                }
-                for (index, model) in modelList.enumerated() {
-                    if index > ((calendarMode == .shared) ? 2 : 1) {
-                        break
-                    } else {
-                        guard let eventView = eventVStackView.subviews[index] as? CalendarEventVStackView else { continue }
-                        
-                        let event = model.eventInfo.calendarEvent
-                        let workHour = DateFormatter.hourDiffDecimal(from: event.startTime, to: event.endTime, break: model.breakTimeMinutes.rawValue)
-                        let dailyWage = Int(Double(model.wage ?? 0) * (workHour?.decimal ?? 0.0))
-                        eventView.update(workHour: workHour?.decimal ?? 0,
-                                         workerName: model.workerName,
-                                         wageType: model.wageType,
-                                         dailyWage: dailyWage,
-                                         calendarMode: calendarMode,
-                                         color: model.color)
-                        eventView.isHidden = false
-                    }
+            if (calendarMode == .shared) && modelList.count > 3 {
+                otherEventLabel.text = "+\(modelList.count - 3)"
+                otherEventLabel.isHidden = false
+            }
+            for (index, model) in modelList.enumerated() {
+                if index > ((calendarMode == .shared) ? 2 : 1) {
+                    break
+                } else {
+                    guard let eventView = eventVStackView.subviews[index] as? CalendarEventVStackView else { continue }
+                    
+                    let event = model.eventInfo.calendarEvent
+                    let workHour = DateFormatter.hourDiffDecimal(from: event.startTime, to: event.endTime, break: model.breakTimeMinutes.rawValue)
+                    let dailyWage = Int(Double(model.wage ?? 0) * (workHour?.decimal ?? 0.0))
+                    eventView.update(workHour: workHour?.decimal ?? 0,
+                                     workerName: model.workerName,
+                                     wageType: model.wageType,
+                                     dailyWage: dailyWage,
+                                     calendarMode: calendarMode,
+                                     color: model.color)
+                    eventView.isHidden = false
                 }
             }
         }

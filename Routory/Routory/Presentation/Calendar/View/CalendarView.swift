@@ -45,6 +45,7 @@ final class CalendarView: UIView {
         fatalError("init(coder:) has not been implemented.")
     }
 }
+
 // MARK: - UI Methods
 
 private extension CalendarView {
@@ -142,15 +143,11 @@ extension CalendarView {
     ///   - cell: DayCell 인스턴스.
     ///   - cellState: 셀의 상태 정보. `.thisMonth`인 경우에만 표시됩니다.
     func handleCellColor(cell: CalendarDayCell, cellState: CellState) {
-        if cellState.dateBelongsTo == .thisMonth {
-            cell.getDateLabel.isHidden = false
-            cell.getSelectedView.isHidden = false
-            cell.isUserInteractionEnabled = true
-        } else {
-            cell.getDateLabel.isHidden = true
-            cell.getSelectedView.isHidden = true
-            cell.isUserInteractionEnabled = false
-        }
+        let dateBelongsToThisMonth = (cellState.dateBelongsTo == .thisMonth)
+        cell.getDateLabel.isHidden = !dateBelongsToThisMonth
+        cell.getSelectedView.isHidden = !dateBelongsToThisMonth
+        cell.getEventVStackView.isHidden = !dateBelongsToThisMonth
+        cell.isUserInteractionEnabled = dateBelongsToThisMonth
     }
     
     /// 셀 선택 상태에 따라 `selectedView`의 숨김 여부를 설정합니다.

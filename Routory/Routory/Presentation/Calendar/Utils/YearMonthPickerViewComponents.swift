@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// `pickerView`의 components 값을 관리하는 `enum`
+/// `BasePickerView`에서 `yearMonthPickerView`의 components 값을 관리하는 `enum`
 enum YearMonthPickerViewComponents: Int {
     case year = 0
     case month = 1

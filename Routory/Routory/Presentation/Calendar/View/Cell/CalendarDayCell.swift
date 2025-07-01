@@ -123,8 +123,8 @@ final class CalendarDayCell: JTACDayCell {
                     eventView.isHidden = false
                 }
             }
+            self.contentView.layoutIfNeeded()
         }
-        self.contentView.layoutIfNeeded()
     }
 }
 

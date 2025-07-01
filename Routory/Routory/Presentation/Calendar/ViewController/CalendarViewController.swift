@@ -568,9 +568,7 @@ extension CalendarViewController: FilterVCDelegate {
 extension CalendarViewController: RegistrationVCDelegate {
     func registrationVCIsMovingFromParent(dateValue: String) {
         guard let registeredDate = DateFormatter.dataSourceDateFormatter.date(from: dateValue) else { return }
+        calendarView.getJTACalendar.scrollToDate(registeredDate, animateScroll: true)
         calendarView.getJTACalendar.selectDates([registeredDate])
-        
-        let component = dateValue.components(separatedBy: ".").map { Int($0) }
-        visibleYearMonth.accept((year: Int(component[0] ?? 2001), month: Int(component[1] ?? 1)))
     }
 }

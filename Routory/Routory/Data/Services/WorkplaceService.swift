@@ -270,103 +270,112 @@ final class WorkplaceService: WorkplaceServiceProtocol {
         month: Int
     ) -> Observable<[WorkplaceWorkSummary]> {
         let userWorkplaceRef = db.collection("users").document(uid).collection("workplaces")
+
         return Observable.create { observer in
-            let listener = userWorkplaceRef.addSnapshotListener { snap, err in
+            var listeners: [ListenerRegistration] = []
+            var summariesDict: [String: WorkplaceWorkSummary] = [:]
+            let dispatchGroup = DispatchGroup()
+
+            userWorkplaceRef.getDocuments { snap, err in
                 if let err = err {
                     observer.onError(err)
                     return
                 }
+
                 let ids = snap?.documents.map { $0.documentID } ?? []
                 if ids.isEmpty {
                     observer.onNext([])
                     observer.onCompleted()
                     return
                 }
-                
-                let perWorkplaceObservables = ids.map { workplaceId -> Observable<WorkplaceWorkSummary?> in
-                    Observable<WorkplaceWorkSummary?>.create { o in
-                        let workplaceDoc = self.db.collection("workplaces").document(workplaceId)
-                        workplaceDoc.getDocument { doc, _ in
-                            guard let doc, let wData = doc.data(),
-                                  let workplaceName = wData["workplacesName"] as? String else {
-                                o.onNext(nil)
-                                o.onCompleted()
+
+                for workplaceId in ids {
+                    dispatchGroup.enter()
+
+                    let workplaceDoc = self.db.collection("workplaces").document(workplaceId)
+                    workplaceDoc.getDocument { doc, _ in
+                        guard let doc, let wData = doc.data(),
+                              let workplaceName = wData["workplacesName"] as? String else {
+                            dispatchGroup.leave()
+                            return
+                        }
+
+                        workplaceDoc.collection("worker").document(uid).getDocument { workerDoc, _ in
+                            guard let workerDoc, let wDetail = workerDoc.data(),
+                                  let wage = wDetail["wage"] as? Int else {
+                                dispatchGroup.leave()
                                 return
                             }
-                            workplaceDoc.collection("worker").document(uid).getDocument { workerDoc, _ in
-                                guard let workerDoc, let wDetail = workerDoc.data(),
-                                      let wage = wDetail["wage"] as? Int else {
-                                    o.onNext(nil)
-                                    o.onCompleted()
-                                    return
-                                }
-                                let wageCalcMethod = wDetail["wageCalcMethod"] as? String ?? "hourly"
-                                let payDay = wDetail["payDay"] as? Int
-                                let payWeekday = wDetail["payWeekday"] as? String
-                                
-                                // 캘린더 아이디
-                                self.db.collection("calendars")
-                                    .whereField("workplaceId", isEqualTo: workplaceId)
-                                    .getDocuments { calSnap, _ in
-                                        guard let calId = calSnap?.documents.first?.documentID else {
-                                            o.onNext(nil)
-                                            o.onCompleted()
-                                            return
-                                        }
-                                        // 월간 이벤트 모두 조회 (단발성)
-                                        self.db.collection("calendars").document(calId)
-                                            .collection("events")
-                                            .whereField("year", isEqualTo: year)
-                                            .whereField("month", isEqualTo: month)
-                                            .getDocuments { evtSnap, _ in
-                                                let events: [CalendarEvent] = evtSnap?.documents.compactMap { doc in
-                                                    do {
-                                                        let data = try JSONSerialization.data(withJSONObject: doc.data())
-                                                        let event = try JSONDecoder().decode(CalendarEvent.self, from: data)
-                                                        return event.createdBy == uid ? event : nil
-                                                    } catch { return nil }
-                                                } ?? []
-                                                
-                                                let totalHours = events.reduce(0.0) { sum, event in
-                                                    sum + WageHelper.calculateWorkedHours(start: event.startTime, end: event.endTime)
-                                                }
-                                                let totalWage: Int
-                                                if wageCalcMethod == "고정" {
-                                                    totalWage = wage
-                                                } else {
-                                                    totalWage = Int(Double(wage) * totalHours)
-                                                }
-                                                
-                                                o.onNext(WorkplaceWorkSummary(
-                                                    workplaceId: workplaceId,
-                                                    workplaceName: workplaceName,
-                                                    wage: wage,
-                                                    wageCalcMethod: wageCalcMethod,
-                                                    payDay: payDay,
-                                                    payWeekday: payWeekday,
-                                                    events: events,
-                                                    totalWage: totalWage
-                                                ))
-                                                o.onCompleted()
-                                            }
+
+                            let wageCalcMethod = wDetail["wageCalcMethod"] as? String ?? "hourly"
+                            let payDay = wDetail["payDay"] as? Int
+                            let payWeekday = wDetail["payWeekday"] as? String
+
+                            self.db.collection("calendars")
+                                .whereField("workplaceId", isEqualTo: workplaceId)
+                                .getDocuments { calSnap, _ in
+                                    guard let calId = calSnap?.documents.first?.documentID else {
+                                        dispatchGroup.leave()
+                                        return
                                     }
-                            }
+
+                                    let eventsRef = self.db.collection("calendars")
+                                        .document(calId)
+                                        .collection("events")
+                                        .whereField("year", isEqualTo: year)
+                                        .whereField("month", isEqualTo: month)
+
+                                    let listener = eventsRef.addSnapshotListener { evtSnap, _ in
+                                        let events: [CalendarEvent] = evtSnap?.documents.compactMap { doc in
+                                            do {
+                                                let data = try JSONSerialization.data(withJSONObject: doc.data())
+                                                let event = try JSONDecoder().decode(CalendarEvent.self, from: data)
+                                                return event.createdBy == uid ? event : nil
+                                            } catch {
+                                                return nil
+                                            }
+                                        } ?? []
+
+                                        let totalHours = events.reduce(0.0) {
+                                            $0 + WageHelper.calculateWorkedHours(start: $1.startTime, end: $1.endTime)
+                                        }
+
+                                        let totalWage: Int = (wageCalcMethod == "고정") ? wage : Int(Double(wage) * totalHours)
+
+                                        let summary = WorkplaceWorkSummary(
+                                            workplaceId: workplaceId,
+                                            workplaceName: workplaceName,
+                                            wage: wage,
+                                            wageCalcMethod: wageCalcMethod,
+                                            payDay: payDay,
+                                            payWeekday: payWeekday,
+                                            events: events,
+                                            totalWage: totalWage
+                                        )
+
+                                        summariesDict[workplaceId] = summary
+                                        observer.onNext(Array(summariesDict.values))
+                                    }
+
+                                    listeners.append(listener)
+                                    dispatchGroup.leave()
+                                }
                         }
-                        return Disposables.create()
                     }
                 }
-                
-                Observable.zip(perWorkplaceObservables)
-                    .map { $0.compactMap { $0 } }
-                    .subscribe(onNext: { summaries in
-                        observer.onNext(summaries)
-                    }, onError: { error in
-                        observer.onError(error)
-                    })
+
+                dispatchGroup.notify(queue: .main) {
+                    observer.onNext(Array(summariesDict.values))
+                }
             }
-            return Disposables.create { listener.remove() }
+
+            return Disposables.create {
+                listeners.forEach { $0.remove() }
+            }
         }
     }
+
+
 
     
     /// 일간 단위로 근무지별 근무 집계

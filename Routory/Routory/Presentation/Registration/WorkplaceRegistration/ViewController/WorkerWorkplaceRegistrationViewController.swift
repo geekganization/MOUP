@@ -230,7 +230,8 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
         }
         
         contentView.snp.makeConstraints {
-            $0.edges.equalTo(scrollView.contentLayoutGuide).inset(16)
+            $0.top.equalTo(scrollView.contentLayoutGuide)
+            $0.horizontalEdges.bottom.equalTo(scrollView.contentLayoutGuide).inset(16)
             $0.width.equalTo(scrollView.frameLayoutGuide).inset(16)
         }
     }

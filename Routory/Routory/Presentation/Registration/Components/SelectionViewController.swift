@@ -13,7 +13,7 @@ final class SelectionViewController<T>: UIViewController,UITableViewDataSource, 
 
     struct Item {
         let title: String
-        let icon: UIImage?
+        let icon: String?
         let value: T
     }
 
@@ -75,8 +75,8 @@ final class SelectionViewController<T>: UIViewController,UITableViewDataSource, 
         print("✅ setupUI 호출됨")
         let descriptionLabel = UILabel().then {
             $0.text = descriptionText
-            $0.font = .bodyMedium(16)
-            $0.textColor = .gray700
+            $0.font = .headBold(18)
+            $0.textColor = .gray900
             $0.numberOfLines = 0
         }
 
@@ -86,7 +86,7 @@ final class SelectionViewController<T>: UIViewController,UITableViewDataSource, 
             $0.dataSource = self
             $0.separatorStyle = .none
             $0.showsVerticalScrollIndicator = false
-            $0.rowHeight = 64
+            $0.rowHeight = 48
             $0.backgroundColor = .clear
             $0.contentInset = .zero
         }
@@ -112,12 +112,12 @@ final class SelectionViewController<T>: UIViewController,UITableViewDataSource, 
         }
 
         descriptionLabel.snp.makeConstraints {
-            $0.top.equalTo(navigationBar.snp.bottom).offset(16)
+            $0.top.equalTo(navigationBar.snp.bottom).offset(32)
             $0.leading.trailing.equalToSuperview().inset(20)
         }
 
         tableView.snp.makeConstraints {
-            $0.top.equalTo(descriptionLabel.snp.bottom).offset(12)
+            $0.top.equalTo(descriptionLabel.snp.bottom).offset(24)
             $0.leading.trailing.equalToSuperview()
             $0.bottom.equalTo(doneButton.snp.top).offset(-16)
         }
@@ -142,7 +142,7 @@ final class SelectionViewController<T>: UIViewController,UITableViewDataSource, 
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 72
+        return 60
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

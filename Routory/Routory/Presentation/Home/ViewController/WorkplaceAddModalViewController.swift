@@ -120,7 +120,7 @@ private extension WorkplaceAddModalViewController {
                 isHideWorkplaceInfoViewArrow: false,
                 mode: .fullRegistration,
                 
-                nameValue: "세븐일레븐 평촌점",
+                nameValue: "",
                 categoryValue: "편의점",
                 
                 salaryTypeValue: "매월",
@@ -147,7 +147,7 @@ private extension WorkplaceAddModalViewController {
             return OwnerWorkplaceRegistrationViewController(
                 isRegisterMode: true,
                 isEdit: false,
-                nameValue: "세븐일레븐 평촌점",
+                nameValue: "",
                 categoryValue: "편의점",
                 
                 salaryTypeValue: "매월",

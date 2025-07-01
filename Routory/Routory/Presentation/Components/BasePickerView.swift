@@ -84,21 +84,16 @@ final class BasePickerView: UIView {
         configure()
         switch mode {
         case .yearMonthDay:
-            guard let focusedDateStr else { return }
-            makeDatePickerView(focusedDateStr: focusedDateStr)
+            makeYearMonthDayPickerView(focusedDateStr: focusedDateStr)
         case .yearMonth:
-            guard let focusedYear, let focusedMonth else { return }
             yearMonthList = [Array(CalendarRange.startYear.rawValue...CalendarRange.endYear.rawValue), Array(1...12)]
             makeYearMonthPickerView(focusedYear: focusedYear, focusedMonth: focusedMonth)
         case .payday:
-            guard let focusedPayday else { return }
             paydayList = (1...31).map { "\($0)일" }
             makePaydayPickerView(focusedPayday: focusedPayday)
         case .time:
-            guard let focusedTimeStr else { return }
             makeTimePickerView(focusedTimeStr: focusedTimeStr)
         case .breakTime:
-            guard let focusedBreakTimeStr else { return }
             breakTimeList = ["없음"] + (1...8).map {
                 let totalMinutes = $0 * 15
                 let hours = totalMinutes / 60
@@ -161,8 +156,8 @@ private extension BasePickerView {
 // MARK: - Picker Making Methods
 
 private extension BasePickerView {
-    func makeDatePickerView(focusedDateStr: String) {
-        let date = DateFormatter.yearMonthDateFormatter.date(from: focusedDateStr)
+    func makeYearMonthDayPickerView(focusedDateStr: String?) {
+        let date = DateFormatter.dataSourceDateFormatter.date(from: focusedDateStr ?? "2001.01.01")
         /// 연/월/일을 선택하는 `UIDatePicker`
         yearMonthDayPickerView = UIDatePicker().then {
             $0.backgroundColor = .primaryBackground
@@ -171,6 +166,7 @@ private extension BasePickerView {
             $0.preferredDatePickerStyle = .wheels
             $0.minimumDate = CalendarRange.startYear.referenceDate
             $0.maximumDate = CalendarRange.endYear.referenceDate
+            
             $0.setDate(date ?? .now, animated: false)
         }
         guard let yearMonthDayPickerView else { return }
@@ -182,7 +178,7 @@ private extension BasePickerView {
         }
     }
     
-    func makeYearMonthPickerView(focusedYear: Int, focusedMonth: Int) {
+    func makeYearMonthPickerView(focusedYear: Int?, focusedMonth: Int?) {
         yearMonthPickerView = UIPickerView().then {
             $0.backgroundColor = .primaryBackground
             $0.dataSource = self
@@ -196,13 +192,13 @@ private extension BasePickerView {
             $0.bottom.equalTo(confirmButton.snp.top).offset(-12)
         }
         
-        let yearRow = focusedYear - CalendarRange.startYear.rawValue
-        let monthRow = focusedMonth - 1
+        let yearRow = (focusedYear ?? 2001) - CalendarRange.startYear.rawValue
+        let monthRow = (focusedMonth ?? 1) - 1
         yearMonthPickerView.selectRow(yearRow, inComponent: YearMonthPickerViewComponents.year.rawValue, animated: false)
         yearMonthPickerView.selectRow(monthRow, inComponent: YearMonthPickerViewComponents.month.rawValue, animated: false)
     }
     
-    func makePaydayPickerView(focusedPayday: Int) {
+    func makePaydayPickerView(focusedPayday: Int?) {
         paydayPickerView = UIPickerView().then {
             $0.backgroundColor = .primaryBackground
             $0.dataSource = self
@@ -215,17 +211,17 @@ private extension BasePickerView {
             $0.leading.trailing.equalTo(self.safeAreaLayoutGuide)
             $0.bottom.equalTo(confirmButton.snp.top).offset(-12)
         }
-        let row = focusedPayday - 1
+        let row = (focusedPayday ?? 15) - 1
         paydayPickerView.selectRow(row, inComponent: 0, animated: false)
     }
     
-    func makeTimePickerView(focusedTimeStr: String) {
-        let parts = focusedTimeStr.split(separator: ":").compactMap({ Int($0) })
-        if parts.count != 2 { return }
+    func makeTimePickerView(focusedTimeStr: String?) {
+        let parts = focusedTimeStr?.split(separator: ":").compactMap({ Int($0) })
+        if parts?.count != 2 { return }
         
         var components = Calendar.current.dateComponents([.year, .month, .day], from: .now)
-        components.hour = parts[0]
-        components.minute = parts[1]
+        components.hour = parts?[0]
+        components.minute = parts?[1]
         let date = Calendar.current.date(from: components)
         /// 시간을 선택하는 `UIDatePicker`
         timePickerView = UIDatePicker().then {
@@ -245,7 +241,7 @@ private extension BasePickerView {
         }
     }
     
-    func makeBreakTimePickerView(focusedBreakTimeStr: String) {
+    func makeBreakTimePickerView(focusedBreakTimeStr: String?) {
         breakTimePickerView = UIPickerView().then {
             $0.backgroundColor = .primaryBackground
             $0.dataSource = self
@@ -258,7 +254,7 @@ private extension BasePickerView {
             $0.leading.trailing.equalTo(self.safeAreaLayoutGuide)
             $0.bottom.equalTo(confirmButton.snp.top).offset(-12)
         }
-        guard let row = breakTimeList?.firstIndex(of: focusedBreakTimeStr) else { return }
+        guard let row = breakTimeList?.firstIndex(of: focusedBreakTimeStr ?? "없음") else { return }
         breakTimePickerView.selectRow(row, inComponent: 0, animated: false)
     }
 }

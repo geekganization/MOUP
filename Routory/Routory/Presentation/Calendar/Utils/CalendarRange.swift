@@ -17,12 +17,12 @@ enum CalendarRange: Int {
     var referenceDate: Date {
         switch self {
         case .startYear:
-            guard let date = DateFormatter.yearMonthDateFormatter.date(from: "\(self.rawValue).01.01") else {
+            guard let date = DateFormatter.dataSourceDateFormatter.date(from: "\(self.rawValue).01.01") else {
                 return Date(timeIntervalSinceReferenceDate: 0.0)
             }
             return date
         case .endYear:
-            guard let date = DateFormatter.yearMonthDateFormatter.date(from: "\(self.rawValue).12.31") else {
+            guard let date = DateFormatter.dataSourceDateFormatter.date(from: "\(self.rawValue).12.31") else {
                 return .now
             }
             return date

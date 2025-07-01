@@ -267,7 +267,7 @@ extension BasePickerView: UIPickerViewDataSource {
         case .yearMonthDay:
             return 0
         case .yearMonth:
-            return yearMonthList?.count ?? 0
+            return yearMonthList?.count ?? 2
         case .payday:
             return 1
         case .time:

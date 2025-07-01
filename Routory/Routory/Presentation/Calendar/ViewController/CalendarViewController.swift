@@ -392,7 +392,7 @@ extension CalendarViewController: CalendarEventListVCDelegate {
                             isRead: false,
                             eventId: "",
                             editWorkplaceId: "",
-                            workPlaceTitle: "근무지 선택",
+                            workPlaceTitle: "근무지 선택 *",
                             workerTitle: "",
                             routineTitle: "루틴 추가",
                             editRoutineIDs: [],

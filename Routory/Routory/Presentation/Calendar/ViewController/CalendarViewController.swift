@@ -43,7 +43,7 @@ final class CalendarViewController: UIViewController {
     private let visibleYearMonth = BehaviorRelay<(year: Int, month: Int)>(value: (year: Calendar.current.component(.year, from: .now),
                                                                                   month: Calendar.current.component(.month, from: .now)))
     private var selectedDate: Date?
-    private var pendingEventSelection: (selectedDate: Date, model: CalendarModel)?
+    private var pendingEventSelection: (selectedDate: Date, model: CalendarModel, isEdit: Bool)?
     
     // MARK: - UI Components
     
@@ -168,7 +168,11 @@ private extension CalendarViewController {
             .asDriver(onErrorJustReturn: "")
             .drive(with: self) { owner, routineTitle in
                 guard let pending = owner.pendingEventSelection else { return }
-                owner.presentRegisterVC(date: pending.selectedDate, model: pending.model, routineTitle: routineTitle, isRegister: false)
+                owner.presentRegisterVC(date: pending.selectedDate,
+                                        model: pending.model,
+                                        routineTitle: routineTitle,
+                                        isRegister: false,
+                                        isEdit: pending.isEdit)
             }.disposed(by: disposeBag)
     }
 }
@@ -365,20 +369,29 @@ extension CalendarViewController: JTACMonthViewDelegate {
 // MARK: - CalendarEventListVCDelegate
 
 extension CalendarViewController: CalendarEventListVCDelegate {
-    func didTapEventCellOrEditMenu(model: CalendarModel) {
+    func didTapEventCell(model: CalendarModel) {
         if let routineId = model.eventInfo.calendarEvent.routineIds.first {
-            pendingEventSelection = (selectedDate: selectedDate ?? .now, model: model)
+            pendingEventSelection = (selectedDate: selectedDate ?? .now, model: model, isEdit: false)
             searchRoutineIdRelay.accept(routineId)
         } else {
-            presentRegisterVC(date: selectedDate ?? .now, model: model, routineTitle: "루틴 추가", isRegister: false)
+            presentRegisterVC(date: selectedDate ?? .now, model: model, routineTitle: "루틴 추가", isRegister: false, isEdit: false)
+        }
+    }
+    
+    func didTapEditMenu(model: CalendarModel) {
+        if let routineId = model.eventInfo.calendarEvent.routineIds.first {
+            pendingEventSelection = (selectedDate: selectedDate ?? .now, model: model, isEdit: true)
+            searchRoutineIdRelay.accept(routineId)
+        } else {
+            presentRegisterVC(date: selectedDate ?? .now, model: model, routineTitle: "루틴 추가", isRegister: false, isEdit: true)
         }
     }
     
     func didTapRegisterButton() {
-        presentRegisterVC(date: selectedDate ?? .now, model: nil, routineTitle: nil, isRegister: true)
+        presentRegisterVC(date: selectedDate ?? .now, model: nil, routineTitle: nil, isRegister: true, isEdit: true)
     }
     
-    func presentRegisterVC(date: Date, model: CalendarModel?, routineTitle: String?, isRegister: Bool) {
+    func presentRegisterVC(date: Date, model: CalendarModel?, routineTitle: String?, isRegister: Bool, isEdit: Bool) {
         UserManager.shared.getUser { [weak self] result in
             switch result {
             case .success(let user):
@@ -412,7 +425,7 @@ extension CalendarViewController: CalendarEventListVCDelegate {
                         // 사장님
                         let ownerShiftRegisterVC = OwnerShiftRegistrationViewController(
                             isRegisterMode: true,
-                            isEdit: false,
+                            isEdit: true,
                             eventId: "",
                             editWorkplaceId: "",
                             workPlaceTitle: "매장 선택",
@@ -442,7 +455,7 @@ extension CalendarViewController: CalendarEventListVCDelegate {
                         // 알바생
                         let workShiftRegisterVC = WorkShiftRegistrationViewController(
                             isRegisterMode: false,
-                            isRead: true,
+                            isRead: !isEdit,
                             eventId: model.eventInfo.id,
                             editWorkplaceId: model.workplaceId,
                             workPlaceTitle: model.workplaceName,
@@ -465,7 +478,7 @@ extension CalendarViewController: CalendarEventListVCDelegate {
                         // 사장님
                         let ownerShiftRegisterVC = OwnerShiftRegistrationViewController(
                             isRegisterMode: false,
-                            isEdit: true,
+                            isEdit: isEdit,
                             eventId: model.eventInfo.id,
                             editWorkplaceId: model.workplaceId,
                             workPlaceTitle: model.workplaceName,

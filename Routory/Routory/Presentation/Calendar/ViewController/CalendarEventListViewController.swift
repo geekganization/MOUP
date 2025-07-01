@@ -79,11 +79,11 @@ private extension CalendarEventListViewController {
         calendarEventListView.getEventTableView.rx.modelSelected(CalendarModel.self)
             .subscribe(with: self) { owner, model in
                 if owner.calendarMode == .personal {
-                    owner.delegate?.didTapEventCellOrEditMenu(model: model)
+                    owner.delegate?.didTapEventCell(model: model)
                 }
             }.disposed(by: disposeBag)
         
-        calendarEventListView.getAssignButton.rx.tap
+        calendarEventListView.getRegisterButton.rx.tap
             .subscribe(with: self) { owner, _ in
                 owner.delegate?.didTapRegisterButton()
             }.disposed(by: disposeBag)
@@ -101,7 +101,7 @@ private extension CalendarEventListViewController {
                     
                     let editAction = UIAction(title: "수정하기") { [weak self] _ in
                         if self?.calendarMode == .personal {
-                            self?.delegate?.didTapEventCellOrEditMenu(model: model)
+                            self?.delegate?.didTapEditMenu(model: model)
                         }
                     }
                     let deleteAction = UIAction(title: "삭제하기", attributes: .destructive) { _ in

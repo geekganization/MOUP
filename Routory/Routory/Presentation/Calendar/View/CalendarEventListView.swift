@@ -36,7 +36,7 @@ final class CalendarEventListView: UIView {
     
     var getTitleLabel: UILabel { titleLabel }
     var getEventTableView: UITableView { eventTableView }
-    var getAssignButton: BaseButton { registerButton }
+    var getRegisterButton: BaseButton { registerButton }
     
     // MARK: - Initializer
     

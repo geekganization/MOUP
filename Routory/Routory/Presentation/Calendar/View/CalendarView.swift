@@ -13,15 +13,6 @@ import Then
 
 final class CalendarView: UIView {
     
-    // MARK: - Properties
-    
-    /// `CalendarHeaderView`에서 `yearMonthLabel`의 연/월 형식을 만들기 위한 `DateFormatter`
-    private let yearMonthDateFormatter = DateFormatter().then {
-        $0.dateFormat = "yyyy. MM"
-        $0.locale = Locale(identifier: "ko_KR")
-        $0.timeZone = TimeZone(identifier: "Asia/Seoul")
-    }
-    
     // MARK: - UI Components
     
     private let navigationBar = BaseNavigationBar(title: "캘린더").then {
@@ -38,7 +29,6 @@ final class CalendarView: UIView {
     // MARK: - Getter
     
     var getNavigationBar: BaseNavigationBar { navigationBar }
-    var getDateFormatter: DateFormatter { yearMonthDateFormatter }
     var getCalendarHeaderView: CalendarHeaderView { calendarHeaderView }
     var getJTACalendar: JTACMonthView { jtaCalendar }
     
@@ -55,6 +45,7 @@ final class CalendarView: UIView {
         fatalError("init(coder:) has not been implemented.")
     }
 }
+// MARK: - UI Methods
 
 private extension CalendarView {
     func configure() {
@@ -127,7 +118,7 @@ extension CalendarView {
     ///
     /// - Parameter date: 레이블에 표시할 날짜.
     func setMonthLabel(date: Date) {
-        let dateStr = yearMonthDateFormatter.string(from: date)
+        let dateStr = DateFormatter.yearMonthDateFormatter.string(from: date)
         var config = calendarHeaderView.getYearMonthButton.configuration
         config?.attributedTitle = AttributedString(dateStr, attributes: .init([.font: UIFont.headBold(20), .foregroundColor: UIColor.gray900]))
         calendarHeaderView.getYearMonthButton.configuration = config
@@ -176,7 +167,9 @@ extension CalendarView {
     }
     
     func handleCellEvents(cell: CalendarDayCell, date: Date, cellState: CellState, calendarMode: CalendarMode, modelList: [CalendarModel]) {
-        let isToday = Calendar.current.isDateInToday(date) ? true : false
+        var calendar = Calendar.current
+        calendar.timeZone = .autoupdatingCurrent
+        let isToday = calendar.isDateInToday(date) ? true : false
         
         cell.update(date: cellState.text,
                     isSaturday: cellState.day.rawValue == 7,

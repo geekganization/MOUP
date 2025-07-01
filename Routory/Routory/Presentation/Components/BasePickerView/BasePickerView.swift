@@ -16,6 +16,8 @@ final class BasePickerView: UIView {
     
     private let mode: PickerMode
     
+    private var currCalendar = Calendar.current
+    
     /// `yearMonthPickerView`의 `UIPickerViewDataSource`에 사용될 연/월 2차원 배열
     private var yearMonthList: [[Int]]?
     /// `paydayPickerView`의 `UIPickerViewDataSource`에 사용될 급여일 배열
@@ -76,6 +78,7 @@ final class BasePickerView: UIView {
          focusedTimeStr: String?,
          focusedBreakTimeStr: String?) {
         self.mode = mode
+        self.currCalendar.timeZone = .autoupdatingCurrent
         self.focusedYear = focusedYear
         self.focusedMonth = focusedMonth
         self.focusedPayday = focusedPayday
@@ -219,7 +222,7 @@ private extension BasePickerView {
         let parts = focusedTimeStr?.split(separator: ":").compactMap({ Int($0) })
         if parts?.count != 2 { return }
         
-        var components = Calendar.current.dateComponents([.year, .month, .day], from: .now)
+        var components = currCalendar.dateComponents([.year, .month, .day], from: .now)
         components.hour = parts?[0]
         components.minute = parts?[1]
         let date = Calendar.current.date(from: components)

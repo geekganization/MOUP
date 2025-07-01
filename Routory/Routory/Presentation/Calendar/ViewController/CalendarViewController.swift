@@ -12,6 +12,7 @@ import BetterSegmentedControl
 import JTAppleCalendar
 import RxCocoa
 import RxSwift
+import SnapKit
 import Then
 
 final class CalendarViewController: UIViewController {
@@ -30,22 +31,18 @@ final class CalendarViewController: UIViewController {
     private let filterModelRelay = BehaviorRelay<FilterModel?>(value: nil)
     private let searchRoutineIdRelay = PublishRelay<String>()
     
-    /// `calendarView`에서 `dataSource` 관련 데이터의 연/월 형식을 만들기 위한 `DateFormatter`
-    private let dataSourceDateFormatter = DateFormatter().then {
-        $0.dateFormat = "yyyy.MM.dd"
-        $0.locale = Locale(identifier: "ko_KR")
-        $0.timeZone = TimeZone(identifier: "Asia/Seoul")
-    }
+    private var currCalendar = Calendar.current
     
     private var personalEventDataSource: [Date: [CalendarModel]] = [:]
     private var sharedEventDataSource: [Date: [CalendarModel]] = [:]
     
-    private let visibleYearMonth = BehaviorRelay<(year: Int, month: Int)>(value: (year: Calendar.current.component(.year, from: .now),
-                                                                                  month: Calendar.current.component(.month, from: .now)))
+    private let visibleYearMonth: BehaviorRelay<(year: Int, month: Int)>
     private var selectedDate: Date?
     private var pendingEventSelection: (selectedDate: Date, model: CalendarModel, isEdit: Bool)?
     
     // MARK: - UI Components
+    
+    private lazy var onboardingView = OnboardingView(mode: .calendar)
     
     private let calendarView = CalendarView()
     
@@ -53,6 +50,9 @@ final class CalendarViewController: UIViewController {
     
     init(viewModel: CalendarViewModel) {
         self.viewModel = viewModel
+        self.currCalendar.timeZone = .autoupdatingCurrent
+        visibleYearMonth = BehaviorRelay(value: (year: currCalendar.component(.year, from: .now),
+                                                 month: currCalendar.component(.month, from: .now)))
         let input = CalendarViewModel.Input(loadMonthEvent: visibleYearMonth.asObservable(),
                                             calendarMode: calendarModeRelay.asObservable(),
                                             filterModel: filterModelRelay.asObservable(),
@@ -80,6 +80,11 @@ final class CalendarViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         updateCalendar()
+        
+        // 온보딩 확인 및 표시
+        if !OnboardingManager.hasSeenOnboardingCalendar {
+            showOnboarding()
+        }
     }
 }
 
@@ -142,6 +147,7 @@ private extension CalendarViewController {
     }
     
     func setBinding() {
+        // 캘린더 모드(개인/공유)
         calendarModeRelay
             .subscribe(with: self) { owner, mode in
                 owner.calendarView.getJTACalendar.reloadData()
@@ -152,8 +158,6 @@ private extension CalendarViewController {
             .subscribe(with: self) { owner, _ in
                 owner.didFilterButtonTap()
             }.disposed(by: disposeBag)
-        
-        // MARK: - Input (ViewController ➡️ ViewModel)
         
         
         // MARK: - Output (ViewModel ➡️ ViewController)
@@ -180,6 +184,20 @@ private extension CalendarViewController {
 // MARK: - Private Methods
 
 private extension CalendarViewController {
+    func showOnboarding() {
+        didSelectCell(day: 1, calendarModelList: [], animated: false) {
+            if let nav = self.presentedViewController as? UINavigationController,
+               let calendarEventListVC = nav.viewControllers.first as? CalendarEventListViewController {
+                
+                let onboardingModalVC = OnboardingViewController(mode: .calendar)
+                onboardingModalVC.delegate = self
+                onboardingModalVC.modalPresentationStyle = .overFullScreen
+                onboardingModalVC.modalTransitionStyle = .crossDissolve
+                calendarEventListVC.present(onboardingModalVC, animated: true)
+            }
+        }
+    }
+    
     func didYearMonthButtonTap() {
         deselectCell()
         
@@ -212,12 +230,12 @@ private extension CalendarViewController {
 // MARK: - CalendarView Methods
 
 private extension CalendarViewController {
-    /// `jtaCalendar`의 셀을 탭했을 때 호출하는 메서드
+    /// `CalendarDayCell`의 셀을 탭했을 때 호출하는 메서드
     ///
     /// - Parameters:
     ///   - day: 탭한 셀의 일
     ///   - eventList: 탭한 셀의 일에 해당하는 `CalendarEvent` 배열
-    func didSelectCell(day: Int, calendarModelList: [CalendarModel]) {
+    func didSelectCell(day: Int, calendarModelList: [CalendarModel], animated: Bool = true, completion: (() -> Void)? = nil) {
         let calendarService = CalendarService()
         let calendarRepository = CalendarRepository(calendarService: calendarService)
         let calendarUseCase = CalendarUseCase(repository: calendarRepository)
@@ -235,7 +253,7 @@ private extension CalendarViewController {
             sheet.largestUndimmedDetentIdentifier = .medium
         }
         
-        self.present(modalNC, animated: true)
+        self.present(modalNC, animated: animated, completion: completion)
     }
     
     func deselectCell() {
@@ -270,12 +288,12 @@ private extension CalendarViewController {
         sharedEventDataSource.removeAll()
         for model in calendarModelLists.personal {
             let event = model.eventInfo.calendarEvent
-            guard let eventDate = dataSourceDateFormatter.date(from: event.eventDate) else { continue }
+            guard let eventDate = DateFormatter.dataSourceDateFormatter.date(from: event.eventDate) else { continue }
             personalEventDataSource[eventDate, default: []].append(model)
         }
         for model in calendarModelLists.shared {
             let event = model.eventInfo.calendarEvent
-            guard let eventDate = dataSourceDateFormatter.date(from: event.eventDate) else { continue }
+            guard let eventDate = DateFormatter.dataSourceDateFormatter.date(from: event.eventDate) else { continue }
             sharedEventDataSource[eventDate, default: []].append(model)
         }
         
@@ -291,8 +309,8 @@ private extension CalendarViewController {
 
 extension CalendarViewController: JTACMonthViewDataSource {
     func configureCalendar(_ calendar: JTAppleCalendar.JTACMonthView) -> JTAppleCalendar.ConfigurationParameters {
-        let startDate = dataSourceDateFormatter.date(from: "\(CalendarRange.startYear.rawValue).01.01")
-        let endDate = dataSourceDateFormatter.date(from: "\(CalendarRange.endYear.rawValue).12.31")
+        let startDate = DateFormatter.dataSourceDateFormatter.date(from: "\(CalendarRange.startYear.rawValue).01.01")
+        let endDate = DateFormatter.dataSourceDateFormatter.date(from: "\(CalendarRange.endYear.rawValue).12.31")
         
         let parameter = ConfigurationParameters(startDate: startDate ?? .distantPast,
                                                 endDate: endDate ?? .distantFuture,
@@ -326,23 +344,27 @@ extension CalendarViewController: JTACMonthViewDelegate {
     func calendar(_ calendar: JTACMonthView, didScrollToDateSegmentWith visibleDates: DateSegmentInfo) {
         guard let date = visibleDates.monthDates.first?.date else { return }
         calendarView.setMonthLabel(date: date)
-        visibleYearMonth.accept((year: Calendar.current.component(.year, from: date),
-                                 month: Calendar.current.component(.month, from: date)))
+        visibleYearMonth.accept((year: currCalendar.component(.year, from: date),
+                                 month: currCalendar.component(.month, from: date)))
     }
     
     // 이미 선택된 셀인 경우 ➡️ 선택 해제
     func calendar(_ calendar: JTACMonthView, shouldSelectDate date: Date, cell: JTACDayCell?, cellState: CellState, indexPath: IndexPath) -> Bool {
-        if self.presentedViewController != nil {
+        // CalendarEventListViewController가 present 중인지 확인
+        if let navVC = self.presentedViewController as? UINavigationController,
+           navVC.viewControllers.first is CalendarEventListViewController {
+            // present 중이면 셀 선택 불가
             return false
         }
         
+        // present 중이 아니면 셀 선택 가능
         return true
     }
     
     func calendar(_ calendar: JTACMonthView, didSelectDate date: Date, cell: JTACDayCell?, cellState: CellState, indexPath: IndexPath) {
         selectedDate = date
         
-        let day = Calendar.current.component(.day, from: date)
+        let day = currCalendar.component(.day, from: date)
         switch calendarModeRelay.value {
         case .personal:
             calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarMode: calendarModeRelay.value, modelList: personalEventDataSource[date] ?? [])
@@ -393,11 +415,12 @@ extension CalendarViewController: CalendarEventListVCDelegate {
     
     func presentRegisterVC(date: Date, model: CalendarModel?, routineTitle: String?, isRegister: Bool, isEdit: Bool) {
         UserManager.shared.getUser { [weak self] result in
+            guard let self else { return }
             switch result {
             case .success(let user):
                 if isRegister {
                     // 근무 등록
-                    let currentHour = Calendar.current.component(.hour, from: .now)
+                    let currentHour = currCalendar.component(.hour, from: .now)
                     if user.role == UserRole.worker.rawValue {
                         // 알바생
                         let workShiftRegisterVC = WorkShiftRegistrationViewController(
@@ -419,8 +442,8 @@ extension CalendarViewController: CalendarEventListVCDelegate {
                         workShiftRegisterVC.hidesBottomBarWhenPushed = true
                         workShiftRegisterVC.delegate = self
                         
-                        self?.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
-                        self?.navigationController?.presentedViewController?.dismiss(animated: true)
+                        self.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
+                        self.navigationController?.presentedViewController?.dismiss(animated: true)
                     } else {
                         // 사장님
                         let ownerShiftRegisterVC = OwnerShiftRegistrationViewController(
@@ -442,8 +465,8 @@ extension CalendarViewController: CalendarEventListVCDelegate {
                         ownerShiftRegisterVC.hidesBottomBarWhenPushed = true
                         ownerShiftRegisterVC.delegate = self
                         
-                        self?.navigationController?.pushViewController(ownerShiftRegisterVC, animated: true)
-                        self?.navigationController?.presentedViewController?.dismiss(animated: true)
+                        self.navigationController?.pushViewController(ownerShiftRegisterVC, animated: true)
+                        self.navigationController?.presentedViewController?.dismiss(animated: true)
                     }
                 } else {
                     // 근무 수정
@@ -472,8 +495,8 @@ extension CalendarViewController: CalendarEventListVCDelegate {
                         workShiftRegisterVC.hidesBottomBarWhenPushed = true
                         workShiftRegisterVC.delegate = self
                         
-                        self?.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
-                        self?.navigationController?.presentedViewController?.dismiss(animated: true)
+                        self.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
+                        self.navigationController?.presentedViewController?.dismiss(animated: true)
                     } else {
                         // 사장님
                         let ownerShiftRegisterVC = OwnerShiftRegistrationViewController(
@@ -495,12 +518,12 @@ extension CalendarViewController: CalendarEventListVCDelegate {
                         ownerShiftRegisterVC.hidesBottomBarWhenPushed = true
                         ownerShiftRegisterVC.delegate = self
                         
-                        self?.navigationController?.pushViewController(ownerShiftRegisterVC, animated: true)
-                        self?.navigationController?.presentedViewController?.dismiss(animated: true)
+                        self.navigationController?.pushViewController(ownerShiftRegisterVC, animated: true)
+                        self.navigationController?.presentedViewController?.dismiss(animated: true)
                     }
                 }
             case .failure(let error):
-                self?.logger.error("\(error.localizedDescription)")
+                self.logger.error("\(error.localizedDescription)")
             }
         }
     }
@@ -514,12 +537,20 @@ extension CalendarViewController: CalendarEventListVCDelegate {
     }
 }
 
+// MARK: - OnboardingVCDelegate
+
+extension CalendarViewController: OnboardingVCDelegate {
+    func onboardingVCWillDisappear() {
+        self.presentedViewController?.dismiss(animated: true)
+    }
+}
+
 // MARK: - YearMonthPickerVCDelegate
 
 extension CalendarViewController: YearMonthPickerDelegate {
     func didTapGotoButton(year: Int, month: Int) {
         let yearMonthText = "\(year). \(month)"
-        guard let date = calendarView.getDateFormatter.date(from: yearMonthText) else { return }
+        guard let date = DateFormatter.yearMonthDateFormatter.date(from: yearMonthText) else { return }
         calendarView.getJTACalendar.scrollToDate(date)
     }
 }
@@ -536,7 +567,7 @@ extension CalendarViewController: FilterVCDelegate {
 
 extension CalendarViewController: RegistrationVCDelegate {
     func registrationVCIsMovingFromParent(dateValue: String) {
-        guard let assignedDate = DateFormatter.dataSourceDateFormatter.date(from: dateValue) else { return }
-        calendarView.getJTACalendar.selectDates([assignedDate])
+        guard let registeredDate = DateFormatter.dataSourceDateFormatter.date(from: dateValue) else { return }
+        calendarView.getJTACalendar.selectDates([registeredDate])
     }
 }

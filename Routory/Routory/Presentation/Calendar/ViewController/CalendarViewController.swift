@@ -217,6 +217,121 @@ private extension CalendarViewController {
         
         self.present(pickerModalVC, animated: true)
     }
+    
+    func presentRegisterVC(date: Date, model: CalendarModel?, routineTitle: String?, isRegister: Bool, isEdit: Bool) {
+        UserManager.shared.getUser { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let user):
+                if isRegister {
+                    // 근무 등록
+                    let currentHour = currCalendar.component(.hour, from: .now)
+                    if user.role == UserRole.worker.rawValue {
+                        // 알바생
+                        let workShiftRegisterVC = WorkShiftRegistrationViewController(
+                            isRegisterMode: true,
+                            isRead: false,
+                            eventId: "",
+                            editWorkplaceId: "",
+                            workPlaceTitle: "근무지 선택 *",
+                            workerTitle: "",
+                            routineTitle: "루틴 추가",
+                            editRoutineIDs: [],
+                            dateValue: DateFormatter.dataSourceDateFormatter.string(from: date),
+                            repeatValue: "없음",
+                            startTime: "\(String(format: "%02d", currentHour)):00",
+                            endTime: "\(String(format: "%02d", currentHour + 1)):00",
+                            restTime: "없음",
+                            memoPlaceholder: "추가적인 내용을 입력해주세요"
+                        )
+                        workShiftRegisterVC.hidesBottomBarWhenPushed = true
+                        workShiftRegisterVC.delegate = self
+                        
+                        self.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
+                        self.navigationController?.presentedViewController?.dismiss(animated: true)
+                    } else {
+                        // 사장님
+                        let ownerShiftRegisterVC = OwnerShiftRegistrationViewController(
+                            isRegisterMode: true,
+                            isEdit: true,
+                            eventId: "",
+                            editWorkplaceId: "",
+                            workPlaceTitle: "매장 선택",
+                            workerTitle: "알바 선택",
+                            routineTitle: "루틴 추가",
+                            editRoutineIDs: [],
+                            dateValue: DateFormatter.dataSourceDateFormatter.string(from: date),
+                            repeatValue: "없음",
+                            startTime: "\(String(format: "%02d", currentHour)):00",
+                            endTime: "\(String(format: "%02d", currentHour + 1)):00",
+                            restTime: "없음",
+                            memoPlaceholder: "추가적인 내용을 입력해주세요"
+                        )
+                        ownerShiftRegisterVC.hidesBottomBarWhenPushed = true
+                        ownerShiftRegisterVC.delegate = self
+                        
+                        self.navigationController?.pushViewController(ownerShiftRegisterVC, animated: true)
+                        self.navigationController?.presentedViewController?.dismiss(animated: true)
+                    }
+                } else {
+                    // 근무 수정
+                    guard let model, let routineTitle else { return }
+                    let event = model.eventInfo.calendarEvent
+                    let repeatValue = event.repeatDays.isEmpty ? "없음" : event.repeatDays.joined(separator: ", ")
+                    let restTime = model.breakTimeMinutes.displayString
+                    if user.role == UserRole.worker.rawValue {
+                        // 알바생
+                        let workShiftRegisterVC = WorkShiftRegistrationViewController(
+                            isRegisterMode: false,
+                            isRead: !isEdit,
+                            eventId: model.eventInfo.id,
+                            editWorkplaceId: model.workplaceId,
+                            workPlaceTitle: model.workplaceName,
+                            workerTitle: model.workerName,
+                            routineTitle: "\(routineTitle)" + (event.routineIds.count > 1 ? " 외 \(event.routineIds.count - 1)개" : ""),
+                            editRoutineIDs: event.routineIds,
+                            dateValue: DateFormatter.dataSourceDateFormatter.string(from: date),
+                            repeatValue: repeatValue,
+                            startTime: event.startTime,
+                            endTime: event.endTime,
+                            restTime: restTime,
+                            memoPlaceholder: event.memo
+                        )
+                        workShiftRegisterVC.hidesBottomBarWhenPushed = true
+                        workShiftRegisterVC.delegate = self
+                        
+                        self.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
+                        self.navigationController?.presentedViewController?.dismiss(animated: true)
+                    } else {
+                        // 사장님
+                        let ownerShiftRegisterVC = OwnerShiftRegistrationViewController(
+                            isRegisterMode: false,
+                            isEdit: isEdit,
+                            eventId: model.eventInfo.id,
+                            editWorkplaceId: model.workplaceId,
+                            workPlaceTitle: model.workplaceName,
+                            workerTitle: model.workerName,
+                            routineTitle: routineTitle,
+                            editRoutineIDs: event.routineIds,
+                            dateValue: DateFormatter.dataSourceDateFormatter.string(from: date),
+                            repeatValue: repeatValue,
+                            startTime: event.startTime,
+                            endTime: event.endTime,
+                            restTime: restTime,
+                            memoPlaceholder: event.memo
+                        )
+                        ownerShiftRegisterVC.hidesBottomBarWhenPushed = true
+                        ownerShiftRegisterVC.delegate = self
+                        
+                        self.navigationController?.pushViewController(ownerShiftRegisterVC, animated: true)
+                        self.navigationController?.presentedViewController?.dismiss(animated: true)
+                    }
+                }
+            case .failure(let error):
+                self.logger.error("\(error.localizedDescription)")
+            }
+        }
+    }
 }
 
 // MARK: - @objc Methods
@@ -413,121 +528,6 @@ extension CalendarViewController: CalendarEventListVCDelegate {
         presentRegisterVC(date: selectedDate ?? .now, model: nil, routineTitle: nil, isRegister: true, isEdit: true)
     }
     
-    func presentRegisterVC(date: Date, model: CalendarModel?, routineTitle: String?, isRegister: Bool, isEdit: Bool) {
-        UserManager.shared.getUser { [weak self] result in
-            guard let self else { return }
-            switch result {
-            case .success(let user):
-                if isRegister {
-                    // 근무 등록
-                    let currentHour = currCalendar.component(.hour, from: .now)
-                    if user.role == UserRole.worker.rawValue {
-                        // 알바생
-                        let workShiftRegisterVC = WorkShiftRegistrationViewController(
-                            isRegisterMode: true,
-                            isRead: false,
-                            eventId: "",
-                            editWorkplaceId: "",
-                            workPlaceTitle: "근무지 선택 *",
-                            workerTitle: "",
-                            routineTitle: "루틴 추가",
-                            editRoutineIDs: [],
-                            dateValue: DateFormatter.dataSourceDateFormatter.string(from: date),
-                            repeatValue: "없음",
-                            startTime: "\(String(format: "%02d", currentHour)):00",
-                            endTime: "\(String(format: "%02d", currentHour + 1)):00",
-                            restTime: "없음",
-                            memoPlaceholder: "추가적인 내용을 입력해주세요"
-                        )
-                        workShiftRegisterVC.hidesBottomBarWhenPushed = true
-                        workShiftRegisterVC.delegate = self
-                        
-                        self.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
-                        self.navigationController?.presentedViewController?.dismiss(animated: true)
-                    } else {
-                        // 사장님
-                        let ownerShiftRegisterVC = OwnerShiftRegistrationViewController(
-                            isRegisterMode: true,
-                            isEdit: true,
-                            eventId: "",
-                            editWorkplaceId: "",
-                            workPlaceTitle: "매장 선택",
-                            workerTitle: "알바 선택",
-                            routineTitle: "루틴 추가",
-                            editRoutineIDs: [],
-                            dateValue: DateFormatter.dataSourceDateFormatter.string(from: date),
-                            repeatValue: "없음",
-                            startTime: "\(String(format: "%02d", currentHour)):00",
-                            endTime: "\(String(format: "%02d", currentHour + 1)):00",
-                            restTime: "없음",
-                            memoPlaceholder: "추가적인 내용을 입력해주세요"
-                        )
-                        ownerShiftRegisterVC.hidesBottomBarWhenPushed = true
-                        ownerShiftRegisterVC.delegate = self
-                        
-                        self.navigationController?.pushViewController(ownerShiftRegisterVC, animated: true)
-                        self.navigationController?.presentedViewController?.dismiss(animated: true)
-                    }
-                } else {
-                    // 근무 수정
-                    guard let model, let routineTitle else { return }
-                    let event = model.eventInfo.calendarEvent
-                    let repeatValue = event.repeatDays.isEmpty ? "없음" : event.repeatDays.joined(separator: ", ")
-                    let restTime = model.breakTimeMinutes.displayString
-                    if user.role == UserRole.worker.rawValue {
-                        // 알바생
-                        let workShiftRegisterVC = WorkShiftRegistrationViewController(
-                            isRegisterMode: false,
-                            isRead: !isEdit,
-                            eventId: model.eventInfo.id,
-                            editWorkplaceId: model.workplaceId,
-                            workPlaceTitle: model.workplaceName,
-                            workerTitle: model.workerName,
-                            routineTitle: "\(routineTitle)" + (event.routineIds.count > 1 ? " 외 \(event.routineIds.count - 1)개" : ""),
-                            editRoutineIDs: event.routineIds,
-                            dateValue: DateFormatter.dataSourceDateFormatter.string(from: date),
-                            repeatValue: repeatValue,
-                            startTime: event.startTime,
-                            endTime: event.endTime,
-                            restTime: restTime,
-                            memoPlaceholder: event.memo
-                        )
-                        workShiftRegisterVC.hidesBottomBarWhenPushed = true
-                        workShiftRegisterVC.delegate = self
-                        
-                        self.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
-                        self.navigationController?.presentedViewController?.dismiss(animated: true)
-                    } else {
-                        // 사장님
-                        let ownerShiftRegisterVC = OwnerShiftRegistrationViewController(
-                            isRegisterMode: false,
-                            isEdit: isEdit,
-                            eventId: model.eventInfo.id,
-                            editWorkplaceId: model.workplaceId,
-                            workPlaceTitle: model.workplaceName,
-                            workerTitle: model.workerName,
-                            routineTitle: routineTitle,
-                            editRoutineIDs: event.routineIds,
-                            dateValue: DateFormatter.dataSourceDateFormatter.string(from: date),
-                            repeatValue: repeatValue,
-                            startTime: event.startTime,
-                            endTime: event.endTime,
-                            restTime: restTime,
-                            memoPlaceholder: event.memo
-                        )
-                        ownerShiftRegisterVC.hidesBottomBarWhenPushed = true
-                        ownerShiftRegisterVC.delegate = self
-                        
-                        self.navigationController?.pushViewController(ownerShiftRegisterVC, animated: true)
-                        self.navigationController?.presentedViewController?.dismiss(animated: true)
-                    }
-                }
-            case .failure(let error):
-                self.logger.error("\(error.localizedDescription)")
-            }
-        }
-    }
-    
     func didDeleteEvent() {
         updateCalendar()
     }
@@ -569,5 +569,8 @@ extension CalendarViewController: RegistrationVCDelegate {
     func registrationVCIsMovingFromParent(dateValue: String) {
         guard let registeredDate = DateFormatter.dataSourceDateFormatter.date(from: dateValue) else { return }
         calendarView.getJTACalendar.selectDates([registeredDate])
+        
+        let component = dateValue.components(separatedBy: ".").map { Int($0) }
+        visibleYearMonth.accept((year: Int(component[0] ?? 2001), month: Int(component[1] ?? 1)))
     }
 }

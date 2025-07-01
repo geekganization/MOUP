@@ -67,6 +67,15 @@ final class CalendarDayCell: JTACDayCell {
     
     // MARK: - Lifecycle
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        let isOverflow = eventVStackView.frame.maxY >= self.contentView.bounds.height
+        firstEventStackView.getDailyWageLabel.isHidden = isOverflow
+        secondEventStackView.getDailyWageLabel.isHidden = isOverflow
+        thirdEventStackView.getDailyWageLabel.isHidden = isOverflow
+    }
+    
     override func prepareForReuse() {
         super.prepareForReuse()
         dayLabel.backgroundColor = .clear
@@ -115,6 +124,7 @@ final class CalendarDayCell: JTACDayCell {
                 }
             }
         }
+        self.contentView.layoutIfNeeded()
     }
 }
 

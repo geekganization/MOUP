@@ -29,6 +29,10 @@ final class CalendarEventVStackView: UIStackView {
         $0.textAlignment = .left
     }
     
+    // MARK: - Getter
+    
+    var getDailyWageLabel: UILabel { dailyWageLabel }
+    
     // MARK: - Initializer
     
     override init(frame: CGRect) {

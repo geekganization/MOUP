@@ -6,16 +6,11 @@
 //
 
 import UIKit
-import OSLog
 
 import SnapKit
 import Then
 
 final class CalendarEventVStackView: UIStackView {
-    
-    // MARK: - Properties
-    
-    private lazy var logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: String(describing: self))
     
     // MARK: - UI Components
     
@@ -77,6 +72,7 @@ final class CalendarEventVStackView: UIStackView {
         self.backgroundColor = color.backgroundColor
         workHourOrNameLabel.textColor = color.textColor
         dailyWageLabel.textColor = color.textColor
+        print("CalendarEventVStackView")
     }
 }
 

@@ -225,7 +225,9 @@ private extension CalendarViewController {
             case .success(let user):
                 if isRegister {
                     // 근무 등록
-                    let currentHour = currCalendar.component(.hour, from: .now)
+                    let startTime = currCalendar.component(.hour, from: .now)
+                    let aHourLaterDate = currCalendar.date(byAdding: .hour, value: 1, to: .now)
+                    let endTime = currCalendar.component(.hour, from: aHourLaterDate ?? .now)
                     if user.role == UserRole.worker.rawValue {
                         // 알바생
                         let workShiftRegisterVC = WorkShiftRegistrationViewController(
@@ -239,8 +241,8 @@ private extension CalendarViewController {
                             editRoutineIDs: [],
                             dateValue: DateFormatter.dataSourceDateFormatter.string(from: date),
                             repeatValue: "없음",
-                            startTime: "\(String(format: "%02d", currentHour)):00",
-                            endTime: "\(String(format: "%02d", currentHour + 1)):00",
+                            startTime: "\(String(format: "%02d", startTime)):00",
+                            endTime: "\(String(format: "%02d", endTime)):00",
                             restTime: "없음",
                             memoPlaceholder: "추가적인 내용을 입력해주세요"
                         )
@@ -262,8 +264,8 @@ private extension CalendarViewController {
                             editRoutineIDs: [],
                             dateValue: DateFormatter.dataSourceDateFormatter.string(from: date),
                             repeatValue: "없음",
-                            startTime: "\(String(format: "%02d", currentHour)):00",
-                            endTime: "\(String(format: "%02d", currentHour + 1)):00",
+                            startTime: "\(String(format: "%02d", startTime)):00",
+                            endTime: "\(String(format: "%02d", endTime + 1)):00",
                             restTime: "없음",
                             memoPlaceholder: "추가적인 내용을 입력해주세요"
                         )

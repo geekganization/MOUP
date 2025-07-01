@@ -17,6 +17,8 @@ final class CalendarDayCell: JTACDayCell {
     
     static let identifier = String(describing: CalendarDayCell.self)
     
+    private var mode: CalendarMode = .personal
+    
     // MARK: - UI Components
     
     private let seperatorView = UIView().then {
@@ -70,10 +72,16 @@ final class CalendarDayCell: JTACDayCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        let isOverflow = eventVStackView.frame.maxY >= self.contentView.bounds.height
-        firstEventStackView.getDailyWageLabel.isHidden = isOverflow
-        secondEventStackView.getDailyWageLabel.isHidden = isOverflow
-        thirdEventStackView.getDailyWageLabel.isHidden = isOverflow
+        if dayLabel.text == "1" {
+            print(eventVStackView.frame.maxY)
+            print(self.contentView.bounds.height)
+        }
+        if mode == .personal {
+            let isOverflow = eventVStackView.frame.maxY >= self.contentView.bounds.height
+            firstEventStackView.getDailyWageLabel.isHidden = isOverflow
+            secondEventStackView.getDailyWageLabel.isHidden = isOverflow
+            thirdEventStackView.getDailyWageLabel.isHidden = isOverflow
+        }
     }
     
     override func prepareForReuse() {
@@ -84,6 +92,7 @@ final class CalendarDayCell: JTACDayCell {
     // MARK: - Methods
     
     func update(date: String, isSaturday: Bool, isSunday: Bool, isToday: Bool, calendarMode: CalendarMode, modelList: [CalendarModel]?) {
+        mode = calendarMode
         dayLabel.text = date
         dayLabel.textColor = isSunday ? .sundayText : .gray900
         
@@ -106,7 +115,7 @@ final class CalendarDayCell: JTACDayCell {
                 otherEventLabel.isHidden = false
             }
             for (index, model) in modelList.enumerated() {
-                if index > ((calendarMode == .shared) ? 2 : 1) {
+                if index > 2 {
                     break
                 } else {
                     guard let eventView = eventVStackView.subviews[index] as? CalendarEventVStackView else { continue }
@@ -123,7 +132,10 @@ final class CalendarDayCell: JTACDayCell {
                     eventView.isHidden = false
                 }
             }
-            self.contentView.layoutIfNeeded()
+            if mode == .personal {
+                self.contentView.layoutIfNeeded()
+            }
+            print("CalendarDayCell")
         }
     }
 }

@@ -479,6 +479,32 @@ final class HomeViewModel {
             amountDifference: currentMonthlyAmount - previousMonthlyAmount,
             todayRoutineCount: todayRoutinesCount
         )
+
+        if items.isEmpty {
+            items.append(
+                HomeSectionItem.workplace(
+                    WorkplaceCellInfo(
+                        id: "999999999",
+                        isOfficial: true,
+                        category: "편의점",
+                        workerDetail: nil,
+                        labelTitle: "",
+                        showDot: true,
+                        dotColor: "",
+                        storeName: "MOUP 1호점",
+                        daysUntilPayday: 17,
+                        totalEarned: 0,
+                        totalWorkTime: "",
+                        employmentInsurance: 0,
+                        healthInsurance: 0,
+                        industrialAccident: 0,
+                        nationalPension: 0,
+                        incomeTax: 0
+                    )
+                )
+            )
+        }
+
         let sectionData = HomeTableViewFirstSection(header: "나의 근무지", items: items)
 
         return (headerInfo, [sectionData])
@@ -626,6 +652,26 @@ final class HomeViewModel {
             amountDifference: currentMonthlyAmount - previousMonthlyAmount,
             todayRoutineCount: todayRoutinesCount
         )
+
+        if items.isEmpty {
+            items.append(
+                HomeSectionItem.store(
+                    StoreCellInfo(
+                        id: "999999999",
+                        isOfficial: true,
+                        category: "편의점",
+                        labelTitle: "",
+                        showDot: true,
+                        dotColor: "",
+                        storeName: "MOUP 1호점",
+                        daysUntilPayday: 17,
+                        totalLaborCost: 0,
+                        inviteCode: ""
+                    )
+                )
+            )
+        }
+
         let sectionData = HomeTableViewFirstSection(header: "나의 매장", items: items)
 
         return (headerInfo, [sectionData])

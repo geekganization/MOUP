@@ -23,12 +23,12 @@ final class ValueRowView: UIView {
 
     private let titleLabel = UILabel().then {
         $0.font = .bodyMedium(16)
-        $0.textColor = .gray900
+        $0.textColor = .black
     }
 
     private let dotView = UIView().then {
-        $0.layer.cornerRadius = 4
-        $0.snp.makeConstraints { $0.size.equalTo(8) }
+        $0.layer.cornerRadius = 6
+        $0.snp.makeConstraints { $0.size.equalTo(12) }
     }
 
     private let valueLabel = UILabel().then {
@@ -47,11 +47,9 @@ final class ValueRowView: UIView {
     }
 
     private let arrow = UIImageView().then {
-        $0.image = UIImage(named: "ChevronRight")
-        $0.tintColor = .gray700
+        $0.image = UIImage.chevronRightGray400
         $0.contentMode = .scaleAspectFit
         $0.isUserInteractionEnabled = true
-        $0.snp.makeConstraints { $0.size.equalTo(CGSize(width: 8, height: 14)) }
     }
 
     private lazy var leftStack = UIStackView(arrangedSubviews: [dotView, titleLabel]).then {
@@ -64,7 +62,7 @@ final class ValueRowView: UIView {
         $0.axis = .horizontal
         $0.alignment = .center
         $0.distribution = .fill
-        $0.spacing = 8
+        $0.spacing = 12
     }
 
     // MARK: - Initializer
@@ -95,17 +93,22 @@ final class ValueRowView: UIView {
         }
 
         snp.makeConstraints {
-            $0.height.equalTo(44)
+            $0.height.equalTo(48)
         }
 
         let separator = UIView().then {
-            $0.backgroundColor = .systemGray5
+            $0.backgroundColor = .gray400
         }
         addSubview(separator)
         separator.snp.makeConstraints {
-            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.leading.trailing.equalToSuperview()
             $0.bottom.equalToSuperview()
             $0.height.equalTo(1)
+        }
+        
+        arrow.snp.makeConstraints {
+            $0.width.equalTo(7)
+            $0.height.equalTo(12)
         }
     }
 

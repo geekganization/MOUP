@@ -82,7 +82,7 @@ final class TextInputViewController: UIViewController,UIGestureRecognizerDelegat
 
         let guideLabel = UILabel().then {
             $0.text = descriptionText
-            $0.font = .bodyMedium(16)
+            $0.font = .headBold(18)
             $0.textColor = .gray900
         }
 
@@ -92,11 +92,11 @@ final class TextInputViewController: UIViewController,UIGestureRecognizerDelegat
             $0.returnKeyType = .done
             $0.delegate = self
             $0.textAlignment = .left
-            $0.layer.cornerRadius = 8
+            $0.layer.cornerRadius = 12
             $0.layer.borderWidth = 1
-            $0.layer.borderColor = UIColor.systemGray4.cgColor
+            $0.layer.borderColor = UIColor.gray400.cgColor
             $0.placeholder = placeholder
-            $0.setLeftPadding(12)
+            $0.setLeftPadding(16)
             $0.setRightPadding(12)
             $0.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         }
@@ -124,13 +124,13 @@ final class TextInputViewController: UIViewController,UIGestureRecognizerDelegat
         }
 
         guideLabel.snp.makeConstraints {
-            $0.top.equalTo(navigationBar.snp.bottom).offset(24)
-            $0.leading.trailing.equalToSuperview().inset(20)
+            $0.top.equalTo(navigationBar.snp.bottom).offset(32)
+            $0.horizontalEdges.equalToSuperview().inset(16)
         }
 
         textField.snp.makeConstraints {
-            $0.top.equalTo(guideLabel.snp.bottom).offset(12)
-            $0.leading.trailing.equalToSuperview().inset(20)
+            $0.top.equalTo(guideLabel.snp.bottom).offset(18)
+            $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(48)
         }
 

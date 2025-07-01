@@ -55,6 +55,7 @@ final class NewRoutineViewController: UIViewController,UIGestureRecognizerDelega
         $0.placeholder = "할 일을 입력해 주세요"
         $0.borderStyle = .roundedRect
         $0.font = .systemFont(ofSize: 14)
+        $0.clearButtonMode = .whileEditing 
     }
 
     private let addTaskButton = UIButton(type: .system).then {

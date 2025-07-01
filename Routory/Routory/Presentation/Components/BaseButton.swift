@@ -11,7 +11,7 @@ final class BaseButton: UIButton {
     
     // MARK: - Initializer
     
-    init(title: String, isSecondary: Bool = false) {
+    init(title: String = "적용하기", isSecondary: Bool = false) {
         super.init(frame: .zero)
         configure(title: title, isSecondary: isSecondary)
     }
@@ -58,12 +58,12 @@ private extension BaseButton {
             case .normal:
                 button.configuration?.attributedTitle = AttributedString(title, attributes: normalAttribute)
                 button.configuration?.baseBackgroundColor = baseBackgroundColor
-            case .disabled:
-                button.configuration?.attributedTitle = AttributedString(title, attributes: disableAttribute)
-                button.configuration?.baseBackgroundColor = .gray300
             case .highlighted:
                 button.configuration?.attributedTitle = AttributedString(title, attributes: normalAttribute)
                 button.configuration?.baseBackgroundColor = baseBackgroundColor
+            case .disabled:
+                button.configuration?.attributedTitle = AttributedString(title, attributes: disableAttribute)
+                button.configuration?.baseBackgroundColor = .gray300
             default:
                 button.configuration?.attributedTitle = AttributedString(title, attributes: normalAttribute)
                 button.configuration?.baseBackgroundColor = .accent

@@ -174,6 +174,21 @@ final class HomeViewController: UIViewController {
         super.viewDidLoad()
         configure()
     }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        if !OnboardingManager.hasSeenOnboardingHome {
+            // userType을 구독하고 값을 받은 후 온보딩 표시
+            output.userType
+                .skip(1)
+                .take(1) 
+                .subscribe(onNext: { [weak self] userType in
+                    self?.showOnboarding(userType: userType)
+                })
+                .disposed(by: disposeBag)
+        }
+    }
 }
 
 private extension HomeViewController {
@@ -210,17 +225,7 @@ private extension HomeViewController {
             })
             .bind(to: refreshBtnTappedRelay)
             .disposed(by: disposeBag)
-        
-//        homeView.rx.notificationButtonTapped
-//            .subscribe(onNext: { [weak self] in
-//                guard let self else { return }
-//                guard let uid = UserManager.shared.firebaseUid else { return }
-//                let viewModel = NotificationViewModel(uid: uid)
-//                let vc = NotificationViewController(viewModel: viewModel)
-//                
-//                self.navigationController?.pushViewController(vc, animated: true)
-//            })
-//            .disposed(by: disposeBag)
+
 
         // ViewModel의 Output을 ViewController의 상태에 반영
         output.expandedIndexPath
@@ -246,6 +251,13 @@ private extension HomeViewController {
         let routineUseCase = RoutineUseCase(repository: RoutineRepository(service: RoutineService()))
         let viewModel = ManageRoutineViewModel(type: type, routineUseCase: routineUseCase)
         return ManageRoutineViewController(routineType: type, viewModel: viewModel)
+    }
+
+    func showOnboarding(userType: UserType) {
+        let vc = HomeOnboardingViewController(userType: userType)
+        vc.modalPresentationStyle = .overFullScreen
+
+        self.present(vc, animated: false)
     }
 }
 

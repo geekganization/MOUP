@@ -76,9 +76,11 @@ class MyStoreCell: UITableViewCell {
 
     // MARK: - Public Methods
     func update(with storeInfo: StoreCellInfo, menuActions: [UIAction]) {
+        let isTemporary = storeInfo.id == "999999999"
         storeNameLabel.text = storeInfo.storeName
-        daysUntilPaydayLabel.text = "급여일까지 D-\(storeInfo.daysUntilPayday)"
-        setTotalLaborCostLabel(amount: storeInfo.totalLaborCost.withComma)
+        daysUntilPaydayLabel.text = isTemporary ? "급여일까지의 D-day" : "급여일까지 D-\(storeInfo.daysUntilPayday)"
+        setTotalLaborCostLabel(amount: storeInfo.totalLaborCost.withComma, isTemporary: isTemporary)
+        menuButton.isHidden = isTemporary
         setupButtonMenu(with: menuActions)
     }
 }
@@ -157,7 +159,12 @@ private extension MyStoreCell {
         self.menuButton.showsMenuAsPrimaryAction = true
     }
 
-    private func setTotalLaborCostLabel(amount: String) {
+    private func setTotalLaborCostLabel(amount: String, isTemporary: Bool) {
+        guard !isTemporary else {
+            totalLaborCostLabel.text = "현재까지 지급할 인건비"
+            return
+        }
+
         let fullText = "현재까지 \(amount)원"
 
         var attributedString = AttributedString(fullText)

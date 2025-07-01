@@ -78,6 +78,7 @@ private extension InviteCodeViewController {
         setStyles()
         setActions()
         setBindings()
+        setKeyboardDismissGesture()
     }
     
     // MARK: - setStyles
@@ -245,5 +246,18 @@ private extension InviteCodeViewController {
                 }
             })
             .disposed(by: disposeBag)
+    }
+    
+    func setKeyboardDismissGesture() {
+        let tapGesture = UITapGestureRecognizer(
+            target: self,
+            action: #selector(dismissKeyboard)
+        )
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
 }

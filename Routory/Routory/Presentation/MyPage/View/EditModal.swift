@@ -69,14 +69,19 @@ final class EditModal: UIView {
     }
     
     func updateValidationMessage(message: String, isValid: Bool) {
-        if isValid {
+        if textField.text?.isEmpty == true {
             validationLabel.text = message
-            validationLabel.textColor = UIColor.success
+            validationLabel.textColor = .gray700
+            saveButton.setTitleColor(.gray500, for: .normal)
+            saveButton.backgroundColor = .gray300
+        } else if isValid {
+            validationLabel.text = message
+            validationLabel.textColor = .success
             saveButton.setTitleColor(.white, for: .normal)
             saveButton.backgroundColor = .primary500
         } else {
             validationLabel.text = message
-            validationLabel.textColor = UIColor.fail
+            validationLabel.textColor = .fail
             saveButton.setTitleColor(.gray500, for: .normal)
             saveButton.backgroundColor = .gray300
         }

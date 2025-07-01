@@ -23,8 +23,8 @@ final class TextInputViewController: UIViewController,UIGestureRecognizerDelegat
     private let placeholder: String
     private let keyboardType: UIKeyboardType
     private let formatter: ((String) -> String)?
-    private let validator: ((String) -> Bool)?   
-
+    private let validator: ((String) -> Bool)?
+    
     private let textField = UITextField()
     private let doneButton = UIButton(type: .system)
     
@@ -104,11 +104,9 @@ final class TextInputViewController: UIViewController,UIGestureRecognizerDelegat
         doneButton.do {
             $0.setTitle("완료", for: .normal)
             $0.titleLabel?.font = .buttonSemibold(18)
-            $0.setTitleColor(.white, for: .normal)
-            $0.backgroundColor = .primary500
             $0.layer.cornerRadius = 12
             $0.isEnabled = false
-            $0.alpha = 0.5
+            $0.backgroundColor = .gray300
             $0.addTarget(self, action: #selector(didTapDone), for: .touchUpInside)
         }
 
@@ -164,7 +162,8 @@ final class TextInputViewController: UIViewController,UIGestureRecognizerDelegat
 
         let isValid = validator?(text) ?? !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         doneButton.isEnabled = isValid
-        doneButton.alpha = isValid ? 1.0 : 0.5
+        doneButton.backgroundColor = isValid ? .primary500 : .gray300
+        doneButton.setTitleColor(isValid ? .white : .gray500, for: .normal)
     }
 
     @objc private func didTapDone() {

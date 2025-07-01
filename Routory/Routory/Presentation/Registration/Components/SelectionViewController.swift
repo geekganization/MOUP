@@ -42,11 +42,8 @@ final class SelectionViewController<T>: UIViewController,UITableViewDataSource, 
     private let doneButton = UIButton(type: .system).then {
         $0.setTitle("완료", for: .normal)
         $0.titleLabel?.font = .buttonSemibold(18)
-        $0.setTitleColor(.white, for: .normal)
-        $0.backgroundColor = .primary500
         $0.layer.cornerRadius = 12
         $0.isEnabled = false
-        $0.alpha = 0.5
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -72,7 +69,6 @@ final class SelectionViewController<T>: UIViewController,UITableViewDataSource, 
     }
 
     private func setupUI() {
-        print("✅ setupUI 호출됨")
         let descriptionLabel = UILabel().then {
             $0.text = descriptionText
             $0.font = .headBold(18)
@@ -95,7 +91,6 @@ final class SelectionViewController<T>: UIViewController,UITableViewDataSource, 
             $0.setTitle("완료", for: .normal)
             $0.titleLabel?.font = .buttonSemibold(18)
             $0.setTitleColor(.white, for: .normal)
-            $0.backgroundColor = .primary500
             $0.layer.cornerRadius = 12
             $0.addTarget(self, action: #selector(didTapDone), for: .touchUpInside)
         }
@@ -132,7 +127,8 @@ final class SelectionViewController<T>: UIViewController,UITableViewDataSource, 
     private func updateDoneButtonState() {
         let isSelected = selectedIndex != nil
         doneButton.isEnabled = isSelected
-        doneButton.alpha = isSelected ? 1.0 : 0.5
+        doneButton.backgroundColor = isSelected ? .primary500 : .gray300
+        doneButton.setTitleColor(isSelected ? .white : .gray500, for: .normal)
     }
 
     @objc private func didTapDone() {

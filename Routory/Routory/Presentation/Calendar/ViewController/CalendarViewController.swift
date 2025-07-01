@@ -186,8 +186,6 @@ private extension CalendarViewController {
         
         let pickerModalVC = BasePickerViewController(mode: .yearMonth, currYear: currYear, currMonth: currMonth)
         pickerModalVC.yearMonthPickerdelegate = self
-//        let pickerModalVC = YearMonthPickerViewController(currYear: currYear, currMonth: currMonth)
-//        pickerModalVC.delegate = self
         
         if let sheet = pickerModalVC.sheetPresentationController {
             sheet.detents = [.medium()]

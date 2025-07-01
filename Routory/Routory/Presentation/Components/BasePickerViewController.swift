@@ -36,7 +36,7 @@ final class BasePickerViewController: UIViewController {
          focusedDateStr: String? = nil,
          currYear: Int? = nil,
          currMonth: Int? = nil,
-         focusedDay: Int? = nil,
+         focusedPayday: Int? = nil,
          focusedTimeStr: String? = nil,
          focusedBreakTimeStr: String? = nil) {
         self.mode = mode
@@ -46,7 +46,7 @@ final class BasePickerViewController: UIViewController {
                                              focusedDateStr: focusedDateStr,
                                              focusedYear: currYear,
                                              focusedMonth: currMonth,
-                                             focusedDay: focusedDay,
+                                             focusedPayday: focusedPayday,
                                              focusedTimeStr: focusedTimeStr,
                                              focusedBreakTimeStr: focusedBreakTimeStr)
         super.init(nibName: nil, bundle: nil)

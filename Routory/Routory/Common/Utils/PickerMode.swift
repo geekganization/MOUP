@@ -10,7 +10,7 @@ import Foundation
 enum PickerMode {
     case yearMonthDay
     case yearMonth
-    case day
+    case payday
     case time
-    case minute
+    case breakTime
 }

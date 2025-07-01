@@ -23,11 +23,11 @@ final class BasePickerView: UIView {
     /// `breakTimePickerView`의 `UIPickerViewDataSource`에 사용될 휴게시간 배열
     private var breakTimeList: [String]?
     
-    /// `yearMonthPickerView`에서 didSelect된 연도
+    /// `yearMonthPickerView`에서 `didSelect`된 연도
     private var focusedYear: Int?
-    /// `yearMonthPickerView`에서 didSelect된 월
+    /// `yearMonthPickerView`에서 `didSelect`된 월
     private var focusedMonth: Int?
-    /// `paydayPickerView`에서 didSelect된 일
+    /// `paydayPickerView`에서 `didSelect`된 일
     private var focusedPayday: Int?
     
     // MARK: - UI Components
@@ -53,7 +53,7 @@ final class BasePickerView: UIView {
         $0.spacing = 8
         $0.distribution = .fillEqually
     }
-
+    
     // MARK: - Getter
     
     var getSelectedYearMonth: (year: Int?, month: Int?) { (focusedYear, focusedMonth) }
@@ -72,13 +72,13 @@ final class BasePickerView: UIView {
          focusedDateStr: String?,
          focusedYear: Int?,
          focusedMonth: Int?,
-         focusedDay: Int?,
+         focusedPayday: Int?,
          focusedTimeStr: String?,
          focusedBreakTimeStr: String?) {
         self.mode = mode
         self.focusedYear = focusedYear
         self.focusedMonth = focusedMonth
-        self.focusedPayday = focusedDay
+        self.focusedPayday = focusedPayday
         super.init(frame: .zero)
         
         configure()
@@ -90,16 +90,28 @@ final class BasePickerView: UIView {
             guard let focusedYear, let focusedMonth else { return }
             yearMonthList = [Array(CalendarRange.startYear.rawValue...CalendarRange.endYear.rawValue), Array(1...12)]
             makeYearMonthPickerView(focusedYear: focusedYear, focusedMonth: focusedMonth)
-        case .day:
-            guard let focusedDay else { return }
+        case .payday:
+            guard let focusedPayday else { return }
             paydayList = (1...31).map { "\($0)일" }
-            makeDayPickerView(focusedDay: focusedDay)
+            makePaydayPickerView(focusedPayday: focusedPayday)
         case .time:
             guard let focusedTimeStr else { return }
             makeTimePickerView(focusedTimeStr: focusedTimeStr)
-        case .minute:
+        case .breakTime:
             guard let focusedBreakTimeStr else { return }
-            breakTimeList = (1...8).map { "\($0 * 15)분" }
+            breakTimeList = ["없음"] + (1...8).map {
+                let totalMinutes = $0 * 15
+                let hours = totalMinutes / 60
+                let minutes = totalMinutes - hours * 60
+                
+                if hours > 0 && minutes > 0 {
+                    return "\(hours)시간 \(minutes)분"
+                } else if hours > 0 && minutes == 0 {
+                    return "\(hours)시간"
+                } else {
+                    return "\(minutes)분"
+                }
+            }
             makeBreakTimePickerView(focusedBreakTimeStr: focusedBreakTimeStr)
         }
     }
@@ -190,7 +202,7 @@ private extension BasePickerView {
         yearMonthPickerView.selectRow(monthRow, inComponent: YearMonthPickerViewComponents.month.rawValue, animated: false)
     }
     
-    func makeDayPickerView(focusedDay: Int) {
+    func makePaydayPickerView(focusedPayday: Int) {
         paydayPickerView = UIPickerView().then {
             $0.backgroundColor = .primaryBackground
             $0.dataSource = self
@@ -203,6 +215,8 @@ private extension BasePickerView {
             $0.leading.trailing.equalTo(self.safeAreaLayoutGuide)
             $0.bottom.equalTo(confirmButton.snp.top).offset(-12)
         }
+        let row = focusedPayday - 1
+        paydayPickerView.selectRow(row, inComponent: 0, animated: false)
     }
     
     func makeTimePickerView(focusedTimeStr: String) {
@@ -216,9 +230,10 @@ private extension BasePickerView {
         /// 시간을 선택하는 `UIDatePicker`
         timePickerView = UIDatePicker().then {
             $0.backgroundColor = .primaryBackground
-            $0.locale = Locale(identifier: "ko-KR")
+            $0.locale = Locale(identifier: "en-GB")  // 24시간제
             $0.datePickerMode = .time
             $0.preferredDatePickerStyle = .wheels
+            
             $0.setDate(date ?? .now, animated: false)
         }
         guard let timePickerView else { return }
@@ -243,6 +258,8 @@ private extension BasePickerView {
             $0.leading.trailing.equalTo(self.safeAreaLayoutGuide)
             $0.bottom.equalTo(confirmButton.snp.top).offset(-12)
         }
+        guard let row = breakTimeList?.firstIndex(of: focusedBreakTimeStr) else { return }
+        breakTimePickerView.selectRow(row, inComponent: 0, animated: false)
     }
 }
 
@@ -255,12 +272,12 @@ extension BasePickerView: UIPickerViewDataSource {
             return 0
         case .yearMonth:
             return yearMonthList?.count ?? 0
-        case .day:
-            return paydayList?.count ?? 0
+        case .payday:
+            return 1
         case .time:
             return 0
-        case .minute:
-            return breakTimeList?.count ?? 0
+        case .breakTime:
+            return 1
         }
     }
     
@@ -270,14 +287,14 @@ extension BasePickerView: UIPickerViewDataSource {
             return 0
         case .yearMonth:
             return yearMonthList?[component].count ?? 0
-        case .day:
+        case .payday:
             return paydayList?.count ?? 0
         case .time:
             return 0
-        case .minute:
+        case .breakTime:
             return breakTimeList?.count ?? 0
         }
-
+        
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
@@ -286,11 +303,11 @@ extension BasePickerView: UIPickerViewDataSource {
             return nil
         case .yearMonth:
             return String(yearMonthList?[component][row] ?? 0)
-        case .day:
+        case .payday:
             return paydayList?[row] ?? ""
         case .time:
             return nil
-        case .minute:
+        case .breakTime:
             return breakTimeList?[row] ?? ""
         }
         
@@ -310,7 +327,20 @@ extension BasePickerView: UIPickerViewDelegate {
     
     func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
         let label = (view as? UILabel) ?? UILabel()
-        label.text = String(yearMonthList?[component][row] ?? 0)
+        let text: String?
+        switch mode {
+        case .yearMonthDay:
+            text = nil
+        case .yearMonth:
+            text = String(yearMonthList?[component][row] ?? 0)
+        case .payday:
+            text = String(paydayList?[row] ?? "")
+        case .time:
+            text = nil
+        case .breakTime:
+            text = String(breakTimeList?[row] ?? "")
+        }
+        label.text = text
         label.font = .headBold(20)
         label.textColor = .gray900
         label.textAlignment = .center

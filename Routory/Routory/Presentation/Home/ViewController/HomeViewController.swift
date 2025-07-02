@@ -297,8 +297,7 @@ extension HomeViewController: UITableViewDelegate {
                 let workplaceAddModalVC = WorkplaceAddModalViewController()
                 let nav = UINavigationController(rootViewController: workplaceAddModalVC)
                 nav.modalPresentationStyle = .overFullScreen
-                nav.modalTransitionStyle = .crossDissolve
-                self.present(nav, animated: true, completion: nil)
+                self.present(nav, animated: false)
             })
             .disposed(by: disposeBag)
 

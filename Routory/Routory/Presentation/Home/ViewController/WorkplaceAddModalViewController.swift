@@ -11,6 +11,10 @@ import SnapKit
 
 final class WorkplaceAddModalViewController: UIViewController {
     
+    // MARK: - Properties
+    
+    private var hasAnimatedIn = false
+    
     // MARK: - UI Components
     
     private let workplaceAddView = WorkplaceAddModalView().then {
@@ -29,6 +33,15 @@ final class WorkplaceAddModalViewController: UIViewController {
         super.viewDidLoad()
 
         configure()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        if !hasAnimatedIn {
+            hasAnimatedIn = true
+            animateModalIn()
+        }
     }
 }
 
@@ -63,7 +76,9 @@ private extension WorkplaceAddModalViewController {
     // MARK: - setActions
     func setActions() {
         workplaceAddView.onDismiss = { [weak self] in
-            self?.dismiss(animated: true, completion: nil)
+            self?.animateModalOut {
+                self?.dismiss(animated: false)
+            }
         }
         
         workplaceAddView.inviteCodeButtonView.addTarget(
@@ -177,11 +192,13 @@ private extension WorkplaceAddModalViewController {
         let location = sender.location(in: view)
         
         if workplaceAddView.frame.contains(location) == false {
-            dismiss(animated: true)
+            animateModalOut {
+                self.dismiss(animated: false)
+            }
         }
     }
     
-    private func updateUIBasedOnUserRole() {
+    func updateUIBasedOnUserRole() {
         UserManager.shared.getUser { [weak self] result in
             guard let self else { return }
 
@@ -198,9 +215,28 @@ private extension WorkplaceAddModalViewController {
         }
     }
     
-    private func updateWorkplaceAddViewHeight(to height: CGFloat) {
+    func updateWorkplaceAddViewHeight(to height: CGFloat) {
         workplaceAddView.snp.updateConstraints {
             $0.height.equalTo(height)
         }
+    }
+    
+    func animateModalIn() {
+        workplaceAddView.transform = CGAffineTransform(
+            translationX: 0,
+            y: workplaceAddView.frame.height
+        )
+        
+        UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseOut]) {
+            self.workplaceAddView.transform = .identity
+        }
+    }
+    
+    func animateModalOut(completion: (() -> Void)? = nil) {
+        UIView.animate(withDuration: 0.25, animations: {
+            self.workplaceAddView.transform = CGAffineTransform(translationX: 0, y: self.workplaceAddView.frame.height)
+        }, completion: { _ in
+            completion?()
+        })
     }
 }

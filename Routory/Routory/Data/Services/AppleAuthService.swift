@@ -17,6 +17,7 @@ import RxSwift
 protocol AppleAuthServiceProtocol {
     func signInWithApple() -> Observable<(String, String, OAuthCredential)>
     func getAppleCredential() -> Observable<(String, OAuthCredential)>
+    func deleteCurrentUser() -> Observable<Void>
 }
 
 final class AppleAuthService: NSObject, AppleAuthServiceProtocol {
@@ -105,6 +106,51 @@ final class AppleAuthService: NSObject, AppleAuthServiceProtocol {
                         observer.onNext((username, credential))
                         observer.onCompleted()
                     }
+                }.disposed(by: disposeBag)
+            
+            return Disposables.create()
+        }
+    }
+    
+    func deleteCurrentUser() -> Observable<Void> {
+        return Observable.create { [weak self] observer in
+            guard let self else { return Disposables.create() }
+            
+            let nonce = randomNonceString()
+            currentNonce = nonce
+            let appleIDProvider = ASAuthorizationAppleIDProvider()
+            let request = appleIDProvider.createRequest()
+            request.requestedScopes = [.fullName]
+            request.nonce = sha256(nonce)
+            
+            let authController = ASAuthorizationController(authorizationRequests: [request])
+            authController.performRequests()
+            
+            authController.rx.didCompleteWithAuthorization.asObservable()
+                .subscribe(with: self) { owner, credential in
+                    guard let appleIDCredential = credential as? ASAuthorizationAppleIDCredential
+                    else {
+                        owner.logger.error("Unable to retrieve AppleIDCredential")
+                        return
+                    }
+                    
+                    guard let _ = owner.currentNonce else {
+                        fatalError("Invalid state: A login callback was received, but no login request was sent.")
+                    }
+                    
+                    guard let appleAuthCode = appleIDCredential.authorizationCode else {
+                        owner.logger.error("Unable to fetch authorization code")
+                        return
+                    }
+                    
+                    guard let authCodeString = String(data: appleAuthCode, encoding: .utf8) else {
+                        owner.logger.error("Unable to serialize auth code string from data: \(appleAuthCode.debugDescription)")
+                        return
+                    }
+                    
+                    Auth.auth().revokeToken(withAuthorizationCode: authCodeString)
+                    observer.onNext(())
+                    observer.onCompleted()
                 }.disposed(by: disposeBag)
             
             return Disposables.create()

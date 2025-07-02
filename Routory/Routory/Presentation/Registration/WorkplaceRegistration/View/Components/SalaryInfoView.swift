@@ -86,7 +86,7 @@ final class SalaryInfoView: UIView, ValueRowViewDelegate, FieldRowViewDelegate {
 
         let stack = UIStackView(arrangedSubviews: [titleLabel, boxStackView]).then {
             $0.axis = .vertical
-            $0.spacing = 8
+            $0.spacing = 12
         }
 
         addSubview(stack)

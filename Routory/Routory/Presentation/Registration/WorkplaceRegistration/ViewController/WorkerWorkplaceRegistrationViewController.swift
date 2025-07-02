@@ -230,7 +230,8 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
         }
         
         contentView.snp.makeConstraints {
-            $0.edges.equalTo(scrollView.contentLayoutGuide).inset(16)
+            $0.top.equalTo(scrollView.contentLayoutGuide)
+            $0.horizontalEdges.bottom.equalTo(scrollView.contentLayoutGuide).inset(16)
             $0.width.equalTo(scrollView.frameLayoutGuide).inset(16)
         }
     }
@@ -422,7 +423,8 @@ final class WorkerWorkplaceRegistrationViewController: UIViewController,UIGestur
                         .observe(on: MainScheduler.instance)
                         .subscribe(onNext: { [weak self] id in
                             print("등록 완료: \(id)")
-                            self?.navigationController?.popViewController(animated: true)
+//                            self?.navigationController?.popViewController(animated: true)
+                            self?.view.window?.rootViewController?.dismiss(animated: true)
                         })
                         .disposed(by: self.disposeBag)
                     

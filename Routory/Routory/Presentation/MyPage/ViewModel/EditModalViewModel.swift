@@ -89,17 +89,42 @@ final class EditModalViewModel {
     // MARK: - 유효성 검사
     
     private func validateNickname(_ nickname: String) -> String? {
-        if nickname.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return "특수문자 제외 8자 이하로 입력해주세요"
+        let trimmed = nickname.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if trimmed.isEmpty {
+            return "한글, 영문 또는 숫자만 사용하여 8자 이하로 입력해주세요"
         }
-        if nickname.count > 8 {
-            return "특수문자 제외 8자 이하로 입력해주세요"
+
+        if nickname.contains(where: { $0.isWhitespace }) {
+            return "공백은 사용할 수 없어요"
         }
-        let pattern = "[^가-힣a-zA-Z0-9]"
-        if let _ = nickname.range(of: pattern, options: .regularExpression) {
-            return "특수문자 제외 8자 이하로 입력해주세요"
+
+        if trimmed.range(of: "^[ㄱ-ㅎ]+$", options: .regularExpression) != nil {
+            return "자음만 사용할 수 없어요"
         }
-        
+
+        if trimmed.range(of: "^[ㅏ-ㅣ]+$", options: .regularExpression) != nil {
+            return "모음만 사용할 수 없어요"
+        }
+
+        if trimmed.range(of: "[ㄱ-ㅎㅏ-ㅣ]", options: .regularExpression) != nil {
+            return "정확한 글자를 입력해주세요"
+        }
+
+        let containsHangul = trimmed.range(of: "[가-힣]", options: .regularExpression) != nil
+        let containsAlphabet = trimmed.range(of: "[a-zA-Z]", options: .regularExpression) != nil
+        if containsHangul && containsAlphabet {
+            return "한글 또는 영문만 사용할 수 있어요"
+        }
+
+        if trimmed.range(of: "[^가-힣a-zA-Z0-9]", options: .regularExpression) != nil {
+            return "특수문자는 사용할 수 없어요"
+        }
+
+        if trimmed.count > 8 {
+            return "8자 이하로 입력해주세요"
+        }
+
         return nil
     }
 }

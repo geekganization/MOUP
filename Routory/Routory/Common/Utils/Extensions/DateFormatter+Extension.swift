@@ -10,6 +10,13 @@ import Foundation
 import Then
 
 extension DateFormatter {
+    /// `CalendarHeaderView`에서 `yearMonthLabel`의 연/월 형식을 만들기 위한 `DateFormatter`
+    static let yearMonthDateFormatter = DateFormatter().then {
+        $0.dateFormat = "yyyy. MM"
+        $0.locale = Locale(identifier: "ko_KR")
+        $0.timeZone = TimeZone(identifier: "Asia/Seoul")
+    }
+    
     /// `calendarView`에서 `dataSource` 관련 데이터의 연/월 형식을 만들기 위한 `DateFormatter`
     static let dataSourceDateFormatter = DateFormatter().then {
         $0.dateFormat = "yyyy.MM.dd"
@@ -28,11 +35,13 @@ extension DateFormatter {
         guard let startDate = workHourDateFormatter.date(from: start),
               let endDate = workHourDateFormatter.date(from: end) else { return nil }
         
-        let subtractedEndDate = Calendar.current.date(byAdding: .minute, value: -minus, to: endDate) ?? endDate
+        var calendar = Calendar.current
+        calendar.timeZone = .autoupdatingCurrent
+        let subtractedEndDate = calendar.date(byAdding: .minute, value: -minus, to: endDate) ?? endDate
         
-        let todayOverEnd = subtractedEndDate < startDate ? Calendar.current.date(byAdding: .day, value: 1, to: subtractedEndDate) ?? subtractedEndDate : subtractedEndDate
+        let todayOverEnd = subtractedEndDate < startDate ? calendar.date(byAdding: .day, value: 1, to: subtractedEndDate) ?? subtractedEndDate : subtractedEndDate
         
-        let components = Calendar.current.dateComponents([.hour, .minute], from: startDate, to: todayOverEnd)
+        let components = calendar.dateComponents([.hour, .minute], from: startDate, to: todayOverEnd)
         
         let h = components.hour ?? 0
         let m = components.minute ?? 0

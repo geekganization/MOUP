@@ -6,16 +6,11 @@
 //
 
 import UIKit
-import OSLog
 
 import SnapKit
 import Then
 
 final class CalendarEventVStackView: UIStackView {
-    
-    // MARK: - Properties
-    
-    private lazy var logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: String(describing: self))
     
     // MARK: - UI Components
     
@@ -28,6 +23,10 @@ final class CalendarEventVStackView: UIStackView {
         $0.font = .bodyMedium(12)
         $0.textAlignment = .left
     }
+    
+    // MARK: - Getter
+    
+    var getDailyWageLabel: UILabel { dailyWageLabel }
     
     // MARK: - Initializer
     

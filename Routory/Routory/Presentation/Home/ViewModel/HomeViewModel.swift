@@ -399,11 +399,12 @@ final class HomeViewModel {
             if workerDetail?.wageType != "시급" {
                 let fixedSalary = workerDetail?.wage ?? 0
                 currentMonthlyAmount += fixedSalary  // 이번 달은 무조건 포함
-
+                
                 // 이전 달은 근무기록 있을 때만 포함
-                let hasPreviousRecord = previousSummaries.contains { $0.workplaceId == workplaceInfo.id }
-                if hasPreviousRecord {
+                let previousSummary = previousSummaries.filter { $0.workplaceId == workplaceInfo.id }
+                if let summary = previousSummary.first, !summary.events.isEmpty {
                     previousMonthlyAmount += fixedSalary
+                    print("이전 달 \(fixedSalary)만큼 추가")
                 }
 
                 currentTotalPayInfo = PayrollResult(
@@ -473,15 +474,37 @@ final class HomeViewModel {
             .flatMap{$0.routineIds})
             .count
 
-        print(" [WORKER] 루틴 계산 과정:")
-        print("   - todayRoutines 키: \(Array(todayRoutines.keys))")
-        print("   - todayRoutines.values: \(todayRoutines.values)")
-
         let headerInfo = HomeHeaderInfo(
             monthlyAmount: currentMonthlyAmount,
             amountDifference: currentMonthlyAmount - previousMonthlyAmount,
             todayRoutineCount: todayRoutinesCount
         )
+
+        if items.isEmpty {
+            items.append(
+                HomeSectionItem.workplace(
+                    WorkplaceCellInfo(
+                        id: "999999999",
+                        isOfficial: true,
+                        category: "편의점",
+                        workerDetail: nil,
+                        labelTitle: "",
+                        showDot: true,
+                        dotColor: "",
+                        storeName: "MOUP 1호점",
+                        daysUntilPayday: 17,
+                        totalEarned: 0,
+                        totalWorkTime: "",
+                        employmentInsurance: 0,
+                        healthInsurance: 0,
+                        industrialAccident: 0,
+                        nationalPension: 0,
+                        incomeTax: 0
+                    )
+                )
+            )
+        }
+
         let sectionData = HomeTableViewFirstSection(header: "나의 근무지", items: items)
 
         return (headerInfo, [sectionData])
@@ -568,7 +591,7 @@ final class HomeViewModel {
                 if workerSummary.worker.detail.wageType != "시급" {
                     // 이전 달은 실제 근무기록이 있을 때만 고정급 포함
                     let thisWorkplaceSummaries = workerSummary.summaries.filter {
-                        $0.workplaceId == workplaceInfo.id
+                        $0.workplaceId == workplaceInfo.id && !$0.events.isEmpty // 근무자로 추가는 되어있지만 근무 기록은 없을 경우
                     }
                     if !thisWorkplaceSummaries.isEmpty {
                         previousMonthlyAmount += workerSummary.worker.detail.wage
@@ -629,6 +652,26 @@ final class HomeViewModel {
             amountDifference: currentMonthlyAmount - previousMonthlyAmount,
             todayRoutineCount: todayRoutinesCount
         )
+
+        if items.isEmpty {
+            items.append(
+                HomeSectionItem.store(
+                    StoreCellInfo(
+                        id: "999999999",
+                        isOfficial: true,
+                        category: "편의점",
+                        labelTitle: "",
+                        showDot: true,
+                        dotColor: "",
+                        storeName: "MOUP 1호점",
+                        daysUntilPayday: 17,
+                        totalLaborCost: 0,
+                        inviteCode: ""
+                    )
+                )
+            )
+        }
+
         let sectionData = HomeTableViewFirstSection(header: "나의 매장", items: items)
 
         return (headerInfo, [sectionData])

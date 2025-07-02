@@ -18,7 +18,7 @@ enum RoutineFormMode {
     case read(routineId: String, existingTitle: String, existingTime: String, existingTasks: [String], fromAll: Bool)
 }
 
-final class NewRoutineViewController: UIViewController,UIGestureRecognizerDelegate {
+final class NewRoutineViewController: UIViewController,UIGestureRecognizerDelegate,UITextFieldDelegate {
 
     // MARK: - ViewModel & Rx
 
@@ -55,6 +55,7 @@ final class NewRoutineViewController: UIViewController,UIGestureRecognizerDelega
         $0.placeholder = "할 일을 입력해 주세요"
         $0.borderStyle = .roundedRect
         $0.font = .systemFont(ofSize: 14)
+        $0.clearButtonMode = .whileEditing 
     }
 
     private let addTaskButton = UIButton(type: .system).then {
@@ -108,6 +109,9 @@ final class NewRoutineViewController: UIViewController,UIGestureRecognizerDelega
         layout()
         applyMode()
         bindViewModel()
+        let dismissTap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        dismissTap.cancelsTouchesInView = false
+        view.addGestureRecognizer(dismissTap)
     }
 
     // MARK: - Setup UI
@@ -170,6 +174,11 @@ final class NewRoutineViewController: UIViewController,UIGestureRecognizerDelega
         tableView.dataSource = self
         tableView.delegate = self
         tableView.isEditing = true
+        
+        titleTextField.returnKeyType = .done
+        taskInputField.returnKeyType = .done
+        titleTextField.delegate = self
+        taskInputField.delegate = self
 
         view.addSubview(navigationBar)
         view.addSubview(scrollView)
@@ -291,6 +300,15 @@ final class NewRoutineViewController: UIViewController,UIGestureRecognizerDelega
             presentTimePicker()
             return
         }
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
 
     private func presentTimePicker() {

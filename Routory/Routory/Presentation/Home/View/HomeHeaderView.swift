@@ -17,7 +17,12 @@ final class HomeHeaderView: UITableViewHeaderFooterView {
     // MARK: - UI Components
 
     // 현재 기준 총 급여 카드 관련
-    private let monthlyAmountCardView = CardView()
+    private let monthlyAmountCardView = HeaderCardView(
+        cardViewType: .total(
+            startColor: UIColor.primary50.cgColor,
+            endColor: UIColor.primary100.cgColor
+        )
+    )
     private let monthlyAmountTitleLabel = UILabel().then {
         $0.text = "총 급여"
         $0.font = .headBold(20)
@@ -31,7 +36,7 @@ final class HomeHeaderView: UITableViewHeaderFooterView {
         $0.textAlignment = .right
     }
     private let separatorLine = UIView().then {
-        $0.backgroundColor = .gray300
+        $0.backgroundColor = .gray100
     }
     private let monthlyChangeCommentLabel = UILabel().then {
         $0.text = "지난달 오늘 대비 5만원 더 벌었어요!"
@@ -54,7 +59,7 @@ final class HomeHeaderView: UITableViewHeaderFooterView {
     }
 
     // 오늘의 루틴 카드 관련
-    fileprivate lazy var todaysRoutineCardView = CardView()
+    fileprivate lazy var todaysRoutineCardView = HeaderCardView(cardViewType: .routine(backgroundColor: .primary50))
     private lazy var todaysRoutineTitleLabel = UILabel().then {
         $0.text = "오늘의 루틴"
         $0.textColor = .gray900
@@ -71,7 +76,7 @@ final class HomeHeaderView: UITableViewHeaderFooterView {
     }
 
     // 전체 루틴 카드 관련
-    fileprivate lazy var allRoutineCardView = CardView()
+    fileprivate lazy var allRoutineCardView = HeaderCardView(cardViewType: .routine(backgroundColor: .primary50))
     private lazy var allRoutineTitleLabel = UILabel().then {
         $0.text = "전체 루틴"
         $0.textColor = .gray900
@@ -261,7 +266,7 @@ private extension HomeHeaderView {
         if let range = text.range(of: countString) {
             let nsRange = NSRange(range, in: text)
             attributedString.addAttribute(.foregroundColor,
-                                          value: UIColor.primary500,
+                                          value: UIColor.primary600,
                                           range: nsRange)
             attributedString.addAttribute(.font,
                                           value: UIFont.headBold(12),

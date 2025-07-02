@@ -83,7 +83,7 @@ private extension CalendarEventListViewController {
                 }
             }.disposed(by: disposeBag)
         
-        calendarEventListView.getAssignButton.rx.tap
+        calendarEventListView.getRegisterButton.rx.tap
             .subscribe(with: self) { owner, _ in
                 owner.delegate?.didTapRegisterButton()
             }.disposed(by: disposeBag)
@@ -99,6 +99,11 @@ private extension CalendarEventListViewController {
                     guard let self else { return }
                     cell.update(model: model, calendarMode: calendarMode)
                     
+                    let editAction = UIAction(title: "수정하기") { [weak self] _ in
+                        if self?.calendarMode == .personal {
+                            self?.delegate?.didTapEditMenu(model: model)
+                        }
+                    }
                     let deleteAction = UIAction(title: "삭제하기", attributes: .destructive) { _ in
                         let deleteVC = DeleteAlertViewController(alertTitle: "정말 삭제하시겠어요?", alertMessage: "삭제된 근무는 되돌릴 수 없습니다.")
                         deleteVC.onDeleteConfirmed = {
@@ -106,7 +111,7 @@ private extension CalendarEventListViewController {
                         }
                         self.present(deleteVC, animated: true)
                     }
-                    let menu = UIMenu(children: [deleteAction])
+                    let menu = UIMenu(children: [editAction, deleteAction])
                     cell.getEllipsisButton.menu = menu
                     cell.getEllipsisButton.showsMenuAsPrimaryAction = true
                     

@@ -120,7 +120,7 @@ final class WorkplaceRegistrationContentView: UIView {
         registerButton.setTitleColor(.primary50, for: .normal)
         registerButton.backgroundColor = .primary500
         registerButton.titleLabel?.font = .buttonSemibold(18)
-        registerButton.layer.cornerRadius = 8
+        registerButton.layer.cornerRadius = 12
         registerButton.isEnabled = true
         registerButton.snp.makeConstraints {
             $0.height.equalTo(48)
@@ -133,7 +133,8 @@ final class WorkplaceRegistrationContentView: UIView {
 
     private func layout() {
         stackView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+            $0.top.equalToSuperview().offset(32)
+            $0.horizontalEdges.bottom.equalToSuperview()
         }
     }
 }

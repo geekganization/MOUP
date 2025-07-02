@@ -13,9 +13,9 @@ func makeBoxedStackView(with views: [UIView]) -> UIStackView {
     return UIStackView(arrangedSubviews: views).then {
         $0.axis = .vertical
         $0.spacing = 0
-        $0.layer.cornerRadius = 8
+        $0.layer.cornerRadius = 12
         $0.layer.borderWidth = 1
-        $0.layer.borderColor = UIColor.systemGray4.cgColor
+        $0.layer.borderColor = UIColor.gray400.cgColor
         $0.clipsToBounds = true
     }
 }
@@ -43,7 +43,7 @@ func makeTitleAttributedString(from title: String) -> NSAttributedString {
 
     let fullRange = NSRange(location: 0, length: attributed.length)
     attributed.addAttribute(.font, value: UIFont.headBold(18), range: fullRange)
-    attributed.addAttribute(.foregroundColor, value: UIColor.label, range: fullRange)
+    attributed.addAttribute(.foregroundColor, value: UIColor.gray900, range: fullRange)
 
     if let starRange = fullText.range(of: "*") {
         let nsRange = NSRange(starRange, in: fullText)

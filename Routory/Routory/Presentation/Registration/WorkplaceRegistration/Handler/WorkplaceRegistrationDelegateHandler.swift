@@ -39,7 +39,7 @@ extension WorkplaceRegistrationDelegateHandler: WorkplaceInfoViewDelegate {
         let vc = TextInputViewController(
             title: "근무지 이름",
             description: "근무지 이름을 입력해주세요",
-            placeholder: "예: 세븐일레븐 안양점"
+            placeholder: "근무지 이름"
         )
         vc.onComplete = { labelName in
             self.contentView?.workplaceInfoView.updateName(labelName)
@@ -49,11 +49,11 @@ extension WorkplaceRegistrationDelegateHandler: WorkplaceInfoViewDelegate {
 
     func didTapCategoryRow() {
         let categoryItems: [SelectionViewController<String>.Item] = [
-            .init(title: "음식점", icon: UIImage(named: "restaurant"), value: "음식점"),
-            .init(title: "카페", icon: UIImage(named: "cafe"), value: "카페"),
-            .init(title: "편의점", icon: UIImage(named: "convenience"), value: "편의점"),
-            .init(title: "영화관", icon: UIImage(named: "cinema"), value: "영화관"),
-            .init(title: "기타", icon: UIImage(named: "box"), value: "기타")
+            .init(title: "음식점", icon: "Restaurant", value: "음식점"),
+            .init(title: "카페", icon: "Cafe", value: "카페"),
+            .init(title: "편의점", icon: "CVS", value: "편의점"),
+            .init(title: "영화관", icon: "Theater", value: "영화관"),
+            .init(title: "기타", icon: "Etc", value: "기타")
         ]
 
         let vc = SelectionViewController<String>(
@@ -117,7 +117,7 @@ extension WorkplaceRegistrationDelegateHandler: SalaryInfoViewDelegate {
         let vc = TextInputViewController(
             title: "고정급",
             description: "고정급을 입력해주세요",
-            placeholder: "3,000,000",
+            placeholder: "3,000,000원",
             keyboardType: .numberPad,
             formatter: { input in
                 let formatter = NumberFormatter()
@@ -139,7 +139,7 @@ extension WorkplaceRegistrationDelegateHandler: SalaryInfoViewDelegate {
         let vc = TextInputViewController(
             title: "시급",
             description: "시급을 입력해주세요",
-            placeholder: "10,030",
+            placeholder: "10,030원",
             keyboardType: .numberPad,
             formatter: { input in
                 let formatter = NumberFormatter()

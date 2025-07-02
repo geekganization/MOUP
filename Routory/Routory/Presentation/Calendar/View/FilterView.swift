@@ -46,19 +46,13 @@ final class FilterView: UIView {
         $0.textAlignment = .center
     }
     
-    private let applyButton = UIButton().then {
-        var config = UIButton.Configuration.filled()
-        config.attributedTitle = AttributedString("적용하기", attributes: .init([.font: UIFont.buttonSemibold(18), .foregroundColor: UIColor.white]))
-        
-        $0.configuration = config
-        $0.clipsToBounds = true
-    }
+    private let applyButton = BaseButton(title: "적용하기")
     
     // MARK: - Getter
     
     var getHeaderLabel: UILabel { headerLabel }
     var getFilterTableView: UITableView { filterTableView }
-    var getApplyButton: UIButton { applyButton }
+    var getApplyButton: BaseButton { applyButton }
     
     // MARK: - Initializer
     
@@ -70,13 +64,6 @@ final class FilterView: UIView {
     @available(*, unavailable, message: "storyboard is not supported.")
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented.")
-    }
-    
-    // MARK: - Lifecycle
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        applyButton.layer.cornerRadius = 12
     }
 }
 

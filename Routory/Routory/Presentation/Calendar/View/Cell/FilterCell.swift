@@ -21,8 +21,7 @@ final class FilterCell: UITableViewCell {
     private let workplaceLabel = UILabel().then {
         $0.text = "전체 보기"
         $0.textColor = .gray500
-        $0.font = .bodyMedium(14)
-        $0.highlightedTextColor = .primary600
+        $0.font = .headBold(14)
     }
     
     private let checkImageView = UIImageView().then {
@@ -58,7 +57,9 @@ final class FilterCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
         
         self.contentView.backgroundColor = selected ? .primary50 : .primaryBackground
+        self.contentView.layer.borderWidth = selected ? 2.0 : 1.0
         self.contentView.layer.borderColor = selected ? UIColor.primary500.cgColor : UIColor.gray400.cgColor
+        workplaceLabel.font = selected ? .headBold(14) : .bodyMedium(14)
         workplaceLabel.textColor = selected ? .primary600 : .gray500
         checkImageView.isHidden = !selected
     }

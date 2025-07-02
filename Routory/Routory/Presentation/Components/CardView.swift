@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class CardView: UIView {
+class CardView: UIView {
     // MARK: - Initializer
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -29,9 +29,9 @@ private extension CardView {
     // MARK: - setStyles
     func setStyles() {
         layer.shadowColor = UIColor.gray900.cgColor
-        layer.shadowOpacity = 0.12
+        layer.shadowOpacity = 0.085
         layer.shadowOffset = CGSize(width: 0, height: 1)
-        layer.shadowRadius = 4
+        layer.shadowRadius = 5
         layer.masksToBounds = false
 
         layer.cornerRadius = 12

@@ -55,12 +55,13 @@ final class LabelView: UIView, ValueRowViewDelegate {
         let titleLabel = UILabel().then {
             $0.text = "라벨"
             $0.font = .headBold(18)
+            $0.textColor = .gray900
         }
 
         let box = makeBoxedStackView(with: [redLabelRow])
         let stack = UIStackView(arrangedSubviews: [titleLabel, box]).then {
             $0.axis = .vertical
-            $0.spacing = 8
+            $0.spacing = 12
         }
 
         addSubview(stack)

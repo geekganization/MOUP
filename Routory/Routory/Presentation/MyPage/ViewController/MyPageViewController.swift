@@ -67,46 +67,54 @@ final class MyPageViewController: UIViewController {
     }
     
     @objc private func logoutButtonDidTap() {
-        do {
-            try Auth.auth().signOut()
+        let alertVC = DeleteAlertViewController(
+            alertTitle: "정말 로그아웃하시겠어요?",
+            alertMessage: "확인을 누르시면 로그아웃이 완료됩니다.",
+            deleteButtonTitle: "확인"
+        )
+        alertVC.onDeleteConfirmed = {
+            do {
+                try Auth.auth().signOut()
 
-            guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                  let sceneDelegate = scene.delegate as? SceneDelegate,
-                  let window = sceneDelegate.window else {
-                return
-            }
+                guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                      let sceneDelegate = scene.delegate as? SceneDelegate,
+                      let window = sceneDelegate.window else {
+                    return
+                }
 
-            let loginVC = LoginViewController(
-                viewModel: LoginViewModel(
-                    appleAuthService: AppleAuthService(),
-                    googleAuthService: GoogleAuthService(),
-                    userService: UserService()
+                let loginVC = LoginViewController(
+                    viewModel: LoginViewModel(
+                        appleAuthService: AppleAuthService(),
+                        googleAuthService: GoogleAuthService(),
+                        userService: UserService()
+                    )
                 )
-            )
-            let navController = UINavigationController(rootViewController: loginVC)
+                let navController = UINavigationController(rootViewController: loginVC)
 
-            guard let snapshot = window.snapshotView(afterScreenUpdates: true) else {
-                window.rootViewController = navController
-                return
+                guard let snapshot = window.snapshotView(afterScreenUpdates: true) else {
+                    window.rootViewController = navController
+                    return
+                }
+
+                navController.view.frame = window.bounds
+                navController.view.transform = CGAffineTransform(translationX: -window.bounds.width * 0.3, y: 0)
+                window.addSubview(navController.view)
+
+                window.addSubview(snapshot)
+
+                UIView.animate(withDuration: 0.35, delay: 0, options: .curveEaseOut, animations: {
+                    snapshot.transform = CGAffineTransform(translationX: window.bounds.width, y: 0)
+                    navController.view.transform = .identity
+                }, completion: { _ in
+                    snapshot.removeFromSuperview()
+                    window.rootViewController = navController
+                    window.makeKeyAndVisible()
+                })
+            } catch {
+                print("로그아웃 실패: \(error)")
             }
-
-            navController.view.frame = window.bounds
-            navController.view.transform = CGAffineTransform(translationX: -window.bounds.width * 0.3, y: 0)
-            window.addSubview(navController.view)
-
-            window.addSubview(snapshot)
-
-            UIView.animate(withDuration: 0.35, delay: 0, options: .curveEaseOut, animations: {
-                snapshot.transform = CGAffineTransform(translationX: window.bounds.width, y: 0)
-                navController.view.transform = .identity
-            }, completion: { _ in
-                snapshot.removeFromSuperview()
-                window.rootViewController = navController
-                window.makeKeyAndVisible()
-            })
-        } catch {
-            print("로그아웃 실패: \(error)")
         }
+        present(alertVC, animated: true)
     }
 }
 

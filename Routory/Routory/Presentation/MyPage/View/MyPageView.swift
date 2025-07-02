@@ -48,8 +48,9 @@ final class MyPageView: UIView {
     }
     
     private let editButton = UIButton().then {
-        $0.setImage(UIImage.editButton, for: .normal)
-        $0.contentMode = .scaleAspectFit
+        var config = UIButton.Configuration.plain()
+        config.image = UIImage.editButton
+        $0.configuration = config
     }
     
     private let menuList = MyPageMenuListView()
@@ -61,7 +62,7 @@ final class MyPageView: UIView {
         $0.backgroundColor = .primary50
         $0.layer.cornerRadius = 12
         $0.layer.borderWidth = 1
-        $0.layer.borderColor = UIColor.primary600.cgColor
+        $0.layer.borderColor = UIColor.primary500.cgColor
         $0.clipsToBounds = true
     }
     

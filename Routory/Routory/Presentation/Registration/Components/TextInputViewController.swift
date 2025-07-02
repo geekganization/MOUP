@@ -10,7 +10,7 @@ import SnapKit
 import Then
 import RxSwift
 
-final class TextInputViewController: UIViewController,UIGestureRecognizerDelegate {
+final class TextInputViewController: UIViewController,UIGestureRecognizerDelegate, UITextFieldDelegate {
 
     // MARK: - Public Props
 
@@ -23,8 +23,8 @@ final class TextInputViewController: UIViewController,UIGestureRecognizerDelegat
     private let placeholder: String
     private let keyboardType: UIKeyboardType
     private let formatter: ((String) -> String)?
-    private let validator: ((String) -> Bool)?   
-
+    private let validator: ((String) -> Bool)?
+    
     private let textField = UITextField()
     private let doneButton = UIButton(type: .system)
     
@@ -82,19 +82,21 @@ final class TextInputViewController: UIViewController,UIGestureRecognizerDelegat
 
         let guideLabel = UILabel().then {
             $0.text = descriptionText
-            $0.font = .bodyMedium(16)
+            $0.font = .headBold(18)
             $0.textColor = .gray900
         }
 
         textField.do {
             $0.font = .bodyMedium(16)
             $0.keyboardType = keyboardType
+            $0.returnKeyType = .done
+            $0.delegate = self
             $0.textAlignment = .left
-            $0.layer.cornerRadius = 8
+            $0.layer.cornerRadius = 12
             $0.layer.borderWidth = 1
-            $0.layer.borderColor = UIColor.systemGray4.cgColor
+            $0.layer.borderColor = UIColor.gray400.cgColor
             $0.placeholder = placeholder
-            $0.setLeftPadding(12)
+            $0.setLeftPadding(16)
             $0.setRightPadding(12)
             $0.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         }
@@ -102,11 +104,9 @@ final class TextInputViewController: UIViewController,UIGestureRecognizerDelegat
         doneButton.do {
             $0.setTitle("완료", for: .normal)
             $0.titleLabel?.font = .buttonSemibold(18)
-            $0.setTitleColor(.white, for: .normal)
-            $0.backgroundColor = .primary500
             $0.layer.cornerRadius = 12
             $0.isEnabled = false
-            $0.alpha = 0.5
+            $0.backgroundColor = .gray300
             $0.addTarget(self, action: #selector(didTapDone), for: .touchUpInside)
         }
 
@@ -122,13 +122,13 @@ final class TextInputViewController: UIViewController,UIGestureRecognizerDelegat
         }
 
         guideLabel.snp.makeConstraints {
-            $0.top.equalTo(navigationBar.snp.bottom).offset(24)
-            $0.leading.trailing.equalToSuperview().inset(20)
+            $0.top.equalTo(navigationBar.snp.bottom).offset(32)
+            $0.horizontalEdges.equalToSuperview().inset(16)
         }
 
         textField.snp.makeConstraints {
-            $0.top.equalTo(guideLabel.snp.bottom).offset(12)
-            $0.leading.trailing.equalToSuperview().inset(20)
+            $0.top.equalTo(guideLabel.snp.bottom).offset(18)
+            $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(48)
         }
 
@@ -162,12 +162,18 @@ final class TextInputViewController: UIViewController,UIGestureRecognizerDelegat
 
         let isValid = validator?(text) ?? !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         doneButton.isEnabled = isValid
-        doneButton.alpha = isValid ? 1.0 : 0.5
+        doneButton.backgroundColor = isValid ? .primary500 : .gray300
+        doneButton.setTitleColor(isValid ? .white : .gray500, for: .normal)
     }
 
     @objc private func didTapDone() {
         guard let text = textField.text else { return }
         onComplete?(text)
         navigationController?.popViewController(animated: true)
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder() 
+        return true
     }
 }

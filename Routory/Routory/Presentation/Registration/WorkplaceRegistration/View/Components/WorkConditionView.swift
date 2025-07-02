@@ -54,7 +54,7 @@ final class WorkConditionView: UIView {
         self.subGroupItems = ["국민연금", "건강보험", "고용보험", "산재보험"]
 
         super.init(frame: .zero)
-        titleLabel.attributedText = makeTitleAttributedString(from: "근무조건 *")
+        titleLabel.attributedText = makeTitleAttributedString(from: "근무 조건")
         setup()
     }
 
@@ -66,9 +66,9 @@ final class WorkConditionView: UIView {
 
     private func setup() {
         let boxView = UIView().then {
-            $0.layer.cornerRadius = 8
+            $0.layer.cornerRadius = 12
             $0.layer.borderWidth = 1
-            $0.layer.borderColor = UIColor.systemGray4.cgColor
+            $0.layer.borderColor = UIColor.gray400.cgColor
             $0.clipsToBounds = true
         }
 
@@ -107,7 +107,7 @@ final class WorkConditionView: UIView {
             row.snp.makeConstraints {
                 $0.leading.trailing.equalToSuperview().inset(16)
                 $0.top.bottom.equalToSuperview()
-                $0.height.equalTo(44)
+                $0.height.equalTo(48)
             }
 
             itemStack.addArrangedSubview(rowWrapper)
@@ -126,13 +126,13 @@ final class WorkConditionView: UIView {
 
         let topStack = UIStackView(arrangedSubviews: [titleLabel, boxView]).then {
             $0.axis = .vertical
-            $0.spacing = 8
+            $0.spacing = 12
         }
 
         let guideLabel = UILabel().then {
             $0.text = "* 오후 10시 이후 야간수당을 받는 경우 체크해주세요"
             $0.font = .bodyMedium(12)
-            $0.textColor = .gray500
+            $0.textColor = .gray700
             $0.numberOfLines = 0
         }
 
@@ -145,7 +145,7 @@ final class WorkConditionView: UIView {
 
         guideLabel.snp.makeConstraints {
             $0.top.equalTo(topStack.snp.bottom).offset(4)
-            $0.trailing.lessThanOrEqualToSuperview().offset(-16)
+            $0.trailing.lessThanOrEqualToSuperview()
             $0.bottom.equalToSuperview()
         }
     }

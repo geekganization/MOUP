@@ -99,11 +99,11 @@ class MyWorkSpaceCell: UITableViewCell {
 
     // MARK: - Public Methods
     func update(with workplaceInfo: WorkplaceCellInfo, isExpanded: Bool, menuActions: [UIAction]) {
-        print("셀 업데이트: \(workplaceInfo.storeName), isExpanded: \(isExpanded)")
+        let isTemporary = workplaceInfo.id == "999999999"
         storeNameLabel.text = workplaceInfo.storeName
         officialChip.isHidden = !workplaceInfo.isOfficial
-        daysUntilPaydayLabel.text = "급여일까지 D-\(workplaceInfo.daysUntilPayday)"
-        setTotalEarnedLabel(amount: workplaceInfo.totalEarned.withComma)
+        daysUntilPaydayLabel.text = isTemporary ? "급여일까지의 D-day" : "급여일까지 D-\(workplaceInfo.daysUntilPayday)"
+        setTotalEarnedLabel(amount: workplaceInfo.totalEarned.withComma, isTemporary: isTemporary)
 
         let totalInsurance = workplaceInfo.employmentInsurance + workplaceInfo.healthInsurance + workplaceInfo.industrialAccident + workplaceInfo.nationalPension
 
@@ -117,6 +117,7 @@ class MyWorkSpaceCell: UITableViewCell {
         incomeTaxRow.update(title: "소득세", time: nil, amount: workplaceInfo.incomeTax, isLabelBold: true, showTimeLabel: false)
 
         toggleDetailView(isExpanded: isExpanded)
+        menuButton.isHidden = isTemporary
         setupButtonMenu(with: menuActions)
     }
 }
@@ -259,7 +260,12 @@ private extension MyWorkSpaceCell {
     }
 
     // MARK: - 컴포넌트 스타일 적용 메서드
-    private func setTotalEarnedLabel(amount: String) {
+    private func setTotalEarnedLabel(amount: String, isTemporary: Bool) {
+        guard !isTemporary else {
+            totalEarnedLabel.text = "현재까지 번 금액"
+            return
+        }
+
         let fullText = "현재까지 \(amount)원"
 
         var attributedString = AttributedString(fullText)

@@ -201,7 +201,6 @@ final class EventService: EventServiceProtocol {
                                                             workplaceName: workplaceName,
                                                             isOfficial: isOfficial,
                                                             color: color,
-//                                                            color: "",
                                                             userName: userName,
                                                             wage: wage,
                                                             wageCalcMethod: wageCalcMethod,

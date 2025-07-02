@@ -128,7 +128,7 @@ extension CalendarView {
     /// 셀의 색상 및 선택 상태를 종합적으로 구성하는 진입점 메서드입니다.
     ///
     /// - Parameters:
-    ///   - cell: 구성할 `JTACDayCell` 인스턴스 (`JTACalendarDayCell`로 캐스팅됨).
+    ///   - cell: 구성할 `JTACDayCell` 인스턴스 (`CalendarDayCell`로 캐스팅됨).
     ///   - cellState: 셀의 상태 정보를 담은 `CellState`.
     func configureCell(cell: JTACDayCell?, date: Date, cellState: CellState, calendarMode: CalendarMode, modelList: [CalendarModel]) {
         guard let cell = cell as? CalendarDayCell else { return }
@@ -156,11 +156,7 @@ extension CalendarView {
     ///   - cell: `DayCell` 인스턴스.
     ///   - cellState: 셀의 상태 정보. `isSelected`가 `true`인 경우 `selectedView`가 표시됩니다.
     func handleCellSelection(cell: CalendarDayCell, cellState: CellState) {
-        if cellState.isSelected {
-            cell.getSelectedView.isHidden = false
-        } else {
-            cell.getSelectedView.isHidden = true
-        }
+        cell.getSelectedView.isHidden = !cellState.isSelected
     }
     
     func handleCellEvents(cell: CalendarDayCell, date: Date, cellState: CellState, calendarMode: CalendarMode, modelList: [CalendarModel]) {

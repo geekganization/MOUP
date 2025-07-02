@@ -78,7 +78,7 @@ private extension CalendarEventListViewController {
         
         calendarEventListView.getEventTableView.rx.modelSelected(CalendarModel.self)
             .subscribe(with: self) { owner, model in
-                if owner.calendarMode == .personal {
+                if owner.calendarMode == .personal || UserManager.shared.firebaseUid == model.eventInfo.calendarEvent.createdBy {
                     owner.delegate?.didTapEventCell(model: model)
                 }
             }.disposed(by: disposeBag)

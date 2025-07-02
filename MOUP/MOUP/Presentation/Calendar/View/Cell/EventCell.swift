@@ -96,7 +96,7 @@ final class EventCell: UITableViewCell {
             workplaceOrNameLabel.text = model.workerName
         }
         
-        sharedChipLabel.isHidden = !model.isOfficial
+        sharedChipLabel.isHidden = (!model.isOfficial || calendarMode == .shared)
         
         let startTime = model.eventInfo.calendarEvent.startTime
         let endTime = model.eventInfo.calendarEvent.endTime

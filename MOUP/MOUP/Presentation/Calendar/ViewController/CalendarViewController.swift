@@ -251,7 +251,7 @@ private extension CalendarViewController {
                         
                         self.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
                         self.navigationController?.presentedViewController?.dismiss(animated: true)
-                    } else {
+                    } else if user.role == UserRole.owner.rawValue {
                         // 사장님
                         let ownerShiftRegisterVC = OwnerShiftRegistrationViewController(
                             isRegisterMode: true,
@@ -304,7 +304,7 @@ private extension CalendarViewController {
                         
                         self.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
                         self.navigationController?.presentedViewController?.dismiss(animated: true)
-                    } else {
+                    } else if user.role == UserRole.owner.rawValue {
                         // 사장님
                         let ownerShiftRegisterVC = OwnerShiftRegistrationViewController(
                             isRegisterMode: false,

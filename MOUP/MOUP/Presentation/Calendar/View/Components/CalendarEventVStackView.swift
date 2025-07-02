@@ -47,7 +47,7 @@ final class CalendarEventVStackView: UIStackView {
         if calendarMode == .shared {
             workHourOrNameLabel.text = workerName
         } else if workHourStr.last == "0" {
-            workHourOrNameLabel.text = "\(workHourStr.prefix(1))시간"
+            workHourOrNameLabel.text = "\(workHourStr.dropLast(2))시간"
         } else {
             workHourOrNameLabel.text = "\(workHourStr)시간"
         }
@@ -65,6 +65,7 @@ final class CalendarEventVStackView: UIStackView {
                 dailyWageLabel.isHidden = false
             } else {
                 // 사장님 개인 캘린더
+                dailyWageLabel.text = "사장"
                 dailyWageLabel.isHidden = true
             }
         }

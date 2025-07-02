@@ -1,0 +1,6 @@
+module Pods_MOUP {
+  umbrella header "Pods-MOUP-umbrella.h"
+
+  export *
+  module * { export * }
+}

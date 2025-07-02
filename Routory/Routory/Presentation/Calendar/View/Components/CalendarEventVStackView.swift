@@ -72,7 +72,6 @@ final class CalendarEventVStackView: UIStackView {
         self.backgroundColor = color.backgroundColor
         workHourOrNameLabel.textColor = color.textColor
         dailyWageLabel.textColor = color.textColor
-        print("CalendarEventVStackView")
     }
 }
 

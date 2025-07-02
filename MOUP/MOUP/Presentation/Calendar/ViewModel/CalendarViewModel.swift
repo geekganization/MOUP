@@ -58,20 +58,24 @@ final class CalendarViewModel {
                         var personalModelObservables: [Observable<CalendarModel>] = []
                         var sharedModelObservables: [Observable<CalendarModel>] = []
                         let sortedWorkplaceWorkSummaryList = workplaceWorkSummaryDailyList.sorted(by: { $0.workplaceName < $1.workplaceName })
-                        for (index, workplaceSummary) in sortedWorkplaceWorkSummaryList.enumerated() {
+                        var filterFlag = false
+                        
+                        for workplaceSummary in sortedWorkplaceWorkSummaryList {
                             if calendarMode == .personal {
                                 if filterModel != nil && filterModel?.workplaceId != workplaceSummary.workplaceId { continue }
                             } else {
                                 if filterModel == nil {
-                                    if index > 0 {
-                                        // 공유 캘린더 모드 최초 진입 시 근무지 목록(가나다순) 중 제일 처음 근무지로 필터 걸림
+                                    // 공유 캘린더 모드 최초 진입 시 근무지 목록(가나다순) 중 제일 처음 근무지로 필터 걸림
+                                    if workplaceSummary.isOfficial && !filterFlag {
+                                        filterFlag = true
+                                    } else {
                                         continue
                                     }
+                                    
                                 } else if filterModel?.workplaceId != workplaceSummary.workplaceId {
                                     continue
                                 }
                             }
-                            
                             
                             // Personal Events 처리
                             for personalEventList in workplaceSummary.personalSummary.values {
@@ -120,7 +124,6 @@ final class CalendarViewModel {
         input.searchRoutineId
             .withUnretained(self)
             .flatMap({ owner, searchId -> Observable<(searchId: String, routineInfoList: [RoutineInfo])> in
-                
                 guard let uid = UserManager.shared.firebaseUid else { return .empty() }
                 return owner.routineUseCase.fetchAllRoutines(uid: uid)
                     .map { return (searchId: searchId, routineInfoList: $0) }

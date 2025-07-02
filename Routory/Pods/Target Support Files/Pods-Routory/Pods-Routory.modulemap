@@ -1,6 +1,0 @@
-module Pods_Routory {
-  umbrella header "Pods-Routory-umbrella.h"
-
-  export *
-  module * { export * }
-}

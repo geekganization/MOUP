@@ -65,6 +65,7 @@ final class CalendarEventVStackView: UIStackView {
                 dailyWageLabel.isHidden = false
             } else {
                 // 사장님 개인 캘린더
+                dailyWageLabel.text = "사장"
                 dailyWageLabel.isHidden = true
             }
         }

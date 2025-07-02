@@ -72,7 +72,7 @@ final class CalendarDayCell: JTACDayCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        if mode == .personal {
+        if mode == .personal && firstEventStackView.getDailyWageLabel.text != "사장" {
             let isOverflow = eventVStackView.frame.maxY >= self.contentView.bounds.height
             firstEventStackView.getDailyWageLabel.isHidden = isOverflow
             secondEventStackView.getDailyWageLabel.isHidden = isOverflow

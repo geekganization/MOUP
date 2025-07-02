@@ -90,7 +90,7 @@ private extension BasePickerViewController {
         basePickerView.getConfirmButton.rx.tap
             .subscribe(with: self) { owner, _ in
                 let (year, month) = owner.basePickerView.getSelectedYearMonth
-                owner.yearMonthPickerdelegate?.didTapGotoButton(year: year ?? 2001, month: month ?? 12)
+                owner.yearMonthPickerdelegate?.didTapGotoButton(year: year ?? 2001, month: month ?? 1)
                 owner.dismiss(animated: true)
             }.disposed(by: disposeBag)
     }

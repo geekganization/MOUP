@@ -12,6 +12,7 @@ import BetterSegmentedControl
 import JTAppleCalendar
 import RxCocoa
 import RxSwift
+import SnapKit
 import Then
 
 final class CalendarViewController: UIViewController {
@@ -30,22 +31,18 @@ final class CalendarViewController: UIViewController {
     private let filterModelRelay = BehaviorRelay<FilterModel?>(value: nil)
     private let searchRoutineIdRelay = PublishRelay<String>()
     
-    /// `calendarView`에서 `dataSource` 관련 데이터의 연/월 형식을 만들기 위한 `DateFormatter`
-    private let dataSourceDateFormatter = DateFormatter().then {
-        $0.dateFormat = "yyyy.MM.dd"
-        $0.locale = Locale(identifier: "ko_KR")
-        $0.timeZone = TimeZone(identifier: "Asia/Seoul")
-    }
+    private var currCalendar = Calendar.current
     
     private var personalEventDataSource: [Date: [CalendarModel]] = [:]
     private var sharedEventDataSource: [Date: [CalendarModel]] = [:]
     
-    private let visibleYearMonth = BehaviorRelay<(year: Int, month: Int)>(value: (year: Calendar.current.component(.year, from: .now),
-                                                                                  month: Calendar.current.component(.month, from: .now)))
+    private let visibleYearMonth: BehaviorRelay<(year: Int, month: Int)>
     private var selectedDate: Date?
-    private var pendingEventSelection: (selectedDate: Date, model: CalendarModel)?
+    private var pendingEventSelection: (selectedDate: Date, model: CalendarModel, isEdit: Bool)?
     
     // MARK: - UI Components
+    
+    private lazy var onboardingView = OnboardingView(mode: .calendar)
     
     private let calendarView = CalendarView()
     
@@ -53,6 +50,9 @@ final class CalendarViewController: UIViewController {
     
     init(viewModel: CalendarViewModel) {
         self.viewModel = viewModel
+        self.currCalendar.timeZone = .autoupdatingCurrent
+        visibleYearMonth = BehaviorRelay(value: (year: currCalendar.component(.year, from: .now),
+                                                 month: currCalendar.component(.month, from: .now)))
         let input = CalendarViewModel.Input(loadMonthEvent: visibleYearMonth.asObservable(),
                                             calendarMode: calendarModeRelay.asObservable(),
                                             filterModel: filterModelRelay.asObservable(),
@@ -80,6 +80,11 @@ final class CalendarViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         updateCalendar()
+        
+        // 온보딩 확인 및 표시
+        if !OnboardingManager.hasSeenOnboardingCalendar {
+            showOnboarding()
+        }
     }
 }
 
@@ -142,6 +147,7 @@ private extension CalendarViewController {
     }
     
     func setBinding() {
+        // 캘린더 모드(개인/공유)
         calendarModeRelay
             .subscribe(with: self) { owner, mode in
                 owner.calendarView.getJTACalendar.reloadData()
@@ -152,8 +158,6 @@ private extension CalendarViewController {
             .subscribe(with: self) { owner, _ in
                 owner.didFilterButtonTap()
             }.disposed(by: disposeBag)
-        
-        // MARK: - Input (ViewController ➡️ ViewModel)
         
         
         // MARK: - Output (ViewModel ➡️ ViewController)
@@ -168,7 +172,11 @@ private extension CalendarViewController {
             .asDriver(onErrorJustReturn: "")
             .drive(with: self) { owner, routineTitle in
                 guard let pending = owner.pendingEventSelection else { return }
-                owner.presentRegisterVC(date: pending.selectedDate, model: pending.model, routineTitle: routineTitle, isRegister: false)
+                owner.presentRegisterVC(date: pending.selectedDate,
+                                        model: pending.model,
+                                        routineTitle: routineTitle,
+                                        isRegister: false,
+                                        isEdit: pending.isEdit)
             }.disposed(by: disposeBag)
     }
 }
@@ -176,6 +184,20 @@ private extension CalendarViewController {
 // MARK: - Private Methods
 
 private extension CalendarViewController {
+    func showOnboarding() {
+        didSelectCell(day: 1, calendarModelList: [], animated: false) {
+            if let nav = self.presentedViewController as? UINavigationController,
+               let calendarEventListVC = nav.viewControllers.first as? CalendarEventListViewController {
+                
+                let onboardingModalVC = OnboardingViewController(mode: .calendar)
+                onboardingModalVC.delegate = self
+                onboardingModalVC.modalPresentationStyle = .overFullScreen
+                onboardingModalVC.modalTransitionStyle = .crossDissolve
+                calendarEventListVC.present(onboardingModalVC, animated: true)
+            }
+        }
+    }
+    
     func didYearMonthButtonTap() {
         deselectCell()
         
@@ -195,6 +217,123 @@ private extension CalendarViewController {
         
         self.present(pickerModalVC, animated: true)
     }
+    
+    func presentRegisterVC(date: Date, model: CalendarModel?, routineTitle: String?, isRegister: Bool, isEdit: Bool) {
+        UserManager.shared.getUser { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let user):
+                if isRegister {
+                    // 근무 등록
+                    let startTime = currCalendar.component(.hour, from: .now)
+                    let aHourLaterDate = currCalendar.date(byAdding: .hour, value: 1, to: .now)
+                    let endTime = currCalendar.component(.hour, from: aHourLaterDate ?? .now)
+                    if user.role == UserRole.worker.rawValue {
+                        // 알바생
+                        let workShiftRegisterVC = WorkShiftRegistrationViewController(
+                            isRegisterMode: true,
+                            isRead: false,
+                            eventId: "",
+                            editWorkplaceId: "",
+                            workPlaceTitle: "근무지 선택 *",
+                            workerTitle: "",
+                            routineTitle: "루틴 추가",
+                            editRoutineIDs: [],
+                            dateValue: DateFormatter.dataSourceDateFormatter.string(from: date),
+                            repeatValue: "없음",
+                            startTime: "\(String(format: "%02d", startTime)):00",
+                            endTime: "\(String(format: "%02d", endTime)):00",
+                            restTime: "없음",
+                            memoPlaceholder: "추가적인 내용을 입력해주세요"
+                        )
+                        workShiftRegisterVC.hidesBottomBarWhenPushed = true
+                        workShiftRegisterVC.delegate = self
+                        
+                        self.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
+                        self.navigationController?.presentedViewController?.dismiss(animated: true)
+                    } else {
+                        // 사장님
+                        let ownerShiftRegisterVC = OwnerShiftRegistrationViewController(
+                            isRegisterMode: true,
+                            isEdit: true,
+                            eventId: "",
+                            editWorkplaceId: "",
+                            workPlaceTitle: "매장 선택",
+                            workerTitle: "알바 선택",
+                            routineTitle: "루틴 추가",
+                            editRoutineIDs: [],
+                            dateValue: DateFormatter.dataSourceDateFormatter.string(from: date),
+                            repeatValue: "없음",
+                            startTime: "\(String(format: "%02d", startTime)):00",
+                            endTime: "\(String(format: "%02d", endTime + 1)):00",
+                            restTime: "없음",
+                            memoPlaceholder: "추가적인 내용을 입력해주세요"
+                        )
+                        ownerShiftRegisterVC.hidesBottomBarWhenPushed = true
+                        ownerShiftRegisterVC.delegate = self
+                        
+                        self.navigationController?.pushViewController(ownerShiftRegisterVC, animated: true)
+                        self.navigationController?.presentedViewController?.dismiss(animated: true)
+                    }
+                } else {
+                    // 근무 수정
+                    guard let model, let routineTitle else { return }
+                    let event = model.eventInfo.calendarEvent
+                    let repeatValue = event.repeatDays.isEmpty ? "없음" : event.repeatDays.joined(separator: ", ")
+                    let restTime = model.breakTimeMinutes.displayString
+                    if user.role == UserRole.worker.rawValue {
+                        // 알바생
+                        let workShiftRegisterVC = WorkShiftRegistrationViewController(
+                            isRegisterMode: false,
+                            isRead: !isEdit,
+                            eventId: model.eventInfo.id,
+                            editWorkplaceId: model.workplaceId,
+                            workPlaceTitle: model.workplaceName,
+                            workerTitle: model.workerName,
+                            routineTitle: "\(routineTitle)" + (event.routineIds.count > 1 ? " 외 \(event.routineIds.count - 1)개" : ""),
+                            editRoutineIDs: event.routineIds,
+                            dateValue: DateFormatter.dataSourceDateFormatter.string(from: date),
+                            repeatValue: repeatValue,
+                            startTime: event.startTime,
+                            endTime: event.endTime,
+                            restTime: restTime,
+                            memoPlaceholder: event.memo
+                        )
+                        workShiftRegisterVC.hidesBottomBarWhenPushed = true
+                        workShiftRegisterVC.delegate = self
+                        
+                        self.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
+                        self.navigationController?.presentedViewController?.dismiss(animated: true)
+                    } else {
+                        // 사장님
+                        let ownerShiftRegisterVC = OwnerShiftRegistrationViewController(
+                            isRegisterMode: false,
+                            isEdit: isEdit,
+                            eventId: model.eventInfo.id,
+                            editWorkplaceId: model.workplaceId,
+                            workPlaceTitle: model.workplaceName,
+                            workerTitle: model.workerName,
+                            routineTitle: routineTitle,
+                            editRoutineIDs: event.routineIds,
+                            dateValue: DateFormatter.dataSourceDateFormatter.string(from: date),
+                            repeatValue: repeatValue,
+                            startTime: event.startTime,
+                            endTime: event.endTime,
+                            restTime: restTime,
+                            memoPlaceholder: event.memo
+                        )
+                        ownerShiftRegisterVC.hidesBottomBarWhenPushed = true
+                        ownerShiftRegisterVC.delegate = self
+                        
+                        self.navigationController?.pushViewController(ownerShiftRegisterVC, animated: true)
+                        self.navigationController?.presentedViewController?.dismiss(animated: true)
+                    }
+                }
+            case .failure(let error):
+                self.logger.error("\(error.localizedDescription)")
+            }
+        }
+    }
 }
 
 // MARK: - @objc Methods
@@ -208,12 +347,12 @@ private extension CalendarViewController {
 // MARK: - CalendarView Methods
 
 private extension CalendarViewController {
-    /// `jtaCalendar`의 셀을 탭했을 때 호출하는 메서드
+    /// `CalendarDayCell`의 셀을 탭했을 때 호출하는 메서드
     ///
     /// - Parameters:
     ///   - day: 탭한 셀의 일
     ///   - eventList: 탭한 셀의 일에 해당하는 `CalendarEvent` 배열
-    func didSelectCell(day: Int, calendarModelList: [CalendarModel]) {
+    func didSelectCell(day: Int, calendarModelList: [CalendarModel], animated: Bool = true, completion: (() -> Void)? = nil) {
         let calendarService = CalendarService()
         let calendarRepository = CalendarRepository(calendarService: calendarService)
         let calendarUseCase = CalendarUseCase(repository: calendarRepository)
@@ -231,7 +370,7 @@ private extension CalendarViewController {
             sheet.largestUndimmedDetentIdentifier = .medium
         }
         
-        self.present(modalNC, animated: true)
+        self.present(modalNC, animated: animated, completion: completion)
     }
     
     func deselectCell() {
@@ -266,12 +405,12 @@ private extension CalendarViewController {
         sharedEventDataSource.removeAll()
         for model in calendarModelLists.personal {
             let event = model.eventInfo.calendarEvent
-            guard let eventDate = dataSourceDateFormatter.date(from: event.eventDate) else { continue }
+            guard let eventDate = DateFormatter.dataSourceDateFormatter.date(from: event.eventDate) else { continue }
             personalEventDataSource[eventDate, default: []].append(model)
         }
         for model in calendarModelLists.shared {
             let event = model.eventInfo.calendarEvent
-            guard let eventDate = dataSourceDateFormatter.date(from: event.eventDate) else { continue }
+            guard let eventDate = DateFormatter.dataSourceDateFormatter.date(from: event.eventDate) else { continue }
             sharedEventDataSource[eventDate, default: []].append(model)
         }
         
@@ -287,8 +426,8 @@ private extension CalendarViewController {
 
 extension CalendarViewController: JTACMonthViewDataSource {
     func configureCalendar(_ calendar: JTAppleCalendar.JTACMonthView) -> JTAppleCalendar.ConfigurationParameters {
-        let startDate = dataSourceDateFormatter.date(from: "\(CalendarRange.startYear.rawValue).01.01")
-        let endDate = dataSourceDateFormatter.date(from: "\(CalendarRange.endYear.rawValue).12.31")
+        let startDate = DateFormatter.dataSourceDateFormatter.date(from: "\(CalendarRange.startYear.rawValue).01.01")
+        let endDate = DateFormatter.dataSourceDateFormatter.date(from: "\(CalendarRange.endYear.rawValue).12.31")
         
         let parameter = ConfigurationParameters(startDate: startDate ?? .distantPast,
                                                 endDate: endDate ?? .distantFuture,
@@ -322,23 +461,27 @@ extension CalendarViewController: JTACMonthViewDelegate {
     func calendar(_ calendar: JTACMonthView, didScrollToDateSegmentWith visibleDates: DateSegmentInfo) {
         guard let date = visibleDates.monthDates.first?.date else { return }
         calendarView.setMonthLabel(date: date)
-        visibleYearMonth.accept((year: Calendar.current.component(.year, from: date),
-                                 month: Calendar.current.component(.month, from: date)))
+        visibleYearMonth.accept((year: currCalendar.component(.year, from: date),
+                                 month: currCalendar.component(.month, from: date)))
     }
     
     // 이미 선택된 셀인 경우 ➡️ 선택 해제
     func calendar(_ calendar: JTACMonthView, shouldSelectDate date: Date, cell: JTACDayCell?, cellState: CellState, indexPath: IndexPath) -> Bool {
-        if self.presentedViewController != nil {
+        // CalendarEventListViewController가 present 중인지 확인
+        if let navVC = self.presentedViewController as? UINavigationController,
+           navVC.viewControllers.first is CalendarEventListViewController {
+            // present 중이면 셀 선택 불가
             return false
         }
         
+        // present 중이 아니면 셀 선택 가능
         return true
     }
     
     func calendar(_ calendar: JTACMonthView, didSelectDate date: Date, cell: JTACDayCell?, cellState: CellState, indexPath: IndexPath) {
         selectedDate = date
         
-        let day = Calendar.current.component(.day, from: date)
+        let day = currCalendar.component(.day, from: date)
         switch calendarModeRelay.value {
         case .personal:
             calendarView.configureCell(cell: cell, date: date, cellState: cellState, calendarMode: calendarModeRelay.value, modelList: personalEventDataSource[date] ?? [])
@@ -365,131 +508,26 @@ extension CalendarViewController: JTACMonthViewDelegate {
 // MARK: - CalendarEventListVCDelegate
 
 extension CalendarViewController: CalendarEventListVCDelegate {
-    func didTapEventCellOrEditMenu(model: CalendarModel) {
+    func didTapEventCell(model: CalendarModel) {
         if let routineId = model.eventInfo.calendarEvent.routineIds.first {
-            pendingEventSelection = (selectedDate: selectedDate ?? .now, model: model)
+            pendingEventSelection = (selectedDate: selectedDate ?? .now, model: model, isEdit: false)
             searchRoutineIdRelay.accept(routineId)
         } else {
-            presentRegisterVC(date: selectedDate ?? .now, model: model, routineTitle: "루틴 추가", isRegister: false)
+            presentRegisterVC(date: selectedDate ?? .now, model: model, routineTitle: "루틴 추가", isRegister: false, isEdit: false)
+        }
+    }
+    
+    func didTapEditMenu(model: CalendarModel) {
+        if let routineId = model.eventInfo.calendarEvent.routineIds.first {
+            pendingEventSelection = (selectedDate: selectedDate ?? .now, model: model, isEdit: true)
+            searchRoutineIdRelay.accept(routineId)
+        } else {
+            presentRegisterVC(date: selectedDate ?? .now, model: model, routineTitle: "루틴 추가", isRegister: false, isEdit: true)
         }
     }
     
     func didTapRegisterButton() {
-        presentRegisterVC(date: selectedDate ?? .now, model: nil, routineTitle: nil, isRegister: true)
-    }
-    
-    func presentRegisterVC(date: Date, model: CalendarModel?, routineTitle: String?, isRegister: Bool) {
-        UserManager.shared.getUser { [weak self] result in
-            switch result {
-            case .success(let user):
-                if isRegister {
-                    // 근무 등록
-                    let currentHour = Calendar.current.component(.hour, from: .now)
-                    if user.role == UserRole.worker.rawValue {
-                        // 알바생
-                        let workShiftRegisterVC = WorkShiftRegistrationViewController(
-                            isRegisterMode: true,
-                            isRead: false,
-                            eventId: "",
-                            editWorkplaceId: "",
-                            workPlaceTitle: "근무지 선택 *",
-                            workerTitle: "",
-                            routineTitle: "루틴 추가",
-                            editRoutineIDs: [],
-                            dateValue: DateFormatter.dataSourceDateFormatter.string(from: date),
-                            repeatValue: "없음",
-                            startTime: "\(String(format: "%02d", currentHour)):00",
-                            endTime: "\(String(format: "%02d", currentHour + 1)):00",
-                            restTime: "없음",
-                            memoPlaceholder: "추가적인 내용을 입력해주세요"
-                        )
-                        workShiftRegisterVC.hidesBottomBarWhenPushed = true
-                        workShiftRegisterVC.delegate = self
-                        
-                        self?.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
-                        self?.navigationController?.presentedViewController?.dismiss(animated: true)
-                    } else {
-                        // 사장님
-                        let ownerShiftRegisterVC = OwnerShiftRegistrationViewController(
-                            isRegisterMode: true,
-                            isEdit: false,
-                            eventId: "",
-                            editWorkplaceId: "",
-                            workPlaceTitle: "매장 선택",
-                            workerTitle: "알바 선택",
-                            routineTitle: "루틴 추가",
-                            editRoutineIDs: [],
-                            dateValue: DateFormatter.dataSourceDateFormatter.string(from: date),
-                            repeatValue: "없음",
-                            startTime: "\(String(format: "%02d", currentHour)):00",
-                            endTime: "\(String(format: "%02d", currentHour + 1)):00",
-                            restTime: "없음",
-                            memoPlaceholder: "추가적인 내용을 입력해주세요"
-                        )
-                        ownerShiftRegisterVC.hidesBottomBarWhenPushed = true
-                        ownerShiftRegisterVC.delegate = self
-                        
-                        self?.navigationController?.pushViewController(ownerShiftRegisterVC, animated: true)
-                        self?.navigationController?.presentedViewController?.dismiss(animated: true)
-                    }
-                } else {
-                    // 근무 수정
-                    guard let model, let routineTitle else { return }
-                    let event = model.eventInfo.calendarEvent
-                    let repeatValue = event.repeatDays.isEmpty ? "없음" : event.repeatDays.joined(separator: ", ")
-                    let restTime = model.breakTimeMinutes.displayString
-                    if user.role == UserRole.worker.rawValue {
-                        // 알바생
-                        let workShiftRegisterVC = WorkShiftRegistrationViewController(
-                            isRegisterMode: false,
-                            isRead: true,
-                            eventId: model.eventInfo.id,
-                            editWorkplaceId: model.workplaceId,
-                            workPlaceTitle: model.workplaceName,
-                            workerTitle: model.workerName,
-                            routineTitle: "\(routineTitle)" + (event.routineIds.count > 1 ? " 외 \(event.routineIds.count - 1)개" : ""),
-                            editRoutineIDs: event.routineIds,
-                            dateValue: DateFormatter.dataSourceDateFormatter.string(from: date),
-                            repeatValue: repeatValue,
-                            startTime: event.startTime,
-                            endTime: event.endTime,
-                            restTime: restTime,
-                            memoPlaceholder: event.memo
-                        )
-                        workShiftRegisterVC.hidesBottomBarWhenPushed = true
-                        workShiftRegisterVC.delegate = self
-                        
-                        self?.navigationController?.pushViewController(workShiftRegisterVC, animated: true)
-                        self?.navigationController?.presentedViewController?.dismiss(animated: true)
-                    } else {
-                        // 사장님
-                        let ownerShiftRegisterVC = OwnerShiftRegistrationViewController(
-                            isRegisterMode: false,
-                            isEdit: true,
-                            eventId: model.eventInfo.id,
-                            editWorkplaceId: model.workplaceId,
-                            workPlaceTitle: model.workplaceName,
-                            workerTitle: model.workerName,
-                            routineTitle: routineTitle,
-                            editRoutineIDs: event.routineIds,
-                            dateValue: DateFormatter.dataSourceDateFormatter.string(from: date),
-                            repeatValue: repeatValue,
-                            startTime: event.startTime,
-                            endTime: event.endTime,
-                            restTime: restTime,
-                            memoPlaceholder: event.memo
-                        )
-                        ownerShiftRegisterVC.hidesBottomBarWhenPushed = true
-                        ownerShiftRegisterVC.delegate = self
-                        
-                        self?.navigationController?.pushViewController(ownerShiftRegisterVC, animated: true)
-                        self?.navigationController?.presentedViewController?.dismiss(animated: true)
-                    }
-                }
-            case .failure(let error):
-                self?.logger.error("\(error.localizedDescription)")
-            }
-        }
+        presentRegisterVC(date: selectedDate ?? .now, model: nil, routineTitle: nil, isRegister: true, isEdit: true)
     }
     
     func didDeleteEvent() {
@@ -501,12 +539,20 @@ extension CalendarViewController: CalendarEventListVCDelegate {
     }
 }
 
+// MARK: - OnboardingVCDelegate
+
+extension CalendarViewController: OnboardingVCDelegate {
+    func onboardingVCWillDisappear() {
+        self.presentedViewController?.dismiss(animated: true)
+    }
+}
+
 // MARK: - YearMonthPickerVCDelegate
 
 extension CalendarViewController: YearMonthPickerDelegate {
     func didTapGotoButton(year: Int, month: Int) {
         let yearMonthText = "\(year). \(month)"
-        guard let date = calendarView.getDateFormatter.date(from: yearMonthText) else { return }
+        guard let date = DateFormatter.yearMonthDateFormatter.date(from: yearMonthText) else { return }
         calendarView.getJTACalendar.scrollToDate(date)
     }
 }
@@ -523,7 +569,8 @@ extension CalendarViewController: FilterVCDelegate {
 
 extension CalendarViewController: RegistrationVCDelegate {
     func registrationVCIsMovingFromParent(dateValue: String) {
-        guard let assignedDate = DateFormatter.dataSourceDateFormatter.date(from: dateValue) else { return }
-        calendarView.getJTACalendar.selectDates([assignedDate])
+        guard let registeredDate = DateFormatter.dataSourceDateFormatter.date(from: dateValue) else { return }
+        calendarView.getJTACalendar.scrollToDate(registeredDate, animateScroll: true)
+        calendarView.getJTACalendar.selectDates([registeredDate])
     }
 }

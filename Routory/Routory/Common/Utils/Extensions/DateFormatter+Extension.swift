@@ -35,11 +35,13 @@ extension DateFormatter {
         guard let startDate = workHourDateFormatter.date(from: start),
               let endDate = workHourDateFormatter.date(from: end) else { return nil }
         
-        let subtractedEndDate = Calendar.current.date(byAdding: .minute, value: -minus, to: endDate) ?? endDate
+        var calendar = Calendar.current
+        calendar.timeZone = .autoupdatingCurrent
+        let subtractedEndDate = calendar.date(byAdding: .minute, value: -minus, to: endDate) ?? endDate
         
-        let todayOverEnd = subtractedEndDate < startDate ? Calendar.current.date(byAdding: .day, value: 1, to: subtractedEndDate) ?? subtractedEndDate : subtractedEndDate
+        let todayOverEnd = subtractedEndDate < startDate ? calendar.date(byAdding: .day, value: 1, to: subtractedEndDate) ?? subtractedEndDate : subtractedEndDate
         
-        let components = Calendar.current.dateComponents([.hour, .minute], from: startDate, to: todayOverEnd)
+        let components = calendar.dateComponents([.hour, .minute], from: startDate, to: todayOverEnd)
         
         let h = components.hour ?? 0
         let m = components.minute ?? 0

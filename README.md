@@ -28,13 +28,13 @@
 
 
 
-## 💻 Development Environment
+## 💻 개발 환경
 
 <img src ="https://img.shields.io/badge/Xcode-16.3-blue?logo=xcode" height="30"> <img src ="https://img.shields.io/badge/iOS-16.0-white.svg" height="30">
 
 <br>
 
-## 주요 기능
+## 📋 주요 기능
 - 시연 영상
 
 [![Video Label](http://img.youtube.com/vi/sKyvHlRNo44/0.jpg)](https://youtube.com/shorts/sKyvHlRNo44)
@@ -70,147 +70,132 @@
 <br>
 
 
-## 📖 Using Library
+## 🛠️ 기술 스택
 
-라이브러리 | 사용 목적 | Management Tool
-:---------:|:----------:|:---------:
-SnapKit | UI Layout | SPM
-Then | UI 선언 | SPM
-RxSwift | 데이터 바인딩을 통한 비동기 데이터 흐름 처리 | SPM
-RxCocoa | UI 컴포넌트(예: 버튼 `rx.tap`)의 반응형 이벤트 처리 | SPM
-RxDataSources | `UITableView`, `UICollectionView`의 데이터 처리 | SPM
-Firebase | Authentication과 NoSQL | SPM
-BigInt | 초대 코드 생성 시 중복 검사 및 변환 | SPM
-BetterSegmentedControl | 홈 상단 스위치 커스텀 UI | SPM
-JTAppleCalendar | 달력 커스텀 | Cocoapods
+범위 | 기술 이름 |
+:---------:|:----------:|
+의존성 관리 도구 | `SPM`, `CocoaPods`
+형상 관리 도구 | `GitHub`, `Git`
+아키텍처 | `MVVM`, `Clean Architecture`
+디자인 패턴 | `Singleton`, `Delegate`
+인터페이스 | `UIKit`
+비동기 처리 | `RxSwift`, `RxCocoa`, `RxDataSources`
+UI 라이브러리 | `JTAppleCalendar`, `BetterSegmentedControl`
+레이아웃 구성 | `SnapKit`, `Then`
+내부 저장소 | `UserDefaults`
+외부 저장소 | `Cloud Firestore`
+외부 인증 | `Firebase Auth`, `Sign in with Apple`. `Goolge Sign in`
+코드 컨벤션 | `StyleShare - Swift Style Guide`
+커밋 컨벤션 | `Udacity Git Commit Message Style Guide`
 
 
 <br>
 
-## 📂 Folder Architecture
+
+## 🤔 기술적 의사결정
+<details>
+	<summary> MVVM, Clean Architecture: 각 계층간의 책임을 분리하고, 의존성을 최소화 및 UseCase의 재사용성을 높임 </summary>	
+	
+	- 문제 상황
+	  - 하나의 화면 수정 시 다양한 책임들이 얽혀 코드 변경 범위가 커짐. 비즈니스 로직, 네트워크 처리, 상태 관리, UI 처리가 모두 강하게 결합되는 문제가 발생
+	- MVVM과 Clean Architecture를 도입하여 View는 UI 처리만 담당, 상태 관리는 ViewModel에서, 비즈니스 로직을 UseCase, Repository, Data Layer로 완전히 분리
+        - 장점
+          - 레이어 간 인터페이스를 명확히 하여 의존성 주입이 쉬운 구조로 개발
+          - 역할을 분리하여 책임이 명확해지고 깔끔한 코드 작성 가능
+          - 새로운 기능을 도입하거나 교체해도 도메인 로직에 영향 없음
+          - ViewModel은 UseCase에만 의존하기 때문에 앱의 핵심 로직 추상화 가능
+          - 상위 계층(Presentation)이 하위 계층(Data)의 구현체가 아니라 추상 타입에 의존하여 구체적인 구현을 몰라도 되는 구조
+          - 인터페이스(Protocol)를 가운데에 두고, 상위 계층과 하위 계층이 인터페이스를 바라보기 때문에 의존성 역전이 발생함
+
+ </details>
+
+<details>
+	<summary> SwiftUI vs JTAppleCalendar </summary>
+	
+	- 캘린더의 구현 방법을 정할 때 SwiftUI와 외부 라이브러리 사이에서 고민
+	- UIKit+RxSwift의 일관성과 커스텀 자유도를 높이기 위해 JTAppleCalendar 채택
+
+</details>
+
+<details>
+	<summary> SPM vs CocoaPods </summary>
+	
+	- CocoaPods만 지원하는 라이브러리인 JTAppleCalendar를 도입할 때 SPM과 CocoaPods를 혼용할지, CocoaPods로 모든 라이브러리를 통합할지 고민
+	- SPM이 갖는 이점인 Xcode와 통합된 환경, 빠른 빌드 시간을 가져가기 위해 JTAppleCalendar만 별도로 CocoaPods로 관리
+	
+</details>
+
+
+<details>
+	<summary> RxSwift, RxCocoa, RxDataSources: 비동기 데이터 흐름을 효율적으로 처리하고, 사용자 인터페이스가 데이터 상태에 따라 자연스럽게 반응하도록 구현하기 위해 사용 </summary>
+	
+	- Input 구조체는 다양한 사용자 이벤트를 Observable 형태로 받아 이벤트 흐름을 선언형으로 정의하고 각각의 반응을 명확하게 구분
+	- ViewModel 내부 상태는 Relay로 관리하여 UI에 필요한 데이터를 보존하고, 외부에서는 `.asObservable()`로 안전하게 구독하여 View와 단방향 바인딩 가능
+	- `transform()` 메서드 내부에서 `.flatMap` 등 다양한 연산자를 사용해 이벤트 흐름을 구성하고 코드의 가독성과 유지보수성 향상 가능. 비동기 데이터 흐름과 에러처리, 사이드 이펙트 처리 가능
+	- Output으로 정의한 데이터를 View에서는 UI만 반응하게 하여 상태 변화와 UI 이벤트 처리 분리 가능
+	
+</details>
+
+<details>
+	<summary> Cloud Firestore: 백엔드 구현 없이 사용자가 입력한 근무지/매장 정보, 근무 정보를 DB에 저장하기 위해 사용 </summary>
+	
+	- 의사결정 당시 팀 내 상황
+	  - 짧은 일정으로 빠른 MVP 개발 및 배포를 진행하고 유저 테스트를 거쳐 앱 업데이트를 목표로 삼음
+	- 도입시 장점
+	  - Firestore는 문서(document)와 컬렉션(collection) 구조로 되어 있어 유연한 데이터 모델링 가능
+	  - 로그인/인증과 연동이 필요했고 팀원 모두가 동시에 접근하고 협업 가능한 구조 필요
+	  - 따로 백엔드를 관리하거나 서버 인프라를 관리하지 않아도 되고, 콘솔에서 바로 데이터 확인/수정 가능
+ 
+ </details>
+
+ - Firebase Auth, Google Auth SDK, Apple Auth SDK: 구글, 애플 로그인 기능을 지원하고, 이를 통한 인증을 통합하여 처리
+ - BetterSegmentedControl: 커스터마이징이 자유로운 iOS 스타일 세그먼트 컨트롤 컴포넌트
+ - UserDefaults: 앱 설치 이후 최초 실행인지 확인하고, 최초 실행인 경우 사용 안내 이미지를 표시하기 위해 사용
+ - SnapKit: Auto Layout을 보다 직관적이고 간결하게 작성하기 위해 사용
+ - Then: 초기화 직후 속성 설정을 간결하게 작성할 수 있는 라이브러리
+
+<br>
+ 
+
+## 📂 폴더 구조
 
 <details>
 <summary> 프로젝트 폴더 구조 </summary>
 <div markdown="1">
 
-프로젝트 폴더 구조만 정리해드리겠습니다:
-
 ```bash
-Routory
-└── Routory
-    ├── Routory
-    │   ├── App
-    │   ├── Common
-    │   │   ├── Managers
-    │   │   └── Utils
-    │   │       └── Extensions
-    │   ├── Data
-    │   │   ├── Repositories
-    │   │   └── Services
-    │   │       └── DelegateProxies
-    │   ├── Domain
-    │   │   ├── Entities
-    │   │   │   └── Dummy
-    │   │   ├── Interfaces
-    │   │   │   ├── Repositories
-    │   │   │   └── UseCases
-    │   │   └── UseCases
-    │   ├── Presentation
-    │   │   ├── Calendar
-    │   │   │   ├── Utils
-    │   │   │   ├── View
-    │   │   │   │   ├── Cell
-    │   │   │   │   └── Components
-    │   │   │   ├── ViewController
-    │   │   │   │   └── Delegates
-    │   │   │   └── ViewModel
-    │   │   ├── Components
-    │   │   ├── Home
-    │   │   │   ├── View
-    │   │   │   │   ├── Cell
-    │   │   │   │   └── Section
-    │   │   │   ├── ViewController
-    │   │   │   └── ViewModel
-    │   │   ├── Login
-    │   │   │   ├── View
-    │   │   │   └── ViewModel
-    │   │   ├── MyPage
-    │   │   │   ├── View
-    │   │   │   ├── ViewController
-    │   │   │   └── ViewModel
-    │   │   ├── Notification
-    │   │   │   ├── View
-    │   │   │   ├── ViewController
-    │   │   │   └── ViewModel
-    │   │   ├── Onboarding
-    │   │   │   ├── View
-    │   │   │   ├── ViewController
-    │   │   │   └── ViewModel
-    │   │   ├── Registration
-    │   │   │   ├── Components
-    │   │   │   ├── Handler
-    │   │   │   ├── Helpers
-    │   │   │   ├── ShiftRegistration
-    │   │   │   │   ├── Enum
-    │   │   │   │   ├── Handler
-    │   │   │   │   ├── Submodules
-    │   │   │   │   │   ├── ColorSelection
-    │   │   │   │   │   └── EmployeeSelection
-    │   │   │   │   ├── View
-    │   │   │   │   ├── ViewController
-    │   │   │   │   └── ViewModel
-    │   │   │   └── WorkplaceRegistration
-    │   │   │       ├── Handler
-    │   │   │       ├── View
-    │   │   │       ├── ViewController
-    │   │   │       └── ViewModel
-    │   │   ├── Routine
-    │   │   │   ├── View
-    │   │   │   │   └── Cell
-    │   │   │   ├── ViewController
-    │   │   │   └── ViewModel
-    │   │   ├── Signup
-    │   │   │   ├── View
-    │   │   │   └── ViewModel
-    │   │   └── Tabbar
-    │   │       └── ViewController
-    │   └── Resources
-    │       ├── Assets.xcassets
-    │       │   ├── AccentColor.colorset
-    │       │   ├── AppIcon.appiconset
-    │       │   ├── Colors
-    │       │   │   ├── Background
-    │       │   │   ├── Common
-    │       │   │   ├── Gray
-    │       │   │   ├── Modal
-    │       │   │   ├── Primary
-    │       │   │   └── TextColor
-    │       │   ├── Icons
-    │       │   │   ├── Bell
-    │       │   │   ├── Calendar
-    │       │   │   ├── Category
-    │       │   │   ├── Check
-    │       │   │   ├── Checkbox
-    │       │   │   ├── Chevron
-    │       │   │   ├── Ellipsis
-    │       │   │   ├── Home
-    │       │   │   ├── Logo
-    │       │   │   ├── MyPage
-    │       │   │   ├── Radio
-    │       │   │   └── Refresh
-    │       │   └── Images
-    │       │       ├── AppleLogin
-    │       │       ├── GoogleLogin
-    │       │       └── Illustration
-    │       ├── Base.lproj
-    │       ├── Fonts
-    │       ├── JSON
-    │       └── ko.lproj
-    ├── Routory.xcodeproj
-    │   └── project.xcworkspace
-    └── Routory.xcworkspace
-        └── xcshareddata
-            └── swiftpm
+.
+├── App
+├── Common
+│   ├── Managers
+│   └── Utils
+├── Data
+│   ├── Repositories
+│   └── Services
+├── Domain
+│   ├── Entities
+│   ├── Interfaces
+│   └── UseCases
+├── Presentation
+│   ├── Calendar
+│   ├── Components
+│   ├── Home
+│   ├── Login
+│   ├── MyPage
+│   ├── Notification
+│   ├── Onboarding
+│   ├── Registration
+│   ├── Routine
+│   ├── Signup
+│   └── TabBar
+└── Resources
+    ├── Assets.xcassets
+    ├── Base.lproj
+    ├── Firebase
+    ├── Fonts
+    ├── JSON
+    └── ko.lproj
+
 ```
   
 </details>

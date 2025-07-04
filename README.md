@@ -1,14 +1,20 @@
-![image](https://github.com/user-attachments/assets/b913fe2a-84a4-4a95-b94c-d4fb9e810429)
-
-
+<img src ="https://github.com/user-attachments/assets/0abd18c7-e832-44fc-99e7-9604d8fae656" height="300">
 
 # MOUP
-모이면 업이 된다 — MOUP
+<img src ="https://github.com/user-attachments/assets/62d6691e-0010-45a5-a754-8f201454997f">
+<img src ="https://github.com/user-attachments/assets/eb2a4ae7-9ba0-4007-8ea4-265c55ed8858">
 
-알바생의 근무 시간, 날짜, 월급을 자동으로 계산하고, 루틴(체크리스트) 기능으로 업무를 더 쉽게 관리할 수 있는 앱입니다.
+
+## "모이면 업이 된다 MOUP"
+> ***MOUP은 알바생과 사장님이 함께 사용하는 근무 관리 플랫폼입니다.***
+> 
+> 
+> *복잡한 근무 시간 계산과 급여 관리를 간편하게 해결하여*<br>
+> *알바생에게는 복잡할 수 있는 근무 시간 • 급여 계산을 돕고, 사장님의 인건비 • 근무 일정의 효율적인 관리를 지원합니다 !*
+
 
 <br><br>
-## MOUP
+## 5rganization
 
 
 
@@ -27,6 +33,42 @@
 <img src ="https://img.shields.io/badge/Xcode-16.3-blue?logo=xcode" height="30"> <img src ="https://img.shields.io/badge/iOS-16.0-white.svg" height="30">
 
 <br>
+
+## 주요 기능
+- 시연 영상
+
+[![Video Label](http://img.youtube.com/vi/sKyvHlRNo44/0.jpg)](https://youtube.com/shorts/sKyvHlRNo44)
+<br>
+
+<details>
+<summary> 급여, 인건비 계산 </summary>
+	
+![알바생 급여 계산1](https://github.com/user-attachments/assets/43d014b0-479f-4230-bfbf-b2d915d3c438)
+![알바생 급여 계산2](https://github.com/user-attachments/assets/eb00f77b-78b7-493a-b9ea-e82426e81a08)
+
+> **급여/인건비 계산**
+>
+> - 근무지 등록시 해당 근무지에 대한 시급/고정급을 입력하면 실제 근무한 시간에 맞춰 자동으로 급여/인건비를 계산합니다.
+> - (알바생) 한 근무지에서 이번달 오늘까지 번 돈과 모든 근무지에서 총 급여를 계산하여 제공합니다.
+> - (사장님) 나의 매장에 속한 알바생들 각각의 인건비, 총 인건비를 계산하여 제공합니다.
+<br>
+</details>
+
+<details>
+<summary> 개인/공유 캘린더 </summary>
+	
+![알바생 캘린더](https://github.com/user-attachments/assets/59badc09-b03a-458a-a620-6a6101b85491)
+
+> **개인/공유 캘린더**
+>
+> - 개인 캘린더는 사용자가 언제 근무가 있는지, 해당 근무의 급여는 얼마인지 보여주는 캘린더 입니다.
+> - 공유 캘린더에선 근무지/매장마다 근무하는 모든 인원의 근무 일정을 알 수 있습니다.
+> - 필터 기능을 통해 사용자가 원하는 근무지의 일정만 선택하여 보는것이 가능합니다.
+<br>
+</details>
+
+<br>
+
 
 ## 📖 Using Library
 

@@ -19,7 +19,6 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         if !hasLaunchedBefore {
             do {
                 try Auth.auth().signOut()
-                GIDSignIn.sharedInstance.signOut()
                 UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
             } catch {
                 print("앱 첫 실행 시 로그아웃 실패: \(error.localizedDescription)")

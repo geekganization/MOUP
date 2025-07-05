@@ -75,21 +75,21 @@
 
 ## 🛠️ 기술 스택
 
-범위 | 기술 이름 |
-:---------:|:----------:|
-의존성 관리 도구 | `SPM`, `CocoaPods`
-형상 관리 도구 | `GitHub`, `Git`
-아키텍처 | `MVVM`, `Clean Architecture`
-디자인 패턴 | `Singleton`, `Delegate`
-인터페이스 | `UIKit`
-비동기 처리 | `RxSwift`, `RxCocoa`, `RxDataSources`
-UI 라이브러리 | `JTAppleCalendar`, `BetterSegmentedControl`
-레이아웃 구성 | `SnapKit`, `Then`
-내부 저장소 | `UserDefaults`
-외부 저장소 | `Cloud Firestore`
-외부 인증 | `Firebase Auth`, `Sign in with Apple`. `Goolge Sign in`
-코드 컨벤션 | `StyleShare - Swift Style Guide`
-커밋 컨벤션 | `Udacity Git Commit Message Style Guide`
+| 범위 | 기술 이름 |
+|:---------:|:----------:|
+| 의존성 관리 도구 | `SPM`, `CocoaPods` |
+| 형상 관리 도구 | `GitHub`, `Git` |
+| 아키텍처 | `MVVM`, `Clean Architecture` |
+| 디자인 패턴 | `Singleton`, `Delegate` |
+| 인터페이스 | `UIKit` |
+| 비동기 처리 | `RxSwift`, `RxCocoa`, `RxDataSources` |
+| UI 라이브러리 | `JTAppleCalendar`, `BetterSegmentedControl` |
+| 레이아웃 구성 | `SnapKit`, `Then` |
+| 내부 저장소 | `UserDefaults` |
+| 외부 저장소 | `Cloud Firestore` |
+| 외부 인증 | `Firebase Auth`, `Sign in with Apple`, `Goolge Sign in` |
+| 코드 컨벤션 | `StyleShare - Swift Style Guide` |
+| 커밋 컨벤션 | `Udacity Git Commit Message Style Guide` |
 
 <br><br>
 
@@ -326,74 +326,16 @@ appleIDCredential.fullName)
 <br><br>
 
  
-## 🌷 역할 분담
-<details>
-<summary> 송규섭 </summary>
-<div markdown="1">
-	
- - 역할 별 홈 구현
- - 루틴 관리 구현
+## 🧑🏻‍💻 구성원 및 역할
 
+| 이름 | 역할 | 개발 파트 |
+|:---------:|:----------:|:----------:|
+| 서동환 | `리더` | 프로젝트 초기 세팅, Apple 로그인, 캘린더 |
+| 양원식 | `부리더` | 파이어베이스 세팅, Data 레이어, Domain 레이어, Google 로그인 |
+| 김신영 | `팀원` | 마이페이지, 근무지 등록 Modal, 초대코드를 통한 근무지 등록 |
+| 송규섭 | `팀원` | 홈, 급여 계산, 루틴 관리 |
+| 신재욱 | `팀원` | 근무지 등록/수정, 근무 등록/수정, 루틴 등록/수정 |
+| 조유빈 | `디자이너` | 와이어프레임, UI/UX 디자인 |
 
-</div>
-</details>
-	
-<details>
-<summary> 서동환 </summary>
-<div markdown="1"> 
+<br><br>
 
- - JTAppleCalendar 라이브러리를 통한 캘린더 구현
- - Apple 로그인 구현
-
-
-</div>
-</details>
-  
-<details>
-<summary> 양원식 </summary>
-<div markdown="1">
-
- - Google 로그인 구현
- - Firebase 관련 핵심 서비스 연동
- - 도메인 레이어까지 구현
-
-
-</div>
-</details>
-
-<details>
-<summary> 신재욱 </summary>
-<div markdown="1">
-	
- - 근무지 등록/수정 구현
- - 근무 등록/수정 구현
- - 루틴 등록/수정 구현
-
- 
-
-</div>
-</details>
-
-<details>
-<summary> 김신영 </summary>
-<div markdown="1">
-	
- - 초대 코드로 근무지 등록
- - 마이페이지 구현
-   
-
-</div>
-</details>
-
-<details>
-<summary> 조유빈 </summary>
-<div markdown="1">
-	
- - 와이어프레임
- - UI 구성
- - 디자인 시스템 제작
- - 전반적인 화면 디자인
-   
-
-</div>
-</details>

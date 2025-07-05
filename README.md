@@ -1,4 +1,5 @@
-<img src ="https://github.com/user-attachments/assets/0abd18c7-e832-44fc-99e7-9604d8fae656" height="300">
+<img src ="https://github.com/user-attachments/assets/0abd18c7-e832-44fc-99e7-9604d8fae656" width="200">
+
 
 # MOUP
 <img src ="https://github.com/user-attachments/assets/62d6691e-0010-45a5-a754-8f201454997f">
@@ -27,7 +28,7 @@
 
 ## 💻 개발 환경
 
-<img src ="https://img.shields.io/badge/Xcode-16.3-blue?logo=xcode" height="30"> <img src ="https://img.shields.io/badge/iOS-16.0-white.svg" height="30">
+<img src ="https://img.shields.io/badge/Xcode-16.3-blue?logo=xcode"> <img src ="https://img.shields.io/badge/iOS-16.0-white.svg">
 
 <br><br>
 
@@ -155,11 +156,19 @@
  
  </details>
 
-- **Firebase Auth**, **Google Auth SDK**, **Apple Auth SDK**: 구글, 애플 로그인 기능을 지원하고, 이를 통한 인증을 통합하여 처리
-- **BetterSegmentedControl**: 커스터마이징이 자유로운 iOS 스타일 세그먼트 컨트롤 컴포넌트
-- **UserDefaults**: 앱 설치 이후 최초 실행인지 확인하고, 최초 실행인 경우 사용 안내 이미지를 표시하기 위해 사용
-- **SnapKit**: Auto Layout을 보다 직관적이고 간결하게 작성하기 위해 사용
-- **Then**: 초기화 직후 속성 설정을 간결하게 작성할 수 있는 라이브러리
+**Firebase Auth**, **Google Auth SDK**, **Apple Auth SDK**: 구글, 애플 로그인 기능을 지원하고, 이를 통한 인증을 통합하여 처리
+
+
+**BetterSegmentedControl**: 커스터마이징이 자유로운 iOS 스타일 세그먼트 컨트롤 컴포넌트
+
+
+**UserDefaults**: 앱 설치 이후 최초 실행인지 확인하고, 최초 실행인 경우 사용 안내 이미지를 표시하기 위해 사용
+
+
+**SnapKit**: Auto Layout을 보다 직관적이고 간결하게 작성하기 위해 사용
+
+
+**Then**: 초기화 직후 속성 설정을 간결하게 작성할 수 있는 라이브러리
 
 <br><br>
 

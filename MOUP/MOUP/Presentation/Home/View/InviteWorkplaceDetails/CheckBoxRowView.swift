@@ -41,6 +41,7 @@ final class CheckBoxRowView: UIView {
     private let checkBoxButton = UIButton().then {
         var config = UIButton.Configuration.plain()
         config.image = UIImage.checkboxUnselected
+        config.baseBackgroundColor = .clear
         $0.configuration = config
         
         $0.configurationUpdateHandler = { button in

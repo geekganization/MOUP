@@ -48,14 +48,42 @@ private extension InviteWorkplaceDetailsViewController {
             .disposed(by: disposeBag)
         
         inviteWorkplaceDetails.paymentCycleRowDidTap
-            .subscribe(onNext: {
-                print("paymentCycleRow did tap")
+            .subscribe(onNext: { [weak self] in
+                guard let self else { return }
+                
+                let vc = InputSelectionViewController(
+                    navigationTitle: "급여 유형",
+                    guideMessage: "급여 유형을 선택해주세요",
+                    selectionItems: ["매월", "매주", "매일"]
+                )
+                
+                vc.completeRelay
+                    .subscribe(onNext: { selectedTitle in
+                        print("선택한 급여 유형: \(selectedTitle)")
+                    })
+                    .disposed(by: self.disposeBag)
+                
+                self.navigationController?.pushViewController(vc, animated: true)
             })
             .disposed(by: disposeBag)
         
         inviteWorkplaceDetails.paymentMethodRowDidTap
-            .subscribe(onNext: {
-                print("paymentMethodRow did tap")
+            .subscribe(onNext: { [weak self] in
+                guard let self else { return }
+                
+                let vc = InputSelectionViewController(
+                    navigationTitle: "급여 계산",
+                    guideMessage: "급여 계산 방법을 선택해주세요",
+                    selectionItems: ["시급", "고정"]
+                )
+                
+                vc.completeRelay
+                    .subscribe(onNext: { selectedTitle in
+                        print("선택한 급여 계산 방법: \(selectedTitle)")
+                    })
+                    .disposed(by: self.disposeBag)
+                
+                self.navigationController?.pushViewController(vc, animated: true)
             })
             .disposed(by: disposeBag)
         

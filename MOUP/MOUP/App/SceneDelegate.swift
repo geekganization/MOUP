@@ -6,10 +6,13 @@
 //
 
 import UIKit
+import OSLog
 import FirebaseAuth
 import GoogleSignIn
 
 final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+    
+    private lazy var logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: String(describing: self))
     
     var window: UIWindow?
     
@@ -19,13 +22,12 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         if !hasLaunchedBefore {
             do {
                 try Auth.auth().signOut()
-                GIDSignIn.sharedInstance.signOut()
                 UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
             } catch {
-                print("앱 첫 실행 시 로그아웃 실패: \(error.localizedDescription)")
+                logger.error("앱 첫 실행 시 로그아웃 실패: \(error.localizedDescription)")
             }
         } else {
-            print("앱 재실행: 로그아웃 생략")
+            logger.debug("앱 재실행: 로그아웃 생략")
         }
         
         guard let windowScene = (scene as? UIWindowScene) else { return }

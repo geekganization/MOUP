@@ -16,17 +16,32 @@
 <br><br>
 
 
-## 5rganization
+## 🧑🏻‍💻 구성원 및 역할
 
-<img src="https://github.com/user-attachments/assets/182646ff-97cd-4c25-96c8-7edc91c39450" width="160"> | <img src="https://github.com/user-attachments/assets/62b319b2-6718-496a-9c60-1ca3563e4a0b" width="160"> | <img src="https://github.com/user-attachments/assets/701f9995-1a85-444a-97c0-05b5ce8e9a8f" width="160"> | <img src="https://github.com/user-attachments/assets/a448d21a-ce4c-41cf-b63f-5cb8c3fd321d" width="160"> | <img src="https://github.com/user-attachments/assets/882dcce8-a4f9-4a71-b6a7-06ddcfa50d4f" width="160"> | <img src="https://github.com/user-attachments/assets/4378d8fb-c022-4a89-9b06-eb187f743ac7" width="160"> 
-:---------:|:----------:|:---------:|:---------:|:---------:|:---------:|
-송규섭 | 서동환 | 양원식 | 신재욱 | 김신영 | 조유빈
-[GitHub](https://github.com/SongKyuSeob) | [GitHub](https://github.com/SNMac) | [GitHub](https://github.com/Sheep1sik) | [GitHub](https://github.com/tls427wodnr) | [GitHub](https://github.com/ksyq12) |
+### 5rganization
+
+<img src="https://github.com/user-attachments/assets/62b319b2-6718-496a-9c60-1ca3563e4a0b" width="200"> | <img src="https://github.com/user-attachments/assets/701f9995-1a85-444a-97c0-05b5ce8e9a8f" width="200"> | <img src="https://github.com/user-attachments/assets/882dcce8-a4f9-4a71-b6a7-06ddcfa50d4f" width="200"> | <img src="https://github.com/user-attachments/assets/182646ff-97cd-4c25-96c8-7edc91c39450" width="200"> | <img src="https://github.com/user-attachments/assets/a448d21a-ce4c-41cf-b63f-5cb8c3fd321d" width="200"> | <img src="https://github.com/user-attachments/assets/4378d8fb-c022-4a89-9b06-eb187f743ac7" width="200"> 
+|:----------:|:----------:|:----------:|:----------:|:----------:|:----------:|
+| 서동환 | 양원식 | 김신영 | 송규섭 | 신재욱 | 조유빈 |
+[GitHub](https://github.com/SNMac) | [GitHub](https://github.com/Sheep1sik) | [GitHub](https://github.com/ksyq12) | [GitHub](https://github.com/SongKyuSeob) | [GitHub](https://github.com/tls427wodnr) |  |
+
+<br>
+
+### 역할
+
+| 이름 | 역할 | 개발 파트 |
+|:---------:|:----------:|:----------|
+| 서동환 | `리더` | 프로젝트 초기 세팅, Apple 로그인, 캘린더 |
+| 양원식 | `부리더` | 파이어베이스 세팅, Data 레이어, Domain 레이어, Google 로그인 |
+| 김신영 | `팀원` | 마이페이지, 근무지 등록 Modal, 초대코드를 통한 근무지 등록 |
+| 송규섭 | `팀원` | 홈, 급여 계산, 루틴 관리 |
+| 신재욱 | `팀원` | 근무지 등록/수정, 근무 등록/수정, 루틴 등록/수정 |
+| 조유빈 | `디자이너` | 와이어프레임, UI/UX 디자인 |
 
 <br><br>
 
 
-## 💻 개발 환경
+## 🔨 개발 환경
 
 <img src ="https://img.shields.io/badge/Xcode-16.3-blue?logo=xcode"> <img src ="https://img.shields.io/badge/iOS-16.0-white.svg">
 
@@ -333,18 +348,3 @@ appleIDCredential.fullName)
 </details>
 
 <br><br>
-
- 
-## 🧑🏻‍💻 구성원 및 역할
-
-| 이름 | 역할 | 개발 파트 |
-|:---------:|:----------:|:----------:|
-| 서동환 | `리더` | 프로젝트 초기 세팅, Apple 로그인, 캘린더 |
-| 양원식 | `부리더` | 파이어베이스 세팅, Data 레이어, Domain 레이어, Google 로그인 |
-| 김신영 | `팀원` | 마이페이지, 근무지 등록 Modal, 초대코드를 통한 근무지 등록 |
-| 송규섭 | `팀원` | 홈, 급여 계산, 루틴 관리 |
-| 신재욱 | `팀원` | 근무지 등록/수정, 근무 등록/수정, 루틴 등록/수정 |
-| 조유빈 | `디자이너` | 와이어프레임, UI/UX 디자인 |
-
-<br><br>
-

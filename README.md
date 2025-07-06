@@ -1,9 +1,9 @@
-<img src ="https://github.com/user-attachments/assets/0abd18c7-e832-44fc-99e7-9604d8fae656" width="200">
+<img src="https://github.com/user-attachments/assets/0abd18c7-e832-44fc-99e7-9604d8fae656" width="200">
 
 
 # MOUP
-<img src ="https://github.com/user-attachments/assets/62d6691e-0010-45a5-a754-8f201454997f">
-<img src ="https://github.com/user-attachments/assets/eb2a4ae7-9ba0-4007-8ea4-265c55ed8858">
+<img src="https://github.com/user-attachments/assets/62d6691e-0010-45a5-a754-8f201454997f">
+<img src="https://github.com/user-attachments/assets/eb2a4ae7-9ba0-4007-8ea4-265c55ed8858">
 
 
 ## "모이면 업이 된다 MOUP"
@@ -13,6 +13,12 @@
 > *복잡한 근무 시간 계산과 급여 관리를 간편하게 해결하여*<br>
 > *알바생에게는 복잡할 수 있는 근무 시간 • 급여 계산을 돕고, 사장님의 인건비 • 근무 일정의 효율적인 관리를 지원합니다 !*
 
+<br>
+
+<a href="https://apps.apple.com/kr/app/moup/id6747497191">
+	<img src="https://github.com/user-attachments/assets/7cb4a863-3ed0-4869-b80c-1363759d0634">
+</a>
+
 <br><br>
 
 
@@ -20,7 +26,7 @@
 
 ### 5rganization
 
-<img src="https://github.com/user-attachments/assets/62b319b2-6718-496a-9c60-1ca3563e4a0b" width="200"> | <img src="https://github.com/user-attachments/assets/701f9995-1a85-444a-97c0-05b5ce8e9a8f" width="200"> | <img src="https://github.com/user-attachments/assets/882dcce8-a4f9-4a71-b6a7-06ddcfa50d4f" width="200"> | <img src="https://github.com/user-attachments/assets/182646ff-97cd-4c25-96c8-7edc91c39450" width="200"> | <img src="https://github.com/user-attachments/assets/a448d21a-ce4c-41cf-b63f-5cb8c3fd321d" width="200"> | <img src="https://github.com/user-attachments/assets/4378d8fb-c022-4a89-9b06-eb187f743ac7" width="200"> 
+<img src="https://github.com/user-attachments/assets/62b319b2-6718-496a-9c60-1ca3563e4a0b" width="160"> | <img src="https://github.com/user-attachments/assets/701f9995-1a85-444a-97c0-05b5ce8e9a8f" width="160"> | <img src="https://github.com/user-attachments/assets/882dcce8-a4f9-4a71-b6a7-06ddcfa50d4f" width="160"> | <img src="https://github.com/user-attachments/assets/182646ff-97cd-4c25-96c8-7edc91c39450" width="160"> | <img src="https://github.com/user-attachments/assets/a448d21a-ce4c-41cf-b63f-5cb8c3fd321d" width="160"> | <img src="https://github.com/user-attachments/assets/4378d8fb-c022-4a89-9b06-eb187f743ac7" width="160"> 
 |:----------:|:----------:|:----------:|:----------:|:----------:|:----------:|
 | 서동환 | 양원식 | 김신영 | 송규섭 | 신재욱 | 조유빈 |
 [GitHub](https://github.com/SNMac) | [GitHub](https://github.com/Sheep1sik) | [GitHub](https://github.com/ksyq12) | [GitHub](https://github.com/SongKyuSeob) | [GitHub](https://github.com/tls427wodnr) |  |
@@ -43,7 +49,7 @@
 
 ## 🔨 개발 환경
 
-<img src ="https://img.shields.io/badge/Xcode-16.3-blue?logo=xcode"> <img src ="https://img.shields.io/badge/iOS-16.0-white.svg">
+<img src="https://img.shields.io/badge/Xcode-16.3-blue?logo=xcode"> <img src="https://img.shields.io/badge/iOS-16.0-white.svg">
 
 <br><br>
 

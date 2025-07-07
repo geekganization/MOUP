@@ -377,37 +377,6 @@ erDiagram
 ## 🔧 트러블 슈팅
 
 <details>
-<summary> <b>Firebase Listener와 RxSwift timeout 동작 간 충돌</b> </summary>
-<div markdown="1">
-
-### 문제 상황
-- 홈 화면 데이터 로딩 시 `combineLatest` 사용 중 `timeout` 에러가 지속적으로 발생
-    - 첫 데이터 로딩은 성공하지만 5초 후 sequence timeout이 반복 발생
-
- ### 원인 분석
-
-- Firebase Listener와 RxSwift timeout의 동작 방식이 충돌함
-    - 기존 단순 Observable 방식에서 실시간 Listener 기반으로 변경되면서 문제가 발생
-    - Listener는 지속적으로 감시하는 방식이라 `timeout`이 매번 초기화되는 특성을 가짐
-``` Swift
-routineUseCase.fetchTodayRoutineEventsGroupedByWorkplace(uid: userId, date: Date())
-    .timeout(.seconds(5), scheduler: MainScheduler.instance)
-```
-- Listener가 첫 방출 후에도 계속 감시하여 timeout 재시작됨 ➡️ combineLatest 스트림 중단 ➡️ 새로고침 버튼 무효화
-
-### 해결 방안
-
-- Firebase Listener의 지속적 감시 특성을 이해하고 timeout 전략을 수정
-- 일회성 API 호출과 지속적 감시의 차이점을 고려한 구현이 필요
-``` Swift
-routineUseCase.fetchTodayRoutineEventsGroupedByWorkplace(uid: userId, date: Date())
-    .catchAndReturn([:])
-```
-
-<br>
-</details>
-
-<details>
 <summary> <b>DisposeBag으로 인한 onNext 미방출 현상</b> </summary>
 <div markdown="1">
 
@@ -443,7 +412,7 @@ Observable.create { observer in
 </details>
 
 <details>
-<summary> <b>Firebase Listener와 RxSwift timeout 동작 간 충돌</b> </summary>
+<summary> <b>Delegate를 Rx스타일로 변환</b> </summary>
 <div markdown="1">
 
 ### 문제 상황
@@ -529,6 +498,71 @@ appleIDCredential.fullName)
     - Delegate 패턴을 Rx스타일로 일관적이게 구현할 수 있도록 해줌
 
 > Rx를 지원하지 않아 Delegate를 사용했던 다른 라이브러리도 `DelegateProxy`를 사용하여 리팩토링 예정
+
+<br>
+</details>
+
+<details>
+<summary> <b>Firebase Listener와 RxSwift timeout 동작 간 충돌</b> </summary>
+<div markdown="1">
+
+### 문제 상황
+- 홈 화면 데이터 로딩 시 `combineLatest` 사용 중 `timeout` 에러가 지속적으로 발생
+    - 첫 데이터 로딩은 성공하지만 5초 후 sequence timeout이 반복 발생
+
+ ### 원인 분석
+
+- Firebase Listener와 RxSwift timeout의 동작 방식이 충돌함
+    - 기존 단순 Observable 방식에서 실시간 Listener 기반으로 변경되면서 문제가 발생
+    - Listener는 지속적으로 감시하는 방식이라 `timeout`이 매번 초기화되는 특성을 가짐
+``` Swift
+routineUseCase.fetchTodayRoutineEventsGroupedByWorkplace(uid: userId, date: Date())
+    .timeout(.seconds(5), scheduler: MainScheduler.instance)
+```
+- Listener가 첫 방출 후에도 계속 감시하여 timeout 재시작됨 ➡️ combineLatest 스트림 중단 ➡️ 새로고침 버튼 무효화
+
+### 해결 방안
+
+- Firebase Listener의 지속적 감시 특성을 이해하고 timeout 전략을 수정
+- 일회성 API 호출과 지속적 감시의 차이점을 고려한 구현이 필요
+``` Swift
+routineUseCase.fetchTodayRoutineEventsGroupedByWorkplace(uid: userId, date: Date())
+    .catchAndReturn([:])
+```
+
+<br>
+</details>
+
+<details>
+<summary> <b>앱을 재설치해도 자동로그인이 유지되는 현상</b> </summary>
+<div markdown="1">
+
+### 문제 상황
+
+- 개발 도중 DB를 수정하는 과정에서 데이터가 불일치하는 경우로 인해  앱의 무한 로딩이 발생
+- 이를 해결하기 위해 앱을 삭제 후 재설치해도  자동로그인이 유지되는 현상이 발생함
+
+### 원인 분석
+
+- Firebase Auth는 로그인 하게 되면 `Auth.auth().currentUser`에  현재 로그인 중인 유저를 담게 되는데 Keychain과 동일한 형식으로  정보를 담아서 앱 삭제 후 재 설치 시에도 정보가 담겨있어  로그인 되어있는 상태가 유지됨
+
+### 해결방안
+
+- 앱을 최초로 실행한 경우 로그아웃하는 작업을 수행
+- 테스트 서버와 배포 서버를 나눠 수정하는 과정에서 데이터가 불일치 하는 상황을 피함
+``` Swift
+let hasLaunchedBefore = UserDefaults.standard.bool(forKey: "hasLaunchedBefore")
+if !hasLaunchedBefore {
+    do {
+	try Auth.auth().signOut()
+	UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
+    } catch {
+	logger.error("앱 첫 실행 시 로그아웃 실패: \(error.localizedDescription)")
+    }
+} else {
+    logger.debug("앱 재실행: 로그아웃 생략")
+}
+```
 
 <br>
 </details>

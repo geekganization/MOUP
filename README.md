@@ -194,6 +194,182 @@
 <br><br>
 
 
+## 📊 다이어그램
+
+### 의존성 다이어그램
+
+``` mermaid
+---
+config:
+  class:
+    hideEmptyMembersBox: true
+  layout: elk
+  look: neo
+  theme: redux
+---
+classDiagram
+direction LR
+    CalendarService ..|> CalendarServiceProtocol
+    CalendarServiceProtocol <.. CalendarRepository
+    CalendarRepository ..|> CalendarRepositoryProtocol
+    CalendarRepositoryProtocol <.. CalendarUseCase
+    CalendarUseCase ..|> CalendarUseCaseProtocol
+    CalendarUseCaseProtocol <.. CalendarEventListViewModel
+    CalendarUseCaseProtocol <.. InviteCodeViewModel
+    CalendarUseCaseProtocol <.. ShiftEditViewModel
+    CalendarUseCaseProtocol <.. ShiftRegistrationViewModel
+
+    EventService ..|> EventServiceProtocol
+    EventServiceProtocol <.. EventRepository
+    EventRepository ..|> EventRepositoryProtocol
+    EventRepositoryProtocol <.. EventUseCase
+    EventUseCase ..|> EventUseCaseProtocol
+    EventUseCaseProtocol <.. CalendarViewModel
+
+    RoutineService ..|> RoutineServiceProtocol
+    RoutineServiceProtocol <.. RoutineRepository
+    RoutineRepository ..|> RoutineRepositoryProtocol
+    RoutineRepositoryProtocol <.. RoutineUseCase
+    RoutineUseCase ..|> RoutineUseCaseProtocol
+    RoutineUseCaseProtocol <.. CalendarViewModel
+    RoutineUseCaseProtocol <.. HomeViewModel
+    RoutineUseCaseProtocol <.. ManageRoutineViewModel
+
+    UserService ..|> UserServiceProtocol
+    UserServiceProtocol <.. UserRepository
+    UserRepository ..|> UserRepositoryProtocol
+    UserRepositoryProtocol <.. UserUseCase
+    UserUseCase ..|> UserUseCaseProtocol
+    UserUseCaseProtocol <.. CalendarViewModel
+    UserUseCaseProtocol <.. HomeViewModel
+    UserUseCaseProtocol <.. InviteCodeViewModel
+    UserUseCaseProtocol <.. DeleteAccountViewModel
+    UserUseCaseProtocol <.. EditModalViewModel
+    UserUseCaseProtocol <.. SignupViewModel
+    UserUseCaseProtocol <.. TabBarViewModel
+
+    WorkplaceService ..|> WorkplaceServiceProtocol
+    WorkplaceServiceProtocol <.. WorkplaceRepository
+    WorkplaceRepository ..|> WorkplaceRepositoryProtocol
+    WorkplaceRepositoryProtocol <.. WorkplaceUseCase
+    WorkplaceUseCase ..|> WorkplaceUseCaseProtocol
+    WorkplaceUseCaseProtocol <.. FilterViewModel
+    WorkplaceUseCaseProtocol <.. HomeViewModel
+    WorkplaceUseCaseProtocol <.. InviteCodeViewModel
+    WorkplaceUseCaseProtocol <.. WorkplaceListViewModel
+    WorkplaceUseCaseProtocol <.. CreateWorkplaceViewModel
+    WorkplaceUseCaseProtocol <.. OwnerWorkplaceEditViewModel
+    WorkplaceUseCaseProtocol <.. WorkerEditViewModel
+    WorkplaceUseCaseProtocol <.. WorkerListViewModel
+    WorkplaceUseCaseProtocol <.. WorkerWorkplaceRegistrationViewModel
+    
+    AuthService ..|> AuthServiceProtocol
+    AuthServiceProtocol <.. AuthRepository
+    AuthRepository ..|> AuthRepositoryProtocol
+    AuthRepositoryProtocol <.. AuthUseCase
+    AuthUseCase ..|> AuthUseCaseProtocol
+    AuthUseCaseProtocol <.. DeleteAccountViewModel
+
+	class CalendarServiceProtocol:::MOUP_primary100
+	class CalendarUseCaseProtocol:::MOUP_primary100
+	class EventServiceProtocol:::MOUP_primary100
+	class EventRepositoryProtocol:::MOUP_primary100
+	class EventUseCaseProtocol:::MOUP_primary100
+	class RoutineServiceProtocol:::MOUP_primary100
+	class RoutineRepositoryProtocol:::MOUP_primary100
+	class RoutineUseCaseProtocol:::MOUP_primary100
+	class UserServiceProtocol:::MOUP_primary100
+	class UserRepositoryProtocol:::MOUP_primary100
+	class UserUseCaseProtocol:::MOUP_primary100
+	class WorkplaceServiceProtocol:::MOUP_primary100
+	class WorkplaceRepositoryProtocol:::MOUP_primary100
+	class WorkplaceUseCaseProtocol:::MOUP_primary100
+	class AuthServiceProtocol:::MOUP_primary100
+	class AuthRepositoryProtocol:::MOUP_primary100
+	class AuthUseCaseProtocol:::MOUP_primary100
+	class CalendarRepositoryProtocol:::MOUP_primary100
+
+	classDef MOUP_primary100 fill:#FFE0D5
+
+```
+
+<br>
+
+### ERD
+
+``` mermaid
+erDiagram
+    calendars ||--o{ calendarId: calendarIds
+    calendarId ||--o{ eventId: events
+    calendarId {
+        String calendarName
+        String workplaceId
+        String ownerId
+        Bool isShared
+        String[] sharedWith
+        
+    }
+    eventId {
+        String title
+        String eventDate
+        String[] repeatDays
+        String startTime
+        String endTime
+        Int year
+        Int month
+        Int day        
+        String[] routineIds
+        String memo
+    }
+
+    users ||--o{ userId: userId
+    userId ||--o{ routineId: routine
+    userId ||--o{ user_workplaceId: user_workplaces
+    userId {
+        String userName
+        String role
+    }
+    routineId {
+        String routineName
+        String alarmTime
+        String[] tasks
+    }
+    user_workplaceId {
+        String color
+    }
+
+    workplaces ||--o{ workplaceId: workplaceIds
+    workplaceId ||--o{ workerId: worker
+    workplaceId {
+        String workplacesName
+        String category
+        String ownerId
+        Bool isOfficial
+        String inviteCode
+    }
+    workerId {
+        String workerName
+        Int breakTimeMinutes
+        String wageType
+        String wageCalcMethod
+        Int wage
+        Int payDay
+        String payWeekDay
+        Bool nationalPension
+        Bool healthInsurance
+        Bool employmentInsurance
+        Bool industrialAccident
+        Bool incomeTax
+        Bool nightAllowance
+        Bool weeklyAllowance
+        String color
+    }
+    
+```
+
+<br><br>
+
+
 ## 🔧 트러블 슈팅
 
 <details>

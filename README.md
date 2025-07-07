@@ -5,6 +5,8 @@
 <img src="https://github.com/user-attachments/assets/62d6691e-0010-45a5-a754-8f201454997f">
 <img src="https://github.com/user-attachments/assets/eb2a4ae7-9ba0-4007-8ea4-265c55ed8858">
 
+<br><br>
+
 
 ## "모이면 업이 된다 MOUP"
 > ***MOUP은 알바생과 사장님이 함께 사용하는 근무 관리 플랫폼입니다.***

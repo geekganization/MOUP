@@ -9,5 +9,5 @@
 // https://help.apple.com/xcode/#/dev745c5c974
 
 #include "Version.xcconfig"
-#include "./Firebase/Secrets-Release.xcconfig"
+#include "Firebase/Secrets-Release.xcconfig"
 #include "Pods/Target Support Files/Pods-MOUP/Pods-MOUP.release.xcconfig"

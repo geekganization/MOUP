@@ -723,7 +723,7 @@ final class HomeViewModel {
             let dayWorkHour: Double = Double(workMinutes.dayMinutes) / 60.0
             let nightWorkHour: Double = Double(workMinutes.nightMinutes) / 60.0
             let beforeInsuranceAmount: Int =
-            Int((dayWorkHour * wage) + (nightWorkHour * (wage * 1.5)))
+            Int((dayWorkHour * wage) + (nightWorkHour * (wage * nightRate)))
             let result = PayrollCalculator.shared.calculatePay(grossPay: beforeInsuranceAmount, settings: insuranceSettings)
             totalEmploymentInsurancePay += result.employmentInsurance
             totalHealthInsurancePay += result.healthInsurance
